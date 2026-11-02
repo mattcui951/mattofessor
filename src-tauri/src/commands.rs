@@ -25,7 +25,7 @@ pub fn bootstrap(core: State<'_, Arc<Core>>) -> Value {
 pub fn boot_value(core: &Core) -> Value {
     json!({
         "settings": core.settings(),
-        "version": env!("CARGO_PKG_VERSION"),
+        "version": core.app.package_info().version.to_string(),
         "connected": lcu::current().is_some(),
         "me": *core.me.read(),
         "language": core.language(),

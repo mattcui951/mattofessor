@@ -38,7 +38,7 @@
   },
   "plugins": {
     "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEVFOEM3MURGNzU3RTIyRkMKUldUOEluNTEzM0dNN2licFhVaEpXZkNwaDNHZ0txWXdjaDRIMkpWTEp0cnB4Y3hINXZTS1pqWmoK",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEU1QjM5QTY0QTNDOUE1MTUKUldRVnBjbWpaSnF6NVRLS1cyaDFTSWYyakQwdGZDUmFBdkZSKzFabWowbkRja1JjV1lmcmpnMWIK",
       "endpoints": [
         "https://github.com/mattcui951/mattofessor/releases/latest/download/latest.json"
       ],

@@ -42,7 +42,7 @@ fn marker() -> std::path::PathBuf {
 pub fn take_marker() -> bool {
     let Ok(from) = std::fs::read_to_string(marker()) else { return false };
     let _ = std::fs::remove_file(marker());
-    log::info!("updated from {from} to {}", env!("CARGO_PKG_VERSION"));
+    log::info!("started after updating from {}", from.trim());
     *UPDATED_FROM.lock() = Some(from.trim().to_string());
     true
 }
@@ -92,8 +92,9 @@ pub async fn check(core: &Core) -> UpdateState {
         s.error = None;
     });
     // The installer closes this app; the marker tells the next start it was an update.
-    let updater = core.app.updater_builder().on_before_exit(|| {
-        let _ = std::fs::write(marker(), env!("CARGO_PKG_VERSION"));
+    let current = core.app.package_info().version.to_string();
+    let updater = core.app.updater_builder().on_before_exit(move || {
+        let _ = std::fs::write(marker(), &current);
     });
     let found = match updater.build() {
         Ok(u) => u.check().await,
