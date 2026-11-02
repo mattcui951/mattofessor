@@ -1,0 +1,49 @@
+# Builds the Windows installer and publishes it as a GitHub Release when a version tag is pushed:
+#   git tag v0.1.0 && git push origin v0.1.0
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - run: npm ci
+
+      - name: Test
+        run: |
+          npx vitest run
+          npx svelte-check --tsconfig ./tsconfig.json
+          cargo test --manifest-path src-tauri/Cargo.toml
+
+      - name: Build installer and publish the release
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: Mattofessor ${{ github.ref_name }}
+          releaseBody: |
+            **Install:** download `Mattofessor_*_x64-setup.exe` below and run it.
+            Windows may say "Windows protected your PC" because the installer is not code-signed: click **More info**, then **Run anyway**.
+            Needs Windows 10 or 11 and the League of Legends client.
+          releaseDraft: false
+          prerelease: false
