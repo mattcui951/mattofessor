@@ -1,6 +1,7 @@
 //! App-wide state: settings, windows and hotkeys.
 
 use crate::game::LiveState;
+use crate::hotkeys::{self, Action};
 use crate::live::InGame;
 use crate::model::Summoner;
 use crate::settings::Settings;
@@ -10,7 +11,6 @@ use serde::Serialize;
 use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
 use std::sync::{Arc, OnceLock};
 use tauri::{AppHandle, Emitter, Manager, WebviewUrl, WebviewWindow, WebviewWindowBuilder};
-use tauri_plugin_global_shortcut::{GlobalShortcutExt, Shortcut};
 
 static CORE: OnceLock<Arc<Core>> = OnceLock::new();
 
@@ -302,38 +302,32 @@ impl Core {
     /// In-game keys exist only while a match runs, so they never take over keys in other apps.
     pub fn register_hotkeys(&self, in_game: bool) {
         self.in_game_keys.store(in_game, Ordering::Relaxed);
-        let gs = self.app.global_shortcut();
-        let _ = gs.unregister_all();
         if !in_game {
+            hotkeys::disable();
             return;
         }
         let s = self.settings();
-        for key in [s.hotkey_overlay, s.hotkey_spells] {
+        let mut bindings = Vec::new();
+        for (key, action) in [(s.hotkey_overlay, Action::Overlay), (s.hotkey_spells, Action::Spells)] {
             if key.is_empty() {
                 continue;
             }
-            match key.parse::<Shortcut>() {
-                Ok(sc) => {
-                    if let Err(e) = gs.register(sc) {
-                        log::warn!("hotkey {key}: {e}");
-                    }
-                }
-                Err(e) => log::warn!("hotkey {key}: {e}"),
+            match hotkeys::parse(&key) {
+                Some(combo) => bindings.push((combo, action)),
+                None => log::warn!("hotkey {key}: not a key this app understands"),
             }
         }
+        hotkeys::enable(bindings);
     }
 
     pub fn reregister_hotkeys(&self) {
         self.register_hotkeys(self.in_game_keys.load(Ordering::Relaxed));
     }
 
-    pub fn on_shortcut(&self, shortcut: &Shortcut) {
-        let s = self.settings();
-        let is = |k: &str| !k.is_empty() && k.parse::<Shortcut>().ok().as_ref() == Some(shortcut);
-        if is(&s.hotkey_overlay) {
-            self.toggle_overlay();
-        } else if is(&s.hotkey_spells) {
-            self.toggle_spells();
+    pub fn on_hotkey(&self, action: Action) {
+        match action {
+            Action::Overlay => self.toggle_overlay(),
+            Action::Spells => self.toggle_spells(),
         }
     }
 }

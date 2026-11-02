@@ -150,6 +150,11 @@ games as if it were happening now: a stand-in client (real player lookups are fo
 running League client), a Live Client API with a game clock, and a stand-in game window
 named `Mattofessor Mock Game.exe` (so other League tools ignore it). Rune page and item set
 writes are recorded in `tools/.mock/writes.log` instead of changing your account.
+
+In-game hotkeys use a low-level keyboard hook, because League's game window blocks ordinary
+global hotkeys while it has focus. `py -I tools/nohotkeys_window.py` opens a window that blocks
+hotkeys the same way and presses Ctrl+Shift+F13 in it (`--check-registerhotkey` shows the
+problem with ordinary hotkeys); set that as the overlay hotkey to test during a mock game.
 `tools/inspect_windows.py` prints the app's windows (position, topmost, focus).
 
 ## Build

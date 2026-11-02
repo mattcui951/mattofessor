@@ -6,6 +6,7 @@ pub mod core;
 mod dev;
 pub mod dd;
 pub mod game;
+pub mod hotkeys;
 pub mod lcu;
 pub mod live;
 pub mod model;
@@ -23,7 +24,6 @@ use std::io::Write;
 use tauri::menu::MenuBuilder;
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 use tauri::{Manager, RunEvent};
-use tauri_plugin_global_shortcut::ShortcutState;
 
 /// Minimal file logger: %APPDATA%/Mattofessor/app.log, rotated at 5 MB.
 struct FileLogger {
@@ -80,17 +80,6 @@ pub fn run() {
         .plugin(tauri_plugin_autostart::init(tauri_plugin_autostart::MacosLauncher::LaunchAgent, Some(vec!["--minimized"])))
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
-        .plugin(
-            tauri_plugin_global_shortcut::Builder::new()
-                .with_handler(|_app, shortcut, event| {
-                    if event.state() == ShortcutState::Pressed {
-                        if let Some(core) = core::get() {
-                            core.on_shortcut(shortcut);
-                        }
-                    }
-                })
-                .build(),
-        )
         .setup(move |app| {
             riot::load();
             let core = core::Core::init(app.handle().clone());
