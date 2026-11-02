@@ -37,18 +37,33 @@ Needs Windows 10 or 11 (WebView2 is installed automatically if missing). League 
 `Ctrl+Shift+M` panel, `Ctrl+Shift+N` enemy spell timers (changeable in Settings).
 Uninstall from Windows Settings > Apps; settings and cache live in `%APPDATA%\Mattofessor`.
 
+**Updates:** Mattofessor checks this repository's latest release in the background (no GitHub
+account needed) and shows a banner when a new version is out. Click **Update now**, allow the
+Windows prompt, and it restarts on the new version; it never updates during a game. Turn the
+check off or run it by hand in Settings > Updates.
+
 ## Releasing a new version
 
 Bump the version in `package.json`, `src-tauri/Cargo.toml` and `src-tauri/tauri.conf.json`,
-commit, then push a tag:
+commit, then push an annotated tag; its message becomes the release notes:
 
 ```bash
-git tag v0.1.1
-git push origin v0.1.1
+git tag -a v0.2.1 -m "What changed, one line per change"
+git push origin v0.2.1
 ```
 
 GitHub Actions (`.github/workflows/release.yml`) runs the tests, builds the installer on
-Windows and publishes it as a release.
+Windows and publishes it as a release, together with `latest.json` and the installer's
+signature. Installed copies read `releases/latest/download/latest.json`, so they see the new
+version as soon as the release is published.
+
+Updates are signed: the app only installs a download whose signature matches the public key in
+`src-tauri/tauri.conf.json`. The private key lives outside the repository
+(`%USERPROFILE%\.tauri\mattofessor.key`, password in `mattofessor.key.password`) and in the
+repository secrets `TAURI_SIGNING_PRIVATE_KEY` and `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`. Keep a
+backup of both files: without them, existing installs cannot be updated (friends would have to
+reinstall by hand). A local `npm run tauri build` needs the same two values as environment
+variables.
 
 ## Where the data comes from
 

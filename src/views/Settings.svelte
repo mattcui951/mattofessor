@@ -6,13 +6,29 @@
   import { api } from '../lib/api';
   import { t } from '../lib/i18n.svelte';
   import { appearance } from '../lib/appearance.svelte';
-  import { app, errorText, go, toast, updateSettings } from '../lib/state.svelte';
+  import { app, checkUpdate, errorText, go, inGame, installUpdate, releaseUrl, toast, updateSettings } from '../lib/state.svelte';
+  import { ago } from '../lib/format';
   import { hasKey } from '../lib/i18n.svelte';
   import Icon from '../components/Icon.svelte';
   import ThemeCard from '../components/ThemeCard.svelte';
   import type { Settings } from '../lib/types';
 
   const s = $derived(app.settings);
+
+  const u = $derived(app.update);
+  const updateLine = $derived.by(() => {
+    if (u.phase === 'checking') return { color: 'var(--objective)', text: t('update.checking') };
+    if (u.phase === 'downloading') {
+      const v = u.version ?? '';
+      const text = u.progress == null ? t('update.downloadingNoPct', v) : t('update.downloading', v, Math.round(u.progress * 100));
+      return { color: 'var(--you)', text };
+    }
+    if (u.phase === 'installing') return { color: 'var(--you)', text: t('update.installing', u.version ?? '') };
+    if (u.version) return { color: 'var(--you)', text: t('update.available', u.version) };
+    if (u.phase === 'error') return { color: 'var(--warn)', text: t('update.failed') };
+    if (u.checkedAt) return { color: 'var(--win)', text: t('update.upToDate', ago(u.checkedAt)) };
+    return { color: 'var(--text-3)', text: t('update.notChecked') };
+  });
 
   let riotKey = $state('');
   let savingKey = $state(false);
@@ -127,6 +143,24 @@
           </div>
         </div>
         <p class="note">{t('riot.stored')}</p>
+      </section>
+
+      <section>
+        <h3>{t('update.title')}</h3>
+        <div class="riot-status"><i style="background:{updateLine.color}"></i>{updateLine.text}</div>
+        {#if u.error && u.phase !== 'checking'}<p class="note">{u.error}</p>{/if}
+        <div class="how-actions">
+          {#if u.version}
+            <button class="btn primary" disabled={inGame() || u.phase === 'downloading' || u.phase === 'installing'} onclick={installUpdate}>
+              <Icon name="download" size={16} />{t('update.now')}
+            </button>
+            <button class="btn" onclick={() => openUrl(releaseUrl(u.version!))}>{t('update.whatsNew')}</button>
+          {:else}
+            <button class="btn" disabled={u.phase === 'checking'} onclick={checkUpdate}><Icon name="refresh" size={16} />{t('update.check')}</button>
+          {/if}
+        </div>
+        {@render toggleRow(t('update.auto'), 'checkUpdates')}
+        <p class="note">{t('update.note')}</p>
       </section>
 
       <section>

@@ -285,7 +285,7 @@ struct Watch {
     resolved: HashMap<String, String>,
 }
 
-fn in_game_phase(p: &str) -> bool {
+pub(crate) fn in_game_phase(p: &str) -> bool {
     matches!(p, "GameStart" | "InProgress" | "Reconnect")
 }
 

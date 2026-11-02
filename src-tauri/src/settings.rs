@@ -20,6 +20,8 @@ pub struct Settings {
     pub auto_import_runes: bool,
     pub auto_import_items: bool,
     pub start_with_windows: bool,
+    /// Look for new versions in the background (updates are only offered, never forced).
+    pub check_updates: bool,
     /// Last spell timer position (physical pixels), if the user moved it.
     pub spells_pos: Option<(i32, i32)>,
     /// Active theme id (built-in or one of `custom_themes`).
@@ -42,6 +44,7 @@ impl Default for Settings {
             auto_import_runes: false,
             auto_import_items: false,
             start_with_windows: true,
+            check_updates: true,
             spells_pos: None,
             theme: "arcade".into(),
             custom_themes: Vec::new(),

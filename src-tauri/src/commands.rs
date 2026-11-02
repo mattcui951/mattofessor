@@ -30,6 +30,8 @@ pub fn boot_value(core: &Core) -> Value {
         "me": *core.me.read(),
         "language": core.language(),
         "riotStatus": crate::riot::status(),
+        "update": crate::update::state(),
+        "updatedFrom": crate::update::updated_from(),
         "live": *core.live.lock(),
         "ingame": *core.ingame.lock(),
     })
@@ -214,6 +216,18 @@ pub async fn set_riot_key(core: State<'_, Arc<Core>>, key: String) -> Res<crate:
     let st = crate::riot::set_key(&key, core.region().as_deref()).await.map_err(err)?;
     let _ = core.app.emit("riot", st);
     Ok(st)
+}
+
+/// Look for a newer version now (Settings button).
+#[tauri::command]
+pub async fn check_update(core: State<'_, Arc<Core>>) -> Res<crate::update::UpdateState> {
+    Ok(crate::update::check(&core).await)
+}
+
+/// Download and install the update found by the last check; the app restarts.
+#[tauri::command]
+pub async fn install_update(core: State<'_, Arc<Core>>) -> Res<()> {
+    crate::update::install(&core).await.map_err(err)
 }
 
 #[tauri::command]

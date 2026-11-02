@@ -3,7 +3,7 @@ import { api } from './api';
 import { applySettings } from './appearance.svelte';
 import { loadStatic } from './dd.svelte';
 import { hasKey, i18n, t, type Lang } from './i18n.svelte';
-import type { InGame, LiveState, RiotStatus, Settings, Summoner } from './types';
+import type { InGame, LiveState, RiotStatus, Settings, Summoner, UpdateState } from './types';
 
 export type Route =
   | { name: 'profile'; puuid?: string }
@@ -14,6 +14,8 @@ export type Route =
   | { name: 'riotGuide' };
 
 type Toast = { id: number; text: string; tone: 'info' | 'error' | 'good' };
+
+const RELEASES = 'https://github.com/mattcui951/mattofessor/releases';
 
 const emptyLive: LiveState = { phase: '', connected: false, queueId: 0, mode: '', mapId: 0, teams: [] };
 
@@ -26,6 +28,9 @@ export const app = $state({
   clientLang: 'en' as Lang,
   riotStatus: 'none' as RiotStatus,
   live: emptyLive as LiveState,
+  update: { phase: 'idle', version: null, progress: null, error: null, checkedAt: null } as UpdateState,
+  /** "Later" on the update banner hides it for that version until the app restarts. */
+  updateDismissed: null as string | null,
   ingame: null as InGame | null,
   route: { name: 'profile' } as Route,
   history: [] as Route[],
@@ -69,6 +74,32 @@ export function routeFrom(path: string): Route {
   if (name === 'appearance') return { name: 'appearance' };
   if (name === 'riot-guide') return { name: 'riotGuide' };
   return { name: 'profile', puuid: arg || undefined };
+}
+
+export function releaseUrl(version: string): string {
+  return `${RELEASES}/tag/v${version}`;
+}
+
+/** A match is running (updating would close the in-game panel). */
+export function inGame(): boolean {
+  return ['GameStart', 'InProgress', 'Reconnect'].includes(app.live.phase);
+}
+
+export async function checkUpdate() {
+  try {
+    app.update = await api.checkUpdate();
+  } catch (e) {
+    toast(errorText(e), 'error');
+  }
+}
+
+/** Download and run the installer; the app closes and comes back on the new version. */
+export async function installUpdate() {
+  try {
+    await api.installUpdate();
+  } catch (e) {
+    toast(errorText(e), 'error');
+  }
 }
 
 export function uiLang(): Lang {
@@ -119,11 +150,13 @@ export async function init() {
   app.me = b.me;
   app.clientLang = b.language;
   app.riotStatus = b.riotStatus;
+  app.update = b.update;
   app.live = b.live;
   app.ingame = b.ingame;
   if (location.hash.startsWith('#/')) app.route = routeFrom(location.hash);
   await applyPrefs();
   app.ready = true;
+  if (b.updatedFrom) toast(t('update.done', b.version), 'good');
 
   listen<LiveState>('live', (e) => {
     app.live = e.payload;
@@ -146,6 +179,9 @@ export async function init() {
   listen<string>('navigate', (e) => go(routeFrom(e.payload)));
   listen<{ text: string; tone: Toast['tone'] }>('toast', (e) => toast(errorText(e.payload.text), e.payload.tone));
   listen('profile-stale', () => app.profileEpoch++);
+  listen<UpdateState>('update', (e) => {
+    app.update = e.payload;
+  });
   listen<RiotStatus>('riot', (e) => {
     app.riotStatus = e.payload;
   });

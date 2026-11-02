@@ -1,5 +1,8 @@
-# Builds the Windows installer and publishes it as a GitHub Release when a version tag is pushed:
-#   git tag v0.1.0 && git push origin v0.1.0
+# Builds the Windows installer and publishes it as a GitHub Release when a version tag is pushed.
+# The annotated tag's message becomes the release notes:
+#   git tag -a v0.2.0 -m "What changed" && git push origin v0.2.0
+# The release also carries latest.json and the installer's signature, which installed apps read
+# to offer the update (needs the TAURI_SIGNING_PRIVATE_KEY and _PASSWORD repository secrets).
 name: Release
 
 on:
@@ -14,6 +17,18 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v5
+
+      - name: Release notes from the tag message
+        id: notes
+        shell: bash
+        run: |
+          git fetch --depth=1 origin "+refs/tags/${GITHUB_REF_NAME}:refs/tags/${GITHUB_REF_NAME}"
+          notes=$(git tag -l --format='%(contents)' "$GITHUB_REF_NAME")
+          {
+            echo 'text<<NOTES_EOF'
+            echo "$notes"
+            echo 'NOTES_EOF'
+          } >> "$GITHUB_OUTPUT"
 
       - uses: actions/setup-node@v5
         with:
@@ -38,11 +53,15 @@ jobs:
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           tagName: ${{ github.ref_name }}
           releaseName: Mattofessor ${{ github.ref_name }}
           releaseBody: |
-            **Install:** download `Mattofessor_*_x64-setup.exe` below and run it.
+            ${{ steps.notes.outputs.text }}
+
+            **Install:** download `Mattofessor_*_x64-setup.exe` below and run it. Already have Mattofessor? It offers this update by itself.
             Windows may say "Windows protected your PC" because the installer is not code-signed: click **More info**, then **Run anyway**.
             Needs Windows 10 or 11 and the League of Legends client.
           releaseDraft: false

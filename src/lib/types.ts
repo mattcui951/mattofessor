@@ -8,6 +8,7 @@ export type Settings = {
   autoImportRunes: boolean;
   autoImportItems: boolean;
   startWithWindows: boolean;
+  checkUpdates: boolean;
   spellsPos: [number, number] | null;
   theme: string;
   customThemes: unknown[];
@@ -19,6 +20,14 @@ export type Summoner = { puuid: string; gameName: string; tagLine: string; level
 export type Rank = { queue: 'solo' | 'flex'; tier: string; division: string; lp: number; wins: number; losses: number };
 export type TierDiv = { tier: string; division: string };
 export type Ranked = { solo: Rank | null; flex: Rank | null; seasonPeak: TierDiv | null; prevPeak: TierDiv | null; prevEnd: TierDiv | null; exact: boolean };
+
+export type UpdateState = {
+  phase: 'idle' | 'checking' | 'available' | 'downloading' | 'installing' | 'error';
+  version: string | null;
+  progress: number | null;
+  error: string | null;
+  checkedAt: number | null;
+};
 
 export type RiotStatus = 'none' | 'unchecked' | 'ok' | 'invalid' | 'unreachable';
 

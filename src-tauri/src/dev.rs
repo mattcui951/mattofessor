@@ -70,6 +70,7 @@ async fn route(core: &Core, path: &str, p: &HashMap<String, String>) -> Result<V
             .map(|v| json!(v))
             .map_err(e),
         "/set_riot_key" => crate::riot::set_key(&arg("key"), core.region().as_deref()).await.map(|v| json!(v)).map_err(e),
+        "/check_update" => Ok(json!(crate::update::check(core).await)),
         "/toggle_overlay" => {
             core.toggle_overlay();
             Ok(Value::Null)

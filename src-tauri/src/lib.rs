@@ -16,6 +16,7 @@ pub mod riot;
 pub mod score;
 pub mod settings;
 pub mod store;
+pub mod update;
 pub mod win;
 
 use std::io::Write;
@@ -63,16 +64,22 @@ fn init_logging() {
 
 pub fn run() {
     init_logging();
-    let started_minimized = std::env::args().any(|a| a == "--minimized");
+    // After an update the installer restarts us with the old arguments; show the window anyway.
+    let just_updated = update::take_marker();
+    let started_minimized = std::env::args().any(|a| a == "--minimized") && !just_updated;
 
-    let app = tauri::Builder::default()
-        .plugin(tauri_plugin_single_instance::init(|_app, _args, _cwd| {
-            if let Some(core) = core::get() {
-                core.show_main(None);
-            }
-        }))
+    let builder = tauri::Builder::default();
+    // One copy at a time; a dev build may run beside the installed app.
+    #[cfg(not(debug_assertions))]
+    let builder = builder.plugin(tauri_plugin_single_instance::init(|_app, _args, _cwd| {
+        if let Some(core) = core::get() {
+            core.show_main(None);
+        }
+    }));
+    let app = builder
         .plugin(tauri_plugin_autostart::init(tauri_plugin_autostart::MacosLauncher::LaunchAgent, Some(vec!["--minimized"])))
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(
             tauri_plugin_global_shortcut::Builder::new()
                 .with_handler(|_app, shortcut, event| {
@@ -130,6 +137,7 @@ pub fn run() {
             dev::start(core.clone());
             game::spawn(core.clone());
             builds::spawn();
+            update::spawn(core.clone());
             if !started_minimized {
                 core.show_main(None);
             }
@@ -157,6 +165,8 @@ pub fn run() {
             commands::fit_spells,
             commands::open_profile,
             commands::set_riot_key,
+            commands::check_update,
+            commands::install_update,
             commands::quit_app,
         ])
         .build(tauri::generate_context!())

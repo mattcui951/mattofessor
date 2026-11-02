@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { Build, CrawlStatus, FullGame, ImportResult, InGame, LiveState, MyScore, PlayerScore, Profile, RiotStatus, Settings, StaticData, Summoner } from './types';
+import type { Build, CrawlStatus, FullGame, ImportResult, InGame, LiveState, MyScore, PlayerScore, Profile, RiotStatus, Settings, StaticData, Summoner, UpdateState } from './types';
 
 export type Boot = {
   settings: Settings;
@@ -10,6 +10,8 @@ export type Boot = {
   live: LiveState;
   ingame: InGame | null;
   riotStatus: RiotStatus;
+  update: UpdateState;
+  updatedFrom: string | null;
 };
 
 export const api = {
@@ -35,5 +37,7 @@ export const api = {
   fitSpells: (height: number) => invoke<void>('fit_spells', { height }),
   openProfile: (puuid: string) => invoke<void>('open_profile', { puuid }),
   setRiotKey: (key: string) => invoke<RiotStatus>('set_riot_key', { key }),
+  checkUpdate: () => invoke<UpdateState>('check_update'),
+  installUpdate: () => invoke<void>('install_update'),
   quitApp: () => invoke<void>('quit_app'),
 };

@@ -51,6 +51,8 @@ mockIPC(
         return call(cmd, { championId: a.championId, role: a.role });
       case 'import_build':
         return call(cmd, { championId: a.championId, role: a.role, runes: a.runes, items: a.items });
+      case 'check_update':
+        return call(cmd);
       case 'set_riot_key':
         return call(cmd, { key: a.key });
       case 'fit_overlay':
