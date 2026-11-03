@@ -2,6 +2,7 @@ pub mod analysis;
 pub mod aramhex;
 pub mod augments;
 pub mod builds;
+pub mod capture;
 mod commands;
 pub mod core;
 #[cfg(debug_assertions)]
@@ -163,6 +164,9 @@ pub fn run() {
             commands::set_riot_key,
             commands::check_update,
             commands::install_update,
+            commands::capture_info,
+            commands::open_captures,
+            commands::delete_captures,
             commands::quit_app,
         ])
         .build(tauri::generate_context!())

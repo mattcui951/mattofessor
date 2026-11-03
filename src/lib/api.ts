@@ -45,5 +45,8 @@ export const api = {
   setRiotKey: (key: string) => invoke<RiotStatus>('set_riot_key', { key }),
   checkUpdate: () => invoke<UpdateState>('check_update'),
   installUpdate: () => invoke<void>('install_update'),
+  captureInfo: () => invoke<{ count: number; dir: string }>('capture_info'),
+  openCaptures: () => invoke<void>('open_captures'),
+  deleteCaptures: () => invoke<void>('delete_captures'),
   quitApp: () => invoke<void>('quit_app'),
 };

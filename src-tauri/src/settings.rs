@@ -32,6 +32,8 @@ pub struct Settings {
     pub ui_scale: f64,
     /// Hextech ARAM statistics bracket: "all", "casual", "mid" or "high" (top 5%).
     pub aram_bracket: String,
+    /// Save augment card samples during Hextech ARAM games (for building the augment reader).
+    pub capture_augments: bool,
 }
 
 impl Default for Settings {
@@ -52,6 +54,7 @@ impl Default for Settings {
             custom_themes: Vec::new(),
             ui_scale: 1.0,
             aram_bracket: "all".into(),
+            capture_augments: false,
         }
     }
 }

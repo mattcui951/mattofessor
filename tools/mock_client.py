@@ -107,6 +107,8 @@ def position(p):
 
 class Script:
     def __init__(self, game, me, champ_select, length, champ_keys, spell_keys):
+        self.level_every = 90
+        self.deaths = False
         self.start = time.time()
         self.cs = champ_select
         self.length = length
@@ -212,8 +214,9 @@ class Script:
                 "riotId": f"{p['name']}#{p['tag']}",
                 "rawChampionName": f"game_character_displayname_{self.champ_keys.get(p['champ'], 'Unknown')}",
                 "team": "ORDER" if p["team"] == 100 else "CHAOS",
-                "level": min(18, 1 + int(gt // 90)),
-                "isDead": False,
+                "level": min(18, 1 + int(gt // self.level_every)),
+                # With --deaths, you are dead for 15 s of every minute (to test augment picks).
+                "isDead": self.deaths and p["puuid"] == self.me and gt % 60 < 15,
                 "respawnTimer": 0.0,
                 "summonerSpells": {
                     k: {"rawDisplayName": f"GeneratedTip_SummonerSpell_{self.spell_keys.get(s, 'SummonerFlash')}_DisplayName"}
@@ -334,6 +337,8 @@ def main():
     ap.add_argument("--game", type=int, help="game id to replay (default: your latest 5v5 Summoner's Rift game)")
     ap.add_argument("--champ-select", type=float, default=30)
     ap.add_argument("--length", type=float, default=900, help="seconds in game")
+    ap.add_argument("--level-every", type=float, default=90, help="seconds per level")
+    ap.add_argument("--deaths", action="store_true", help="you die for 15 s of every game minute")
     args = ap.parse_args()
 
     WORK.mkdir(exist_ok=True)
@@ -346,6 +351,8 @@ def main():
     game = real.get(f"/lol-match-history/v1/games/{game_id}")
     champ_keys, spell_keys = ddragon()
     script = Script(game, me, args.champ_select, args.length, champ_keys, spell_keys)
+    script.level_every = args.level_every
+    script.deaths = args.deaths
 
     ctx = ensure_cert()
     password = secrets.token_urlsafe(16)

@@ -274,6 +274,31 @@ pub async fn install_update(core: State<'_, Arc<Core>>) -> Res<()> {
     crate::update::install(&core).await.map_err(err)
 }
 
+/// How many augment card samples are saved.
+#[tauri::command]
+pub fn capture_info() -> Value {
+    json!({ "count": crate::capture::count(), "dir": crate::capture::root().to_string_lossy() })
+}
+
+/// Show the samples folder in Explorer.
+#[tauri::command]
+pub fn open_captures(core: State<'_, Arc<Core>>) -> Res<()> {
+    use tauri_plugin_opener::OpenerExt;
+    let dir = crate::capture::root();
+    let _ = std::fs::create_dir_all(&dir);
+    core.app.opener().open_path(dir.to_string_lossy(), None::<&str>).map_err(|e| e.to_string())
+}
+
+/// Delete every saved augment card sample.
+#[tauri::command]
+pub fn delete_captures() -> Res<()> {
+    let dir = crate::capture::root();
+    if dir.exists() {
+        std::fs::remove_dir_all(&dir).map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+
 #[tauri::command]
 pub fn quit_app(core: State<'_, Arc<Core>>) {
     core.quit();

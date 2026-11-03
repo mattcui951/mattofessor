@@ -168,6 +168,51 @@ pub fn is_visible(hwnd: isize) -> bool {
     unsafe { IsWindowVisible(HWND(hwnd as *mut _)).as_bool() }
 }
 
+/// What the screen shows inside `r` (physical pixels), as RGBA rows top to bottom.
+pub fn capture(r: Rect) -> Option<Vec<u8>> {
+    use windows::Win32::Graphics::Gdi::{
+        BitBlt, CreateCompatibleBitmap, CreateCompatibleDC, DeleteDC, DeleteObject, GetDC, GetDIBits, ReleaseDC, SelectObject,
+        BITMAPINFO, BITMAPINFOHEADER, BI_RGB, DIB_RGB_COLORS, SRCCOPY,
+    };
+    if r.w <= 0 || r.h <= 0 {
+        return None;
+    }
+    unsafe {
+        let screen = GetDC(None);
+        let mem = CreateCompatibleDC(Some(screen));
+        let bmp = CreateCompatibleBitmap(screen, r.w, r.h);
+        let old = SelectObject(mem, bmp.into());
+        let copied = BitBlt(mem, 0, 0, r.w, r.h, Some(screen), r.x, r.y, SRCCOPY).is_ok();
+        let mut info = BITMAPINFO {
+            bmiHeader: BITMAPINFOHEADER {
+                biSize: std::mem::size_of::<BITMAPINFOHEADER>() as u32,
+                biWidth: r.w,
+                biHeight: -r.h,
+                biPlanes: 1,
+                biBitCount: 32,
+                biCompression: BI_RGB.0,
+                ..Default::default()
+            },
+            ..Default::default()
+        };
+        let mut px = vec![0u8; (r.w * r.h * 4) as usize];
+        let rows = GetDIBits(mem, bmp, 0, r.h as u32, Some(px.as_mut_ptr().cast()), &mut info, DIB_RGB_COLORS);
+        SelectObject(mem, old);
+        let _ = DeleteObject(bmp.into());
+        let _ = DeleteDC(mem);
+        ReleaseDC(None, screen);
+        if !copied || rows != r.h {
+            return None;
+        }
+        // BGRA to RGBA, opaque.
+        for p in px.as_chunks_mut::<4>().0 {
+            p.swap(0, 2);
+            p[3] = 255;
+        }
+        Some(px)
+    }
+}
+
 /// Make a window clickable without ever taking focus from the game.
 pub fn set_no_activate(hwnd: isize) {
     unsafe {

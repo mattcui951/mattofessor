@@ -14,6 +14,7 @@ export type Settings = {
   customThemes: unknown[];
   uiScale: number;
   aramBracket: AramBracket;
+  captureAugments: boolean;
 };
 
 export type Summoner = { puuid: string; gameName: string; tagLine: string; level: number; icon: number; summonerId: number };

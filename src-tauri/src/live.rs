@@ -97,13 +97,17 @@ pub fn parse(v: &Value) -> InGame {
     }
 }
 
-pub async fn fetch() -> Option<InGame> {
+/// The game's full live data report, as it answered.
+pub async fn fetch_raw() -> Option<Value> {
     let r = client().get(URL).send().await.ok()?;
     if !r.status().is_success() {
         return None;
     }
-    let v: Value = r.json().await.ok()?;
-    Some(parse(&v))
+    r.json().await.ok()
+}
+
+pub async fn fetch() -> Option<InGame> {
+    fetch_raw().await.as_ref().map(parse)
 }
 
 #[cfg(test)]

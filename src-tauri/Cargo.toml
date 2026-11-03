@@ -1,6 +1,6 @@
 [package]
 name = "mattofessor"
-version = "0.3.1"
+version = "0.3.2"
 description = "Mattofessor - League of Legends player stats and in-game scouting"
 authors = ["Matt"]
 edition = "2021"
@@ -32,6 +32,7 @@ log = "0.4"
 dirs = "6"
 tauri-plugin-updater = "2"
 sha2 = "0.10"
+png = "0.17"
 
 [dependencies.windows]
 version = "0.62"

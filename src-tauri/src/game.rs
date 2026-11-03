@@ -374,6 +374,7 @@ fn on_phase_change(core: &Core, w: &mut Watch, old: &str, new: &str) {
     }
     if !in_game_phase(new) && in_game_phase(old) {
         core.register_hotkeys(false);
+        crate::capture::game_over();
         core.hide_overlay();
         core.hide_spells();
         *core.ingame.lock() = None;
@@ -506,7 +507,11 @@ async fn tick(core: &Arc<Core>, w: &mut Watch) {
                 }
             }
         }
-        let game = live::fetch().await;
+        let raw = live::fetch_raw().await;
+        if let Some(r) = &raw {
+            crate::capture::tick(core.settings().capture_augments, r);
+        }
+        let game = raw.as_ref().map(live::parse);
         if let Some(g) = &game {
             resolve_from_game(w, g).await;
             if w.roster.mode.is_empty() {

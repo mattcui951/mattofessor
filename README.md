@@ -168,6 +168,12 @@ running League client), a Live Client API with a game clock, and a stand-in game
 named `Mattofessor Mock Game.exe` (so other League tools ignore it). Rune page and item set
 writes are recorded in `tools/.mock/writes.log` instead of changing your account.
 
+`--game <id>` replays a specific game (one of your Hextech ARAM games gives mode `KIWI`),
+`--level-every 20` levels up faster and `--deaths` kills you for 15 s of every minute, which
+together exercise the augment pick flow. Settings > Augment reader > "Collect augment card
+samples" saves card-area captures and the live augment data during Hextech ARAM games to
+`%APPDATA%\Mattofessorugment-captures` (off by default).
+
 In-game hotkeys use a low-level keyboard hook, because League's game window blocks ordinary
 global hotkeys while it has focus. `py -I tools/nohotkeys_window.py` opens a window that blocks
 hotkeys the same way and presses Ctrl+Shift+F13 in it (`--check-registerhotkey` shows the

@@ -36,6 +36,18 @@
     { ok: 'var(--win)', invalid: 'var(--death)', unreachable: 'var(--warn)', unchecked: 'var(--objective)', none: 'var(--text-3)' }[app.riotStatus],
   );
 
+  let captures = $state(0);
+  async function refreshCaptures() {
+    try {
+      captures = (await api.captureInfo()).count;
+    } catch {
+      /* preview */
+    }
+  }
+  $effect(() => {
+    refreshCaptures();
+  });
+
   async function saveKey(key: string) {
     savingKey = true;
     try {
@@ -119,6 +131,17 @@
         {@render toggleRow(t('settings.autoRunes'), 'autoImportRunes')}
         {@render toggleRow(t('settings.autoItems'), 'autoImportItems')}
         <p class="note">{t('settings.autoNote')}</p>
+      </section>
+
+      <section>
+        <h3>{t('capture.title')}</h3>
+        {@render toggleRow(t('capture.toggle'), 'captureAugments')}
+        <p class="note">{t('capture.note')}</p>
+        <div class="how-actions">
+          <span class="note">{t('capture.count', captures)}</span>
+          <button type="button" class="btn sm" onclick={() => api.openCaptures()}><Icon name="folder" size={15} />{t('capture.open')}</button>
+          <button type="button" class="btn sm ghost" disabled={captures === 0} onclick={async () => { await api.deleteCaptures(); refreshCaptures(); }}>{t('capture.delete')}</button>
+        </div>
       </section>
 
       <section>
