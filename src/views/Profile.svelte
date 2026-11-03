@@ -3,6 +3,7 @@
   import Icon from '../components/Icon.svelte';
   import MatchRow from '../components/MatchRow.svelte';
   import ScoreBadge from '../components/ScoreBadge.svelte';
+  import SearchBox from '../components/SearchBox.svelte';
   import TagChip from '../components/TagChip.svelte';
   import { api } from '../lib/api';
   import { champIcon, champName, profileIcon, tierColor, tierText } from '../lib/dd.svelte';
@@ -16,8 +17,6 @@
   let profile = $state<Profile | null>(null);
   let error = $state<string | null>(null);
   let loading = $state(false);
-  let query = $state('');
-  let searching = $state(false);
   let filter = $state<'all' | 'solo' | 'flex' | 'normal' | 'aram' | 'arena'>('all');
 
   // One stable state object, updated in place as batches arrive.
@@ -62,21 +61,6 @@
     app.profileEpoch;
     if (app.connected) load(id);
   });
-
-  async function search(e: Event) {
-    e.preventDefault();
-    if (!query.trim()) return;
-    searching = true;
-    try {
-      const id = await api.search(query.trim());
-      query = '';
-      go({ name: 'profile', puuid: id });
-    } catch (err) {
-      error = errorText(err);
-    } finally {
-      searching = false;
-    }
-  }
 
   const FILTERS: Record<string, (g: GameRow) => boolean> = {
     all: () => true,
@@ -237,11 +221,7 @@
     </aside>
 
     <main class="main">
-      <form class="search" onsubmit={search}>
-        <Icon name="search" size={16} />
-        <input class="field" bind:value={query} placeholder={t('search.placeholder')} spellcheck="false" />
-        <button class="btn sm" disabled={searching || !query.trim()}>{t('search.go')}</button>
-      </form>
+      <SearchBox />
       {#if error}<p class="err">{error}</p>{/if}
 
       <div class="hist-head">
@@ -298,6 +278,7 @@
     color: var(--text-3);
     font-weight: 500;
     font-size: 14px;
+    white-space: nowrap;
   }
   .link {
     color: var(--you);
@@ -448,16 +429,6 @@
     display: grid;
     gap: 12px;
     align-content: start;
-  }
-  .search {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--text-3);
-  }
-  .search .field {
-    flex: 1;
-    max-width: 420px;
   }
   .hist-head {
     display: flex;

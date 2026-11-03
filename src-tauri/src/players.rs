@@ -21,6 +21,8 @@ pub async fn summoner(lcu: &Lcu, puuid: &str) -> Result<Summoner> {
 
 /// Riot ID ("Name#TAG") to puuid.
 pub async fn lookup(lcu: &Lcu, riot_id: &str) -> Result<String> {
+    // Chinese input types a full-width ＃.
+    let riot_id = riot_id.replace('＃', "#");
     let (name, tag) = riot_id.rsplit_once('#').ok_or_else(|| anyhow!("[bad-riot-id] Use the full Riot ID, like Name#NA1"))?;
     let (name, tag) = (name.trim(), tag.trim());
     if name.is_empty() || tag.is_empty() {

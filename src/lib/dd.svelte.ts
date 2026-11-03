@@ -3,7 +3,7 @@ import { api } from './api';
 import { appearance } from './appearance.svelte';
 import { i18n, t } from './i18n.svelte';
 import { readableOn } from './themes';
-import type { Rank, StaticData, TierDiv } from './types';
+import type { Champ, Rank, StaticData, TierDiv } from './types';
 
 const CDN = 'https://ddragon.leagueoflegends.com/cdn';
 
@@ -16,6 +16,21 @@ export async function loadStatic(lang: string) {
     dd.lang = lang;
   } catch (e) {
     console.warn('static data', e);
+  }
+}
+
+/** Champion names in the language the UI is not using, so search works in both. */
+export const otherNames = $state({ lang: '', champions: null as Record<string, Champ> | null });
+
+export async function loadOtherNames() {
+  const other = dd.lang === 'zh' ? 'en' : 'zh';
+  if (!dd.lang || otherNames.lang === other) return;
+  try {
+    const d = await api.staticData(other);
+    otherNames.champions = d.champions;
+    otherNames.lang = other;
+  } catch (e) {
+    console.warn('static data', other, e);
   }
 }
 

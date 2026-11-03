@@ -1,8 +1,10 @@
 <script lang="ts">
+  import { tick } from 'svelte';
   import Icon from '../components/Icon.svelte';
   import Img from '../components/Img.svelte';
   import { api } from '../lib/api';
-  import { SHARD_NAMES, champIcon, dd, itemIcon, itemName, rune, runeIcon, spell, spellIcon } from '../lib/dd.svelte';
+  import { buildIndex, searchChamps } from '../lib/champSearch';
+  import { SHARD_NAMES, champIcon, dd, itemIcon, itemName, loadOtherNames, otherNames, rune, runeIcon, spell, spellIcon } from '../lib/dd.svelte';
   import { ago, pct, roleName } from '../lib/format';
   import { i18n, t } from '../lib/i18n.svelte';
   import { app, errorText, toast } from '../lib/state.svelte';
@@ -20,19 +22,27 @@
   let doRunes = $state(true);
   let doItems = $state(true);
 
+  let grid = $state<HTMLElement>();
+
   $effect(() => {
     if (championId) {
       selected = championId;
       selRole = role ?? '';
+      // Opened from search or a link: bring the champion into view in the picker.
+      tick().then(() => grid?.querySelector('.c.on')?.scrollIntoView({ block: 'center' }));
     }
   });
 
-  const champs = $derived(
-    Object.entries(dd.data?.champions ?? {})
+  // Any language or pinyin; best matches first while searching, alphabetical otherwise.
+  const index = $derived(buildIndex([dd.data?.champions, otherNames.champions]));
+  const champs = $derived.by(() => {
+    const all = Object.entries(dd.data?.champions ?? {})
       .map(([id, c]) => ({ id: Number(id), ...c }))
-      .filter((c) => !query || [c.name, c.alias, c.key].some((s) => s.toLowerCase().includes(query.toLowerCase())))
-      .sort((a, b) => a.name.localeCompare(b.name, i18n.lang === 'zh' ? 'zh-CN' : 'en')),
-  );
+      .sort((a, b) => a.name.localeCompare(b.name, i18n.lang === 'zh' ? 'zh-CN' : 'en'));
+    if (!query.trim()) return all;
+    const rank = new Map(searchChamps(index, query, Infinity).map((h, i) => [h.id, i]));
+    return all.filter((c) => rank.has(c.id)).sort((a, b) => rank.get(a.id)! - rank.get(b.id)!);
+  });
 
   async function load() {
     if (!selected) return;
@@ -97,9 +107,9 @@
   <aside class="picker">
     <div class="search">
       <Icon name="search" size={15} />
-      <input class="field" bind:value={query} placeholder={t('builds.search')} spellcheck="false" />
+      <input class="field" bind:value={query} placeholder={t('builds.search')} spellcheck="false" onfocus={loadOtherNames} />
     </div>
-    <div class="grid">
+    <div class="grid" bind:this={grid}>
       {#each champs as c (c.id)}
         <button class="c" class:on={selected === c.id} title={c.name} onclick={() => { selected = c.id; selRole = ''; }}>
           <Img src={champIcon(c.id)} size={42} alt={c.name} />
