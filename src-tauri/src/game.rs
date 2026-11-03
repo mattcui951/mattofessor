@@ -29,6 +29,8 @@ pub struct LiveState {
     pub map_id: i32,
     /// Teams of the current (or last) game; your team first.
     pub teams: Vec<LiveTeam>,
+    /// Champions on the ARAM bench during champ select.
+    pub bench: Vec<i32>,
 }
 
 #[derive(Clone, Debug, Default, Serialize)]
@@ -72,6 +74,7 @@ struct Roster {
     mode: String,
     map_id: i32,
     entries: Vec<Entry>,
+    bench: Vec<i32>,
 }
 
 enum Fetch {
@@ -311,7 +314,7 @@ fn build_state(phase: &str, connected: bool, roster: &Roster) -> LiveState {
         }
         teams.push(LiveTeam { id: tid, ally: tid == my_team, players: slots });
     }
-    LiveState { phase: phase.into(), connected, queue_id: roster.queue_id, mode: roster.mode.clone(), map_id: roster.map_id, teams }
+    LiveState { phase: phase.into(), connected, queue_id: roster.queue_id, mode: roster.mode.clone(), map_id: roster.map_id, teams, bench: roster.bench.clone() }
 }
 
 #[derive(Default)]
@@ -484,7 +487,8 @@ async fn tick(core: &Arc<Core>, w: &mut Watch) {
                     Ok(Some(gs)) => queue_of(&gs),
                     _ => (0, String::new(), 0),
                 };
-                w.roster = Roster { queue_id, mode, map_id, entries: roster_from_champ_select(&cs, &me) };
+                let bench = cs.get("benchChampions").and_then(Value::as_array).map(|b| b.iter().filter_map(|c| c.get("championId")?.as_i64()).map(|c| c as i32).collect()).unwrap_or_default();
+                w.roster = Roster { queue_id, mode, map_id, entries: roster_from_champ_select(&cs, &me), bench };
                 auto_import(core, w, &cs).await;
             }
         }
@@ -497,7 +501,7 @@ async fn tick(core: &Arc<Core>, w: &mut Watch) {
                     let entries = roster_from_session(&gs, &me);
                     let (queue_id, mode, map_id) = queue_of(&gs);
                     if !entries.is_empty() {
-                        w.roster = Roster { queue_id, mode, map_id, entries };
+                        w.roster = Roster { queue_id, mode, map_id, entries, bench: Vec::new() };
                     }
                 }
             }
@@ -647,7 +651,7 @@ mod tests {
         assert_eq!(entries[1].spells, [4, 14]);
         let (q, mode, map) = queue_of(&gs);
         assert_eq!((q, mode.as_str(), map), (420, "CLASSIC", 11));
-        let st = build_state("InProgress", true, &Roster { queue_id: q, mode, map_id: map, entries });
+        let st = build_state("InProgress", true, &Roster { queue_id: q, mode, map_id: map, entries, bench: Vec::new() });
         assert_eq!(st.teams.len(), 2);
         assert!(st.teams[0].ally, "your team first");
         assert_eq!(st.teams[0].id, 200);

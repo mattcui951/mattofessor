@@ -18,7 +18,7 @@ type Toast = { id: number; text: string; tone: 'info' | 'error' | 'good' };
 
 const RELEASES = 'https://github.com/mattcui951/mattofessor/releases';
 
-const emptyLive: LiveState = { phase: '', connected: false, queueId: 0, mode: '', mapId: 0, teams: [] };
+const emptyLive: LiveState = { phase: '', connected: false, queueId: 0, mode: '', mapId: 0, teams: [], bench: [] };
 
 export const app = $state({
   ready: false,

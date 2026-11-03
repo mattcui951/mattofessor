@@ -125,7 +125,7 @@ export type Slot = {
 };
 
 export type LiveTeam = { id: number; ally: boolean; players: Slot[] };
-export type LiveState = { phase: string; connected: boolean; queueId: number; mode: string; mapId: number; teams: LiveTeam[] };
+export type LiveState = { phase: string; connected: boolean; queueId: number; mode: string; mapId: number; teams: LiveTeam[]; bench: number[] };
 
 export type LivePlayer = {
   riotId: string;

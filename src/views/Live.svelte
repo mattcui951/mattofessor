@@ -1,5 +1,6 @@
 <script lang="ts">
   import Icon from '../components/Icon.svelte';
+  import AramPicks from '../components/AramPicks.svelte';
   import Teams from '../components/Teams.svelte';
   import { api } from '../lib/api';
   import { champName } from '../lib/dd.svelte';
@@ -59,6 +60,7 @@
     </div>
   {:else if hasTeams}
     <div class="body" class:past={!active}>
+      {#if champSelect && isAramMode(app.live.mode)}<AramPicks />{/if}
       <Teams live={app.live} onprofile={(puuid) => go({ name: 'profile', puuid })} />
       {#if champSelect && app.live.teams.some((tm) => !tm.ally && tm.players.every((p) => p.status === 'hidden'))}
         <p class="note">{t('live.hiddenHint')}</p>
