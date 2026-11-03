@@ -27,8 +27,8 @@
     <span class="status" data-tauri-drag-region><i style="background:{status.color}"></i>{status.text}</span>
   </div>
   <div class="tools">
-    <button class="win-btn" aria-label="Minimize" onclick={() => win.minimize()}><Icon name="minimize" size={16} /></button>
-    <button class="win-btn" aria-label="Maximize" onclick={() => win.toggleMaximize()}><Icon name="maximize" size={14} /></button>
+    <button class="win-btn" aria-label={t('common.minimize')} onclick={() => win.minimize()}><Icon name="minimize" size={16} /></button>
+    <button class="win-btn" aria-label={t('common.maximize')} onclick={() => win.toggleMaximize()}><Icon name="maximize" size={14} /></button>
     <button class="win-btn close" aria-label={t('common.close')} onclick={() => win.hide()}><Icon name="close" size={16} /></button>
   </div>
 </header>

@@ -6,7 +6,7 @@
   const live = $derived(['ChampSelect', 'InProgress', 'GameStart', 'Reconnect'].includes(app.live.phase));
 </script>
 
-<nav class="rail" aria-label="Main">
+<nav class="rail" aria-label={t('common.mainNav')}>
   <button class="item" class:on={app.route.name === 'profile'} aria-label={t('nav.profile')} title={t('nav.profile')} onclick={() => go({ name: 'profile' })}>
     <Icon name="profile" size={21} />
   </button>
