@@ -13,6 +13,7 @@ export type Settings = {
   theme: string;
   customThemes: unknown[];
   uiScale: number;
+  aramBracket: AramBracket;
 };
 
 export type Summoner = { puuid: string; gameName: string; tagLine: string; level: number; icon: number; summonerId: number };
@@ -154,20 +155,46 @@ export type StaticData = {
 };
 
 export type Pick<T> = { value: T; games: number; wins: number };
+export type BuildMode = 'rift' | 'aram';
 export type Build = {
   championId: number;
+  mode: BuildMode;
+  /** Lane on the Rift; "" in ARAM. */
   role: string;
   games: number;
   wins: number;
   roles: Pick<string>[];
-  runes: Pick<{ primary: number; sub: number; perks: number[] }>[];
+  runes: Pick<{ primary: number; sub: number; perks: number[]; shards: number[] }>[];
   spells: Pick<[number, number]>[];
+  starters: Pick<number[]>[];
   boots: Pick<number>[];
+  /** Core items first (`core` of them), then the most picked later items. */
   items: Pick<number>[];
+  core: number;
+  skillMax: string[];
+  skillOrder: string[];
 };
+export type TierRow = {
+  championId: number;
+  position: string;
+  tier: number;
+  rank: number;
+  games: number;
+  winRate: number;
+  pickRate: number;
+  banRate: number;
+  roleRate: number;
+};
+export type RiftTiers = { rows: TierRow[]; fetchedAt: number };
+export type AramBracket = 'all' | 'casual' | 'mid' | 'high';
+export type AramSource = { patch: string; snapshotAt: string; matches: number; bracket: string };
+export type AramChampRow = { championId: number; games: number; winRate: number; pickRate: number; rank: number };
+export type AugRow = { id: number; games: number; winRate: number; smoothed: number; delta: number; lowSample: boolean };
+export type AramOverview = { source: AramSource; champions: AramChampRow[]; augments: AugRow[] };
+export type AramChampion = { source: AramSource; champion: AramChampRow | null; augments: AugRow[] };
+export type Augment = { name: string; rarity: 'silver' | 'gold' | 'prismatic' | ''; icon: string };
 export type PlayerScore = { participantId: number; puuid: string; score: number; badge: '' | 'mvp' | 'svp'; place: number };
 export type MyScore = { gameId: number; score: number; badge: '' | 'mvp' | 'svp'; place: number; players: number };
-export type CrawlStatus = { running: boolean; done: number; total: number; games: number; champions: number; lastFinished: number | null; error: string | null };
 export type ImportResult = { runePage: string | null; itemSet: string | null };
 
 /** Full game from the client (`/lol-match-history/v1/games/{id}`), the parts we read. */

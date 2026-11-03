@@ -30,8 +30,7 @@ mockIPC(
           }
         }
       case 'live_state':
-      case 'crawl_status':
-      case 'start_crawl':
+      case 'rift_tiers':
       case 'toggle_overlay':
       case 'toggle_spells':
         return call(cmd);
@@ -51,9 +50,15 @@ mockIPC(
       case 'player_scores':
         return call(cmd, { puuid: a.puuid, gameIds: (a.gameIds as number[]).join(',') });
       case 'build':
-        return call(cmd, { championId: a.championId, role: a.role });
+        return call(cmd, { championId: a.championId, role: a.role, mode: a.mode });
+      case 'aram_overview':
+        return call(cmd, { bracket: a.bracket });
+      case 'aram_champion':
+        return call(cmd, { championId: a.championId, bracket: a.bracket });
+      case 'augment_names':
+        return call(cmd, { lang: a.lang });
       case 'import_build':
-        return call(cmd, { championId: a.championId, role: a.role, runes: a.runes, items: a.items });
+        return call(cmd, { championId: a.championId, role: a.role, mode: a.mode, runes: a.runes, items: a.items });
       case 'check_update':
         return call(cmd);
       case 'set_riot_key':

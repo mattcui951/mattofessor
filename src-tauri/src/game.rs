@@ -355,7 +355,6 @@ async fn on_connected(core: &Core) {
 
 fn on_phase_change(core: &Core, w: &mut Watch, old: &str, new: &str) {
     log::info!("phase {old} -> {new}");
-    builds::PAUSED.store(new == "ChampSelect" || in_game_phase(new), Ordering::Relaxed);
     if new == "ChampSelect" {
         w.imported_for = None;
         w.roster = Roster::default();
@@ -395,7 +394,13 @@ async fn auto_import(core: &Core, w: &mut Watch, cs: &Value) {
     }
     w.imported_for = Some(me.champion_id);
     let role = analysis_role(&me.position);
-    match builds::import(me.champion_id, role, s.auto_import_runes, s.auto_import_items).await {
+    // ARAM-family queues use ARAM builds; Hextech ARAM has no runes to import.
+    let aram = matches!(w.roster.mode.as_str(), "ARAM" | "KIWI");
+    let runes = s.auto_import_runes && w.roster.mode != "KIWI";
+    if !(runes || s.auto_import_items) {
+        return;
+    }
+    match builds::import(me.champion_id, role, if aram { "aram" } else { "rift" }, runes, s.auto_import_items).await {
         Ok(r) => {
             let what: Vec<String> = [r.rune_page, r.item_set].into_iter().flatten().collect();
             let what = what.join(" + ");

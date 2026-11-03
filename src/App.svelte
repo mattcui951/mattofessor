@@ -5,6 +5,7 @@
   import UpdateBanner from './components/UpdateBanner.svelte';
   import Builds from './views/Builds.svelte';
   import Live from './views/Live.svelte';
+  import Meta from './views/Meta.svelte';
   import Profile from './views/Profile.svelte';
   import Appearance from './views/Appearance.svelte';
   import RiotGuide from './views/RiotGuide.svelte';
@@ -37,7 +38,9 @@
         {:else if app.route.name === 'live'}
           <Live />
         {:else if app.route.name === 'builds'}
-          <Builds championId={app.route.championId} role={app.route.role} />
+          {#key `${app.route.championId}-${app.route.mode}`}<Builds championId={app.route.championId} role={app.route.role} mode={app.route.mode} />{/key}
+        {:else if app.route.name === 'meta'}
+          <Meta mode={app.route.mode} />
         {:else if app.route.name === 'appearance'}
           <Appearance />
         {:else if app.route.name === 'riotGuide'}

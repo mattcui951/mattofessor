@@ -12,8 +12,11 @@ accounts. English and Simplified Chinese.
 - **In-game panel**: `Ctrl+Shift+M` shows / hides it over the game (chosen so it can run beside Porofessor, which uses `Ctrl+X`); it also shows by itself on the
   loading screen and hides when the match starts. `Ctrl+Shift+N` toggles enemy summoner spell
   timers (click a spell when it is used). Both hotkeys exist only while a game runs.
-- **Builds**: runes, spells, boots and items from Challenger and Grandmaster solo queue games,
-  imported into the client in one click (or automatically when you lock in).
+- **Meta**: Summoner's Rift tier lists per lane (win, pick and ban rates) and Hextech ARAM
+  champion and augment win rates, by skill bracket.
+- **Builds**: runes with stat shards, spells, skill order, starting items, boots and items for
+  Summoner's Rift (per lane) and ARAM, imported into the client in one click (or automatically
+  when you lock in). In Hextech ARAM the Builds page also ranks the champion's augments.
 
 - **Scores**: every player in every game gets a 0.0-10.0 performance score and a place (1st to
   10th); the best on the winning team is MVP, the best on the losing team SVP.
@@ -72,6 +75,18 @@ in the League folder gives its port and password) and the game's Live Client Dat
 (`https://127.0.0.1:2999`). Names and icons come from Riot's public Data Dragon CDN. No server of our
 own; a Riot API key is optional (see below).
 
+Meta and builds come from two public sources, cached locally so the app keeps working offline:
+
+- **Summoner's Rift** (and classic ARAM builds): OP.GG's public endpoint
+  (`https://mcp-api.op.gg/mcp`, [opgginc/opgg-mcp](https://github.com/opgginc/opgg-mcp)): lane
+  tier lists and per-champion builds. Tier lists are refreshed every 12 hours, builds daily.
+- **Hextech ARAM**: 海克斯大乱斗统计数据 ([czgreat/aramhex-data](https://github.com/czgreat/aramhex-data)),
+  licensed [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/): champion win rates
+  and the win rate of every champion × augment pair, from millions of games on the CN servers,
+  updated about weekly. Downloads are checked against the published SHA-256 sums. The app shows
+  this credit wherever these numbers appear, and Mattofessor stays free (non-commercial).
+- Augment names and icons: Riot's game data via [CommunityDragon](https://communitydragon.org).
+
 Porofessor itself shows a page from its own servers (`porofessor.gg/overwolf/live...`) built on
 a Riot production key; those endpoints are private, so this app does not use them.
 
@@ -87,7 +102,6 @@ Limits of the client API, found by testing against the live client:
   which becomes your rank history over time.
 - **Lane labels are unreliable**, so roles come from smite, support items and Riot's
   recommended positions per champion (see `src-tauri/src/positions.rs`).
-- Game timelines have **no item purchase order**: builds list items by popularity.
 
 ## Appearance
 
@@ -120,7 +134,10 @@ ranked entries), throttled under those limits. The key is stored with Windows DP
 | `src-tauri/src/game.rs` | Game flow watcher, champ select / in-game rosters, scouting |
 | `src-tauri/src/analysis.rs` | Player summary and tag rules (unit tested) |
 | `src-tauri/src/positions.rs` | Role inference |
-| `src-tauri/src/builds.rs` | High-elo crawler, build aggregation, rune page and item set import |
+| `src-tauri/src/builds.rs` | Builds from OP.GG, rune page and item set import |
+| `src-tauri/src/opgg.rs` | OP.GG public endpoint client, its text format parser, tier lists |
+| `src-tauri/src/aramhex.rs` | Hextech ARAM statistics (AramHex open data): download, checks, views |
+| `src-tauri/src/augments.rs` | Augment names, rarity and icons |
 | `src-tauri/src/core.rs` | Windows (main, overlay, spell timers), hotkeys |
 | `src-tauri/src/store.rs` | SQLite cache in `%APPDATA%\Mattofessor\cache.db` |
 | `src/` | Svelte UI; `src/lib/i18n.svelte.ts` holds every string in both languages |

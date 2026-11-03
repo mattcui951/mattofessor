@@ -39,18 +39,6 @@ pub struct RankPoint {
     pub lp: i32,
 }
 
-#[derive(Clone, Debug)]
-pub struct BuildRow {
-    pub champion_id: i32,
-    pub role: String,
-    pub win: bool,
-    pub items: Vec<i32>,
-    pub perks: Vec<i32>,
-    pub perk_primary: i32,
-    pub perk_sub: i32,
-    pub spells: [i32; 2],
-}
-
 impl Store {
     pub fn open(path: &Path) -> Result<Self> {
         Self::init(Connection::open(path)?)
@@ -72,20 +60,15 @@ impl Store {
              CREATE TABLE IF NOT EXISTS rank_snapshots (
                puuid TEXT NOT NULL, day TEXT NOT NULL, queue TEXT NOT NULL, tier TEXT NOT NULL, division TEXT NOT NULL, lp INTEGER NOT NULL,
                PRIMARY KEY (puuid, day, queue));
-             CREATE TABLE IF NOT EXISTS build_rows (
-               game_id INTEGER NOT NULL, puuid TEXT NOT NULL, champion_id INTEGER NOT NULL, role TEXT NOT NULL,
-               win INTEGER NOT NULL, created INTEGER NOT NULL, items TEXT NOT NULL, perks TEXT NOT NULL,
-               perk_primary INTEGER NOT NULL, perk_sub INTEGER NOT NULL, spells TEXT NOT NULL,
-               PRIMARY KEY (game_id, puuid));
-             CREATE INDEX IF NOT EXISTS build_rows_champ ON build_rows (champion_id, created);
-             CREATE TABLE IF NOT EXISTS build_crawl (puuid TEXT PRIMARY KEY, crawled_at INTEGER NOT NULL);
              CREATE TABLE IF NOT EXISTS kv (key TEXT PRIMARY KEY, value TEXT NOT NULL);
              CREATE TABLE IF NOT EXISTS players (puuid TEXT PRIMARY KEY, json TEXT NOT NULL, updated INTEGER NOT NULL);",
         )?;
-        // v2: build rows store role groups from `positions` (v1 trusted the client's lane labels).
+        // v3: builds come from OP.GG; the old crawler's tables go.
         let version: i64 = db.query_row("PRAGMA user_version", [], |r| r.get(0))?;
-        if version < 2 {
-            db.execute_batch("DELETE FROM build_rows; DELETE FROM build_crawl; DELETE FROM kv WHERE key = 'crawl_finished'; PRAGMA user_version = 2;")?;
+        if version < 3 {
+            db.execute_batch(
+                "DROP TABLE IF EXISTS build_rows; DROP TABLE IF EXISTS build_crawl; DELETE FROM kv WHERE key = 'crawl_finished'; PRAGMA user_version = 3;",
+            )?;
         }
         Ok(Self { db: Mutex::new(db) })
     }
@@ -163,80 +146,6 @@ impl Store {
             .filter_map(Result::ok)
             .collect();
         Ok(rows)
-    }
-
-    pub fn crawled_at(&self, puuid: &str) -> Option<i64> {
-        self.db.lock().query_row("SELECT crawled_at FROM build_crawl WHERE puuid = ?1", params![puuid], |r| r.get(0)).optional().ok()?
-    }
-
-    /// Rows with their role (group) for builds.
-    pub fn save_build_rows(&self, puuid: &str, rows: &[(GameRow, String)], now: i64) -> Result<()> {
-        let mut db = self.db.lock();
-        let tx = db.transaction()?;
-        {
-            let mut st = tx.prepare_cached(
-                "INSERT OR IGNORE INTO build_rows (game_id, puuid, champion_id, role, win, created, items, perks, perk_primary, perk_sub, spells)
-                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)",
-            )?;
-            for (r, role) in rows {
-                st.execute(params![
-                    r.game_id as i64,
-                    puuid,
-                    r.champion_id,
-                    role,
-                    r.win,
-                    r.created,
-                    serde_json::to_string(&r.items)?,
-                    serde_json::to_string(&r.perks)?,
-                    r.perk_primary,
-                    r.perk_sub,
-                    serde_json::to_string(&r.spells)?,
-                ])?;
-            }
-            tx.execute("INSERT OR REPLACE INTO build_crawl (puuid, crawled_at) VALUES (?1, ?2)", params![puuid, now])?;
-        }
-        tx.commit()?;
-        Ok(())
-    }
-
-    pub fn build_rows(&self, champion_id: i32, since: i64) -> Result<Vec<BuildRow>> {
-        let db = self.db.lock();
-        let mut st = db.prepare_cached(
-            "SELECT champion_id, role, win, items, perks, perk_primary, perk_sub, spells FROM build_rows WHERE champion_id = ?1 AND created >= ?2",
-        )?;
-        let rows = st
-            .query_map(params![champion_id, since], |r| {
-                let items: String = r.get(3)?;
-                let perks: String = r.get(4)?;
-                let spells: String = r.get(7)?;
-                Ok(BuildRow {
-                    champion_id: r.get(0)?,
-                    role: r.get(1)?,
-                    win: r.get(2)?,
-                    items: serde_json::from_str(&items).unwrap_or_default(),
-                    perks: serde_json::from_str(&perks).unwrap_or_default(),
-                    perk_primary: r.get(5)?,
-                    perk_sub: r.get(6)?,
-                    spells: serde_json::from_str(&spells).unwrap_or([0, 0]),
-                })
-            })?
-            .filter_map(Result::ok)
-            .collect();
-        Ok(rows)
-    }
-
-    /// (games, champions) in the build sample since `since`.
-    pub fn build_sample(&self, since: i64) -> (u64, u64) {
-        self.db
-            .lock()
-            .query_row("SELECT COUNT(*), COUNT(DISTINCT champion_id) FROM build_rows WHERE created >= ?1", params![since], |r| {
-                Ok((r.get::<_, i64>(0)? as u64, r.get::<_, i64>(1)? as u64))
-            })
-            .unwrap_or((0, 0))
-    }
-
-    pub fn prune_build_rows(&self, before: i64) {
-        let _ = self.db.lock().execute("DELETE FROM build_rows WHERE created < ?1", params![before]);
     }
 
     pub fn kv_get(&self, key: &str) -> Option<String> {

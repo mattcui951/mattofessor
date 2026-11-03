@@ -3,12 +3,13 @@ import { api } from './api';
 import { applySettings } from './appearance.svelte';
 import { loadStatic } from './dd.svelte';
 import { hasKey, i18n, t, type Lang } from './i18n.svelte';
-import type { InGame, LiveState, RiotStatus, Settings, Summoner, UpdateState } from './types';
+import type { BuildMode, InGame, LiveState, RiotStatus, Settings, Summoner, UpdateState } from './types';
 
 export type Route =
   | { name: 'profile'; puuid?: string }
   | { name: 'live' }
-  | { name: 'builds'; championId?: number; role?: string }
+  | { name: 'builds'; championId?: number; role?: string; mode?: BuildMode }
+  | { name: 'meta'; mode?: BuildMode }
   | { name: 'settings' }
   | { name: 'appearance' }
   | { name: 'riotGuide' };
@@ -70,6 +71,7 @@ export function routeFrom(path: string): Route {
   const [name, arg] = path.replace(/^#?\/?/, '').split('/');
   if (name === 'live') return { name: 'live' };
   if (name === 'builds') return { name: 'builds' };
+  if (name === 'meta') return { name: 'meta' };
   if (name === 'settings') return { name: 'settings' };
   if (name === 'appearance') return { name: 'appearance' };
   if (name === 'riot-guide') return { name: 'riotGuide' };

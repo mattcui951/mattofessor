@@ -30,6 +30,8 @@ pub struct Settings {
     pub custom_themes: Vec<serde_json::Value>,
     /// Text and layout size, 0.8-1.4 (also sizes the in-game windows).
     pub ui_scale: f64,
+    /// Hextech ARAM statistics bracket: "all", "casual", "mid" or "high" (top 5%).
+    pub aram_bracket: String,
 }
 
 impl Default for Settings {
@@ -49,6 +51,7 @@ impl Default for Settings {
             theme: "arcade".into(),
             custom_themes: Vec::new(),
             ui_scale: 1.0,
+            aram_bracket: "all".into(),
         }
     }
 }

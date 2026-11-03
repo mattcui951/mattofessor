@@ -171,28 +171,40 @@ pub fn live_value(core: &Core) -> Value {
     json!({ "live": *core.live.lock(), "ingame": *core.ingame.lock() })
 }
 
+/// OP.GG lane tier lists (Summoner's Rift, ranked).
 #[tauri::command]
-pub async fn build(champion_id: i32, role: String) -> Res<Option<builds::Build>> {
-    builds::build(champion_id, &role).await.map_err(err)
+pub async fn rift_tiers() -> Res<Arc<crate::opgg::Tiers>> {
+    crate::opgg::tiers().await.map_err(err)
+}
+
+/// Hextech ARAM champion and augment win rates for a skill bracket ("all", "casual", "mid", "high").
+#[tauri::command]
+pub async fn aram_overview(bracket: String) -> Res<crate::aramhex::Overview> {
+    let (info, b) = crate::aramhex::bracket(&bracket).await.map_err(err)?;
+    Ok(crate::aramhex::overview(&info, &bracket, &b))
+}
+
+/// One champion's Hextech ARAM augments, best first.
+#[tauri::command]
+pub async fn aram_champion(champion_id: i32, bracket: String) -> Res<crate::aramhex::Champion> {
+    let (info, b) = crate::aramhex::bracket(&bracket).await.map_err(err)?;
+    Ok(crate::aramhex::champion(&info, &bracket, &b, champion_id))
+}
+
+/// Augment names, rarity and icons in a language ("en" or "zh").
+#[tauri::command]
+pub async fn augment_names(lang: String) -> Res<crate::augments::Augments> {
+    crate::augments::all(&lang).await.map_err(err)
 }
 
 #[tauri::command]
-pub async fn import_build(champion_id: i32, role: String, runes: bool, items: bool) -> Res<builds::ImportResult> {
-    builds::import(champion_id, &role, runes, items).await.map_err(err)
+pub async fn build(champion_id: i32, role: String, mode: String) -> Res<Option<builds::Build>> {
+    builds::build(champion_id, &role, &mode).await.map_err(err)
 }
 
 #[tauri::command]
-pub fn crawl_status() -> builds::CrawlStatus {
-    builds::status()
-}
-
-#[tauri::command]
-pub fn start_crawl() {
-    tauri::async_runtime::spawn(async {
-        if let Err(e) = builds::crawl().await {
-            log::warn!("build crawl: {e:#}");
-        }
-    });
+pub async fn import_build(champion_id: i32, role: String, mode: String, runes: bool, items: bool) -> Res<builds::ImportResult> {
+    builds::import(champion_id, &role, &mode, runes, items).await.map_err(err)
 }
 
 #[tauri::command]

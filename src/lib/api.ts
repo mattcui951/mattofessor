@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { Build, CrawlStatus, FullGame, ImportResult, InGame, LiveState, MyScore, PlayerScore, Profile, RiotStatus, Settings, StaticData, Summoner, UpdateState } from './types';
+import type { AramBracket, AramChampion, AramOverview, Augment, Build, BuildMode, FullGame, ImportResult, InGame, LiveState, MyScore, PlayerScore, Profile, RiftTiers, RiotStatus, Settings, StaticData, Summoner, UpdateState } from './types';
 
 export type Boot = {
   settings: Settings;
@@ -27,11 +27,13 @@ export const api = {
   gameScores: (gameId: number) => invoke<PlayerScore[]>('game_scores', { gameId }),
   playerScores: (puuid: string, gameIds: number[]) => invoke<MyScore[]>('player_scores', { puuid, gameIds }),
   liveState: () => invoke<{ live: LiveState; ingame: InGame | null }>('live_state'),
-  build: (championId: number, role: string) => invoke<Build | null>('build', { championId, role }),
-  importBuild: (championId: number, role: string, runes: boolean, items: boolean) =>
-    invoke<ImportResult>('import_build', { championId, role, runes, items }),
-  crawlStatus: () => invoke<CrawlStatus>('crawl_status'),
-  startCrawl: () => invoke<void>('start_crawl'),
+  build: (championId: number, role: string, mode: BuildMode) => invoke<Build | null>('build', { championId, role, mode }),
+  importBuild: (championId: number, role: string, mode: BuildMode, runes: boolean, items: boolean) =>
+    invoke<ImportResult>('import_build', { championId, role, mode, runes, items }),
+  riftTiers: () => invoke<RiftTiers>('rift_tiers'),
+  aramOverview: (bracket: AramBracket) => invoke<AramOverview>('aram_overview', { bracket }),
+  aramChampion: (championId: number, bracket: AramBracket) => invoke<AramChampion>('aram_champion', { championId, bracket }),
+  augmentNames: (lang: string) => invoke<Record<string, Augment>>('augment_names', { lang }),
   saveSettings: (settings: Settings) => invoke<void>('save_settings', { settings }),
   toggleOverlay: () => invoke<void>('toggle_overlay'),
   hideOverlay: () => invoke<void>('hide_overlay'),

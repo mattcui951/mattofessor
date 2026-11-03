@@ -5,6 +5,7 @@
   import { champName } from '../lib/dd.svelte';
   import { positionRole, queueName } from '../lib/format';
   import { t } from '../lib/i18n.svelte';
+  import { isAramMode } from '../lib/meta.svelte';
   import { app, errorText, go, toast } from '../lib/state.svelte';
 
   const phase = $derived(app.live.phase);
@@ -14,12 +15,14 @@
   const me = $derived(app.live.teams.flatMap((tm) => tm.players).find((p) => p.me));
   const hasTeams = $derived(app.live.teams.some((tm) => tm.players.length > 0));
   let importing = $state(false);
+  const buildMode = $derived(isAramMode(app.live.mode) ? 'aram' : 'rift');
 
   async function importBuild() {
     if (!me || me.championId <= 0) return;
     importing = true;
     try {
-      const r = await api.importBuild(me.championId, positionRole(me.position), true, true);
+      // Hextech ARAM has no runes.
+      const r = await api.importBuild(me.championId, positionRole(me.position), buildMode, app.live.mode !== 'KIWI', true);
       toast(t('live.imported', [r.runePage, r.itemSet].filter(Boolean).join(' + ')), 'good');
     } catch (e) {
       toast(errorText(e), 'error');
@@ -38,7 +41,7 @@
     <div class="actions">
       {#if champSelect && me && me.championId > 0}
         <button class="btn" onclick={importBuild} disabled={importing}><Icon name="download" size={16} />{t('live.importBuild')} · {champName(me.championId)}</button>
-        <button class="btn ghost" onclick={() => go({ name: 'builds', championId: me.championId, role: positionRole(me.position) })}>{t('nav.builds')}</button>
+        <button class="btn ghost" onclick={() => go({ name: 'builds', championId: me.championId, role: positionRole(me.position), mode: buildMode })}>{t('nav.builds')}</button>
       {/if}
       {#if inGame}
         <span class="hint">{t('live.hotkey', app.settings?.hotkeyOverlay ?? 'Ctrl+Shift+M')}</span>

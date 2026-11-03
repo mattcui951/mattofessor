@@ -55,15 +55,20 @@ async fn route(core: &Core, path: &str, p: &HashMap<String, String>) -> Result<V
             let ids: Vec<u64> = arg("gameIds").split(',').filter_map(|s| s.parse().ok()).collect();
             crate::commands::player_scores(arg("puuid"), ids).await.map(|v| json!(v))
         }
-        "/build" => builds::build(num("championId") as i32, &arg("role")).await.map(|v| json!(v)).map_err(e),
-        "/crawl_status" => Ok(json!(builds::status())),
-        "/start_crawl" => {
-            tauri::async_runtime::spawn(async {
-                let _ = builds::crawl().await;
-            });
-            Ok(Value::Null)
+        "/rift_tiers" => crate::opgg::tiers().await.map(|v| json!(*v)).map_err(e),
+        "/aram_overview" => {
+            let b = arg("bracket");
+            let (info, data) = crate::aramhex::bracket(&b).await.map_err(e)?;
+            Ok(json!(crate::aramhex::overview(&info, &b, &data)))
         }
-        "/import_build" => builds::import(num("championId") as i32, &arg("role"), arg("runes") == "true", arg("items") == "true")
+        "/aram_champion" => {
+            let b = arg("bracket");
+            let (info, data) = crate::aramhex::bracket(&b).await.map_err(e)?;
+            Ok(json!(crate::aramhex::champion(&info, &b, &data, num("championId") as i32)))
+        }
+        "/augment_names" => crate::augments::all(&arg("lang")).await.map(|v| json!(*v)).map_err(e),
+        "/build" => builds::build(num("championId") as i32, &arg("role"), &arg("mode")).await.map(|v| json!(v)).map_err(e),
+        "/import_build" => builds::import(num("championId") as i32, &arg("role"), &arg("mode"), arg("runes") == "true", arg("items") == "true")
             .await
             .map(|v| json!(v))
             .map_err(e),

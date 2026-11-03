@@ -1,4 +1,6 @@
 pub mod analysis;
+pub mod aramhex;
+pub mod augments;
 pub mod builds;
 mod commands;
 pub mod core;
@@ -10,6 +12,7 @@ pub mod hotkeys;
 pub mod lcu;
 pub mod live;
 pub mod model;
+pub mod opgg;
 pub mod paths;
 pub mod players;
 pub mod positions;
@@ -125,7 +128,7 @@ pub fn run() {
             #[cfg(debug_assertions)]
             dev::start(core.clone());
             game::spawn(core.clone());
-            builds::spawn();
+            aramhex::spawn();
             update::spawn(core.clone());
             if !started_minimized {
                 core.show_main(None);
@@ -144,9 +147,11 @@ pub fn run() {
             commands::player_scores,
             commands::live_state,
             commands::build,
+            commands::rift_tiers,
+            commands::aram_overview,
+            commands::aram_champion,
+            commands::augment_names,
             commands::import_build,
-            commands::crawl_status,
-            commands::start_crawl,
             commands::save_settings,
             commands::toggle_overlay,
             commands::hide_overlay,
