@@ -5,6 +5,7 @@ use crate::lcu::Lcu;
 use crate::model::{self, GameRow, Mastery, Ranked, Summoner};
 use crate::store;
 use anyhow::{anyhow, Result};
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 /// Recent games kept per player for statistics (the client returns up to 40 at a time;
@@ -131,7 +132,7 @@ pub async fn inputs(lcu: &Lcu, puuid: &str) -> Result<Inputs> {
     // A rank or history failure leaves those parts empty rather than hiding the player.
     let summ = summ?;
     let ranked = exact(ranked, puuid, &summ).await;
-    Ok(Inputs {
+    let inputs = Inputs {
         summoner: summ,
         ranked,
         history: history.unwrap_or_else(|e| {
@@ -140,14 +141,37 @@ pub async fn inputs(lcu: &Lcu, puuid: &str) -> Result<Inputs> {
         }),
         masteries,
         fresh: true,
-    })
+    };
+    let saved = Saved { summoner: inputs.summoner.clone(), ranked: inputs.ranked.clone(), masteries: inputs.masteries.clone() };
+    if let Ok(v) = serde_json::to_value(&saved) {
+        let _ = store::get().save_player(puuid, &v, now_ms());
+    }
+    Ok(inputs)
 }
 
-/// Full game (all 10 players), cached forever.
-pub async fn game(lcu: &Lcu, game_id: u64) -> Result<Value> {
+/// What a lookup learns besides the games (those have their own table).
+#[derive(Serialize, Deserialize)]
+struct Saved {
+    summoner: Summoner,
+    ranked: Ranked,
+    masteries: Vec<Mastery>,
+}
+
+/// The last full lookup of a player from the local cache, with when it was made (ms); no
+/// client needed. Finished games never change, so this is shown as is and refreshed behind.
+pub fn inputs_saved(puuid: &str) -> Option<(Inputs, i64)> {
+    let (v, updated) = store::get().player(puuid)?;
+    let saved: Saved = serde_json::from_value(v).ok()?;
+    let history = store::get().rows(puuid, HISTORY).unwrap_or_default();
+    Some((Inputs { summoner: saved.summoner, ranked: saved.ranked, history, masteries: saved.masteries, fresh: false }, updated))
+}
+
+/// Full game (all 10 players), cached forever; the client is asked only for games not seen yet.
+pub async fn game(game_id: u64) -> Result<Value> {
     if let Some(g) = store::get().game(game_id) {
         return Ok(g);
     }
+    let lcu = crate::lcu::require()?;
     let g = lcu.get_value(&format!("/lol-match-history/v1/games/{game_id}")).await?;
     if g.get("participants").and_then(Value::as_array).is_some_and(|p| !p.is_empty()) {
         let _ = store::get().save_game(game_id, &g);

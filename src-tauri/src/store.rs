@@ -79,7 +79,8 @@ impl Store {
                PRIMARY KEY (game_id, puuid));
              CREATE INDEX IF NOT EXISTS build_rows_champ ON build_rows (champion_id, created);
              CREATE TABLE IF NOT EXISTS build_crawl (puuid TEXT PRIMARY KEY, crawled_at INTEGER NOT NULL);
-             CREATE TABLE IF NOT EXISTS kv (key TEXT PRIMARY KEY, value TEXT NOT NULL);",
+             CREATE TABLE IF NOT EXISTS kv (key TEXT PRIMARY KEY, value TEXT NOT NULL);
+             CREATE TABLE IF NOT EXISTS players (puuid TEXT PRIMARY KEY, json TEXT NOT NULL, updated INTEGER NOT NULL);",
         )?;
         // v2: build rows store role groups from `positions` (v1 trusted the client's lane labels).
         let version: i64 = db.query_row("PRAGMA user_version", [], |r| r.get(0))?;
@@ -111,6 +112,24 @@ impl Store {
             .filter_map(|j| j.ok().and_then(|j| serde_json::from_str(&j).ok()))
             .collect();
         Ok(rows)
+    }
+
+    /// The last lookup of a player (summoner, rank, mastery) and when it happened (ms).
+    pub fn save_player(&self, puuid: &str, json: &Value, updated: i64) -> Result<()> {
+        self.db.lock().execute(
+            "INSERT OR REPLACE INTO players (puuid, json, updated) VALUES (?1, ?2, ?3)",
+            params![puuid, json.to_string(), updated],
+        )?;
+        Ok(())
+    }
+
+    pub fn player(&self, puuid: &str) -> Option<(Value, i64)> {
+        let db = self.db.lock();
+        let row: Option<(String, i64)> = db
+            .query_row("SELECT json, updated FROM players WHERE puuid = ?1", params![puuid], |r| Ok((r.get(0)?, r.get(1)?)))
+            .optional()
+            .ok()?;
+        row.and_then(|(j, at)| serde_json::from_str(&j).ok().map(|v| (v, at)))
     }
 
     pub fn save_game(&self, game_id: u64, json: &Value) -> Result<()> {
@@ -232,6 +251,18 @@ impl Store {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn players_are_kept_per_account() {
+        let s = Store::open_memory().unwrap();
+        assert!(s.player("a").is_none());
+        s.save_player("a", &serde_json::json!({"summoner": {"gameName": "A"}}), 100).unwrap();
+        s.save_player("b", &serde_json::json!({"summoner": {"gameName": "B"}}), 200).unwrap();
+        s.save_player("a", &serde_json::json!({"summoner": {"gameName": "A2"}}), 300).unwrap();
+        let (a, at) = s.player("a").unwrap();
+        assert_eq!((a["summoner"]["gameName"].as_str(), at), (Some("A2"), 300));
+        assert_eq!(s.player("b").unwrap().1, 200, "another account's copy is untouched");
+    }
 
     #[test]
     fn rows_roundtrip_newest_first() {

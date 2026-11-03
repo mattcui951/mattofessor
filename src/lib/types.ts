@@ -109,7 +109,7 @@ export type GameRow = {
 export type RankPoint = { day: string; queue: string; tier: string; division: string; lp: number };
 export type Mastery = { championId: number; level: number; points: number; lastPlay: number };
 
-export type Profile = { card: PlayerCard; history: GameRow[]; rankHistory: RankPoint[]; masteries: Mastery[]; isMe: boolean };
+export type Profile = { card: PlayerCard; history: GameRow[]; rankHistory: RankPoint[]; masteries: Mastery[]; isMe: boolean; updatedAt: number };
 
 export type Slot = {
   puuid: string;

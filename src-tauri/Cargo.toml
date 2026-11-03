@@ -1,6 +1,6 @@
 [package]
 name = "mattofessor"
-version = "0.2.3"
+version = "0.2.4"
 description = "Mattofessor - League of Legends player stats and in-game scouting"
 authors = ["Matt"]
 edition = "2021"

@@ -39,6 +39,8 @@ mockIPC(
         return call(cmd, { lang: a.lang });
       case 'profile':
         return call(cmd, { puuid: a.puuid });
+      case 'profile_saved':
+        return call(cmd, { puuid: a.puuid });
       case 'search':
         return call(cmd, { riotId: a.riotId });
       case 'game':

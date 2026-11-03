@@ -44,15 +44,12 @@ async fn route(core: &Core, path: &str, p: &HashMap<String, String>) -> Result<V
             let lcu = crate::lcu::require().map_err(e)?;
             crate::players::lookup(&lcu, &arg("riotId")).await.map(|v| json!(v)).map_err(e)
         }
-        "/game" => {
-            let lcu = crate::lcu::require().map_err(e)?;
-            crate::players::game(&lcu, num("gameId") as u64).await.map_err(e)
-        }
+        "/game" => crate::players::game(num("gameId") as u64).await.map_err(e),
         "/scores" => {
-            let lcu = crate::lcu::require().map_err(e)?;
-            let g = crate::players::game(&lcu, num("gameId") as u64).await.map_err(e)?;
+            let g = crate::players::game(num("gameId") as u64).await.map_err(e)?;
             Ok(json!(crate::score::score_game(&g)))
         }
+        "/profile_saved" => Ok(json!(commands::saved_profile(core, Some(arg("puuid")).filter(|s| !s.is_empty())))),
         "/player_scores" => {
             let ids: Vec<u64> = arg("gameIds").split(',').filter_map(|s| s.parse().ok()).collect();
             crate::commands::player_scores(arg("puuid"), ids).await.map(|v| json!(v))

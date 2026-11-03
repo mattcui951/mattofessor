@@ -1,65 +1,39 @@
 <script lang="ts">
+  import { untrack } from 'svelte';
   import Img from '../components/Img.svelte';
   import Icon from '../components/Icon.svelte';
   import MatchRow from '../components/MatchRow.svelte';
   import ScoreBadge from '../components/ScoreBadge.svelte';
   import SearchBox from '../components/SearchBox.svelte';
   import TagChip from '../components/TagChip.svelte';
-  import { api } from '../lib/api';
   import { champIcon, champName, profileIcon, tierColor, tierText } from '../lib/dd.svelte';
-  import { compact, gamesText, one, pct, roleName } from '../lib/format';
+  import { ago, compact, gamesText, one, pct, roleName } from '../lib/format';
   import { i18n, t } from '../lib/i18n.svelte';
-  import { app, errorText, go } from '../lib/state.svelte';
-  import type { GameRow, MyScore, Profile, Rank, RankPoint } from '../lib/types';
+  import { meId, openProfile, profiles, refresh, scoreOf } from '../lib/profiles.svelte';
+  import { app, go } from '../lib/state.svelte';
+  import type { GameRow, Rank, RankPoint } from '../lib/types';
 
   let { puuid }: { puuid?: string } = $props();
 
-  let profile = $state<Profile | null>(null);
-  let error = $state<string | null>(null);
-  let loading = $state(false);
   let filter = $state<'all' | 'solo' | 'flex' | 'normal' | 'aram' | 'arena'>('all');
 
-  // One stable state object, updated in place as batches arrive.
-  const perfState = $state({ scores: {} as Record<number, MyScore>, scoring: false, run: 0 });
-
-  /** Scores need each full game (cached after the first time): fetched a few at a time, newest first. */
-  async function loadScores(p: Profile) {
-    const run = ++perfState.run;
-    for (const k of Object.keys(perfState.scores)) delete perfState.scores[Number(k)];
-    const ids = p.history.filter((g) => !g.remake).map((g) => g.gameId);
-    const puuid = p.card.summoner.puuid;
-    perfState.scoring = true;
-    for (let i = 0; i < ids.length && run === perfState.run; i += 5) {
-      try {
-        const got = await api.playerScores(puuid, ids.slice(i, i + 5));
-        if (run !== perfState.run) return;
-        for (const s of got) perfState.scores[s.gameId] = s;
-      } catch {
-        break;
-      }
-    }
-    if (run === perfState.run) perfState.scoring = false;
-  }
-
-  async function load(id: string | undefined) {
-    loading = true;
-    error = null;
-    try {
-      profile = await api.profile(id);
-      loadScores(profile);
-    } catch (e) {
-      error = errorText(e);
-      profile = null;
-    } finally {
-      loading = false;
-    }
-  }
+  // Saved profiles show at once; the store refreshes them in the background.
+  const id = $derived(puuid || meId());
+  const entry = $derived(id ? profiles.byId[id] : undefined);
+  const profile = $derived(entry?.profile ?? null);
 
   $effect(() => {
-    // Reload when the player changes, the client (re)connects, or a game ends.
-    const id = puuid;
-    app.profileEpoch;
-    if (app.connected) load(id);
+    // Again when the client (re)connects or the signed-in account changes.
+    app.connected;
+    const want = puuid || meId() || undefined;
+    untrack(() => openProfile(want));
+  });
+
+  // "Updated 3 min ago" keeps counting.
+  let now = $state(Date.now());
+  $effect(() => {
+    const tick = setInterval(() => (now = Date.now()), 30_000);
+    return () => clearInterval(tick);
   });
 
   const FILTERS: Record<string, (g: GameRow) => boolean> = {
@@ -75,7 +49,7 @@
   const fWins = $derived(played.filter((g) => g.win).length);
   const card = $derived(profile?.card);
   const perfStats = $derived.by(() => {
-    const all = Object.values(perfState.scores);
+    const all = Object.values(entry?.scores ?? {}).filter((s) => !Number.isNaN(s.score));
     const mvps = all.filter((s) => s.badge === 'mvp');
     const svps = all.filter((s) => s.badge === 'svp');
     return {
@@ -116,16 +90,16 @@
 {/snippet}
 
 <div class="page">
-  {#if !app.connected}
+  {#if !profile && !app.connected}
     <div class="empty">
       <Icon name="warn" size={30} />
       <h3>{t('conn.off')}</h3>
       <p>{t('conn.offHint')}</p>
     </div>
-  {:else if error && !profile}
+  {:else if !profile && entry?.error && !entry.refreshing}
     <div class="empty">
-      <h3>{error}</h3>
-      <button class="btn" onclick={() => load(puuid)}>{t('common.retry')}</button>
+      <h3>{entry.error}</h3>
+      <button class="btn" onclick={() => id && refresh(id)}>{t('common.retry')}</button>
     </div>
   {:else if !profile || !card}
     <div class="empty"><p>{t('common.loading')}</p></div>
@@ -173,7 +147,7 @@
             </div>
           </div>
         {/if}
-        {#if perfState.scoring}<p class="dim">{t('score.loading')}</p>{/if}
+        {#if entry?.scoring}<p class="dim">{t('score.loading')}</p>{/if}
       </section>
 
       <section>
@@ -221,8 +195,25 @@
     </aside>
 
     <main class="main">
-      <SearchBox />
-      {#if error}<p class="err">{error}</p>{/if}
+      <div class="top">
+        <SearchBox />
+        <div class="fresh">
+          <span class="dim">
+            {#if entry?.refreshing}{t('profile.updating')}{:else if !app.connected}{t('profile.offlineSaved')}{:else}{t('profile.updated', ago(profile.updatedAt, now))}{/if}
+          </span>
+          <button
+            class="btn sm ghost icon"
+            class:spin={entry?.refreshing}
+            disabled={entry?.refreshing || !app.connected}
+            title={t('profile.refresh')}
+            aria-label={t('profile.refresh')}
+            onclick={() => id && refresh(id)}
+          >
+            <Icon name="refresh" size={15} />
+          </button>
+        </div>
+      </div>
+      {#if entry?.error}<p class="err">{entry.error}</p>{/if}
 
       <div class="hist-head">
         <h3>{t('profile.history')}</h3>
@@ -234,11 +225,10 @@
         {#if played.length}
           <span class="summary num">{t('profile.recent', played.length)} · {fWins}W {played.length - fWins}L · <b style="color:{pct(fWins, played.length) >= 50 ? 'var(--win)' : 'var(--death)'}">{t('common.wr', pct(fWins, played.length))}</b></span>
         {/if}
-        {#if loading}<span class="dim">{t('common.loading')}</span>{/if}
       </div>
       <div class="list">
         {#each games as g (g.gameId)}
-          <MatchRow {g} puuid={card.summoner.puuid} perf={perfState.scores[g.gameId]} onprofile={(id) => go({ name: 'profile', puuid: id })} />
+          <MatchRow {g} puuid={card.summoner.puuid} perf={scoreOf(entry, g.gameId)} onprofile={(id) => go({ name: 'profile', puuid: id })} />
         {:else}
           <p class="dim pad">{t('profile.empty')}</p>
         {/each}
@@ -429,6 +419,30 @@
     display: grid;
     gap: 12px;
     align-content: start;
+  }
+  .top {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .top :global(.box) {
+    flex: 1;
+  }
+  .fresh {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    white-space: nowrap;
+  }
+  .fresh .spin :global(svg) {
+    animation: turn 0.9s linear infinite;
+  }
+  @keyframes turn {
+    to {
+      transform: rotate(360deg);
+    }
   }
   .hist-head {
     display: flex;

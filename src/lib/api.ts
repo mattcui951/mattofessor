@@ -18,6 +18,8 @@ export const api = {
   bootstrap: () => invoke<Boot>('bootstrap'),
   staticData: (lang: string) => invoke<StaticData>('static_data', { lang }),
   profile: (puuid?: string) => invoke<Profile>('profile', { puuid: puuid ?? null }),
+  /** From the local cache only (instant, no client needed); null when never looked up. */
+  profileSaved: (puuid: string | null) => invoke<Profile | null>('profile_saved', { puuid }),
   search: (riotId: string) => invoke<string>('search', { riotId }),
   game: (gameId: number) => invoke<FullGame>('game', { gameId }),
   gameScores: (gameId: number) => invoke<PlayerScore[]>('game_scores', { gameId }),

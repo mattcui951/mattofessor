@@ -50,6 +50,36 @@ pub struct Profile {
     pub rank_history: Vec<RankPoint>,
     pub masteries: Vec<Mastery>,
     pub is_me: bool,
+    /// When this data was fetched from the client (ms).
+    pub updated_at: i64,
+}
+
+fn profile_of(inputs: players::Inputs, puuid: &str, is_me: bool, updated_at: i64) -> Profile {
+    let card = inputs.card(&Context { now_ms: players::now_ms(), ..Default::default() });
+    let mut masteries = inputs.masteries.clone();
+    masteries.sort_by_key(|m| std::cmp::Reverse(m.points));
+    masteries.truncate(10);
+    Profile { card, history: inputs.history, rank_history: store::get().rank_history(puuid).unwrap_or_default(), masteries, is_me, updated_at }
+}
+
+/// The signed-in player's puuid, or the last one signed in (kept across restarts, so a saved
+/// profile shows before the client is up).
+fn me_puuid(core: &Core) -> Option<String> {
+    core.me.read().as_ref().map(|m| m.puuid.clone()).or_else(|| store::get().kv_get("last_me"))
+}
+
+/// A player's profile from the local cache only (instant, works without the client);
+/// `None` when this player was never looked up.
+#[tauri::command]
+pub fn profile_saved(core: State<'_, Arc<Core>>, puuid: Option<String>) -> Option<Profile> {
+    saved_profile(&core, puuid)
+}
+
+pub fn saved_profile(core: &Core, puuid: Option<String>) -> Option<Profile> {
+    let me = me_puuid(core);
+    let puuid = puuid.filter(|p| !p.is_empty()).or(me.clone())?;
+    let (inputs, updated) = players::inputs_saved(&puuid)?;
+    Some(profile_of(inputs, &puuid, me.as_deref() == Some(&puuid), updated))
 }
 
 /// A player's profile; `None` means the signed-in player.
@@ -69,19 +99,10 @@ pub async fn load_profile(core: &Core, puuid: Option<String>) -> anyhow::Result<
             m
         }
     };
+    store::get().kv_set("last_me", &me.puuid);
     let puuid = puuid.filter(|p| !p.is_empty()).unwrap_or_else(|| me.puuid.clone());
     let inputs = players::inputs(&lcu, &puuid).await?;
-    let card = inputs.card(&Context { now_ms: players::now_ms(), ..Default::default() });
-    let mut masteries = inputs.masteries.clone();
-    masteries.sort_by_key(|m| std::cmp::Reverse(m.points));
-    masteries.truncate(10);
-    Ok(Profile {
-        card,
-        history: inputs.history,
-        rank_history: store::get().rank_history(&puuid).unwrap_or_default(),
-        masteries,
-        is_me: puuid == me.puuid,
-    })
+    Ok(profile_of(inputs, &puuid, puuid == me.puuid, players::now_ms()))
 }
 
 /// Riot ID ("Name#TAG") to puuid.
@@ -93,15 +114,13 @@ pub async fn search(riot_id: String) -> Res<String> {
 
 #[tauri::command]
 pub async fn game(game_id: u64) -> Res<Value> {
-    let lcu = lcu::require().map_err(err)?;
-    players::game(&lcu, game_id).await.map_err(err)
+    players::game(game_id).await.map_err(err)
 }
 
 /// Every player's score in one game (MVP / SVP marked).
 #[tauri::command]
 pub async fn game_scores(game_id: u64) -> Res<Vec<crate::score::PlayerScore>> {
-    let lcu = lcu::require().map_err(err)?;
-    let g = players::game(&lcu, game_id).await.map_err(err)?;
+    let g = players::game(game_id).await.map_err(err)?;
     Ok(crate::score::score_game(&g))
 }
 
@@ -118,10 +137,9 @@ pub struct MyScore {
 /// One player's score in each of these games (games without a score are left out).
 #[tauri::command]
 pub async fn player_scores(puuid: String, game_ids: Vec<u64>) -> Res<Vec<MyScore>> {
-    let lcu = lcu::require().map_err(err)?;
     let mut out = Vec::new();
     for id in game_ids {
-        let Ok(g) = players::game(&lcu, id).await else { continue };
+        let Ok(g) = players::game(id).await else { continue };
         let scores = crate::score::score_game(&g);
         if let Some(s) = scores.iter().find(|s| s.puuid == puuid) {
             out.push(MyScore { game_id: id, score: s.score, badge: s.badge.clone(), place: s.place, players: scores.len() as u32 });

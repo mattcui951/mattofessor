@@ -10,6 +10,17 @@
   import RiotGuide from './views/RiotGuide.svelte';
   import Settings from './views/Settings.svelte';
   import { app } from './lib/state.svelte';
+  import { gameEnded, startAutoRefresh } from './lib/profiles.svelte';
+
+  startAutoRefresh();
+  let epoch = 0;
+  $effect(() => {
+    // A game ended: the signed-in account has a new game to add.
+    if (app.profileEpoch !== epoch) {
+      epoch = app.profileEpoch;
+      gameEnded();
+    }
+  });
 </script>
 
 <div class="shell">
