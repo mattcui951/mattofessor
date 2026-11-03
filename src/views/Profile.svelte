@@ -147,7 +147,7 @@
             </div>
           </div>
         {/if}
-        {#if entry?.scoring}<p class="dim">{t('score.loading')}</p>{/if}
+        {#if entry?.scoring}<p class="dim">{t('score.loading')}</p>{:else if entry?.partial}<p class="dim">{t('common.loading')}</p>{/if}
       </section>
 
       <section>
@@ -155,7 +155,7 @@
         {#if card.tags.length}
           <div class="tags">{#each card.tags as tag (tag.key)}<TagChip {tag} />{/each}</div>
         {:else}
-          <p class="dim">{t('profile.noTags')}</p>
+          <p class="dim">{entry?.partial ? t('common.loading') : t('profile.noTags')}</p>
         {/if}
       </section>
 
@@ -173,6 +173,8 @@
               <span>{gamesText(c.games)}</span>
             </div>
           </div>
+        {:else}
+          {#if entry?.partial}<p class="dim">{t('common.loading')}</p>{/if}
         {/each}
         {#if card.roles.length}
           <div class="roles">{#each card.roles as r (r.role)}<span>{roleName(r.role)} <b class="num">{r.games}</b></span>{/each}</div>
@@ -230,7 +232,7 @@
         {#each games as g (g.gameId)}
           <MatchRow {g} puuid={card.summoner.puuid} perf={scoreOf(entry, g.gameId)} onprofile={(id) => go({ name: 'profile', puuid: id })} />
         {:else}
-          <p class="dim pad">{t('profile.empty')}</p>
+          <p class="dim pad">{entry?.partial ? t('profile.loadingGames') : t('profile.empty')}</p>
         {/each}
       </div>
     </main>

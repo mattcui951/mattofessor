@@ -21,6 +21,8 @@ export type ProfileEntry = {
   error: string | null;
   /** The saved copy was looked up (so "nothing saved" is known). */
   checked: boolean;
+  /** Only the quick first look is shown (rank, mastery); the games are still loading. */
+  partial: boolean;
 };
 
 export const profiles = $state({
@@ -37,7 +39,7 @@ export function meId(): string {
 }
 
 function entry(id: string): ProfileEntry {
-  profiles.byId[id] ??= { profile: null, scores: {}, scoring: false, refreshing: false, error: null, checked: false };
+  profiles.byId[id] ??= { profile: null, scores: {}, scoring: false, refreshing: false, error: null, checked: false, partial: false };
   return profiles.byId[id];
 }
 
@@ -66,7 +68,23 @@ export async function openProfile(puuid: string | undefined) {
     if (saved && !e.profile) e.profile = saved;
   }
   scoreMissing(id);
+  if (!e.profile) quickLook(id);
   if (stale(e)) refresh(id);
+}
+
+/** A player never looked up: their rank and mastery while the games load. */
+async function quickLook(id: string) {
+  const e = entry(id);
+  if (!app.connected) return;
+  try {
+    const quick = await api.profileQuick(id);
+    if (!e.profile) {
+      e.profile = quick;
+      e.partial = true;
+    }
+  } catch {
+    /* the full lookup reports the error */
+  }
 }
 
 /** Fetch the latest from the client; does nothing while a refresh of this profile runs. */
@@ -78,6 +96,7 @@ export async function refresh(id: string) {
     const fresh = await api.profile(id);
     if (fresh.isMe) profiles.lastMe = fresh.card.summoner.puuid;
     merge(e, fresh);
+    e.partial = false;
     e.error = null;
   } catch (err) {
     e.error = errorText(err);

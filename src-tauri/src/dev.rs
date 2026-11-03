@@ -49,6 +49,7 @@ async fn route(core: &Core, path: &str, p: &HashMap<String, String>) -> Result<V
             let g = crate::players::game(num("gameId") as u64).await.map_err(e)?;
             Ok(json!(crate::score::score_game(&g)))
         }
+        "/profile_quick" => commands::quick_profile(core, &arg("puuid")).await.map(|v| json!(v)).map_err(e),
         "/profile_saved" => Ok(json!(commands::saved_profile(core, Some(arg("puuid")).filter(|s| !s.is_empty())))),
         "/player_scores" => {
             let ids: Vec<u64> = arg("gameIds").split(',').filter_map(|s| s.parse().ok()).collect();

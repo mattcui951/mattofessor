@@ -137,6 +137,7 @@ pub fn run() {
             commands::static_data,
             commands::profile,
             commands::profile_saved,
+            commands::profile_quick,
             commands::search,
             commands::game,
             commands::game_scores,

@@ -40,6 +40,7 @@ mockIPC(
       case 'profile':
         return call(cmd, { puuid: a.puuid });
       case 'profile_saved':
+      case 'profile_quick':
         return call(cmd, { puuid: a.puuid });
       case 'search':
         return call(cmd, { riotId: a.riotId });

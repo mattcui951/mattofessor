@@ -20,6 +20,8 @@ export const api = {
   profile: (puuid?: string) => invoke<Profile>('profile', { puuid: puuid ?? null }),
   /** From the local cache only (instant, no client needed); null when never looked up. */
   profileSaved: (puuid: string | null) => invoke<Profile | null>('profile_saved', { puuid }),
+  /** Rank and mastery now, games later (`profile`): for a player seen for the first time. */
+  profileQuick: (puuid: string) => invoke<Profile>('profile_quick', { puuid }),
   search: (riotId: string) => invoke<string>('search', { riotId }),
   game: (gameId: number) => invoke<FullGame>('game', { gameId }),
   gameScores: (gameId: number) => invoke<PlayerScore[]>('game_scores', { gameId }),

@@ -82,6 +82,20 @@ pub fn saved_profile(core: &Core, puuid: Option<String>) -> Option<Profile> {
     Some(profile_of(inputs, &puuid, me.as_deref() == Some(&puuid), updated))
 }
 
+/// A first look at a player not seen before: summoner, rank and mastery, plus any of their games
+/// already cached (well under a second). `profile` brings the games; the client takes about
+/// 5 s for a new player's history. `updated_at` is 0: this is not a full lookup.
+#[tauri::command]
+pub async fn profile_quick(core: State<'_, Arc<Core>>, puuid: String) -> Res<Profile> {
+    quick_profile(&core, &puuid).await.map_err(err)
+}
+
+pub async fn quick_profile(core: &Core, puuid: &str) -> anyhow::Result<Profile> {
+    let lcu = lcu::require()?;
+    let inputs = players::inputs_quick(&lcu, puuid).await?;
+    Ok(profile_of(inputs, puuid, me_puuid(core).as_deref() == Some(puuid), 0))
+}
+
 /// A player's profile; `None` means the signed-in player.
 #[tauri::command]
 pub async fn profile(core: State<'_, Arc<Core>>, puuid: Option<String>) -> Res<Profile> {
