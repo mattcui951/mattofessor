@@ -8,7 +8,7 @@ use crate::analysis::{self, Context, PlayerCard, Tag};
 use crate::core::Core;
 use crate::lcu;
 use crate::players::{self, Inputs};
-use crate::{builds, live, win};
+use crate::{builds, dd, live, win};
 use parking_lot::Mutex;
 use serde::Serialize;
 use serde_json::{json, Value};
@@ -146,6 +146,16 @@ fn roster_from_champ_select(cs: &Value, me: &str) -> Vec<Entry> {
 
 /// Everyone in the game from `/lol-gameflow/v1/session`.
 fn roster_from_session(session: &Value, me: &str) -> Vec<Entry> {
+    let mut out = session_entries(session, me);
+    // The Practice Tool's session keeps the teams of an earlier game; only your own pick is real.
+    if queue_of(session).1 == "PRACTICETOOL" {
+        let picks = session.pointer("/gameData/playerChampionSelections").and_then(Value::as_array).cloned().unwrap_or_default();
+        out.retain(|e| e.me || picks.iter().any(|x| !e.puuid.is_empty() && s(x, "puuid") == e.puuid));
+    }
+    out
+}
+
+fn session_entries(session: &Value, me: &str) -> Vec<Entry> {
     let gd = session.get("gameData").cloned().unwrap_or(Value::Null);
     let selections: Vec<Value> = gd.get("playerChampionSelections").and_then(Value::as_array).cloned().unwrap_or_default();
     let mut out = Vec::new();
@@ -166,6 +176,39 @@ fn roster_from_session(session: &Value, me: &str) -> Vec<Entry> {
         }
     }
     out
+}
+
+/// Keeps the session players the game itself reports, matched by Riot ID or else by champion on
+/// the same side. The client's session can hold players from an earlier game; once the game
+/// answers, its own player list is the truth. Without champion ids (static data not loaded)
+/// nothing is dropped.
+fn match_game(entries: Vec<Entry>, game: &live::InGame, champ_ids: &HashMap<String, i32>) -> Vec<Entry> {
+    if game.players.is_empty() || champ_ids.is_empty() {
+        return entries;
+    }
+    let mut used = vec![false; entries.len()];
+    for p in &game.players {
+        let team = if p.team == "ORDER" { 100 } else { 200 };
+        let champ = champ_ids.get(&p.champion).copied().unwrap_or(0);
+        let by_name = entries.iter().enumerate().position(|(i, e)| !used[i] && !e.name.is_empty() && e.name.eq_ignore_ascii_case(&p.riot_id));
+        let by_me = || entries.iter().enumerate().position(|(i, e)| !used[i] && p.me && e.me);
+        let by_champ = || entries.iter().enumerate().position(|(i, e)| !used[i] && champ > 0 && e.champion_id == champ && e.team_id == team);
+        if let Some(i) = by_name.or_else(by_me).or_else(by_champ) {
+            used[i] = true;
+        }
+    }
+    entries.into_iter().zip(used).filter_map(|(e, keep)| keep.then_some(e)).collect()
+}
+
+/// Data Dragon key ("MonkeyKing") to champion id, for matching the game's players.
+async fn champion_ids() -> HashMap<String, i32> {
+    match dd::get("en").await {
+        Ok(d) => d.champions.iter().map(|(id, c)| (c.key.clone(), *id)).collect(),
+        Err(e) => {
+            log::warn!("champion ids: {e:#}");
+            HashMap::new()
+        }
+    }
 }
 
 fn start_fetches(entries: &[Entry]) {
@@ -283,6 +326,9 @@ struct Watch {
     imported_for: Option<i32>,
     /// Riot ID -> puuid, for games where the client's session lists no puuids.
     resolved: HashMap<String, String>,
+    /// The game's own player list, last time it answered (this match).
+    last_game: Option<live::InGame>,
+    champ_ids: HashMap<String, i32>,
 }
 
 pub(crate) fn in_game_phase(p: &str) -> bool {
@@ -321,6 +367,7 @@ fn on_phase_change(core: &Core, w: &mut Watch, old: &str, new: &str) {
         w.loading_handled = false;
         w.spells_started = false;
         w.last_session_fetch = None;
+        w.last_game = None;
         core.register_hotkeys(true);
     }
     if !in_game_phase(new) && in_game_phase(old) {
@@ -456,6 +503,13 @@ async fn tick(core: &Arc<Core>, w: &mut Watch) {
             if w.roster.mode.is_empty() {
                 w.roster.mode = g.mode.clone();
             }
+            w.last_game = Some(g.clone());
+        }
+        if let Some(g) = &w.last_game {
+            if w.champ_ids.is_empty() {
+                w.champ_ids = champion_ids().await;
+            }
+            w.roster.entries = match_game(std::mem::take(&mut w.roster.entries), g, &w.champ_ids);
         }
         // Loading screen: show the panel by itself until the match starts.
         let game_time = game.as_ref().map(|g| g.game_time).unwrap_or(0.0);
@@ -525,6 +579,53 @@ mod tests {
         assert_eq!(r[1].name, "Me#NA1");
         assert_eq!(r[2].team_id, 200);
         assert!(r[2].puuid.is_empty());
+    }
+
+    fn player(riot_id: &str, champion: &str, team: &str, me: bool) -> live::LivePlayer {
+        live::LivePlayer { riot_id: riot_id.into(), champion: champion.into(), team: team.into(), me, ..Default::default() }
+    }
+
+    #[test]
+    fn practice_tool_drops_stale_opponents() {
+        // Recorded in the Practice Tool: you on Jax, five players left over from an earlier game.
+        let gs = json!({
+            "gameData": {
+                "queue": {"id": 3140, "gameMode": "PRACTICETOOL", "mapId": 11},
+                "teamOne": [{"puuid": "me", "championId": 24}],
+                "teamTwo": [{"puuid": "a", "championId": 84}, {"puuid": "b", "championId": 36}, {"puuid": "me", "championId": 901}],
+                "playerChampionSelections": [{"puuid": "me", "championId": 24, "spell1Id": 4, "spell2Id": 14}]
+            }
+        });
+        let entries = roster_from_session(&gs, "me");
+        assert_eq!(entries.len(), 2, "both of your entries are kept by the session rule");
+        let game = live::InGame { players: vec![player("Me#NA1", "Jax", "ORDER", true)], ..Default::default() };
+        let ids = HashMap::from([("Jax".to_string(), 24), ("Akali".to_string(), 84)]);
+        let kept = match_game(entries, &game, &ids);
+        assert_eq!(kept.len(), 1);
+        assert_eq!((kept[0].champion_id, kept[0].team_id), (24, 100));
+    }
+
+    #[test]
+    fn game_players_keep_real_roster() {
+        let entries = vec![
+            Entry { puuid: "me".into(), champion_id: 103, team_id: 100, me: true, ..Default::default() },
+            Entry { puuid: "a".into(), champion_id: 64, team_id: 100, ..Default::default() },
+            Entry { puuid: "b".into(), champion_id: 64, team_id: 200, name: "Foe#EUW".into(), ..Default::default() },
+            Entry { puuid: "stale".into(), champion_id: 81, team_id: 200, ..Default::default() },
+        ];
+        let game = live::InGame {
+            players: vec![
+                player("Me#NA1", "Ahri", "ORDER", true),
+                player("Ally#NA1", "LeeSin", "ORDER", false),
+                player("Foe#EUW", "LeeSin", "CHAOS", false),
+            ],
+            ..Default::default()
+        };
+        let ids = HashMap::from([("Ahri".to_string(), 103), ("LeeSin".to_string(), 64)]);
+        let kept: Vec<String> = match_game(entries.clone(), &game, &ids).into_iter().map(|e| e.puuid).collect();
+        assert_eq!(kept, ["me", "a", "b"], "same champion on each side is matched by side; the stale player goes");
+        assert_eq!(match_game(entries.clone(), &game, &HashMap::new()).len(), 4, "no static data: keep everyone");
+        assert_eq!(match_game(entries, &live::InGame::default(), &ids).len(), 4, "no game players yet: keep everyone");
     }
 
     #[test]
