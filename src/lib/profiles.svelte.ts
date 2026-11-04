@@ -31,6 +31,10 @@ export const profiles = $state({
   lastMe: '',
   /** The profile on screen, for the background refresh. */
   viewing: '',
+  /** Looking up who is signed in (nothing known or saved about it yet). */
+  findingMe: false,
+  /** Why that lookup failed. */
+  meError: null as string | null,
 });
 
 /** The signed-in account (or the last one, while the client is closed). */
@@ -53,7 +57,7 @@ export async function openProfile(puuid: string | undefined) {
   if (!id) {
     // Nothing known yet about who is signed in: the backend remembers the last account.
     const saved = await api.profileSaved(null).catch(() => null);
-    if (!saved) return;
+    if (!saved) return findMe();
     id = saved.card.summoner.puuid;
     profiles.lastMe = id;
     const e = entry(id);
@@ -70,6 +74,28 @@ export async function openProfile(puuid: string | undefined) {
   scoreMissing(id);
   if (!e.profile) quickLook(id);
   if (stale(e)) refresh(id);
+}
+
+/** The signed-in account, when nothing about it is known or saved: the client tells. */
+export async function findMe() {
+  if (profiles.findingMe || !app.connected) return;
+  profiles.findingMe = true;
+  profiles.meError = null;
+  try {
+    const fresh = await api.profile();
+    const id = fresh.card.summoner.puuid;
+    profiles.lastMe = id;
+    const e = entry(id);
+    e.checked = true;
+    merge(e, fresh);
+    e.error = null;
+    profiles.viewing = id;
+    scoreMissing(id);
+  } catch (err) {
+    profiles.meError = errorText(err);
+  } finally {
+    profiles.findingMe = false;
+  }
 }
 
 /** A player never looked up: their rank and mastery while the games load. */

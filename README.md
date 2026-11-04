@@ -171,8 +171,10 @@ writes are recorded in `tools/.mock/writes.log` instead of changing your account
 `--game <id>` replays a specific game (one of your Hextech ARAM games gives mode `KIWI`),
 `--level-every 20` levels up faster and `--deaths` kills you for 15 s of every minute, which
 together exercise the augment pick flow. Settings > Augment reader > "Collect augment card
-samples" saves card-area captures and the live augment data during Hextech ARAM games to
-`%APPDATA%\Mattofessorugment-captures` (off by default).
+samples" saves the middle of the game window while you are dead, plus the live augment data,
+during Hextech ARAM games to `%APPDATA%\Mattofessor\augment-captures` (off by default).
+`--summoner-down 60` keeps the signed-in account unanswered for the first 60 s, like a client
+that is still starting (e.g. right after switching accounts).
 
 In-game hotkeys use a low-level keyboard hook, because League's game window blocks ordinary
 global hotkeys while it has focus. `py -I tools/nohotkeys_window.py` opens a window that blocks

@@ -110,6 +110,7 @@ pub async fn load_profile(core: &Core, puuid: Option<String>) -> anyhow::Result<
         None => {
             let m = players::me(&lcu).await?;
             *core.me.write() = Some(m.clone());
+            let _ = core.app.emit("connection", json!({ "connected": true, "me": m, "language": core.language() }));
             m
         }
     };

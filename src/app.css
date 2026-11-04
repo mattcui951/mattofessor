@@ -243,6 +243,8 @@ p {
 .empty {
   display: grid;
   place-items: center;
+  /* One centered block, even when the state fills a tall page. */
+  align-content: center;
   gap: 10px;
   padding: 64px 24px;
   color: var(--text-3);
@@ -251,4 +253,7 @@ p {
 .empty h3 {
   color: var(--text-2);
   font-size: 17px;
+}
+.empty p {
+  max-width: 52ch;
 }

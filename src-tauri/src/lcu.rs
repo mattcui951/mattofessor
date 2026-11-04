@@ -111,6 +111,14 @@ struct Conn {
 }
 
 static CURRENT: RwLock<Option<Conn>> = RwLock::new(None);
+/// Bumped for every new client (a new lockfile), so a restart is seen even when the old one's
+/// lockfile is replaced between two checks (signing in to another account restarts the client).
+static GENERATION: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+
+/// Which client the current connection is (changes when the client restarts).
+pub fn generation() -> u64 {
+    GENERATION.load(std::sync::atomic::Ordering::Relaxed)
+}
 
 fn lockfile_path() -> Option<PathBuf> {
     if let Ok(p) = std::env::var("MATTOFESSOR_LOCKFILE") {
@@ -153,6 +161,7 @@ pub fn refresh() -> bool {
         Ok((port, password)) => {
             log::info!("League client found on port {port}");
             *CURRENT.write() = Some(Conn { lockfile: path, contents, lcu: Arc::new(Lcu::new(port, &password)) });
+            GENERATION.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
             true
         }
         Err(_) => {

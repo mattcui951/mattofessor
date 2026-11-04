@@ -109,6 +109,7 @@ class Script:
     def __init__(self, game, me, champ_select, length, champ_keys, spell_keys):
         self.level_every = 90
         self.deaths = False
+        self.summoner_down = 0.0
         self.start = time.time()
         self.cs = champ_select
         self.length = length
@@ -252,6 +253,9 @@ def client_handler(real, script, password):
                 return self.reply(401, {"message": "bad auth"})
             path = self.path
             phase = script.phase()
+            if path == "/lol-summoner/v1/current-summoner" and script.t() < script.summoner_down:
+                # A client still starting up: up, but not answering who is signed in yet.
+                return self.reply(503, {"message": "summoner not ready"})
             if path == "/lol-gameflow/v1/gameflow-phase":
                 return self.reply(200, phase)
             if path == "/lol-gameflow/v1/session":
@@ -334,11 +338,12 @@ def serve(handler, port, ctx):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--game", type=int, help="game id to replay (default: your latest 5v5 Summoner's Rift game)")
+    ap.add_argument("--game", type=int, help="game id to replay (default: your latest 5v5 Summoner's Rift game, else your latest game)")
     ap.add_argument("--champ-select", type=float, default=30)
     ap.add_argument("--length", type=float, default=900, help="seconds in game")
     ap.add_argument("--level-every", type=float, default=90, help="seconds per level")
     ap.add_argument("--deaths", action="store_true", help="you die for 15 s of every game minute")
+    ap.add_argument("--summoner-down", type=float, default=0, help="seconds the signed-in account is not answered yet (a client still starting)")
     args = ap.parse_args()
 
     WORK.mkdir(exist_ok=True)
@@ -347,12 +352,16 @@ def main():
     game_id = args.game
     if not game_id:
         hist = real.get(f"/lol-match-history/v1/products/lol/{me}/matches?begIndex=0&endIndex=39")["games"]["games"]
-        game_id = next(g["gameId"] for g in hist if g["mapId"] == 11 and g["gameMode"] == "CLASSIC")
+        rift = [g for g in hist if g["mapId"] == 11 and g["gameMode"] == "CLASSIC"]
+        if not rift and not hist:
+            sys.exit("no recent games on this account: pass --game <gameId>")
+        game_id = (rift or hist)[0]["gameId"]
     game = real.get(f"/lol-match-history/v1/games/{game_id}")
     champ_keys, spell_keys = ddragon()
     script = Script(game, me, args.champ_select, args.length, champ_keys, spell_keys)
     script.level_every = args.level_every
     script.deaths = args.deaths
+    script.summoner_down = args.summoner_down
 
     ctx = ensure_cert()
     password = secrets.token_urlsafe(16)

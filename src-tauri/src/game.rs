@@ -321,9 +321,13 @@ fn build_state(phase: &str, connected: bool, roster: &Roster) -> LiveState {
 struct Watch {
     phase: String,
     connected: bool,
+    /// The client connected to (`lcu::generation`).
+    client: u64,
     roster: Roster,
     last_emit: String,
     last_session_fetch: Option<Instant>,
+    /// Last attempt to learn the signed-in account (a client still starting up does not answer).
+    me_tried: Option<Instant>,
     loading_handled: bool,
     spells_started: bool,
     imported_for: Option<i32>,
@@ -338,22 +342,39 @@ pub(crate) fn in_game_phase(p: &str) -> bool {
     matches!(p, "GameStart" | "InProgress" | "Reconnect")
 }
 
-async fn on_connected(core: &Core) {
-    let Some(lcu) = lcu::current() else { return };
-    crate::positions::load(&lcu).await;
-    match players::me(&lcu).await {
+/// Ask the client who is signed in. Remembered as the last account, so the saved profile shows
+/// at the next start before the client is up.
+async fn learn_me(core: &Core, lcu: &lcu::Lcu) -> bool {
+    match players::me(lcu).await {
         Ok(me) => {
             log::info!("signed in as {}#{}", me.game_name, me.tag_line);
+            crate::store::get().kv_set("last_me", &me.puuid);
             *core.me.write() = Some(me);
+            true
         }
-        Err(e) => log::warn!("current summoner: {e:#}"),
+        Err(e) => {
+            log::warn!("current summoner: {e:#}");
+            false
+        }
     }
+}
+
+fn emit_connection(core: &Core, connected: bool) {
+    let me = if connected { json!(*core.me.read()) } else { Value::Null };
+    let _ = core.app.emit("connection", json!({ "connected": connected, "me": me, "language": core.language() }));
+}
+
+async fn on_connected(core: &Core, w: &mut Watch) {
+    let Some(lcu) = lcu::current() else { return };
+    crate::positions::load(&lcu).await;
+    w.me_tried = Some(Instant::now());
+    learn_me(core, &lcu).await;
     if let Ok(v) = lcu.get_value("/riotclient/region-locale").await {
         *core.client_locale.write() = v.get("locale").and_then(Value::as_str).map(str::to_string);
         *core.client_region.write() = v.get("region").and_then(Value::as_str).map(str::to_string);
         crate::riot::check(core.region().as_deref()).await;
     }
-    let _ = core.app.emit("connection", json!({ "connected": true, "me": *core.me.read(), "language": core.language() }));
+    emit_connection(core, true);
 }
 
 fn on_phase_change(core: &Core, w: &mut Watch, old: &str, new: &str) {
@@ -457,11 +478,26 @@ async fn resolve_from_game(w: &mut Watch, game: &live::InGame) {
 
 async fn tick(core: &Arc<Core>, w: &mut Watch) {
     let connected = lcu::refresh();
-    if connected && !w.connected {
-        on_connected(core).await;
+    let client = lcu::generation();
+    if connected && (!w.connected || client != w.client) {
+        if w.connected {
+            // A new client without a gap (e.g. signed in to another account): start over.
+            log::info!("League client restarted");
+            *core.me.write() = None;
+        }
+        w.client = client;
+        on_connected(core, w).await;
     } else if !connected && w.connected {
         *core.me.write() = None;
-        let _ = core.app.emit("connection", json!({ "connected": false, "me": null, "language": core.language() }));
+        emit_connection(core, false);
+    } else if connected && core.me.read().is_none() && w.me_tried.is_none_or(|t| t.elapsed() > Duration::from_secs(5)) {
+        // The client was up before it could say who is signed in: ask again.
+        w.me_tried = Some(Instant::now());
+        if let Some(lcu) = lcu::current() {
+            if learn_me(core, &lcu).await {
+                emit_connection(core, true);
+            }
+        }
     }
     w.connected = connected;
 
@@ -550,7 +586,9 @@ async fn tick(core: &Arc<Core>, w: &mut Watch) {
         *core.ingame.lock() = game;
     }
 
-    start_fetches(&w.roster.entries);
+    if phase == "ChampSelect" || in_game_phase(&phase) {
+        start_fetches(&w.roster.entries);
+    }
     let state = build_state(&phase, connected, &w.roster);
     let json = serde_json::to_string(&state).unwrap_or_default();
     if json != w.last_emit {

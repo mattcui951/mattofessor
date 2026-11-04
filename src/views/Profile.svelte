@@ -9,7 +9,7 @@
   import { champIcon, champName, profileIcon, tierColor, tierText } from '../lib/dd.svelte';
   import { ago, compact, gamesText, one, pct, roleName } from '../lib/format';
   import { i18n, t } from '../lib/i18n.svelte';
-  import { meId, openProfile, profiles, refresh, scoreOf } from '../lib/profiles.svelte';
+  import { findMe, meId, openProfile, profiles, refresh, scoreOf } from '../lib/profiles.svelte';
   import { app, go } from '../lib/state.svelte';
   import type { GameRow, Rank, RankPoint } from '../lib/types';
 
@@ -100,6 +100,13 @@
     <div class="empty">
       <h3>{entry.error}</h3>
       <button class="btn" onclick={() => id && refresh(id)}>{t('common.retry')}</button>
+    </div>
+  {:else if !id && profiles.meError && !profiles.findingMe}
+    <div class="empty">
+      <Icon name="warn" size={30} />
+      <h3>{t('profile.waitingMe')}</h3>
+      <p>{t('profile.waitingMeHint')}</p>
+      <button class="btn" onclick={findMe}>{t('common.retry')}</button>
     </div>
   {:else if !profile || !card}
     <div class="empty"><p>{t('common.loading')}</p></div>
