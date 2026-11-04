@@ -1,10 +1,12 @@
 <script lang="ts">
+  import AugIcon from './AugIcon.svelte';
   import Img from './Img.svelte';
   import ScoreBadge from './ScoreBadge.svelte';
   import { api } from '../lib/api';
   import { champIcon, champName, itemIcon, itemName, runeIcon, spellIcon } from '../lib/dd.svelte';
   import { ago, compact, duration, kdaRatio, queueName } from '../lib/format';
   import { t } from '../lib/i18n.svelte';
+  import { augment, loadAugments } from '../lib/meta.svelte';
   import { errorText } from '../lib/state.svelte';
   import type { FullGame, GameRow, MyScore, PlayerScore } from '../lib/types';
 
@@ -19,6 +21,11 @@
   const result = $derived(g.remake ? t('common.remake') : arena ? t('common.place', g.placement) : g.win ? t('common.victory') : t('common.defeat'));
   const tone = $derived(g.remake ? 'remake' : g.win ? 'win' : 'loss');
 
+  // Hextech ARAM and Arena: the augments picked, in pick order.
+  $effect(() => {
+    if (g.augments.length) loadAugments();
+  });
+
   async function toggle() {
     open = !open;
     if (open && !full) {
@@ -32,7 +39,7 @@
     }
   }
 
-  type P = { pid: number; puuid: string; name: string; tag: string; champ: number; k: number; d: number; a: number; dmg: number; cs: number; gold: number; items: number[]; spells: number[]; win: boolean; team: number; sub: number };
+  type P = { pid: number; puuid: string; name: string; tag: string; champ: number; k: number; d: number; a: number; dmg: number; cs: number; gold: number; items: number[]; spells: number[]; augs: number[]; win: boolean; team: number; sub: number };
   const players = $derived.by((): P[] => {
     if (!full) return [];
     return full.participants.map((p) => {
@@ -53,6 +60,7 @@
         gold: n('goldEarned'),
         items: [0, 1, 2, 3, 4, 5, 6].map((i) => n(`item${i}`)),
         spells: [p.spell1Id, p.spell2Id],
+        augs: [1, 2, 3, 4, 5, 6].map((i) => n(`playerAugment${i}`)).filter((a) => a > 0),
         win: Boolean(s.win),
         team: p.teamId,
         sub: n('playerSubteamId'),
@@ -69,6 +77,7 @@
     return ids.map((id) => players.filter((p) => key(p) === id));
   });
   const maxDmg = $derived(Math.max(1, ...players.map((p) => p.dmg)));
+  const withAugs = $derived(players.some((p) => p.augs.length > 0));
 </script>
 
 <div class="match {tone}" class:open>
@@ -85,7 +94,11 @@
         <Img src={spellIcon(g.spells[0])} size={21} />
         <Img src={spellIcon(g.spells[1])} size={21} />
       </div>
-      {#if g.perks[0] > 0}
+      {#if g.augments.length}
+        <div class="augs">
+          {#each g.augments as a, i (i)}<AugIcon id={a} size={19} />{/each}
+        </div>
+      {:else if g.perks[0] > 0}
         <div class="ss">
           <Img src={runeIcon(g.perks[0])} size={21} round />
           <Img src={runeIcon(g.perkSub)} size={21} round />
@@ -115,6 +128,14 @@
       {:else if !full}
         <p class="dim">{t('common.loading')}</p>
       {:else}
+        {#if g.augments.length}
+          <div class="picked">
+            <span class="lbl">{t('match.augments')}</span>
+            {#each g.augments as a, i (i)}
+              <span class="chip"><AugIcon id={a} size={18} /><span>{augment(a)?.name ?? `#${a}`}</span></span>
+            {/each}
+          </div>
+        {/if}
         {#if scores.length}
           <div class="view" role="tablist">
             <button role="tab" aria-selected={!ranked} class:on={!ranked} onclick={() => (ranked = false)}>{t('score.byTeam')}</button>
@@ -127,7 +148,7 @@
               {#if ranked}{t('score.ranking')}{:else if arena}{t('common.place', ti + 1)}{:else}{team[0]?.team === 100 ? t('match.team.blue') : t('match.team.red')} · {team[0]?.win ? t('common.victory') : t('common.defeat')}{/if}
             </div>
             {#each team as p (p.puuid + p.champ)}
-              <div class="pl" class:self={p.puuid === puuid} class:won={ranked && p.win} class:lost={ranked && !p.win}>
+              <div class="pl" class:self={p.puuid === puuid} class:won={ranked && p.win} class:lost={ranked && !p.win} class:with-augs={withAugs}>
                 <Img src={champIcon(p.champ)} size={28} title={champName(p.champ)} />
                 <div class="ss2"><Img src={spellIcon(p.spells[0])} size={13} /><Img src={spellIcon(p.spells[1])} size={13} /></div>
                 <button class="pname" onclick={() => p.puuid && onprofile(p.puuid)} title={t('row.openProfile')}>{p.name}<span>#{p.tag}</span></button>
@@ -136,6 +157,7 @@
                 <span class="dmg"><i style="width:{(p.dmg / maxDmg) * 100}%"></i><span class="num">{compact(p.dmg)}</span></span>
                 <span class="num dim">{p.cs}</span>
                 <span class="num dim">{compact(p.gold)}</span>
+                {#if withAugs}<span class="pa">{#each p.augs as a, i (i)}<AugIcon id={a} size={16} />{/each}</span>{/if}
                 <span class="its">{#each p.items as it, i (i)}<Img src={itemIcon(it)} size={20} title={itemName(it)} />{/each}</span>
               </div>
             {/each}
@@ -157,7 +179,7 @@
   .line {
     width: 100%;
     display: grid;
-    grid-template-columns: 4px 120px 110px 110px 82px 120px minmax(0, 1fr);
+    grid-template-columns: 4px 120px 136px 110px 82px 120px minmax(0, 1fr);
     align-items: center;
     gap: 14px;
     padding: 8px 12px 8px 0;
@@ -206,6 +228,42 @@
     display: grid;
     gap: 2px;
   }
+  /* Up to six augments: two rows of three, as tall as the champion icon. */
+  .augs {
+    display: grid;
+    grid-template-columns: repeat(3, 19px);
+    grid-auto-rows: 19px;
+    gap: 5px 4px;
+    align-content: center;
+    margin-left: 3px;
+  }
+  .picked {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 8px;
+  }
+  .picked .lbl {
+    font-family: var(--font-score);
+    font-size: 11.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text-2);
+    margin-right: 2px;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 26px;
+    padding: 0 9px 0 5px;
+    background: var(--panel);
+    border: 1px solid var(--seam);
+    border-radius: var(--r-md);
+    font-size: 12px;
+    color: var(--text);
+  }
   .kda {
     display: grid;
     font-size: 12px;
@@ -238,7 +296,7 @@
   /* Narrow windows: drop the CS / damage column and let items wrap. */
   @container (max-width: 860px) {
     .line {
-      grid-template-columns: 4px 108px 100px 100px 82px minmax(0, 1fr);
+      grid-template-columns: 4px 108px 136px 100px 82px minmax(0, 1fr);
       gap: 10px;
     }
     .stats {
@@ -324,6 +382,13 @@
     font-size: 12.5px;
     padding: 2px 4px;
     border-radius: var(--r-sm);
+  }
+  .pl.with-augs {
+    grid-template-columns: 28px 13px minmax(0, 1.4fr) 76px 70px minmax(0, 1fr) 40px 44px 112px auto;
+  }
+  .pa {
+    display: flex;
+    gap: 3px;
   }
   .pl.self {
     background: color-mix(in oklab, var(--you) 10%, transparent);

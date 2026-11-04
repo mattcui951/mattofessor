@@ -139,7 +139,7 @@ ranked entries), throttled under those limits. The key is stored with Windows DP
 | `src-tauri/src/aramhex.rs` | Hextech ARAM statistics (AramHex open data): download, checks, views |
 | `src-tauri/src/augments.rs` | Augment names, rarity and icons |
 | `src-tauri/src/core.rs` | Windows (main, overlay, spell timers), hotkeys |
-| `src-tauri/src/store.rs` | SQLite cache in `%APPDATA%\Mattofessor\cache.db` |
+| `src-tauri/src/store.rs` | SQLite cache in `%APPDATA%\Mattofessor\cache.db` (checked at start; a damaged file is rebuilt from its readable rows) |
 | `src/` | Svelte UI; `src/lib/i18n.svelte.ts` holds every string in both languages |
 
 Settings and the log live in `%APPDATA%\Mattofessor`.
@@ -152,6 +152,9 @@ npm run tauri dev
 ```
 
 Tests: `cargo test` in `src-tauri`, `npx vitest run`, `npx svelte-check`.
+
+Debug builds keep their data in `%APPDATA%\Mattofessor-dev` (and their own WebView data), so a dev run
+never opens the installed app's database.
 
 Debug builds serve a JSON bridge on `http://127.0.0.1:17431`; with the dev server running,
 `http://localhost:1431/` (`#overlay`, `#spells`) renders the real UI in a browser with live data.

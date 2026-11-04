@@ -7,7 +7,7 @@
 use crate::model::{GameRow, Rank};
 use anyhow::Result;
 use parking_lot::Mutex;
-use rusqlite::{params, Connection, OptionalExtension};
+use rusqlite::{params, Connection, OpenFlags, OptionalExtension};
 use serde_json::Value;
 use std::path::Path;
 use std::sync::OnceLock;
@@ -41,6 +41,9 @@ pub struct RankPoint {
 
 impl Store {
     pub fn open(path: &Path) -> Result<Self> {
+        if path.exists() && !healthy(path) {
+            rebuild(path);
+        }
         Self::init(Connection::open(path)?)
     }
 
@@ -49,7 +52,14 @@ impl Store {
     }
 
     fn init(db: Connection) -> Result<Self> {
-        db.execute_batch(
+        schema(&db)?;
+        Ok(Self { db: Mutex::new(db) })
+    }
+}
+
+/// Tables, and the upgrades of older versions.
+fn schema(db: &Connection) -> Result<()> {
+    db.execute_batch(
             "PRAGMA journal_mode=WAL;
              PRAGMA synchronous=NORMAL;
              CREATE TABLE IF NOT EXISTS player_games (
@@ -62,16 +72,125 @@ impl Store {
                PRIMARY KEY (puuid, day, queue));
              CREATE TABLE IF NOT EXISTS kv (key TEXT PRIMARY KEY, value TEXT NOT NULL);
              CREATE TABLE IF NOT EXISTS players (puuid TEXT PRIMARY KEY, json TEXT NOT NULL, updated INTEGER NOT NULL);",
+    )?;
+    // v3: builds come from OP.GG; the old crawler's tables go.
+    let version: i64 = db.query_row("PRAGMA user_version", [], |r| r.get(0))?;
+    if version < 3 {
+        db.execute_batch(
+            "DROP TABLE IF EXISTS build_rows; DROP TABLE IF EXISTS build_crawl; DELETE FROM kv WHERE key = 'crawl_finished'; PRAGMA user_version = 3;",
         )?;
-        // v3: builds come from OP.GG; the old crawler's tables go.
-        let version: i64 = db.query_row("PRAGMA user_version", [], |r| r.get(0))?;
-        if version < 3 {
-            db.execute_batch(
-                "DROP TABLE IF EXISTS build_rows; DROP TABLE IF EXISTS build_crawl; DELETE FROM kv WHERE key = 'crawl_finished'; PRAGMA user_version = 3;",
-            )?;
-        }
-        Ok(Self { db: Mutex::new(db) })
     }
+    Ok(())
+}
+
+/// Whether the database file passes SQLite's own consistency check.
+fn healthy(path: &Path) -> bool {
+    let check = Connection::open(path).and_then(|db| db.query_row("PRAGMA quick_check", [], |r| r.get::<_, String>(0)));
+    match check {
+        Ok(s) if s == "ok" => true,
+        Ok(s) => {
+            log::warn!("cache database damaged: {}", s.lines().nth(1).or(s.lines().next()).unwrap_or_default());
+            false
+        }
+        Err(e) => {
+            log::warn!("cache database unreadable: {e}");
+            false
+        }
+    }
+}
+
+/// Every table with its columns, and which column holds JSON (checked before a row is kept).
+const TABLES: [(&str, &[&str], Option<usize>); 5] = [
+    ("player_games", &["puuid", "game_id", "created", "json"], Some(3)),
+    ("games", &["game_id", "json"], Some(1)),
+    ("rank_snapshots", &["puuid", "day", "queue", "tier", "division", "lp"], None),
+    ("kv", &["key", "value"], None),
+    ("players", &["puuid", "json", "updated"], Some(1)),
+];
+
+/// A damaged cache is rebuilt from every row still readable; the rest (games, profiles) comes back
+/// from the League client. The damaged file is kept beside it as `cache.db.damaged-<time>`.
+fn rebuild(path: &Path) {
+    let fresh = side(path, ".rebuild");
+    for suffix in ["", "-wal", "-shm", "-journal"] {
+        let _ = std::fs::remove_file(side(&fresh, suffix));
+    }
+    match salvage(path, &fresh) {
+        Ok(kept) => log::info!("cache database rebuilt, rows kept: {kept:?}"),
+        Err(e) => {
+            log::warn!("cache database could not be salvaged ({e:#}); starting empty");
+            let _ = std::fs::remove_file(&fresh);
+        }
+    }
+    let damaged = side(path, &format!(".damaged-{}", chrono::Local::now().format("%Y%m%d-%H%M%S")));
+    for suffix in ["", "-wal", "-shm"] {
+        let from = side(path, suffix);
+        if from.exists() {
+            if let Err(e) = std::fs::rename(&from, side(&damaged, suffix)) {
+                log::warn!("moving {}: {e}", from.display());
+            }
+        }
+    }
+    if fresh.exists() {
+        if let Err(e) = std::fs::rename(&fresh, path) {
+            log::warn!("installing the rebuilt cache: {e}");
+        }
+    }
+}
+
+/// `path` with `suffix` appended to its file name.
+fn side(path: &Path, suffix: &str) -> std::path::PathBuf {
+    let mut s = path.as_os_str().to_owned();
+    s.push(suffix);
+    s.into()
+}
+
+/// Copy the readable rows of `src` into a new database at `dst`; rows kept per table.
+fn salvage(src: &Path, dst: &Path) -> Result<Vec<(&'static str, usize)>> {
+    let old = Connection::open_with_flags(src, OpenFlags::SQLITE_OPEN_READ_ONLY)?;
+    let new = Connection::open(dst)?;
+    // A plain journal while copying: the result is one self-contained file to move into place.
+    new.execute_batch("PRAGMA journal_mode=DELETE;")?;
+    schema(&new)?;
+    let mut kept = Vec::new();
+    for (table, cols, json_col) in TABLES {
+        let list = cols.join(", ");
+        let insert = format!("INSERT OR IGNORE INTO {table} ({list}) VALUES ({})", vec!["?"; cols.len()].join(", "));
+        let tx = new.unchecked_transaction()?;
+        let mut n = 0;
+        // Reading stops at the first damaged page, so read from both ends.
+        for order in ["ASC", "DESC"] {
+            let Ok(mut st) = old.prepare(&format!("SELECT {list} FROM {table} ORDER BY rowid {order}")) else { break };
+            let Ok(mut rows) = st.query([]) else { break };
+            loop {
+                let row = match rows.next() {
+                    Ok(Some(r)) => r,
+                    Ok(None) => break,
+                    Err(e) => {
+                        log::warn!("salvaging {table} ({order}): stopped at {e}");
+                        break;
+                    }
+                };
+                let vals: Vec<rusqlite::types::Value> = (0..cols.len()).filter_map(|i| row.get(i).ok()).collect();
+                if vals.len() != cols.len() {
+                    continue;
+                }
+                if let Some(c) = json_col {
+                    let rusqlite::types::Value::Text(j) = &vals[c] else { continue };
+                    if serde_json::from_str::<Value>(j).is_err() {
+                        continue;
+                    }
+                }
+                n += tx.execute(&insert, rusqlite::params_from_iter(vals))?;
+            }
+        }
+        tx.commit()?;
+        kept.push((table, n));
+    }
+    Ok(kept)
+}
+
+impl Store {
 
     pub fn save_rows(&self, puuid: &str, rows: &[GameRow]) -> Result<()> {
         let mut db = self.db.lock();
@@ -160,6 +279,40 @@ impl Store {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn damaged_database_is_rebuilt_from_readable_rows() {
+        let dir = std::env::temp_dir().join(format!("mattofessor-store-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("cache.db");
+        {
+            let s = Store::open(&path).unwrap();
+            let rows: Vec<GameRow> = (0..400).map(|i| GameRow { game_id: i, created: i as i64, ..Default::default() }).collect();
+            s.save_rows("p", &rows).unwrap();
+            s.kv_set("last_me", "p");
+            s.db.lock().execute_batch("PRAGMA wal_checkpoint(TRUNCATE);").unwrap();
+        }
+        // Overwrite a page in the middle of the game rows with garbage.
+        let mut bytes = std::fs::read(&path).unwrap();
+        let page = 4096;
+        let mid = (bytes.len() / page / 2) * page;
+        for b in &mut bytes[mid..mid + page] {
+            *b = 0xA5;
+        }
+        std::fs::write(&path, &bytes).unwrap();
+        assert!(!healthy(&path));
+
+        let s = Store::open(&path).unwrap();
+        assert!(healthy(&path));
+        let kept = s.rows("p", 1000).unwrap().len();
+        assert!(kept >= 200, "kept {kept}");
+        assert_eq!(s.kv_get("last_me").as_deref(), Some("p"));
+        let damaged = std::fs::read_dir(&dir).unwrap().filter_map(Result::ok).any(|e| e.file_name().to_string_lossy().starts_with("cache.db.damaged-"));
+        assert!(damaged);
+        drop(s);
+        let _ = std::fs::remove_dir_all(&dir);
+    }
 
     #[test]
     fn players_are_kept_per_account() {

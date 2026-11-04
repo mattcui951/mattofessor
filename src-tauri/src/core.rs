@@ -129,7 +129,8 @@ impl Core {
             let _ = w.set_focus();
         } else {
             let hash = route.map(|r| format!("#/{r}")).unwrap_or_default();
-            let built = WebviewWindowBuilder::new(&self.app, "main", WebviewUrl::App(format!("index.html{hash}").into()))
+            let built = WebviewWindowBuilder::new(&self.app, "main", WebviewUrl::App(format!("index.html{hash}").into()));
+            let built = dev_data(built)
                 .title("Mattofessor")
                 .inner_size(1320.0, 860.0)
                 .min_inner_size(1040.0, 680.0)
@@ -150,7 +151,8 @@ impl Core {
         if let Some(w) = self.app.get_webview_window(label) {
             return Some(w);
         }
-        let w = WebviewWindowBuilder::new(&self.app, label, WebviewUrl::App(format!("index.html#{label}").into()))
+        let w = WebviewWindowBuilder::new(&self.app, label, WebviewUrl::App(format!("index.html#{label}").into()));
+        let w = dev_data(w)
             .title("Mattofessor")
             .decorations(false)
             .transparent(true)
@@ -329,5 +331,15 @@ impl Core {
             Action::Overlay => self.toggle_overlay(),
             Action::Spells => self.toggle_spells(),
         }
+    }
+}
+
+/// Debug builds keep their web view data (what the windows remember) apart from the installed
+/// app's. Every window must use the same folder: they share one WebView2 environment.
+fn dev_data<'a>(b: WebviewWindowBuilder<'a, tauri::Wry, AppHandle>) -> WebviewWindowBuilder<'a, tauri::Wry, AppHandle> {
+    if cfg!(debug_assertions) {
+        b.data_directory(crate::paths::config_dir().join("webview"))
+    } else {
+        b
     }
 }

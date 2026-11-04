@@ -41,7 +41,7 @@
     solo: (g) => g.queueId === 420,
     flex: (g) => g.queueId === 440,
     normal: (g) => [400, 430, 480, 490].includes(g.queueId),
-    aram: (g) => g.mode === 'ARAM' || g.queueId === 450 || g.queueId === 2400,
+    aram: (g) => g.mode === 'ARAM' || g.mode.startsWith('KIWI') || g.queueId === 450,
     arena: (g) => g.placement > 0,
   };
   const games = $derived((profile?.history ?? []).filter(FILTERS[filter]));
@@ -82,7 +82,7 @@
     <div class="label">{label}</div>
     {#if r}
       <div class="tier num" style="color:{tierColor(r.tier)}">{tierText(r)} <span class="lp">{t('common.lp', r.lp)}</span></div>
-      <div class="sub num">{#if r.losses > 0 || card?.ranked.exact}{r.wins}W {r.losses}L · {t('common.wr', pct(r.wins, r.wins + r.losses))}{:else}{t('row.wins', r.wins)}{/if}</div>
+      <div class="sub num">{#if r.losses > 0 || card?.ranked.exact}{t('row.recentWr', r.wins, r.losses)} · {t('common.wr', pct(r.wins, r.wins + r.losses))}{:else}{t('row.wins', r.wins)}{/if}</div>
     {:else}
       <div class="tier dim">{t('common.unranked')}</div>
     {/if}
@@ -232,7 +232,7 @@
           {/each}
         </div>
         {#if played.length}
-          <span class="summary num">{t('profile.recent', played.length)} · {fWins}W {played.length - fWins}L · <b style="color:{pct(fWins, played.length) >= 50 ? 'var(--win)' : 'var(--death)'}">{t('common.wr', pct(fWins, played.length))}</b></span>
+          <span class="summary num">{t('profile.recent', played.length)} · {t('row.recentWr', fWins, played.length - fWins)} · <b style="color:{pct(fWins, played.length) >= 50 ? 'var(--win)' : 'var(--death)'}">{t('common.wr', pct(fWins, played.length))}</b></span>
         {/if}
       </div>
       <div class="list">

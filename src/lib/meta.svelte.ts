@@ -10,16 +10,22 @@ export const BRACKETS: AramBracket[] = ['all', 'casual', 'mid', 'high'];
 
 export const augs = $state({ lang: '', byId: {} as Record<string, Augment> });
 
+let loading: { lang: string; done: Promise<void> } | null = null;
+
 /** Augment names and icons in the UI language (loaded once per language). */
-export async function loadAugments() {
+export function loadAugments(): Promise<void> {
   const lang = i18n.lang;
-  if (augs.lang === lang) return;
-  try {
-    augs.byId = await api.augmentNames(lang);
-    augs.lang = lang;
-  } catch (e) {
-    console.warn('augment names', e);
-  }
+  if (augs.lang === lang) return Promise.resolve();
+  if (loading?.lang === lang) return loading.done;
+  const done = api.augmentNames(lang).then(
+    (byId) => {
+      augs.byId = byId;
+      augs.lang = lang;
+    },
+    (e) => console.warn('augment names', e),
+  );
+  loading = { lang, done: done.finally(() => (loading = null)) };
+  return loading.done;
 }
 
 export function augment(id: number): Augment | undefined {
