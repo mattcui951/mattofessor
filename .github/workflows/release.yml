@@ -37,9 +37,13 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
 
+      # Restores what warm-cache.yml saved on main (a tag build can only restore caches saved on
+      # the default branch). A tag's own cache could never be reused, so it saves none.
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: src-tauri
+          shared-key: release
+          save-if: false
 
       - run: npm ci
 

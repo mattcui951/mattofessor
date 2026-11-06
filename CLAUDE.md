@@ -24,6 +24,10 @@ that reads the League client API (LCU) and public data only. Public repo, releas
 
 ## Releasing
 
+In App HQ, call the `propose_release` tool with the version and the release notes: App HQ runs
+the tests, bumps the version files, tags, pushes, watches the build and checks `latest.json`.
+Commit first. Without App HQ (a terminal session), do it by hand:
+
 Bump the version in `package.json`, `src-tauri/Cargo.toml` and `src-tauri/tauri.conf.json`,
 commit, then push an annotated tag (`git tag -a vX.Y.Z -m "notes"`). A failed tag build cannot be
 re-tagged: bump the version instead. Do not wait on the build in the foreground; watch it with a

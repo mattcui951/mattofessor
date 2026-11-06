@@ -1,0 +1,54 @@
+# Keeps the Rust build cache warm on main, so release builds reuse it instead of compiling every
+# crate from scratch. Releases build from tags, and a tag build can only restore caches saved on
+# the default branch; release.yml restores what this saves (same shared-key).
+#
+# Runs when the Rust dependencies change, twice a week (GitHub deletes a cache unused for 7 days),
+# and by hand. When the cache is already current it only restores it, which keeps it alive.
+name: Warm build cache
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src-tauri/Cargo.lock'
+      - 'src-tauri/Cargo.toml'
+      - '.github/workflows/**'
+  schedule:
+    - cron: '17 6 * * 1,4'
+  workflow_dispatch:
+
+concurrency:
+  group: warm-cache
+  cancel-in-progress: true
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        id: cache
+        with:
+          workspaces: src-tauri
+          shared-key: release
+
+      - uses: actions/setup-node@v5
+        if: steps.cache.outputs.cache-hit != 'true'
+        with:
+          node-version: 22
+          cache: npm
+
+      - if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci
+
+      # The same compiles as release.yml: its tests, then the release build (without packaging,
+      # which needs the signing key).
+      - name: Build what a release builds
+        shell: bash
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          cargo test --manifest-path src-tauri/Cargo.toml --no-run
+          npx tauri build --no-bundle
