@@ -34,6 +34,8 @@ pub struct Settings {
     pub aram_bracket: String,
     /// Save augment card samples during Hextech ARAM games (for building the augment reader).
     pub capture_augments: bool,
+    /// Show your champion's win rate above the augment cards in Hextech ARAM.
+    pub card_reader: bool,
 }
 
 impl Default for Settings {
@@ -55,6 +57,7 @@ impl Default for Settings {
             ui_scale: 1.0,
             aram_bracket: "all".into(),
             capture_augments: false,
+            card_reader: true,
         }
     }
 }

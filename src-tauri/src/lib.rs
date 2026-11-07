@@ -3,6 +3,7 @@ pub mod aramhex;
 pub mod augments;
 pub mod builds;
 pub mod capture;
+pub mod cards;
 mod commands;
 pub mod core;
 #[cfg(debug_assertions)]
@@ -13,6 +14,7 @@ pub mod hotkeys;
 pub mod lcu;
 pub mod live;
 pub mod model;
+pub mod ocr;
 pub mod opgg;
 pub mod paths;
 pub mod players;
@@ -130,6 +132,7 @@ pub fn run() {
             dev::start(core.clone());
             game::spawn(core.clone());
             aramhex::spawn();
+            cards::spawn(core.clone());
             update::spawn(core.clone());
             if !started_minimized {
                 core.show_main(None);
@@ -151,6 +154,8 @@ pub fn run() {
             commands::rift_tiers,
             commands::aram_overview,
             commands::aram_champion,
+            commands::aram_picks,
+            commands::card_offer,
             commands::augment_names,
             commands::import_build,
             commands::save_settings,

@@ -246,6 +246,22 @@ impl Core {
         }
     }
 
+    /// Show the augment card win rates over `r` (physical pixels), click-through.
+    pub fn show_cards(&self, r: win::Rect, offer: &crate::cards::Offer) {
+        let Some(w) = self.overlay_window("cards") else { return };
+        let _ = w.set_ignore_cursor_events(true);
+        let _ = self.app.emit_to("cards", "offer", offer);
+        if let Ok(h) = w.hwnd() {
+            win::show_topmost(h.0 as isize, r);
+        }
+    }
+
+    pub fn hide_cards(&self) {
+        if let Some(Ok(h)) = self.app.get_webview_window("cards").map(|w| w.hwnd()) {
+            win::hide(h.0 as isize);
+        }
+    }
+
     pub fn spells_visible(&self) -> bool {
         self.visible("spells")
     }

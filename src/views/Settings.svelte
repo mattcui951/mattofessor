@@ -135,6 +135,8 @@
 
       <section>
         <h3>{t('capture.title')}</h3>
+        {@render toggleRow(t('cards.toggle'), 'cardReader')}
+        <p class="note">{t('cards.note')}</p>
         {@render toggleRow(t('capture.toggle'), 'captureAugments')}
         <p class="note">{t('capture.note')}</p>
         <div class="how-actions">

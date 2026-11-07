@@ -192,6 +192,18 @@ pub async fn aram_champion(champion_id: i32, bracket: String) -> Res<crate::aram
     Ok(crate::aramhex::champion(&info, &bracket, &b, champion_id))
 }
 
+/// Augment recommendations for a champion in Hextech ARAM, by rarity.
+#[tauri::command]
+pub async fn aram_picks(champion_id: i32, bracket: String) -> Res<crate::aramhex::Picks> {
+    crate::aramhex::champion_picks(champion_id, &bracket).await.map_err(err)
+}
+
+/// The augment cards on screen now, with your champion's numbers (Hextech ARAM).
+#[tauri::command]
+pub fn card_offer() -> Option<crate::cards::Offer> {
+    crate::cards::current()
+}
+
 /// Augment names, rarity and icons in a language ("en" or "zh").
 #[tauri::command]
 pub async fn augment_names(lang: String) -> Res<crate::augments::Augments> {

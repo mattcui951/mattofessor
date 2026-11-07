@@ -343,6 +343,7 @@ def main():
     ap.add_argument("--length", type=float, default=900, help="seconds in game")
     ap.add_argument("--level-every", type=float, default=90, help="seconds per level")
     ap.add_argument("--deaths", action="store_true", help="you die for 15 s of every game minute")
+    ap.add_argument("--screen", help="an image the stand-in game window shows at its own size from the top-left corner (e.g. a frame with augment cards), instead of a test pattern")
     ap.add_argument("--summoner-down", type=float, default=0, help="seconds the signed-in account is not answered yet (a client still starting)")
     args = ap.parse_args()
 
@@ -384,8 +385,12 @@ def main():
                 print(f"{script.t():6.1f}s phase {ph}", flush=True)
                 last = ph
             if ph == "InProgress" and game_proc is None:
+                if args.screen:
+                    source, place = ["-loop", "1", "-i", args.screen], ["-left", "0", "-top", "0"]
+                else:
+                    source, place = ["-f", "lavfi", "-i", "testsrc2=size=1600x900:rate=30"], ["-left", "60", "-top", "60"]
                 game_proc = subprocess.Popen(
-                    [str(exe), "-hide_banner", "-loglevel", "error", "-f", "lavfi", "-i", "testsrc2=size=1600x900:rate=30", "-noborder", "-left", "60", "-top", "60", "-window_title", "Mock League game"],
+                    [str(exe), "-hide_banner", "-loglevel", "error", *source, "-noborder", *place, "-window_title", "Mock League game"],
                     creationflags=0x08000000,
                 )
             if ph != "InProgress" and game_proc is not None:

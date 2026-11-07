@@ -66,6 +66,8 @@ async fn route(core: &Core, path: &str, p: &HashMap<String, String>) -> Result<V
             let (info, data) = crate::aramhex::bracket(&b).await.map_err(e)?;
             Ok(json!(crate::aramhex::champion(&info, &b, &data, num("championId") as i32)))
         }
+        "/aram_picks" => crate::aramhex::champion_picks(num("championId") as i32, &arg("bracket")).await.map(|v| json!(v)).map_err(e),
+        "/card_offer" => Ok(json!(crate::cards::current())),
         "/augment_names" => crate::augments::all(&arg("lang")).await.map(|v| json!(*v)).map_err(e),
         "/build" => builds::build(num("championId") as i32, &arg("role"), &arg("mode")).await.map(|v| json!(v)).map_err(e),
         "/import_build" => builds::import(num("championId") as i32, &arg("role"), &arg("mode"), arg("runes") == "true", arg("items") == "true")

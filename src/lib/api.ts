@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { AramBracket, AramChampion, AramOverview, Augment, Build, BuildMode, FullGame, ImportResult, InGame, LiveState, MyScore, PlayerScore, Profile, RiftTiers, RiotStatus, Settings, StaticData, Summoner, UpdateState } from './types';
+import type { AramBracket, AramChampion, AramOverview, AramPicks, Augment, Build, BuildMode, FullGame, ImportResult, InGame, LiveState, MyScore, PlayerScore, Profile, RiftTiers, RiotStatus, Settings, StaticData, Summoner, UpdateState } from './types';
 
 export type Boot = {
   settings: Settings;
@@ -32,6 +32,7 @@ export const api = {
     invoke<ImportResult>('import_build', { championId, role, mode, runes, items }),
   riftTiers: () => invoke<RiftTiers>('rift_tiers'),
   aramOverview: (bracket: AramBracket) => invoke<AramOverview>('aram_overview', { bracket }),
+  aramPicks: (championId: number, bracket: AramBracket) => invoke<AramPicks>('aram_picks', { championId, bracket }),
   aramChampion: (championId: number, bracket: AramBracket) => invoke<AramChampion>('aram_champion', { championId, bracket }),
   augmentNames: (lang: string) => invoke<Record<string, Augment>>('augment_names', { lang }),
   saveSettings: (settings: Settings) => invoke<void>('save_settings', { settings }),

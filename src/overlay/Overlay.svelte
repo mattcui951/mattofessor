@@ -1,5 +1,6 @@
 <script lang="ts">
   import Icon from '../components/Icon.svelte';
+  import AugmentPicks from '../components/AugmentPicks.svelte';
   import Teams from '../components/Teams.svelte';
   import { api } from '../lib/api';
   import { queueName } from '../lib/format';
@@ -9,6 +10,7 @@
 
   const hasTeams = $derived(app.live.teams.some((tm) => tm.players.length > 0));
   const loadingScreen = $derived(!app.ingame || app.ingame.gameTime < 2);
+  const me = $derived(app.live.teams.flatMap((tm) => tm.players).find((p) => p.me));
   const pending = $derived(app.live.teams.flatMap((tm) => tm.players).filter((p) => p.status === 'loading').length);
 
   let header: HTMLElement;
@@ -39,6 +41,7 @@
   </header>
   <div class="body">
     <div bind:this={content}>
+      {#if hasTeams && app.live.mode === 'KIWI' && me && me.championId > 0}<AugmentPicks championId={me.championId} compact />{/if}
       {#if hasTeams}
         <Teams live={app.live} onprofile={(puuid) => api.openProfile(puuid)} />
       {:else}

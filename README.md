@@ -17,6 +17,10 @@ accounts. English and Simplified Chinese.
 - **Builds**: runes with stat shards, spells, skill order, starting items, boots and items for
   Summoner's Rift (per lane) and ARAM, imported into the client in one click (or automatically
   when you lock in). In Hextech ARAM the Builds page also ranks the champion's augments.
+- **Hextech ARAM augments**: in champ select and in game, the augments to take and to avoid
+  for your champion, by rarity. When the augment cards are open, your champion's win rate with
+  each card shows above it, the best one marked (read from the screen with Windows' own text
+  recognition, English or Chinese; nothing is saved).
 
 - **Scores**: every player in every game gets a 0.0-10.0 performance score and a place (1st to
   10th); the best on the winning team is MVP, the best on the losing team SVP.
@@ -136,7 +140,9 @@ ranked entries), throttled under those limits. The key is stored with Windows DP
 | `src-tauri/src/positions.rs` | Role inference |
 | `src-tauri/src/builds.rs` | Builds from OP.GG, rune page and item set import |
 | `src-tauri/src/opgg.rs` | OP.GG public endpoint client, its text format parser, tier lists |
-| `src-tauri/src/aramhex.rs` | Hextech ARAM statistics (AramHex open data): download, checks, views |
+| `src-tauri/src/aramhex.rs` | Hextech ARAM statistics (AramHex open data): download, checks, views, augment picks |
+| `src-tauri/src/cards.rs` | Augment card reader: finds the offered cards on screen, places the win rates above them |
+| `src-tauri/src/ocr.rs` | Windows OCR (Windows.Media.Ocr) wrapper |
 | `src-tauri/src/augments.rs` | Augment names, rarity and icons |
 | `src-tauri/src/core.rs` | Windows (main, overlay, spell timers), hotkeys |
 | `src-tauri/src/store.rs` | SQLite cache in `%APPDATA%\Mattofessor\cache.db` (checked at start; a damaged file is rebuilt from its readable rows) |
@@ -176,6 +182,10 @@ writes are recorded in `tools/.mock/writes.log` instead of changing your account
 together exercise the augment pick flow. Settings > Augment reader > "Collect augment card
 samples" saves the middle of the game window while you are dead, plus the live augment data,
 during Hextech ARAM games to `%APPDATA%\Mattofessor\augment-captures` (off by default).
+`--screen <image>` makes the stand-in game window show an image at its own size from the
+top-left corner instead of a test pattern: a full-size frame with augment cards exercises the
+card reader. To check the reader against saved samples:
+`MF_SAMPLES=<capture folder> MF_AUGMENTS=<cherry-augments.json> cargo test --lib scan_samples -- --ignored --nocapture`.
 `--summoner-down 60` keeps the signed-in account unanswered for the first 60 s, like a client
 that is still starting (e.g. right after switching accounts).
 

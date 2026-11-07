@@ -276,7 +276,7 @@ pub struct ChampRow {
     pub rank: u32,
 }
 
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Serialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct AugRow {
     pub id: i32,
@@ -349,6 +349,59 @@ pub fn champion(info: &Info, bracket_name: &str, b: &Bracket, champion_id: i32) 
     }
 }
 
+/// Below this difference from the champion's win rate an augment is not worth avoiding.
+const AVOID_BELOW: f64 = -0.01;
+
+#[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RarityPicks {
+    /// "silver", "gold" or "prismatic".
+    pub rarity: String,
+    /// The best augments of this rarity for the champion, best first.
+    pub take: Vec<AugRow>,
+    /// The worst ones, worst first.
+    pub avoid: Vec<AugRow>,
+}
+
+#[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Picks {
+    pub source: Source,
+    pub champion: Option<ChampRow>,
+    pub rarities: Vec<RarityPicks>,
+}
+
+/// Augment recommendations for a champion, by rarity: up to `take` augments that raise its win
+/// rate the most and up to `avoid` that lower it the most. Small samples are left out of both
+/// lists, so a handful of lucky games never leads a recommendation.
+pub fn picks(c: Champion, rarity: impl Fn(i32) -> Option<String>, take: usize, avoid: usize) -> Picks {
+    let rarities = ["silver", "gold", "prismatic"]
+        .into_iter()
+        .map(|r| {
+            // `c.augments` is sorted best first.
+            let reliable: Vec<&AugRow> = c.augments.iter().filter(|a| !a.low_sample && rarity(a.id).as_deref() == Some(r)).collect();
+            let best: Vec<AugRow> = reliable.iter().filter(|a| a.delta > 0.0).take(take).map(|a| (*a).clone()).collect();
+            let worst: Vec<AugRow> = reliable
+                .iter()
+                .rev()
+                .filter(|a| a.delta < AVOID_BELOW && !best.iter().any(|b| b.id == a.id))
+                .take(avoid)
+                .map(|a| (*a).clone())
+                .collect();
+            RarityPicks { rarity: r.to_string(), take: best, avoid: worst }
+        })
+        .collect();
+    Picks { source: c.source, champion: c.champion, rarities }
+}
+
+/// `picks` for a champion and skill bracket, with augment rarities from CommunityDragon.
+pub async fn champion_picks(champion_id: i32, bracket_name: &str) -> Result<Picks> {
+    let (info, b) = bracket(bracket_name).await?;
+    let names = crate::augments::all("en").await?;
+    let c = champion(&info, bracket_name, &b, champion_id);
+    Ok(picks(c, |id| names.get(&id).map(|a| a.rarity.clone()), 4, 2))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -386,6 +439,24 @@ mod tests {
         let small = &c.augments[1];
         assert!(small.low_sample && small.delta < 0.02 && small.delta > 0.0);
         assert!(c.augments[2].delta < 0.0, "50% on a 56% champion is below average");
+    }
+
+    #[test]
+    fn picks_by_rarity_skip_small_samples() {
+        let pairs = r#"{"24": {"1001": {"games": 400, "wins": 260}, "1002": {"games": 10, "wins": 10, "low_sample": true},
+                               "1003": {"games": 300, "wins": 150}, "1004": {"games": 500, "wins": 300},
+                               "1005": {"games": 800, "wins": 330}, "1006": {"games": 600, "wins": 330}}}"#;
+        let b = parse_bracket(HEROES.as_bytes(), pairs.as_bytes()).unwrap();
+        let rarity = |id: i32| Some(if id == 1006 { "prismatic" } else { "gold" }.to_string());
+        let p = picks(champion(&info(), "all", &b, 24), rarity, 2, 2);
+        let ids = |v: &[AugRow]| v.iter().map(|a| a.id).collect::<Vec<_>>();
+        let gold = p.rarities.iter().find(|r| r.rarity == "gold").unwrap();
+        assert_eq!(ids(&gold.take), [1001, 1004], "best two above Jax's 56%; the 10-game sample is skipped");
+        assert_eq!(ids(&gold.avoid), [1005, 1003], "worst first");
+        let silver = p.rarities.iter().find(|r| r.rarity == "silver").unwrap();
+        assert!(silver.take.is_empty() && silver.avoid.is_empty());
+        let prismatic = p.rarities.iter().find(|r| r.rarity == "prismatic").unwrap();
+        assert!(prismatic.take.is_empty() && prismatic.avoid.is_empty(), "55% on a 56% champion: neither");
     }
 
     #[test]

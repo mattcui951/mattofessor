@@ -15,6 +15,7 @@ export type Settings = {
   uiScale: number;
   aramBracket: AramBracket;
   captureAugments: boolean;
+  cardReader: boolean;
 };
 
 export type Summoner = { puuid: string; gameName: string; tagLine: string; level: number; icon: number; summonerId: number };
@@ -193,6 +194,9 @@ export type AramChampRow = { championId: number; games: number; winRate: number;
 export type AugRow = { id: number; games: number; winRate: number; smoothed: number; delta: number; lowSample: boolean };
 export type AramOverview = { source: AramSource; champions: AramChampRow[]; augments: AugRow[] };
 export type AramChampion = { source: AramSource; champion: AramChampRow | null; augments: AugRow[] };
+export type RarityPicks = { rarity: 'silver' | 'gold' | 'prismatic'; take: AugRow[]; avoid: AugRow[] };
+export type AramPicks = { source: AramSource; champion: AramChampRow | null; rarities: RarityPicks[] };
+export type CardOffer = { championId: number; base: number | null; cards: { id: number; x: number; stat: AugRow | null; best: boolean }[] };
 export type Augment = { name: string; rarity: 'silver' | 'gold' | 'prismatic' | ''; icon: string };
 export type PlayerScore = { participantId: number; puuid: string; score: number; badge: '' | 'mvp' | 'svp'; place: number };
 export type MyScore = { gameId: number; score: number; badge: '' | 'mvp' | 'svp'; place: number; players: number };
