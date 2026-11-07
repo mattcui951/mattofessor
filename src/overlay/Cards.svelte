@@ -19,6 +19,21 @@
     };
   });
 
+  // Debug builds: where the badges landed, into the app log (checked against the cards' places).
+  if (import.meta.env.DEV) {
+    $effect(() => {
+      if (!offer) return;
+      requestAnimationFrame(() => {
+        const at = [...document.querySelectorAll<HTMLElement>('.badge')].map((b) => {
+          const r = b.getBoundingClientRect();
+          return Math.round(((r.left + r.width / 2) / innerWidth) * 1000) / 1000;
+        });
+        const text = `cards window ${innerWidth}x${innerHeight} css px, dpr ${devicePixelRatio}, screen ${screen.width}; badge middles ${at.join(' ')} of the width; wanted ${offer!.cards.map((c) => c.x).join(' ')}`;
+        fetch(`http://127.0.0.1:17431/report?text=${encodeURIComponent(text)}`).catch(() => {});
+      });
+    });
+  }
+
   /** Good, bad or about even for the champion. */
   const tone = (d: number) => (d > 0.01 ? 'good' : d < -0.01 ? 'bad' : 'even');
 </script>

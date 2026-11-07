@@ -1,32 +1,33 @@
 # Status
 
-Updated: 2026-11-06
-Version: 0.3.4, released 2026-11-04
+Updated: 2026-11-07
+Version: 1.0.1
 
 ## In progress
 
-- Hextech ARAM augment recommendations and card reader, uncommitted, not yet released:
-  - `aramhex::picks`: per rarity the 4 augments to take and 2 to avoid for a champion (small
-    samples left out); `AugmentPicks.svelte` on Live in champ select and in game, compact in
-    the overlay. Seen working in champ select with the mock.
-  - `cards.rs` + `ocr.rs`: every 0.5 s in a KIWI game, Windows OCR reads the title band (30-62%
-    of the window), matches augment names (en + zh, fuzzy, same row), and a click-through
-    window (`overlay/Cards.svelte`) shows win rate, difference and "Best" above each card.
-    Placed from card spacing (cards are sized by the HUD: titles at 41% of 3440x1440, 489 px
-    apart). Seen working end to end with `mock_client.py --screen` and a real frame: shows,
-    hides when the cards are covered, comes back. 0.2 core-seconds/s in a debug build.
-    Settings > Augment reader toggle (on by default).
-  - Verified on 824 saved samples: 8 offers found, no false matches after the same-row rule.
-  - Not verified: a real game (needs a release build), the Chinese client, HUD scales other
-    than the default, a window other than 3440x1440.
-- Match history after a damaged cache: v0.3.4 repairs a damaged `cache.db` at start. The last
-  session stopped while checking why history could come back empty on a damaged database. Not yet
-  confirmed on the installed copy (it was still on 0.3.3 then).
+- Card reader (`cards.rs`, `ocr.rs`, `overlay/Cards.svelte`), fixed in 1.0.1 after the first
+  real game showed two labels in the wrong places with stale numbers. Three causes, all fixed:
+  - The `cards` window was missing from `capabilities/default.json`, so it could not listen for
+    updates: it kept the first offer it loaded for the whole pick (rerolls and later picks too).
+  - It read Mattofessor's own in-game panel (open by itself during loading; Hextech's first pick
+    comes right at the start). The panel lists augments in three columns 1.25x wider apart than
+    the cards. The reader now waits while the panel is open.
+  - Labels show only once two reads in a row agree (cards fly in when they open).
+  - "Best" needs at least two cards with enough games.
+  - Verified with `mock_client.py --screen <video> --at 3440,0`: a replay of two real picks from
+    the saved samples (fly-in frames, a reroll), old build reproduces stale labels, new build
+    follows the cards. Debug builds log where each label landed (`report:` lines).
+  - Not verified: a real game with 1.0.1, the Chinese client, other HUD scales and window sizes.
 
 ## Next
 
-- Try the card reader in a real Hextech ARAM game, then release. The augment sample capture can
-  go once the reader is confirmed (one game made 824 PNGs, 3.4 GB).
+- Try the card reader (1.0.1) in a real Hextech ARAM game. The augment sample capture can go
+  once the reader is confirmed (one game made 824 PNGs, 3.4 GB).
+- `store.rs`: `rows()` drops read errors, so a damaged database shows an empty history marked
+  "updated just now"; return fetched rows even when the cache fails, and rebuild the cache as
+  soon as a query reports corruption (not only at start).
+- A sandboxed test run (Claude's shell) sees an overlay of the real %APPDATA%, so it shares
+  `Mattofessor-dev` with dev runs started by App HQ; set `MATTOFESSOR_DATA_DIR` for test runs.
 - Hide the card win rates sooner after a pick (now about 1 s after the cards close).
 - Hextech ARAM items from Tencent (101.qq.com). No permission rule or Referer is needed: plain
   GETs to https://mlol.qt.qq.com/go/battle_info/odp_proxy/<name> work.
@@ -45,6 +46,9 @@ Version: 0.3.4, released 2026-11-04
 
 ## Recently done
 
+- Card win rates: update on rerolls and later picks, ignore Mattofessor's own panel, wait for the
+  cards to settle (1.0.1)
+- Hextech ARAM augment recommendations and win rates on the augment cards (1.0.0)
 - Hextech ARAM augments in match history; repair of a damaged cache (0.3.4)
 - Profile no longer stuck loading after switching accounts (0.3.3)
 - Augment card samples collected by the app (Settings > Augment reader, off by default)

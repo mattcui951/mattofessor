@@ -182,9 +182,11 @@ writes are recorded in `tools/.mock/writes.log` instead of changing your account
 together exercise the augment pick flow. Settings > Augment reader > "Collect augment card
 samples" saves the middle of the game window while you are dead, plus the live augment data,
 during Hextech ARAM games to `%APPDATA%\Mattofessor\augment-captures` (off by default).
-`--screen <image>` makes the stand-in game window show an image at its own size from the
-top-left corner instead of a test pattern: a full-size frame with augment cards exercises the
-card reader. To check the reader against saved samples:
+`--screen <image or video>` makes the stand-in game window show it at its own size instead of
+a test pattern: a full-size frame with augment cards exercises the card reader, and a video of
+saved samples (cards flying in, a reroll) exercises how it follows them. `--at 3440,0` opens the
+window there (e.g. on a second monitor). Run the dev app with `MATTOFESSOR_DATA_DIR=<folder>` to
+keep a test run's data apart; debug builds log where each card win rate landed (`report:`). To check the reader against saved samples:
 `MF_SAMPLES=<capture folder> MF_AUGMENTS=<cherry-augments.json> cargo test --lib scan_samples -- --ignored --nocapture`.
 `--summoner-down 60` keeps the signed-in account unanswered for the first 60 s, like a client
 that is still starting (e.g. right after switching accounts).

@@ -84,6 +84,33 @@ async fn route(core: &Core, path: &str, p: &HashMap<String, String>) -> Result<V
             core.toggle_spells();
             Ok(Value::Null)
         }
+        // The card win rates at a given place (physical pixels) for card middles `xs` (fractions
+        // of the width), to check where they land without a game.
+        "/show_cards" => {
+            let r = crate::win::Rect { x: num("x") as i32, y: num("y") as i32, w: num("w") as i32, h: num("h") as i32 };
+            let xs: Vec<f64> = arg("xs").split(',').filter_map(|s| s.parse().ok()).collect();
+            let cards = xs
+                .iter()
+                .enumerate()
+                .map(|(i, x)| crate::cards::OfferCard {
+                    id: i as i32 + 1,
+                    x: *x,
+                    stat: Some(crate::aramhex::AugRow { id: i as i32 + 1, games: 1000, win_rate: 0.5, smoothed: 0.5, delta: 0.0, low_sample: false }),
+                    best: i == 0,
+                })
+                .collect();
+            core.show_cards(r, &crate::cards::Offer { champion_id: 1, base: Some(0.5), cards });
+            Ok(Value::Null)
+        }
+        // A line from a web view (layout checks in debug builds), into the log.
+        "/report" => {
+            log::info!("report: {}", arg("text"));
+            Ok(Value::Null)
+        }
+        "/hide_cards" => {
+            core.hide_cards();
+            Ok(Value::Null)
+        }
         _ => Err(format!("unknown {path}")),
     }
 }

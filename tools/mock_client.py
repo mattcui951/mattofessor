@@ -343,6 +343,7 @@ def main():
     ap.add_argument("--length", type=float, default=900, help="seconds in game")
     ap.add_argument("--level-every", type=float, default=90, help="seconds per level")
     ap.add_argument("--deaths", action="store_true", help="you die for 15 s of every game minute")
+    ap.add_argument("--at", default="0,0", help="where the stand-in game window opens with --screen (x,y; e.g. 3440,0 for a second monitor)")
     ap.add_argument("--screen", help="an image the stand-in game window shows at its own size from the top-left corner (e.g. a frame with augment cards), instead of a test pattern")
     ap.add_argument("--summoner-down", type=float, default=0, help="seconds the signed-in account is not answered yet (a client still starting)")
     args = ap.parse_args()
@@ -386,7 +387,8 @@ def main():
                 last = ph
             if ph == "InProgress" and game_proc is None:
                 if args.screen:
-                    source, place = ["-loop", "1", "-i", args.screen], ["-left", "0", "-top", "0"]
+                    x, y = args.at.split(",")
+                    source, place = ["-loop", "1", "-i", args.screen], ["-left", x.strip(), "-top", y.strip()]
                 else:
                     source, place = ["-f", "lavfi", "-i", "testsrc2=size=1600x900:rate=30"], ["-left", "60", "-top", "60"]
                 game_proc = subprocess.Popen(

@@ -27,6 +27,9 @@ const EVERY: Duration = Duration::from_millis(500);
 const IDLE: Duration = Duration::from_secs(2);
 /// Reads without cards before the win rates are hidden.
 const MISSES_TO_HIDE: u32 = 2;
+/// How far (fraction of the window width) a card may move between two reads and still count as
+/// settled. The cards fly in when they open: a read during that shows them in the wrong places.
+const SETTLED: f64 = 0.01;
 
 #[derive(Clone, Debug, Serialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
@@ -159,7 +162,8 @@ pub fn cards<'a>(lines: &'a [Line], names: &Names) -> Vec<(i32, &'a Line)> {
     found
 }
 
-/// The offer shown for matched cards: each card's numbers and the best one.
+/// The offer shown for matched cards: each card's numbers and the best one (only when at least two
+/// cards have enough games to compare).
 pub fn offer(champion_id: i32, champ: &aramhex::Champion, found: &[(i32, f64)]) -> Offer {
     let mut cards: Vec<OfferCard> = found
         .iter()
@@ -179,15 +183,26 @@ pub fn offer(champion_id: i32, champ: &aramhex::Champion, found: &[(i32, f64)]) 
                 .filter(|s| !s.low_sample)
                 .map(|s| (i, s.delta))
         })
-        .max_by(|a, b| a.1.total_cmp(&b.1));
-    if let Some((i, _)) = best {
-        cards[i].best = true;
+        .collect::<Vec<_>>();
+    if best.len() >= 2 {
+        if let Some((i, _)) = best.iter().max_by(|a, b| a.1.total_cmp(&b.1)) {
+            cards[*i].best = true;
+        }
     }
     Offer {
         champion_id,
         base: champ.champion.as_ref().map(|c| c.win_rate),
         cards,
     }
+}
+
+/// Whether two reads saw the same cards in the same places (the cards have stopped moving).
+pub fn settled(prev: &[(i32, f64)], cur: &[(i32, f64)]) -> bool {
+    prev.len() == cur.len()
+        && prev
+            .iter()
+            .zip(cur)
+            .all(|(a, b)| a.0 == b.0 && (a.1 - b.1).abs() < SETTLED)
 }
 
 /// Distance between neighbouring card centers (pixels): the unit the cards are drawn in.
@@ -237,6 +252,8 @@ struct Reader {
     /// The OCR language that found cards last ("en" or "zh"): tried first.
     lang: &'static str,
     misses: u32,
+    /// The cards the last read found (ids and places), shown once the next read agrees.
+    last: Vec<(i32, f64)>,
 }
 
 async fn names() -> anyhow::Result<Names> {
@@ -295,6 +312,16 @@ async fn step(core: &Arc<Core>, r: &mut Reader) -> bool {
         }
     }
     let names = r.names.clone().expect("names");
+    // Mattofessor's own panel covers the cards and lists augments by name in columns: read
+    // through it, its names look like cards in the wrong places. Wait until it closes.
+    if core.overlay_visible() {
+        r.last.clear();
+        r.misses += 1;
+        if r.misses >= MISSES_TO_HIDE {
+            clear(core);
+        }
+        return true;
+    }
     let band = win::Rect {
         x: game.x,
         y: game.y + (game.h as f64 * BAND.0) as i32,
@@ -329,6 +356,7 @@ async fn step(core: &Arc<Core>, r: &mut Reader) -> bool {
     .flatten();
 
     let Some((lang, found)) = read else {
+        r.last.clear();
         r.misses += 1;
         if r.misses >= MISSES_TO_HIDE {
             clear(core);
@@ -337,6 +365,15 @@ async fn step(core: &Arc<Core>, r: &mut Reader) -> bool {
     };
     r.misses = 0;
     r.lang = lang;
+    let xs: Vec<(i32, f64)> = found
+        .iter()
+        .map(|(id, l)| (*id, (l.x + l.w / 2.0) as f64 / band.w as f64))
+        .collect();
+    let previous = std::mem::replace(&mut r.last, xs.clone());
+    if !settled(&previous, &xs) {
+        // Still moving (opening, or a card just rerolled): wait for the next read.
+        return true;
+    }
 
     let bracket_name = core.settings().aram_bracket;
     let champ = match aramhex::bracket(&bracket_name).await {
@@ -346,10 +383,6 @@ async fn step(core: &Arc<Core>, r: &mut Reader) -> bool {
             return true;
         }
     };
-    let xs: Vec<(i32, f64)> = found
-        .iter()
-        .map(|(id, l)| (*id, (l.x + l.w / 2.0) as f64 / band.w as f64))
-        .collect();
     let o = offer(champion_id, &champ, &xs);
     let rect = strip(game, band.y, &found);
     let changed = OFFER.lock().as_ref() != Some(&o);
@@ -366,12 +399,14 @@ pub fn spawn(core: Arc<Core>) {
             names: None,
             lang: "en",
             misses: 0,
+            last: Vec::new(),
         };
         loop {
             let active = core.settings().card_reader && step(&core, &mut r).await;
             if !active {
                 clear(&core);
                 r.misses = 0;
+                r.last.clear();
             }
             tokio::time::sleep(if active { EVERY } else { IDLE }).await;
         }
@@ -447,6 +482,19 @@ mod tests {
     }
 
     #[test]
+    fn shown_only_once_the_cards_stop_moving() {
+        let opening = [(1097, 0.40), (1318, 0.55)];
+        let open = [(1097, 0.357), (1318, 0.5), (1205, 0.643)];
+        assert!(!settled(&[], &opening), "first read");
+        assert!(!settled(&opening, &open), "a card more, and moved");
+        assert!(settled(&open, &[(1097, 0.358), (1318, 0.5), (1205, 0.642)]), "same places");
+        assert!(
+            !settled(&open, &[(1097, 0.357), (1318, 0.5), (1088, 0.643)]),
+            "the third card was rerolled"
+        );
+    }
+
+    #[test]
     fn best_card_skips_small_samples() {
         let row = |id, delta: f64, low| AugRow {
             id,
@@ -474,6 +522,11 @@ mod tests {
         let best: Vec<i32> = o.cards.iter().filter(|c| c.best).map(|c| c.id).collect();
         assert_eq!(best, [2]);
         assert!(o.cards[3].stat.is_none());
+        let alone = offer(119, &champ, &[(1, 0.3), (3, 0.5), (4, 0.7)]);
+        assert!(
+            alone.cards.iter().all(|c| !c.best),
+            "one card with enough games has nothing to be best against"
+        );
     }
 
     #[test]
