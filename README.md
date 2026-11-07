@@ -7,8 +7,10 @@ accounts. English and Simplified Chinese.
   champions, roles, mastery and match history with full 10-player game details.
 - **Live game**: in champ select it scouts your team; once the game starts, everyone (Arena
   included). Each player: rank and peak rank, possible smurf, games / win rate / KDA / mastery
-  on their champion, last 5 games' KDA, and tags (one-trick, main role, off-role, farmer,
-  fighter, premade...).
+  on their champion, last 5 games' KDA, and tags (one-trick, strong champion, win rate, the
+  kind of champion they play most, premade...). Hextech ARAM and ARAM games are judged on
+  those games alone, without the Summoner's Rift tags (role, farming, deaths). The rules are
+  listed at the top of `src-tauri/src/analysis.rs`.
 - **In-game panel**: `Ctrl+Shift+M` shows / hides it over the game (chosen so it can run beside Porofessor, which uses `Ctrl+X`); it also shows by itself on the
   loading screen and hides when the match starts. `Ctrl+Shift+N` toggles enemy summoner spell
   timers (click a spell when it is used). Both hotkeys exist only while a game runs.

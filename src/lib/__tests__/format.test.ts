@@ -4,7 +4,7 @@ vi.mock('../api', () => ({ api: {} }));
 vi.mock('@tauri-apps/api/event', () => ({ listen: vi.fn() }));
 
 import { _dicts, i18n } from '../i18n.svelte';
-import { gamesText, kdaRatio, ordinal, positionRole, roleName } from '../format';
+import { gamesText, kdaRatio, ordinal, positionRole, roleName, tagText } from '../format';
 import { tierScore, tierText } from '../dd.svelte';
 import { errorText } from '../state.svelte';
 import { cooldownFor } from '../../overlay/spells';
@@ -58,6 +58,16 @@ describe('format', () => {
     expect(gamesText(3)).toBe('3 games');
     expect(kdaRatio(5, 0, 3)).toBe('Perfect');
     expect(kdaRatio(5, 2, 3)).toBe('4.00');
+  });
+
+  it('writes the play-style and win-rate tags', () => {
+    expect(tagText({ key: 'style', tone: 'info', arg: 'poke' })).toBe('Mostly poke champions');
+    expect(tagText({ key: 'highWr', tone: 'pos', arg: 64 })).toBe('64% win rate');
+    expect(tagText({ key: 'strongChamp', tone: 'pos', arg: [5, 86] })).toMatch(/86% wins$/);
+    i18n.lang = 'zh';
+    expect(tagText({ key: 'style', tone: 'info', arg: 'tank' })).toBe('常玩坦克');
+    expect(tagText({ key: 'style', tone: 'info', arg: 'poke' })).toBe('常玩丢丢怪');
+    expect(tagText({ key: 'lowWr', tone: 'neg', arg: 38 })).toBe('胜率38%');
   });
 
   it('writes tiers', () => {

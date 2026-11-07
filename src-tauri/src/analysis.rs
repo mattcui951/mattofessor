@@ -1,8 +1,18 @@
 //! Turns a player's rank, recent games and champion mastery into the summary and tags shown
 //! for them. Everything here is pure so the rules can be unit tested.
 //!
-//! Tag rules (games = their recent games without remakes; Rift = Summoner's Rift games):
+//! Tag rules (games = their recent games without remakes; Rift = Summoner's Rift games; mode
+//! games = games of the scouted game's kind, ARAM and Hextech ARAM together, when 5+, else all):
 //!   oneTrick      60%+ of 10+ recent games on one champion
+//!   strongChamp   70%+ win rate over 5+ mode games on one champion (not their one-trick, not the
+//!                 champion an expert tag already covers)
+//!   highWr/lowWr  60%+ / 40%- win rate over 15+ mode games (no highWr on a suspected smurf)
+//!   style         40%+ of 10+ mode games on one kind of champion: tank, marksman, mage, poke
+//!                 (long-range artillery), fighter, assassin or support (Data Dragon's first tag).
+//!                 In Hextech ARAM a player's top kind is usually 25-35% (champions are partly
+//!                 random), so 40% stands out.
+//! In ARAM-like and Arena games the Rift-only tags below (role, play style, deaths) are left out:
+//! everyone dies a lot in Hextech ARAM, and lanes and farming do not apply.
 //!   mainRole      60%+ of 8+ Rift games in one role
 //!   offRole       assigned a role they played in under 10% of 10+ Rift games whose role is certain
 //!                 (see `positions` for how roles are worked out)
@@ -13,7 +23,7 @@
 //!   carry         Rift damage to champions per minute of 900+ (not supports)
 //!   frontliner    Rift damage taken per minute of 1400+
 //!   vision        Rift vision score per minute above their role's bar
-//!   diesALot      7.5+ deaths per game over 5+ games;  safe: under 3.5 over 8+ games
+//!   diesALot      7.5+ deaths per Rift game over 5+;  safe: under 3.5 over 8+ Rift games
 //!   winStreak / lossStreak   3+ in a row, most recent first
 //!   smurf         level under 80 with 65%+ win rate and 3.5+ KDA over 10+ recent games, or level under
 //!                 60 already Emerald or higher in solo queue, or (with a Riot API key, which gives
@@ -110,6 +120,39 @@ pub struct Context {
     /// Game mode of the game being scouted (CLASSIC, ARAM, CHERRY...).
     pub mode: Option<String>,
     pub now_ms: i64,
+    /// Champion id to its kind (`class_of`); empty until champion data has loaded.
+    pub classes: std::sync::Arc<HashMap<i32, String>>,
+}
+
+/// Long-range poke champions, by Data Dragon key: their mage or marksman tag alone does not say it.
+const POKE: [&str; 10] = ["Xerath", "Ziggs", "Velkoz", "Lux", "Jayce", "Varus", "Zoe", "Hwei", "Nidalee", "Mel"];
+
+/// A champion's kind for the style tag, from its Data Dragon key and tags (the first tag leads).
+pub fn class_of(key: &str, tags: &[String]) -> String {
+    if POKE.contains(&key) {
+        return "poke".into();
+    }
+    match tags.first().map(String::as_str) {
+        Some("Tank") => "tank",
+        Some("Marksman") => "marksman",
+        Some("Mage") => "mage",
+        Some("Fighter") => "fighter",
+        Some("Assassin") => "assassin",
+        Some("Support") => "support",
+        _ => "",
+    }
+    .into()
+}
+
+/// The kind of game a mode is: "rift", "aram" (ARAM and Hextech ARAM) or "arena".
+fn family(mode: &str) -> &'static str {
+    if mode == "ARAM" || mode.starts_with("KIWI") {
+        "aram"
+    } else if mode == "CHERRY" {
+        "arena"
+    } else {
+        "rift"
+    }
 }
 
 fn position_role(p: &str) -> Option<&'static str> {
@@ -166,13 +209,16 @@ fn champ_stats(champion_id: i32, rows: &[&GameRow], masteries: &[Mastery]) -> Ch
 /// `history` is most recent first.
 pub fn build_card(summoner: Summoner, ranked: Ranked, history: &[GameRow], masteries: &[Mastery], ctx: &Context) -> PlayerCard {
     let played: Vec<&GameRow> = history.iter().filter(|r| !r.remake).collect();
-    // In ARAM/Arena, judge them on that mode when there is enough of it.
-    let same_mode: Vec<&GameRow> = match &ctx.mode {
-        Some(m) if m != "CLASSIC" => played.iter().copied().filter(|r| &r.mode == m).collect(),
-        _ => Vec::new(),
+    // Judge them on games of the scouted game's kind when there is enough of it.
+    let kind = ctx.mode.as_deref().map(family);
+    let same_mode: Vec<&GameRow> = match kind {
+        Some(k) => played.iter().copied().filter(|r| family(&r.mode) == k).collect(),
+        None => Vec::new(),
     };
     let pool: Vec<&GameRow> = if same_mode.len() >= 5 { same_mode } else { played.clone() };
     let rift: Vec<&GameRow> = played.iter().copied().filter(|r| r.is_rift()).collect();
+    // Rift habits (role, farming, vision, deaths) say nothing about an ARAM or Arena game.
+    let rift_tags = kind.is_none_or(|k| k == "rift");
 
     let mut card = PlayerCard {
         games: played.len() as u32,
@@ -245,33 +291,79 @@ pub fn build_card(summoner: Summoner, ranked: Ranked, history: &[GameRow], maste
     }
 
     // Champion.
+    let mut expert_on = None;
     if let Some(cs) = &card.champ {
         if cs.games == 0 && cs.mastery_points < 10_000 {
             tags.push(tag("firstTime", "neg", None));
         } else if cs.mastery_points >= 200_000 || (cs.games >= 10 && cs.wins as f64 / cs.games as f64 >= 0.55) {
             tags.push(tag("expert", "pos", None));
+            expert_on = Some(cs.champion_id);
         }
     }
+    let mut one_trick = None;
     if let Some((c, n)) = champs.first() {
         if played.len() >= 10 && *n as f64 / played.len() as f64 >= 0.6 {
             tags.push(tag("oneTrick", "info", Some(json!(c))));
+            one_trick = Some(*c);
+        }
+    }
+
+    // A champion they win a lot on, in this kind of game.
+    let mut on_champ: HashMap<i32, (u32, u32)> = HashMap::new();
+    for r in &pool {
+        let e = on_champ.entry(r.champion_id).or_default();
+        e.0 += 1;
+        e.1 += u32::from(r.win);
+    }
+    let strong = on_champ
+        .iter()
+        .filter(|(c, (g, w))| *g >= 5 && *w as f64 / *g as f64 >= 0.7 && Some(**c) != one_trick && Some(**c) != expert_on)
+        .max_by_key(|(c, (g, w))| (*w, *g, std::cmp::Reverse(**c)));
+    if let Some((c, (g, w))) = strong {
+        tags.push(tag("strongChamp", "pos", Some(json!([c, (*w as f64 * 100.0 / *g as f64).round()]))));
+    }
+
+    // Win rate in this kind of game.
+    let pool_wins = pool.iter().filter(|r| r.win).count() as f64;
+    if pool.len() >= 15 {
+        let wr = pool_wins / pool.len() as f64;
+        let pct = json!((wr * 100.0).round());
+        if wr >= 0.6 && !card.smurf {
+            tags.push(tag("highWr", "pos", Some(pct)));
+        } else if wr <= 0.4 {
+            tags.push(tag("lowWr", "neg", Some(pct)));
+        }
+    }
+
+    // The kind of champion they play most.
+    if pool.len() >= 10 {
+        let mut by_class: HashMap<&str, u32> = HashMap::new();
+        for r in &pool {
+            if let Some(c) = ctx.classes.get(&r.champion_id).filter(|c| !c.is_empty()) {
+                *by_class.entry(c.as_str()).or_default() += 1;
+            }
+        }
+        if let Some((c, n)) = by_class.into_iter().max_by_key(|(c, n)| (*n, std::cmp::Reverse(*c))) {
+            if n as f64 / pool.len() as f64 >= 0.4 {
+                tags.push(tag("style", "info", Some(json!(c))));
+            }
         }
     }
 
     // Role.
     let main_role = card.roles.first().filter(|r| rift.len() >= 8 && r.games as f64 / rift.len() as f64 >= 0.6).map(|r| r.role.clone());
-    if let Some(assigned) = ctx.position.as_deref().and_then(position_role) {
+    if let Some(assigned) = ctx.position.as_deref().and_then(position_role).filter(|_| rift_tags) {
         let share = sure_roles.get(assigned).copied().unwrap_or(0) as f64 / sure_games.max(1) as f64;
         if sure_games >= 8 && share < 0.1 {
             tags.push(tag("offRole", "neg", Some(json!(assigned))));
         }
     }
-    if let Some(r) = &main_role {
+    if let Some(r) = main_role.as_ref().filter(|_| rift_tags) {
         tags.push(tag("mainRole", "info", Some(json!(r))));
     }
 
     // Play style on the Rift.
-    if rift.len() >= 5 {
+    if rift_tags && rift.len() >= 5 {
         let role = main_role.clone().unwrap_or_default();
         let csm = avg(&rift, |r| r.cs as f64 / r.minutes());
         if role != "support" && !role.is_empty() && csm >= typical_csm(&role) + 1.0 {
@@ -295,11 +387,11 @@ pub fn build_card(summoner: Summoner, ranked: Ranked, history: &[GameRow], maste
         }
     }
 
-    // Deaths.
-    let deaths = avg(&pool, |r| r.deaths as f64);
-    if pool.len() >= 5 && deaths >= 7.5 {
+    // Deaths, on the Rift only: ARAM games have far more deaths for everyone.
+    let deaths = avg(&rift, |r| r.deaths as f64);
+    if rift_tags && rift.len() >= 5 && deaths >= 7.5 {
         tags.push(tag("diesALot", "neg", None));
-    } else if pool.len() >= 8 && deaths < 3.5 {
+    } else if rift_tags && rift.len() >= 8 && deaths < 3.5 {
         tags.push(tag("safe", "pos", None));
     }
 
@@ -437,7 +529,7 @@ mod tests {
         h[1].win = true;
         h[2].win = true;
         h[3].win = false;
-        let ctx = Context { champion_id: Some(64), position: Some("JUNGLE".into()), mode: Some("CLASSIC".into()), now_ms: 1_000_000 };
+        let ctx = Context { champion_id: Some(64), position: Some("JUNGLE".into()), mode: Some("CLASSIC".into()), now_ms: 1_000_000, ..Default::default() };
         let c = build_card(summ(300), Ranked::default(), &h, &[], &ctx);
         let k = keys(&c);
         assert!(k.contains(&"oneTrick"), "{k:?}");
@@ -453,7 +545,7 @@ mod tests {
     fn first_time_and_off_role() {
         crate::positions::set((1..=4).map(|c| (c, vec!["mid".to_string()])).collect());
         let h: Vec<GameRow> = (0..12).map(|i| row(i, 1 + (i as i32 % 4), true, "mid")).collect();
-        let ctx = Context { champion_id: Some(99), position: Some("UTILITY".into()), mode: None, now_ms: 0 };
+        let ctx = Context { champion_id: Some(99), position: Some("UTILITY".into()), mode: None, now_ms: 0, ..Default::default() };
         let c = build_card(summ(300), Ranked::default(), &h, &[], &ctx);
         let k = keys(&c);
         assert!(k.contains(&"firstTime"));
@@ -514,6 +606,52 @@ mod tests {
         assert_eq!(c.tags.iter().find(|t| t.key == "lossStreak").unwrap().arg, Some(json!(5)));
     }
 
+    /// Hextech ARAM games: lots of deaths, random champions.
+    fn kiwi(id: u64, champ: i32, win: bool) -> GameRow {
+        GameRow { mode: "KIWI".into(), queue_id: 2400, map_id: 12, deaths: 14, ..row(id, champ, win, "mid") }
+    }
+
+    #[test]
+    fn hextech_aram_has_no_rift_or_death_tags() {
+        let mut h: Vec<GameRow> = (0..20).map(|i| kiwi(i, 10 + (i as i32 % 7), i % 2 == 0)).collect();
+        h.extend((20..30).map(|i| GameRow { deaths: 9, ..row(i, 64, false, "jungle") }));
+        let ctx = Context { mode: Some("KIWI".into()), position: Some("UTILITY".into()), ..Default::default() };
+        let c = build_card(summ(300), Ranked::default(), &h, &[], &ctx);
+        let k = keys(&c);
+        for rift_only in ["diesALot", "safe", "mainRole", "offRole", "farmer", "vision"] {
+            assert!(!k.contains(&rift_only), "{rift_only} in {k:?}");
+        }
+        // Their profile (no game) still shows Rift habits, from Rift games only.
+        let c = build_card(summ(300), Ranked::default(), &h, &[], &Context::default());
+        let k = keys(&c);
+        assert!(k.contains(&"diesALot"), "{k:?}");
+        let only_kiwi: Vec<GameRow> = h.iter().filter(|r| r.mode == "KIWI").cloned().collect();
+        let c = build_card(summ(300), Ranked::default(), &only_kiwi, &[], &Context::default());
+        let k = keys(&c);
+        assert!(!k.contains(&"diesALot"), "14 deaths a game is normal in Hextech ARAM: {k:?}");
+    }
+
+    #[test]
+    fn style_win_rate_and_strong_champion() {
+        let classes: HashMap<i32, String> =
+            [(1, "tank"), (2, "tank"), (3, "tank"), (4, "mage"), (5, "poke")].map(|(c, k)| (c, k.to_string())).into();
+        // 20 Hextech games: 12 on tanks, 13 wins, 6 of 7 won on champion 5.
+        let h: Vec<GameRow> = (0..20)
+            .map(|i| {
+                let champ = if i < 12 { 1 + (i as i32 % 3) } else if i < 19 { 5 } else { 4 };
+                let win = if champ == 5 { i != 18 } else { i % 2 == 0 };
+                kiwi(i, champ, win)
+            })
+            .collect();
+        let ctx = Context { mode: Some("KIWI".into()), classes: classes.into(), ..Default::default() };
+        let c = build_card(summ(300), Ranked::default(), &h, &[], &ctx);
+        let arg = |key: &str| c.tags.iter().find(|t| t.key == key).and_then(|t| t.arg.clone());
+        assert_eq!(arg("style"), Some(json!("tank")), "{:?}", keys(&c));
+        assert_eq!(arg("highWr"), Some(json!(60.0)));
+        assert_eq!(arg("strongChamp"), Some(json!([5, 86.0])));
+        assert!(!keys(&c).contains(&"lowWr"));
+    }
+
     #[test]
     fn inactive() {
         let h = vec![row(1, 1, true, "top")];
@@ -541,3 +679,4 @@ mod tests {
         assert!(!g.contains_key("e"), "same games but different sides then");
     }
 }
+

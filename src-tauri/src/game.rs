@@ -252,6 +252,7 @@ fn start_fetches(entries: &[Entry]) {
 
 fn build_state(phase: &str, connected: bool, roster: &Roster) -> LiveState {
     let now = players::now_ms();
+    let classes = crate::dd::classes();
     let my_team = roster.entries.iter().find(|e| e.me).map(|e| e.team_id).unwrap_or(100);
     let mut team_ids: Vec<i32> = roster.entries.iter().map(|e| e.team_id).collect();
     team_ids.sort();
@@ -286,6 +287,7 @@ fn build_state(phase: &str, connected: bool, roster: &Roster) -> LiveState {
                             position: Some(e.position.clone()).filter(|p| !p.is_empty()),
                             mode: Some(roster.mode.clone()).filter(|m| !m.is_empty()),
                             now_ms: now,
+                            classes: classes.clone(),
                         };
                         let card = inp.card(&ctx);
                         if slot.name.is_empty() {

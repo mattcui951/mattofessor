@@ -34,7 +34,8 @@ export type UpdateState = {
 
 export type RiotStatus = 'none' | 'unchecked' | 'ok' | 'invalid' | 'unreachable';
 
-export type Tag = { key: string; tone: '' | 'pos' | 'neg' | 'info' | 'duo'; arg?: number | string };
+/** `arg`: a number or text, or [champion id, win %] for strongChamp. */
+export type Tag = { key: string; tone: '' | 'pos' | 'neg' | 'info' | 'duo'; arg?: number | string | [number, number] };
 
 export type ChampStats = {
   championId: number;

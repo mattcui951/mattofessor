@@ -55,7 +55,7 @@ pub struct Profile {
 }
 
 fn profile_of(inputs: players::Inputs, puuid: &str, is_me: bool, updated_at: i64) -> Profile {
-    let card = inputs.card(&Context { now_ms: players::now_ms(), ..Default::default() });
+    let card = inputs.card(&Context { now_ms: players::now_ms(), classes: dd::classes(), ..Default::default() });
     let mut masteries = inputs.masteries.clone();
     masteries.sort_by_key(|m| std::cmp::Reverse(m.points));
     masteries.truncate(10);

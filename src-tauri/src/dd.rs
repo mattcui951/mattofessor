@@ -184,6 +184,13 @@ fn parse(version: &str, locale: &str, champs: &Value, items: &Value, spells: &Va
 }
 
 static CACHE: Mutex<Option<HashMap<String, Arc<StaticData>>>> = Mutex::new(None);
+static CLASSES: Mutex<Option<Arc<HashMap<i32, String>>>> = Mutex::new(None);
+
+/// Champion id to its kind for the style tag (`analysis::class_of`), from the champion data
+/// loaded last (the tags do not depend on the language); empty until any has loaded.
+pub fn classes() -> Arc<HashMap<i32, String>> {
+    CLASSES.lock().clone().unwrap_or_default()
+}
 
 /// Static data for a language ("en" / "zh"), from memory, disk or the CDN.
 pub async fn get(lang: &str) -> Result<Arc<StaticData>> {
@@ -210,6 +217,8 @@ pub async fn get(lang: &str) -> Result<Arc<StaticData>> {
         }
     };
     let d = Arc::new(data);
+    let classes = d.champions.iter().map(|(id, c)| (*id, crate::analysis::class_of(&c.key, &c.tags))).collect();
+    *CLASSES.lock() = Some(Arc::new(classes));
     CACHE.lock().get_or_insert_with(HashMap::new).insert(key, d.clone());
     Ok(d)
 }

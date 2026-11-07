@@ -1,7 +1,7 @@
 # Status
 
 Updated: 2026-11-07
-Version: 1.0.1
+Version: 1.0.2
 
 ## In progress
 
@@ -46,6 +46,9 @@ Version: 1.0.1
 
 ## Recently done
 
+- Tags: separate rules for ARAM / Hextech ARAM (no Rift role, farming or death tags there; "dies
+  a lot" counts Rift games only); new tags: kind of champion played most (40%+), win rate
+  (60%+ / 40%- over 15+), strong champion (70%+ over 5+). Checked on 40 saved players (1.0.2)
 - Card win rates: update on rerolls and later picks, ignore Mattofessor's own panel, wait for the
   cards to settle (1.0.1)
 - Hextech ARAM augment recommendations and win rates on the augment cards (1.0.0)

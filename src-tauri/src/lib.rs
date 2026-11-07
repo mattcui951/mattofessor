@@ -130,6 +130,12 @@ pub fn run() {
 
             #[cfg(debug_assertions)]
             dev::start(core.clone());
+            // Champion data for the tags (champion kinds), even when no window has opened yet.
+            tauri::async_runtime::spawn(async {
+                if let Err(e) = dd::get("en").await {
+                    log::warn!("champion data: {e:#}");
+                }
+            });
             game::spawn(core.clone());
             aramhex::spawn();
             cards::spawn(core.clone());

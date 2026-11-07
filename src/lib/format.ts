@@ -78,8 +78,14 @@ export function tagText(tag: Tag): string {
       return t(`tag.${tag.key}`, roleName(String(arg)));
     case 'wasHigher':
       return t('tag.wasHigher', tierText({ tier: String(arg), division: '' }));
+    case 'strongChamp': {
+      const [champ, pct] = arg as [number, number];
+      return t('tag.strongChamp', champName(Number(champ)), pct);
+    }
+    case 'style':
+      return t('tag.style', t(`class.${String(arg)}`));
     default:
-      return t(`tag.${tag.key}`, arg ?? '');
+      return t(`tag.${tag.key}`, Array.isArray(arg) ? arg.join(' ') : (arg ?? ''));
   }
 }
 
