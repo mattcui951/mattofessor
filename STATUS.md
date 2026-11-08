@@ -1,7 +1,7 @@
 # Status
 
 Updated: 2026-11-07
-Version: 1.0.3
+Version: 1.0.4
 
 ## In progress
 
@@ -20,7 +20,7 @@ Version: 1.0.3
   - Real games with 1.0.3: labels follow rerolls when dead (20:27 game). At a first pick (7 Nov,
     Hecarim) Windows OCR cut two titles into two lines each: "Clown College" got no label and
     "Recursion" (another augment) showed at the right half of "Infinite Recursion". Fixed
-    (unreleased): titles are now joined from the OCR's words (same row, gaps under 3 word
+    (1.0.4): titles are now joined from the OCR's words (same row, gaps under 3 word
     heights), junk of 1-2 letters around a title is left out, and a name inside other words does
     not count. The live split could not be made to happen on recorded frames; the tests rebuild
     it from the numbers shown. Rescanning today's six games' samples gives the same cards.
@@ -57,7 +57,7 @@ Version: 1.0.3
 ## Recently done
 
 - Scouting panel and Live page: the two teams share row heights (CSS subgrid), so players line up
-  across the teams when tags wrap or details are open (unreleased)
+  across the teams when tags wrap or details are open (1.0.4)
 - Zoom: Ctrl + / Ctrl - / Ctrl + mouse wheel (or pinch) / Ctrl 0 in the main window step the
   saved text size, with a badge showing the size and a reset button (1.0.3)
 - Tags: separate rules for ARAM / Hextech ARAM (no Rift role, farming or death tags there; "dies
