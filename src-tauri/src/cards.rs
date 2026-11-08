@@ -2,12 +2,13 @@
 //! champion's win rate with each one in a small click-through window above the cards.
 //!
 //! About twice a second it captures the band of the game window where card titles sit, reads it
-//! with Windows' own OCR (English, then Chinese) and matches each line to an augment name. Two or
-//! three matches mean the cards are open. Nothing is saved and nothing leaves the PC.
+//! with Windows' own OCR (English, then Chinese), joins the words that sit together into titles
+//! and matches each title to an augment name. Two or three matches mean the cards are open.
+//! Nothing is saved and nothing leaves the PC.
 
 use crate::aramhex::{self, AugRow};
 use crate::core::Core;
-use crate::ocr::{self, Line};
+use crate::ocr::{self, Line, Word};
 use crate::win;
 use parking_lot::Mutex;
 use serde::Serialize;
@@ -107,12 +108,17 @@ impl Names {
 
     /// The augment a line of text names, if it is close enough to one.
     pub fn find(&self, text: &str) -> Option<i32> {
+        self.find_scored(text).map(|(id, _)| id)
+    }
+
+    /// The augment a text names and how many letters differ (0: exact).
+    fn find_scored(&self, text: &str) -> Option<(i32, usize)> {
         let t: Vec<char> = normalize(text).chars().collect();
         if t.len() < 2 {
             return None;
         }
         if let Some((_, id)) = self.list.iter().find(|(n, _)| *n == t) {
-            return Some(*id);
+            return Some((*id, 0));
         }
         // Close matches allow about one wrong letter in six; short names must match exactly.
         if t.len() < 5 {
@@ -128,15 +134,96 @@ impl Names {
                 best = Some((d, *id));
             }
         }
-        best.map(|(_, id)| id)
+        best.map(|(d, id)| (id, d))
     }
 }
 
-/// The cards among the lines read: augment titles, left to right, at most three.
-pub fn cards<'a>(lines: &'a [Line], names: &Names) -> Vec<(i32, &'a Line)> {
-    let mut found: Vec<(i32, &Line)> = Vec::new();
-    for l in lines {
-        if let Some(id) = names.find(&l.text) {
+/// Words of at most this many letters and digits may sit around a title and be ignored: a
+/// sparkle or a card's frame read as "x", "+" or "Il".
+const JUNK: usize = 2;
+/// Words closer than this many word heights belong to one piece of text (a card title). Words of
+/// a title are about 0.3 heights apart (more in a wide font), titles of neighbouring cards 5+
+/// (long names) and a card's frame about 4.5 away from its title.
+const WORD_GAP: f32 = 3.0;
+
+/// Texts on the screen: words that sit together on one row, joined (one card title each).
+fn phrases(lines: &[Line]) -> Vec<Vec<Word>> {
+    // Words, each once (wide images are read in overlapping tiles: a word can come twice).
+    let mut words: Vec<Word> = Vec::new();
+    for w in lines.iter().flat_map(|l| &l.words) {
+        let twice = words.iter().any(|k| {
+            k.text == w.text && (k.x - w.x).abs() < k.h / 2.0 && (k.y - w.y).abs() < k.h / 2.0
+        });
+        if !twice {
+            words.push(w.clone());
+        }
+    }
+    let mid = |w: &Word| w.y + w.h / 2.0;
+    words.sort_by(|a, b| mid(a).total_cmp(&mid(b)));
+    // Rows: words whose middles are within half a word height of the row's first word.
+    let mut rows: Vec<Vec<Word>> = Vec::new();
+    for w in words {
+        match rows.last_mut() {
+            Some(row) if (mid(&w) - mid(&row[0])).abs() < row[0].h.max(w.h) / 2.0 => row.push(w),
+            _ => rows.push(vec![w]),
+        }
+    }
+    let mut out = Vec::new();
+    for mut row in rows {
+        row.sort_by(|a, b| a.x.total_cmp(&b.x));
+        let mut phrase: Vec<Word> = Vec::new();
+        for w in row {
+            if let Some(last) = phrase.last() {
+                if w.x - (last.x + last.w) > WORD_GAP * last.h.max(w.h) {
+                    out.push(std::mem::take(&mut phrase));
+                }
+            }
+            phrase.push(w);
+        }
+        if !phrase.is_empty() {
+            out.push(phrase);
+        }
+    }
+    out
+}
+
+/// The augment a phrase names, with where its name is: the whole phrase, or the phrase without
+/// junk words around it. A name inside other words does not count ("Recursion" is an augment of
+/// its own, and so is a word in many descriptions).
+fn title(phrase: &[Word], names: &Names) -> Option<(i32, Line)> {
+    let junk = |w: &Word| normalize(&w.text).chars().count() <= JUNK;
+    let start = phrase.iter().position(|w| !junk(w))?;
+    let end = phrase.iter().rposition(|w| !junk(w))?;
+    // The longest run first: the whole phrase, then without junk at the ends.
+    let mut runs = vec![(0, phrase.len() - 1)];
+    if (start, end) != (0, phrase.len() - 1) {
+        runs.push((start, end));
+    }
+    let mut best: Option<(i32, usize, usize, usize)> = None;
+    for (i, j) in runs {
+        let text = phrase[i..=j].iter().map(|w| w.text.as_str()).collect::<Vec<_>>().join(" ");
+        if let Some((id, d)) = names.find_scored(&text) {
+            if best.is_none_or(|(_, bd, _, _)| d < bd) {
+                best = Some((id, d, i, j));
+            }
+        }
+    }
+    let (id, _, i, j) = best?;
+    let run = &phrase[i..=j];
+    let x = run.iter().map(|w| w.x).fold(f32::MAX, f32::min);
+    let y = run.iter().map(|w| w.y).fold(f32::MAX, f32::min);
+    let x2 = run.iter().map(|w| w.x + w.w).fold(f32::MIN, f32::max);
+    let y2 = run.iter().map(|w| w.y + w.h).fold(f32::MIN, f32::max);
+    let text = run.iter().map(|w| w.text.as_str()).collect::<Vec<_>>().join(" ");
+    Some((id, Line { text, x, y, w: x2 - x, h: y2 - y, words: run.to_vec() }))
+}
+
+/// The cards among the text read: augment titles, left to right, at most three, each with where
+/// its title is.
+pub fn cards(lines: &[Line], names: &Names) -> Vec<(i32, Line)> {
+    let mut found: Vec<(i32, Line)> = Vec::new();
+    for phrase in phrases(lines) {
+        if let Some((id, l)) = title(&phrase, names) {
             if !found.iter().any(|(f, _)| *f == id) {
                 found.push((id, l));
             }
@@ -194,6 +281,11 @@ pub fn offer(champion_id: i32, champ: &aramhex::Champion, found: &[(i32, f64)]) 
         base: champ.champion.as_ref().map(|c| c.win_rate),
         cards,
     }
+}
+
+/// Cards for the log: augment id @ place across the window.
+fn describe(cards: &[(i32, f64)]) -> String {
+    cards.iter().map(|(id, x)| format!("{id}@{x:.3}")).collect::<Vec<_>>().join(" ")
 }
 
 /// Whether two reads saw the same cards in the same places (the cards have stopped moving).
@@ -338,10 +430,7 @@ async fn step(core: &Arc<Core>, r: &mut Reader) -> bool {
             }
             match ocr::read(&px, band.w as u32, band.h as u32, lang) {
                 Ok(lines) => {
-                    let found: Vec<(i32, Line)> = cards(&lines, &names)
-                        .into_iter()
-                        .map(|(id, l)| (id, l.clone()))
-                        .collect();
+                    let found = cards(&lines, &names);
                     if found.len() >= 2 {
                         return Some((lang, found));
                     }
@@ -369,6 +458,9 @@ async fn step(core: &Arc<Core>, r: &mut Reader) -> bool {
         .iter()
         .map(|(id, l)| (*id, (l.x + l.w / 2.0) as f64 / band.w as f64))
         .collect();
+    if cfg!(debug_assertions) {
+        log::info!("card read ({lang}): {}", describe(&xs));
+    }
     let previous = std::mem::replace(&mut r.last, xs.clone());
     if !settled(&previous, &xs) {
         // Still moving (opening, or a card just rerolled): wait for the next read.
@@ -387,6 +479,7 @@ async fn step(core: &Arc<Core>, r: &mut Reader) -> bool {
     let rect = strip(game, band.y, &found);
     let changed = OFFER.lock().as_ref() != Some(&o);
     if changed {
+        log::info!("card win rates shown: {}", describe(&xs));
         *OFFER.lock() = Some(o.clone());
         core.show_cards(rect, &o);
     }
@@ -428,19 +521,76 @@ mod tests {
                 (1326, "Glass Canon Pro"),
                 (1, "Tank"),
                 (1225, "双持"),
+                (1310, "Clown College"),
+                (1004, "Back To Basics"),
+                (1388, "Infinite Recursion"),
+                (1068, "Recursion"),
             ],
             &hextech,
         )
     }
 
+    /// A line as the OCR gives it: its words side by side (10 px per letter, 6 px apart).
     fn line(text: &str, x: f32) -> Line {
-        Line {
-            text: text.into(),
-            x,
-            y: 10.0,
-            w: 100.0,
-            h: 20.0,
+        let mut words = Vec::new();
+        let mut at = x;
+        for t in text.split(' ') {
+            let w = 10.0 * t.chars().count() as f32;
+            words.push(Word { text: t.into(), x: at, y: 10.0, w, h: 20.0 });
+            at += w + 6.0;
         }
+        Line { text: text.into(), x, y: 10.0, w: at - 6.0 - x, h: 20.0, words }
+    }
+
+    fn middle(l: &Line) -> f32 {
+        l.x + l.w / 2.0
+    }
+
+    /// The cards of a real pick (Hecarim, 7 Nov) as the OCR cut them in the game: two titles came
+    /// as two lines each. Reading lines, "Clown College" was lost and "Recursion" (another
+    /// augment) was shown at the right half of "Infinite Recursion".
+    #[test]
+    fn a_title_cut_into_two_lines_is_still_one_card() {
+        let n = names();
+        let lines = [
+            line("Clown", 1142.0),
+            line("College", 1208.0),
+            line("Back To Basics", 1630.0),
+            line("Infinite", 2103.0),
+            line("Recursion", 2189.0),
+        ];
+        let found = cards(&lines, &n);
+        let ids: Vec<i32> = found.iter().map(|(id, _)| *id).collect();
+        assert_eq!(ids, [1310, 1004, 1388]);
+        assert_eq!(middle(&found[2].1), (2103.0 + 2279.0) / 2.0, "the whole title's middle");
+        assert_eq!(n.find("Recursion"), Some(1068), "the half alone names another augment");
+        // Words of a title can sit far apart in a wide font (here 50 px for 20 px high words);
+        // titles of neighbouring cards are farther apart.
+        let wide = [line("Infinite", 2103.0), line("Recursion", 2233.0), line("Clown College", 2425.0)];
+        let ids: Vec<i32> = cards(&wide, &n).iter().map(|(id, _)| *id).collect();
+        assert_eq!(ids, [1388, 1310]);
+    }
+
+    #[test]
+    fn junk_around_a_title_is_left_out() {
+        let n = names();
+        // A card frame and a sparkle read as letters on each side of the title.
+        let lines = [line("Il Infinite Recursion x", 2083.0), line("+ Clown College", 1122.0)];
+        let found = cards(&lines, &n);
+        let ids: Vec<i32> = found.iter().map(|(id, _)| *id).collect();
+        assert_eq!(ids, [1310, 1388]);
+        assert_eq!(found[1].1.text, "Infinite Recursion");
+        assert_eq!(found[1].1.x, 2083.0 + 26.0, "the box starts at the title");
+    }
+
+    #[test]
+    fn a_name_inside_other_words_is_not_a_card() {
+        let n = names();
+        let lines = [
+            line("Gain Recursion stacks on takedowns", 100.0),
+            line("Deal Recursion", 900.0),
+        ];
+        assert!(cards(&lines, &n).is_empty());
     }
 
     #[test]
@@ -464,14 +614,16 @@ mod tests {
 
     #[test]
     fn cards_are_ordered_left_to_right() {
-        let mut tooltip = line("Glass Cannon Pro", 400.0);
-        tooltip.y = 60.0;
+        let mut tooltip = line("Glass Cannon Pro", 1300.0);
+        for w in &mut tooltip.words {
+            w.y = 60.0;
+        }
         let lines = [
-            line("Dual Wield", 900.0),
-            line("Speed", 300.0),
+            line("Dual Wield", 1600.0),
+            line("Speed", 700.0),
             tooltip,
             line("Ultimate Revolution", 100.0),
-            line("Glass Cannon", 500.0),
+            line("Glass Cannon", 1100.0),
         ];
         let ids: Vec<i32> = cards(&lines, &names()).iter().map(|(id, _)| *id).collect();
         assert_eq!(
@@ -550,6 +702,7 @@ mod tests {
                         y: 151.0,
                         w: 120.0,
                         h: 20.0,
+                        words: Vec::new(),
                     },
                 )
             })
@@ -640,6 +793,12 @@ mod scan {
             let row = (info.width * 4) as usize;
             let band = &buf[y0 as usize * row..(y0 + h) as usize * row];
             let lines = ocr::read(band, info.width, h, "en").unwrap();
+            // MF_LINES=1 prints every line the OCR read, to see why a title did not match.
+            if std::env::var_os("MF_LINES").is_some() {
+                for l in &lines {
+                    println!("  {:?} x={:.0} y={:.0} w={:.0} h={:.0}", l.text, l.x, l.y, l.w, l.h);
+                }
+            }
             let found = cards(&lines, &names);
             total += 1;
             if found.len() >= 2 {

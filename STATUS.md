@@ -17,12 +17,22 @@ Version: 1.0.3
   - Verified with `mock_client.py --screen <video> --at 3440,0`: a replay of two real picks from
     the saved samples (fly-in frames, a reroll), old build reproduces stale labels, new build
     follows the cards. Debug builds log where each label landed (`report:` lines).
-  - Not verified: a real game with 1.0.1, the Chinese client, other HUD scales and window sizes.
+  - Real games with 1.0.3: labels follow rerolls when dead (20:27 game). At a first pick (7 Nov,
+    Hecarim) Windows OCR cut two titles into two lines each: "Clown College" got no label and
+    "Recursion" (another augment) showed at the right half of "Infinite Recursion". Fixed
+    (unreleased): titles are now joined from the OCR's words (same row, gaps under 3 word
+    heights), junk of 1-2 letters around a title is left out, and a name inside other words does
+    not count. The live split could not be made to happen on recorded frames; the tests rebuild
+    it from the numbers shown. Rescanning today's six games' samples gives the same cards.
+  - Every change of the shown labels is now logged (`card win rates shown: id@x ...`), every
+    read too in debug builds, so the next odd pick can be traced from `app.log`.
+  - Not verified: the Chinese client, other HUD scales and window sizes.
 
 ## Next
 
-- Try the card reader (1.0.1) in a real Hextech ARAM game. The augment sample capture can go
-  once the reader is confirmed (one game made 824 PNGs, 3.4 GB).
+- Watch the card reader in the next games (the log now shows each change). The augment sample
+  capture can go once the reader is confirmed (one game made 824 PNGs, 3.4 GB); Matt Game
+  Recorder's videos (F:\Matt Game Recorder) are a better source: whole picks, alive too.
 - `store.rs`: `rows()` drops read errors, so a damaged database shows an empty history marked
   "updated just now"; return fetched rows even when the cache fails, and rebuild the cache as
   soon as a query reports corruption (not only at start).
@@ -46,6 +56,8 @@ Version: 1.0.3
 
 ## Recently done
 
+- Scouting panel and Live page: the two teams share row heights (CSS subgrid), so players line up
+  across the teams when tags wrap or details are open (unreleased)
 - Zoom: Ctrl + / Ctrl - / Ctrl + mouse wheel (or pinch) / Ctrl 0 in the main window step the
   saved text size, with a badge showing the size and a reset button (1.0.3)
 - Tags: separate rules for ARAM / Hextech ARAM (no Rift role, farming or death tags there; "dies

@@ -15,15 +15,15 @@
 
 <div class="teams" class:many>
   {#each live.teams as team, i (team.id)}
-    <section class="team">
+    <!-- A header track, then two tracks per player (the row, its details). Teams side by side
+         share the tracks, so the players line up across them whatever each row holds. -->
+    <section class="team" style:--tracks={1 + 2 * team.players.length}>
       <header>
         <span class="label" class:ally={team.ally} class:enemy={!team.ally}>{title(i, team.ally)}</span>
       </header>
-      <div class="rows">
-        {#each team.players as slot, j (slot.puuid || `${team.id}-${j}`)}
-          <PlayerRow {slot} {onprofile} />
-        {/each}
-      </div>
+      {#each team.players as slot, j (slot.puuid || `${team.id}-${j}`)}
+        <PlayerRow {slot} {onprofile} />
+      {/each}
     </section>
   {/each}
 </div>
@@ -38,8 +38,15 @@
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr));
   }
   .team {
+    display: grid;
+    grid-row: span var(--tracks);
+    grid-template-rows: subgrid;
+    row-gap: 0;
     padding: 6px 10px 10px;
     min-width: 0;
+  }
+  .team :global(.row + .row) {
+    margin-top: 2px;
   }
   .team + .team {
     border-left: 1px solid var(--seam);
@@ -66,9 +73,5 @@
   }
   .label.enemy {
     color: var(--death);
-  }
-  .rows {
-    display: grid;
-    gap: 2px;
   }
 </style>

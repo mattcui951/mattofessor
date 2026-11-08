@@ -194,7 +194,9 @@ keep a test run's data apart; debug builds log where each card win rate landed (
 `MATTOFESSOR_DEVTOOLS_PORT=<port>` (debug builds) opens the real WebView2 windows to DevTools on
 that port, so a script can send keys and mouse wheel through the browser's own input path and
 read the page (e.g. to check zoom). To check the reader against saved samples:
-`MF_SAMPLES=<capture folder> MF_AUGMENTS=<cherry-augments.json> cargo test --lib scan_samples -- --ignored --nocapture`.
+`MF_SAMPLES=<capture folder> MF_AUGMENTS=<cherry-augments.json> cargo test --lib scan_samples -- --ignored --nocapture`
+(add `MF_LINES=1` to print every line the OCR read). Frames from a game video work too: cut them
+to the same band, e.g. `ffmpeg -i match.mp4 -vf "fps=1,scale=3440:1440,crop=3440:1094:0:172" -pix_fmt rgba frames/t%06d.png`.
 `--summoner-down 60` keeps the signed-in account unanswered for the first 60 s, like a client
 that is still starting (e.g. right after switching accounts).
 

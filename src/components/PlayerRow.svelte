@@ -27,131 +27,145 @@
 </script>
 
 <div class="row" class:me={slot.me} class:open class:smurf={card?.smurf}>
-  <button class="main" class:stale={card && !card.fresh} onclick={() => card && (open = !open)} aria-expanded={open} disabled={!card}>
-    <div class="pic">
-      <Img src={champIcon(slot.championId)} size={44} alt={champName(slot.championId)} title={champName(slot.championId)} />
-      <div class="spells">
-        <Img src={slot.spells[0] ? spellIcon(slot.spells[0]) : null} size={20} />
-        <Img src={slot.spells[1] ? spellIcon(slot.spells[1]) : null} size={20} />
-      </div>
-    </div>
-
-    <div class="who">
-      <div class="name">
-        {#if slot.status === 'hidden'}
-          <span class="dim">{t('live.hidden')}</span>
-        {:else}
-          <b title={slot.name}>{gameName || '...'}</b>
-          {#if card}<span class="lvl num" title={t('common.level', card.summoner.level)}>{card.summoner.level}</span>{/if}
-        {/if}
-      </div>
-      <div class="tags">
-        {#if slot.status === 'loading'}
-          <span class="skel" style="width:84px"></span><span class="skel" style="width:60px"></span>
-        {:else if slot.status === 'error'}
-          <span class="dim" title={slot.error ?? ''}>{t('live.failed')}</span>
-        {:else if card}
-          {#each card.tags.slice(0, 4) as tag (tag.key)}<TagChip {tag} size="sm" />{/each}
-        {/if}
-      </div>
-    </div>
-
-    <div class="champ">
-      {#if champ}
-        {#if champ.games > 0}
-          <div class="big num"><span style="color:{champWr >= 55 ? 'var(--win)' : champWr < 45 ? 'var(--death)' : 'var(--text)'}">{champWr}%</span> <span class="unit">{gamesText(champ.games)}</span></div>
-          <div class="sub num">{one(champ.kills)} / <span class="d">{one(champ.deaths)}</span> / {one(champ.assists)}</div>
-        {:else if !card?.fresh}
-          <span class="skel" style="width:70px"></span>
-        {:else}
-          <div class="sub none">{t('row.champNone', champName(slot.championId))}</div>
-        {/if}
-        {#if champ.masteryPoints > 0}<div class="sub num">{t('row.mastery', compact(champ.masteryPoints))}</div>{/if}
-      {:else if slot.status === 'loading'}
-        <span class="skel" style="width:70px"></span>
-      {/if}
-    </div>
-
-    <div class="recent" aria-label={t('row.recent')}>
-      {#if card && !card.fresh && recent.length === 0}<span class="skel" style="width:150px;height:30px"></span>{/if}
-      {#each recent as g (g.gameId)}
-        <span class="g" class:win={g.win} title="{champName(g.championId)} · {queueName(g.queueId)} · {ago(g.created)}">
-          <Img src={champIcon(g.championId)} size={20} />
-          <span class="num kda">{g.kills}/{g.deaths}/{g.assists}</span>
-        </span>
-      {/each}
-    </div>
-
-    <div class="rank">
-      {#if card}
-        <div class="tier num">
-          {#if rank && card.ranked.solo === null}<span class="q">{t('filter.flex')}</span>{/if}
-          <span style="color:{tierColor(rank?.tier)}">{tierText(rank, true)}</span>{#if rank}<span class="lp">{t('common.lp', rank.lp)}</span>{/if}
+  <div class="cq">
+    <button class="main" class:stale={card && !card.fresh} onclick={() => card && (open = !open)} aria-expanded={open} disabled={!card}>
+      <div class="pic">
+        <Img src={champIcon(slot.championId)} size={44} alt={champName(slot.championId)} title={champName(slot.championId)} />
+        <div class="spells">
+          <Img src={slot.spells[0] ? spellIcon(slot.spells[0]) : null} size={20} />
+          <Img src={slot.spells[1] ? spellIcon(slot.spells[1]) : null} size={20} />
         </div>
-        <div class="sub num">
-          {#if rank && (rank.losses > 0 || card.ranked.exact)}
-            <span class:hi={pct(rank.wins, rank.wins + rank.losses) >= 55} class:lo={pct(rank.wins, rank.wins + rank.losses) < 47}>{pct(rank.wins, rank.wins + rank.losses)}%</span> · {gamesText(rank.wins + rank.losses)}
-          {:else if rank}
-            {t('row.wins', rank.wins)}
-          {:else if card.games > 0}
-            <span class:hi={wr >= 55} class:lo={wr < 47}>{wr}%</span> · {gamesText(card.games)}
+      </div>
+  
+      <div class="who">
+        <div class="name">
+          {#if slot.status === 'hidden'}
+            <span class="dim">{t('live.hidden')}</span>
+          {:else}
+            <b title={slot.name}>{gameName || '...'}</b>
+            {#if card}<span class="lvl num" title={t('common.level', card.summoner.level)}>{card.summoner.level}</span>{/if}
           {/if}
         </div>
-        {#if peak}<div class="peak num" style="color:{tierColor(peak.tier)}">{t('row.peak', tierText(peak, true))}</div>{/if}
-      {:else if slot.status === 'loading'}
-        <span class="skel" style="width:64px"></span>
-      {/if}
-    </div>
-  </button>
-
-  {#if open && card}
-    <div class="more">
-      <div class="col">
-        <div class="label">{t('row.topChamps')}</div>
-        {#each card.topChamps as c (c.championId)}
-          <div class="tc">
-            <Img src={champIcon(c.championId)} size={22} />
-            <span class="cn">{champName(c.championId)}</span>
-            <span class="num">{c.games}</span>
-            <span class="num" style="color:{pct(c.wins, c.games) >= 55 ? 'var(--win)' : pct(c.wins, c.games) < 45 ? 'var(--death)' : 'var(--text-2)'}">{pct(c.wins, c.games)}%</span>
-          </div>
-        {/each}
-        {#if card.roles.length}
-          <div class="roles">
-            {#each card.roles.slice(0, 3) as r (r.role)}<span>{roleName(r.role)} <b class="num">{r.games}</b></span>{/each}
-          </div>
+        <div class="tags">
+          {#if slot.status === 'loading'}
+            <span class="skel" style="width:84px"></span><span class="skel" style="width:60px"></span>
+          {:else if slot.status === 'error'}
+            <span class="dim" title={slot.error ?? ''}>{t('live.failed')}</span>
+          {:else if card}
+            {#each card.tags.slice(0, 4) as tag (tag.key)}<TagChip {tag} size="sm" />{/each}
+          {/if}
+        </div>
+      </div>
+  
+      <div class="champ">
+        {#if champ}
+          {#if champ.games > 0}
+            <div class="big num"><span style="color:{champWr >= 55 ? 'var(--win)' : champWr < 45 ? 'var(--death)' : 'var(--text)'}">{champWr}%</span> <span class="unit">{gamesText(champ.games)}</span></div>
+            <div class="sub num">{one(champ.kills)} / <span class="d">{one(champ.deaths)}</span> / {one(champ.assists)}</div>
+          {:else if !card?.fresh}
+            <span class="skel" style="width:70px"></span>
+          {:else}
+            <div class="sub none">{t('row.champNone', champName(slot.championId))}</div>
+          {/if}
+          {#if champ.masteryPoints > 0}<div class="sub num">{t('row.mastery', compact(champ.masteryPoints))}</div>{/if}
+        {:else if slot.status === 'loading'}
+          <span class="skel" style="width:70px"></span>
         {/if}
       </div>
-      <div class="col">
-        <div class="label">{t('row.lastGames')}</div>
-        {#each card.recent as g (g.gameId)}
-          <div class="lg" class:win={g.win} class:remake={g.remake}>
-            <i></i>
+  
+      <div class="recent" aria-label={t('row.recent')}>
+        {#if card && !card.fresh && recent.length === 0}<span class="skel" style="width:150px;height:30px"></span>{/if}
+        {#each recent as g (g.gameId)}
+          <span class="g" class:win={g.win} title="{champName(g.championId)} · {queueName(g.queueId)} · {ago(g.created)}">
             <Img src={champIcon(g.championId)} size={20} />
-            <span class="num">{g.kills}/{g.deaths}/{g.assists}</span>
-            <span class="q">{queueName(g.queueId)}</span>
-            <span class="ago">{ago(g.created)}</span>
-          </div>
+            <span class="num kda">{g.kills}/{g.deaths}/{g.assists}</span>
+          </span>
         {/each}
       </div>
-      <div class="col">
-        <div class="label">{t('profile.pastRanks')}</div>
-        {#if card.ranked.solo}<div class="pr"><span>{t('profile.solo')}</span><b style="color:{tierColor(card.ranked.solo.tier)}">{tierText(card.ranked.solo)} {card.ranked.solo.lp}</b></div>{/if}
-        {#if card.ranked.flex}<div class="pr"><span>{t('profile.flex')}</span><b style="color:{tierColor(card.ranked.flex.tier)}">{tierText(card.ranked.flex)} {card.ranked.flex.lp}</b></div>{/if}
-        {#if card.ranked.seasonPeak}<div class="pr"><span>{t('profile.seasonPeak')}</span><b style="color:{tierColor(card.ranked.seasonPeak.tier)}">{tierText(card.ranked.seasonPeak)}</b></div>{/if}
-        {#if card.ranked.prevPeak}<div class="pr"><span>{t('profile.prevPeak')}</span><b style="color:{tierColor(card.ranked.prevPeak.tier)}">{tierText(card.ranked.prevPeak)}</b></div>{/if}
-        {#if card.ranked.prevEnd}<div class="pr"><span>{t('profile.prevEnd')}</span><b style="color:{tierColor(card.ranked.prevEnd.tier)}">{tierText(card.ranked.prevEnd)}</b></div>{/if}
-        <div class="alltags">{#each card.tags as tag (tag.key)}<TagChip {tag} size="sm" />{/each}</div>
-        {#if onprofile && slot.puuid}<button class="btn sm ghost" onclick={() => onprofile?.(slot.puuid)}>{t('row.openProfile')}</button>{/if}
+  
+      <div class="rank">
+        {#if card}
+          <div class="tier num">
+            {#if rank && card.ranked.solo === null}<span class="q">{t('filter.flex')}</span>{/if}
+            <span style="color:{tierColor(rank?.tier)}">{tierText(rank, true)}</span>{#if rank}<span class="lp">{t('common.lp', rank.lp)}</span>{/if}
+          </div>
+          <div class="sub num">
+            {#if rank && (rank.losses > 0 || card.ranked.exact)}
+              <span class:hi={pct(rank.wins, rank.wins + rank.losses) >= 55} class:lo={pct(rank.wins, rank.wins + rank.losses) < 47}>{pct(rank.wins, rank.wins + rank.losses)}%</span> · {gamesText(rank.wins + rank.losses)}
+            {:else if rank}
+              {t('row.wins', rank.wins)}
+            {:else if card.games > 0}
+              <span class:hi={wr >= 55} class:lo={wr < 47}>{wr}%</span> · {gamesText(card.games)}
+            {/if}
+          </div>
+          {#if peak}<div class="peak num" style="color:{tierColor(peak.tier)}">{t('row.peak', tierText(peak, true))}</div>{/if}
+        {:else if slot.status === 'loading'}
+          <span class="skel" style="width:64px"></span>
+        {/if}
+      </div>
+    </button>
+  </div>
+
+  {#if open && card}
+    <div class="cq">
+      <div class="more">
+        <div class="col">
+          <div class="label">{t('row.topChamps')}</div>
+          {#each card.topChamps as c (c.championId)}
+            <div class="tc">
+              <Img src={champIcon(c.championId)} size={22} />
+              <span class="cn">{champName(c.championId)}</span>
+              <span class="num">{c.games}</span>
+              <span class="num" style="color:{pct(c.wins, c.games) >= 55 ? 'var(--win)' : pct(c.wins, c.games) < 45 ? 'var(--death)' : 'var(--text-2)'}">{pct(c.wins, c.games)}%</span>
+            </div>
+          {/each}
+          {#if card.roles.length}
+            <div class="roles">
+              {#each card.roles.slice(0, 3) as r (r.role)}<span>{roleName(r.role)} <b class="num">{r.games}</b></span>{/each}
+            </div>
+          {/if}
+        </div>
+        <div class="col">
+          <div class="label">{t('row.lastGames')}</div>
+          {#each card.recent as g (g.gameId)}
+            <div class="lg" class:win={g.win} class:remake={g.remake}>
+              <i></i>
+              <Img src={champIcon(g.championId)} size={20} />
+              <span class="num">{g.kills}/{g.deaths}/{g.assists}</span>
+              <span class="q">{queueName(g.queueId)}</span>
+              <span class="ago">{ago(g.created)}</span>
+            </div>
+          {/each}
+        </div>
+        <div class="col">
+          <div class="label">{t('profile.pastRanks')}</div>
+          {#if card.ranked.solo}<div class="pr"><span>{t('profile.solo')}</span><b style="color:{tierColor(card.ranked.solo.tier)}">{tierText(card.ranked.solo)} {card.ranked.solo.lp}</b></div>{/if}
+          {#if card.ranked.flex}<div class="pr"><span>{t('profile.flex')}</span><b style="color:{tierColor(card.ranked.flex.tier)}">{tierText(card.ranked.flex)} {card.ranked.flex.lp}</b></div>{/if}
+          {#if card.ranked.seasonPeak}<div class="pr"><span>{t('profile.seasonPeak')}</span><b style="color:{tierColor(card.ranked.seasonPeak.tier)}">{tierText(card.ranked.seasonPeak)}</b></div>{/if}
+          {#if card.ranked.prevPeak}<div class="pr"><span>{t('profile.prevPeak')}</span><b style="color:{tierColor(card.ranked.prevPeak.tier)}">{tierText(card.ranked.prevPeak)}</b></div>{/if}
+          {#if card.ranked.prevEnd}<div class="pr"><span>{t('profile.prevEnd')}</span><b style="color:{tierColor(card.ranked.prevEnd.tier)}">{tierText(card.ranked.prevEnd)}</b></div>{/if}
+          <div class="alltags">{#each card.tags as tag (tag.key)}<TagChip {tag} size="sm" />{/each}</div>
+          {#if onprofile && slot.puuid}<button class="btn sm ghost" onclick={() => onprofile?.(slot.puuid)}>{t('row.openProfile')}</button>{/if}
+        </div>
       </div>
     </div>
   {/if}
 </div>
 
 <style>
+  /* Two tracks of the team's grid: the row, then its details (empty while closed). The parts
+     are the containers the layout queries ask: a container on the row itself would turn its
+     subgrid off (containment). */
   .row {
+    grid-row: span 2;
+    display: grid;
+    grid-template-rows: subgrid;
+    row-gap: 0;
     border-radius: var(--r-md);
+  }
+  .cq {
     container-type: inline-size;
+    display: grid;
   }
   .row.me {
     background: color-mix(in oklab, var(--you) 8%, transparent);

@@ -8,9 +8,22 @@ use windows::Graphics::Imaging::{BitmapPixelFormat, SoftwareBitmap};
 use windows::Media::Ocr::OcrEngine;
 use windows::Storage::Streams::DataWriter;
 
-/// One line of recognized text and where it is in the image (pixels).
+/// One line of recognized text and where it is in the image (pixels), with its words.
 #[derive(Clone, Debug, PartialEq)]
 pub struct Line {
+    pub text: String,
+    pub x: f32,
+    pub y: f32,
+    pub w: f32,
+    pub h: f32,
+    /// The words of the line and where each is. The engine's lines are not reliable: it can cut
+    /// one title into two lines ("Infinite" and "Recursion").
+    pub words: Vec<Word>,
+}
+
+/// One recognized word and where it is in the image (pixels).
+#[derive(Clone, Debug, PartialEq)]
+pub struct Word {
     pub text: String,
     pub x: f32,
     pub y: f32,
@@ -69,12 +82,20 @@ pub fn read(rgba: &[u8], w: u32, h: u32, lang: &str) -> Result<Vec<Line>> {
         let result = engine.RecognizeAsync(&bitmap)?.join()?;
         for line in result.Lines()? {
             let (mut x1, mut y1, mut x2, mut y2) = (f32::MAX, f32::MAX, f32::MIN, f32::MIN);
+            let mut words = Vec::new();
             for word in line.Words()? {
                 let r = word.BoundingRect()?;
                 x1 = x1.min(r.X);
                 y1 = y1.min(r.Y);
                 x2 = x2.max(r.X + r.Width);
                 y2 = y2.max(r.Y + r.Height);
+                words.push(Word {
+                    text: word.Text()?.to_string(),
+                    x: r.X + x0 as f32,
+                    y: r.Y,
+                    w: r.Width,
+                    h: r.Height,
+                });
             }
             if x1 > x2 {
                 continue;
@@ -85,6 +106,7 @@ pub fn read(rgba: &[u8], w: u32, h: u32, lang: &str) -> Result<Vec<Line>> {
                 y: y1,
                 w: x2 - x1,
                 h: y2 - y1,
+                words,
             };
             let dup = lines.iter().any(|l| {
                 l.text == found.text && (l.x - found.x).abs() < 8.0 && (l.y - found.y).abs() < 8.0
