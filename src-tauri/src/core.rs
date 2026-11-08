@@ -352,10 +352,18 @@ impl Core {
 
 /// Debug builds keep their web view data (what the windows remember) apart from the installed
 /// app's. Every window must use the same folder: they share one WebView2 environment.
+/// `MATTOFESSOR_DEVTOOLS_PORT=<port>` opens the windows to DevTools on that port, for tests that
+/// drive the real web view (every window passes the same arguments, as one environment needs).
 fn dev_data<'a>(b: WebviewWindowBuilder<'a, tauri::Wry, AppHandle>) -> WebviewWindowBuilder<'a, tauri::Wry, AppHandle> {
-    if cfg!(debug_assertions) {
-        b.data_directory(crate::paths::config_dir().join("webview"))
-    } else {
-        b
+    if !cfg!(debug_assertions) {
+        return b;
+    }
+    let b = b.data_directory(crate::paths::config_dir().join("webview"));
+    match std::env::var("MATTOFESSOR_DEVTOOLS_PORT").ok().and_then(|p| p.parse::<u16>().ok()) {
+        // wry's own defaults, plus the port.
+        Some(port) => b.additional_browser_args(&format!(
+            "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --autoplay-policy=no-user-gesture-required --remote-debugging-port={port}"
+        )),
+        None => b,
     }
 }

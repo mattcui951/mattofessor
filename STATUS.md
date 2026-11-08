@@ -1,7 +1,7 @@
 # Status
 
 Updated: 2026-11-07
-Version: 1.0.2
+Version: 1.0.3
 
 ## In progress
 
@@ -46,6 +46,8 @@ Version: 1.0.2
 
 ## Recently done
 
+- Zoom: Ctrl + / Ctrl - / Ctrl + mouse wheel (or pinch) / Ctrl 0 in the main window step the
+  saved text size, with a badge showing the size and a reset button (1.0.3)
 - Tags: separate rules for ARAM / Hextech ARAM (no Rift role, farming or death tags there; "dies
   a lot" counts Rift games only); new tags: kind of champion played most (40%+), win rate
   (60%+ / 40%- over 15+), strong champion (70%+ over 5+). Checked on 40 saved players (1.0.2)

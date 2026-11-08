@@ -3,6 +3,7 @@
   import TitleBar from './components/TitleBar.svelte';
   import Toasts from './components/Toasts.svelte';
   import UpdateBanner from './components/UpdateBanner.svelte';
+  import ZoomBadge from './components/ZoomBadge.svelte';
   import Builds from './views/Builds.svelte';
   import Live from './views/Live.svelte';
   import Meta from './views/Meta.svelte';
@@ -12,8 +13,10 @@
   import Settings from './views/Settings.svelte';
   import { app } from './lib/state.svelte';
   import { gameEnded, startAutoRefresh } from './lib/profiles.svelte';
+  import { installZoom } from './lib/zoom.svelte';
 
   startAutoRefresh();
+  $effect(() => installZoom());
   let epoch = 0;
   $effect(() => {
     // A game ended: the signed-in account has a new game to add.
@@ -52,6 +55,7 @@
     </div>
   </div>
   <Toasts />
+  <ZoomBadge />
 </div>
 
 <style>

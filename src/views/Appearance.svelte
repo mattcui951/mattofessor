@@ -291,6 +291,7 @@
         <input type="range" min="80" max="140" step="5" value={Math.round(appearance.scale * 100)} oninput={(e) => updateSettings({ uiScale: Number(e.currentTarget.value) / 100 }, { debounce: true })} />
         <span class="num val">{Math.round(appearance.scale * 100)}%</span>
       </div>
+      <p class="note">{t('appearance.zoomKeys')}</p>
     </section>
 
     <section>

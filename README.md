@@ -116,7 +116,9 @@ Macchiato / Frappé / Latte, Tokyo Night / Storm / Day, Dracula, Nord, Gruvbox D
 One Dark, Kanagawa, Everforest Dark / Light, Solarized Dark / Light, GitHub Dark / Light,
 High Contrast Dark / Light), plus your own: copy any theme and edit every color, the two
 fonts, corner roundness, in-game window opacity and light/dark; export / import themes as
-text. Text size applies to every window, in-game panel included. Palettes follow each theme's
+text. Text size (80-140%) applies to every window, in-game panel included; in the main window
+Ctrl + / Ctrl - / Ctrl + mouse wheel step it by 10% and Ctrl 0 resets it (`src/lib/zoom.svelte.ts`,
+a badge shows the size with a reset button). Palettes follow each theme's
 published colors; "Keep text readable" nudges faint text and accents to WCAG contrast
 (tested for every built-in theme in `src/lib/__tests__/themes.test.ts`). Tokens and themes
 live in `src/lib/themes.ts`.
@@ -188,7 +190,10 @@ during Hextech ARAM games to `%APPDATA%\Mattofessor\augment-captures` (off by de
 a test pattern: a full-size frame with augment cards exercises the card reader, and a video of
 saved samples (cards flying in, a reroll) exercises how it follows them. `--at 3440,0` opens the
 window there (e.g. on a second monitor). Run the dev app with `MATTOFESSOR_DATA_DIR=<folder>` to
-keep a test run's data apart; debug builds log where each card win rate landed (`report:`). To check the reader against saved samples:
+keep a test run's data apart; debug builds log where each card win rate landed (`report:`).
+`MATTOFESSOR_DEVTOOLS_PORT=<port>` (debug builds) opens the real WebView2 windows to DevTools on
+that port, so a script can send keys and mouse wheel through the browser's own input path and
+read the page (e.g. to check zoom). To check the reader against saved samples:
 `MF_SAMPLES=<capture folder> MF_AUGMENTS=<cherry-augments.json> cargo test --lib scan_samples -- --ignored --nocapture`.
 `--summoner-down 60` keeps the signed-in account unanswered for the first 60 s, like a client
 that is still starting (e.g. right after switching accounts).
