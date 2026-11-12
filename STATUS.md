@@ -1,6 +1,6 @@
 # Status
 
-Updated: 2026-11-07
+Updated: 2026-11-11
 Version: 1.0.4
 
 ## In progress
@@ -51,11 +51,18 @@ Version: 1.0.4
 
 ## Known issues
 
+- Profile page at a small window with a large text size (history column under about 480 px wide,
+  e.g. the smallest window at 140%): the collapsed game rows are cut off on the right. The fixed
+  width of the left column is the cause.
 - Without a Riot API key, other players' ranked losses show as 0 (an LCU limit).
 - Match history from the LCU is limited to 40 games and the first lookup takes about 5 s.
 
 ## Recently done
 
+- Match history, opened game: a second view "Damage and healing" with bars and exact numbers for
+  damage dealt, taken, self-mitigated and healing per player (the choice is saved as
+  `matchView`); column headings in both views; in narrow windows the rows use a second line
+  instead of squeezing the names away. Checked on real games in the dev app (1.0.5)
 - Scouting panel and Live page: the two teams share row heights (CSS subgrid), so players line up
   across the teams when tags wrap or details are open (1.0.4)
 - Zoom: Ctrl + / Ctrl - / Ctrl + mouse wheel (or pinch) / Ctrl 0 in the main window step the

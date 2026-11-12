@@ -36,6 +36,9 @@ pub struct Settings {
     pub capture_augments: bool,
     /// Show your champion's win rate above the augment cards in Hextech ARAM.
     pub card_reader: bool,
+    /// What an opened game in the match history lists per player: "overview" (items, CS, gold)
+    /// or "combat" (damage dealt, taken, mitigated and healing).
+    pub match_view: String,
 }
 
 impl Default for Settings {
@@ -58,6 +61,7 @@ impl Default for Settings {
             aram_bracket: "all".into(),
             capture_augments: false,
             card_reader: true,
+            match_view: "overview".into(),
         }
     }
 }
@@ -92,5 +96,6 @@ mod tests {
         assert!(s.open_in_champ_select);
         assert_eq!(s.theme, "arcade");
         assert_eq!(s.ui_scale, 1.0);
+        assert_eq!(s.match_view, "overview");
     }
 }

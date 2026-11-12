@@ -7,7 +7,7 @@
   import { ago, compact, duration, kdaRatio, queueName } from '../lib/format';
   import { t } from '../lib/i18n.svelte';
   import { augment, loadAugments } from '../lib/meta.svelte';
-  import { errorText } from '../lib/state.svelte';
+  import { app, errorText, updateSettings } from '../lib/state.svelte';
   import type { FullGame, GameRow, MyScore, PlayerScore } from '../lib/types';
 
   let { g, puuid, perf, onprofile }: { g: GameRow; puuid: string; perf?: MyScore; onprofile: (puuid: string) => void } = $props();
@@ -39,7 +39,7 @@
     }
   }
 
-  type P = { pid: number; puuid: string; name: string; tag: string; champ: number; k: number; d: number; a: number; dmg: number; cs: number; gold: number; items: number[]; spells: number[]; augs: number[]; win: boolean; team: number; sub: number };
+  type P = { pid: number; puuid: string; name: string; tag: string; champ: number; k: number; d: number; a: number; dmg: number; taken: number; mit: number; heal: number; cs: number; gold: number; items: number[]; spells: number[]; augs: number[]; win: boolean; team: number; sub: number };
   const players = $derived.by((): P[] => {
     if (!full) return [];
     return full.participants.map((p) => {
@@ -56,6 +56,9 @@
         d: n('deaths'),
         a: n('assists'),
         dmg: n('totalDamageDealtToChampions'),
+        taken: n('totalDamageTaken'),
+        mit: n('damageSelfMitigated'),
+        heal: n('totalHeal'),
         cs: n('totalMinionsKilled') + n('neutralMinionsKilled'),
         gold: n('goldEarned'),
         items: [0, 1, 2, 3, 4, 5, 6].map((i) => n(`item${i}`)),
@@ -76,9 +79,18 @@
     const ids = [...new Set(players.map(key))].sort((a, b) => a - b);
     return ids.map((id) => players.filter((p) => key(p) === id));
   });
-  const maxDmg = $derived(Math.max(1, ...players.map((p) => p.dmg)));
+  // Each bar is measured against the highest value of its kind in this game.
+  const top = (of: (p: P) => number) => Math.max(1, ...players.map(of));
+  const max = $derived({ dmg: top((p) => p.dmg), taken: top((p) => p.taken), mit: top((p) => p.mit), heal: top((p) => p.heal) });
+  // Remembered across games and restarts: items and gold, or the damage and healing numbers.
+  const combat = $derived(app.settings?.matchView === 'combat');
+  const exact = (v: number) => v.toLocaleString('en-US');
   const withAugs = $derived(players.some((p) => p.augs.length > 0));
 </script>
+
+{#snippet bar(v: number, most: number, kind: string)}
+  <span class="dmg {kind}" title={exact(v)}><i style="width:{(v / most) * 100}%"></i><span class="num">{combat ? exact(v) : compact(v)}</span></span>
+{/snippet}
 
 <div class="match {tone}" class:open>
   <button class="line" onclick={toggle} aria-expanded={open}>
@@ -136,29 +148,56 @@
             {/each}
           </div>
         {/if}
-        {#if scores.length}
-          <div class="view" role="tablist">
-            <button role="tab" aria-selected={!ranked} class:on={!ranked} onclick={() => (ranked = false)}>{t('score.byTeam')}</button>
-            <button role="tab" aria-selected={ranked} class:on={ranked} onclick={() => (ranked = true)}>{t('score.byRank')}</button>
+        <div class="views">
+          <div class="view" role="tablist" aria-label={t('match.view.label')}>
+            <button role="tab" aria-selected={!combat} class:on={!combat} onclick={() => updateSettings({ matchView: 'overview' })}>{t('match.view.overview')}</button>
+            <button role="tab" aria-selected={combat} class:on={combat} onclick={() => updateSettings({ matchView: 'combat' })}>{t('match.view.combat')}</button>
           </div>
-        {/if}
+          {#if scores.length}
+            <div class="view" role="tablist">
+              <button role="tab" aria-selected={!ranked} class:on={!ranked} onclick={() => (ranked = false)}>{t('score.byTeam')}</button>
+              <button role="tab" aria-selected={ranked} class:on={ranked} onclick={() => (ranked = true)}>{t('score.byRank')}</button>
+            </div>
+          {/if}
+        </div>
         {#each groups as team, ti (ti)}
           <div class="tm">
-            <div class="tm-h" class:win={!ranked && team[0]?.win} class:neutral={ranked}>
-              {#if ranked}{t('score.ranking')}{:else if arena}{t('common.place', ti + 1)}{:else}{team[0]?.team === 100 ? t('match.team.blue') : t('match.team.red')} · {team[0]?.win ? t('common.victory') : t('common.defeat')}{/if}
+            <div class="pl head" class:combat class:with-augs={withAugs && !combat}>
+              <span class="tm-h" class:win={!ranked && team[0]?.win} class:neutral={ranked}>
+                {#if ranked}{t('score.ranking')}{:else if arena}{t('common.place', ti + 1)}{:else}{team[0]?.team === 100 ? t('match.team.blue') : t('match.team.red')} · {team[0]?.win ? t('common.victory') : t('common.defeat')}{/if}
+              </span>
+              <span class="h end">{scores.length ? t('score.column') : ''}</span>
+              <span class="h">{t('profile.kda')}</span>
+              <span class="h dealt" title={t('match.dmg.hint')}>{t('match.dmg')}</span>
+              {#if combat}
+                <span class="h" title={t('match.taken.hint')}>{t('match.taken')}</span>
+                <span class="h" title={t('match.mitigated.hint')}>{t('match.mitigated')}</span>
+                <span class="h" title={t('match.heal.hint')}>{t('match.heal')}</span>
+              {:else}
+                <span class="h cs">{t('match.col.cs')}</span>
+                <span class="h gold">{t('match.gold')}</span>
+                {#if withAugs}<span class="h wide">{t('match.augments')}</span>{/if}
+                <span class="h wide">{t('match.col.items')}</span>
+              {/if}
             </div>
             {#each team as p (p.puuid + p.champ)}
-              <div class="pl" class:self={p.puuid === puuid} class:won={ranked && p.win} class:lost={ranked && !p.win} class:with-augs={withAugs}>
+              <div class="pl" class:self={p.puuid === puuid} class:won={ranked && p.win} class:lost={ranked && !p.win} class:combat class:with-augs={withAugs && !combat}>
                 <Img src={champIcon(p.champ)} size={28} title={champName(p.champ)} />
                 <div class="ss2"><Img src={spellIcon(p.spells[0])} size={13} /><Img src={spellIcon(p.spells[1])} size={13} /></div>
                 <button class="pname" onclick={() => p.puuid && onprofile(p.puuid)} title={t('row.openProfile')}>{p.name}<span>#{p.tag}</span></button>
                 <span class="sc">{#if scoreOf(p.pid)}{@const s = scoreOf(p.pid)!}<ScoreBadge size="sm" score={s.score} badge={s.badge} place={s.place} players={scores.length} />{/if}</span>
                 <span class="num">{p.k}/{p.d}/{p.a}</span>
-                <span class="dmg"><i style="width:{(p.dmg / maxDmg) * 100}%"></i><span class="num">{compact(p.dmg)}</span></span>
-                <span class="num dim">{p.cs}</span>
-                <span class="num dim">{compact(p.gold)}</span>
-                {#if withAugs}<span class="pa">{#each p.augs as a, i (i)}<AugIcon id={a} size={16} />{/each}</span>{/if}
-                <span class="its">{#each p.items as it, i (i)}<Img src={itemIcon(it)} size={20} title={itemName(it)} />{/each}</span>
+                {@render bar(p.dmg, max.dmg, 'dealt')}
+                {#if combat}
+                  {@render bar(p.taken, max.taken, 'taken')}
+                  {@render bar(p.mit, max.mit, 'mit')}
+                  {@render bar(p.heal, max.heal, 'heal')}
+                {:else}
+                  <span class="num dim cs">{p.cs}</span>
+                  <span class="num dim gold">{compact(p.gold)}</span>
+                  {#if withAugs}<span class="pa">{#each p.augs as a, i (i)}<AugIcon id={a} size={16} />{/each}</span>{/if}
+                  <span class="its">{#each p.items as it, i (i)}<Img src={itemIcon(it)} size={20} title={itemName(it)} />{/each}</span>
+                {/if}
               </div>
             {/each}
           </div>
@@ -307,6 +346,19 @@
       justify-content: flex-start;
     }
   }
+  /* Narrower still (a small window at a large text size): the items go under the rest. */
+  @container (max-width: 620px) {
+    .line {
+      grid-template-columns: 4px 108px 136px 100px minmax(0, 1fr);
+      row-gap: 6px;
+    }
+    .bar {
+      grid-row: 1 / span 2;
+    }
+    .items {
+      grid-column: 2 / -1;
+    }
+  }
   .perf {
     display: flex;
     justify-content: flex-start;
@@ -332,21 +384,44 @@
     gap: 2px;
   }
   .tm-h {
+    grid-column: 1 / span 3;
     font-family: var(--font-score);
     font-size: 11.5px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.07em;
     color: var(--death);
+    white-space: nowrap;
+  }
+  /* The team's name and, on the same grid as the players below, what each column is. */
+  .pl.head {
+    align-items: baseline;
     padding-bottom: 3px;
+  }
+  .h {
+    font-family: var(--font-score);
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--text-3);
+    white-space: nowrap;
+  }
+  .h.end {
+    text-align: right;
+  }
+  .h[title] {
+    cursor: help;
   }
   .tm-h.neutral {
     color: var(--text-2);
   }
+  .views {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
   .view {
     display: flex;
     gap: 2px;
-    justify-self: start;
     background: var(--panel);
     border: 1px solid var(--seam);
     border-radius: var(--r-md);
@@ -376,7 +451,7 @@
   }
   .pl {
     display: grid;
-    grid-template-columns: 28px 13px minmax(0, 1.4fr) 76px 70px minmax(0, 1fr) 40px 44px auto;
+    grid-template-columns: 28px 13px minmax(0, 1.4fr) 76px 70px minmax(0, 1fr) 40px 44px 152px;
     gap: 8px;
     align-items: center;
     font-size: 12.5px;
@@ -384,7 +459,11 @@
     border-radius: var(--r-sm);
   }
   .pl.with-augs {
-    grid-template-columns: 28px 13px minmax(0, 1.4fr) 76px 70px minmax(0, 1fr) 40px 44px 112px auto;
+    grid-template-columns: 28px 13px minmax(0, 1.4fr) 76px 70px minmax(0, 1fr) 40px 44px 112px 152px;
+  }
+  /* Damage and healing: four bars in place of farm, gold and items. */
+  .pl.combat {
+    grid-template-columns: 28px 13px minmax(0, 1.4fr) 76px 70px repeat(4, minmax(0, 1fr));
   }
   .pa {
     display: flex;
@@ -424,6 +503,15 @@
     inset: 0 auto 0 0;
     background: color-mix(in oklab, var(--death) 45%, transparent);
   }
+  .dmg.taken i {
+    background: color-mix(in oklab, var(--warn) 45%, transparent);
+  }
+  .dmg.mit i {
+    background: color-mix(in oklab, var(--you) 38%, transparent);
+  }
+  .dmg.heal i {
+    background: color-mix(in oklab, var(--win) 38%, transparent);
+  }
   .dmg span {
     position: relative;
     padding-left: 5px;
@@ -443,5 +531,60 @@
   .err span {
     color: var(--text-3);
     font-size: 12px;
+  }
+  /* Narrow windows, overview: augments and items move to a second line under each player. */
+  @container (max-width: 860px) {
+    .pl,
+    .pl.with-augs {
+      grid-template-columns: 28px 13px minmax(0, 1.4fr) 76px 70px minmax(0, 1fr) 40px 44px;
+      row-gap: 3px;
+    }
+    .pl:not(.head, .combat) {
+      padding-block: 4px;
+    }
+    .pa {
+      grid-column: 3 / span 3;
+    }
+    .its {
+      grid-column: 6 / span 3;
+      justify-content: flex-end;
+    }
+    .h.wide {
+      display: none;
+    }
+  }
+  /* Narrower, damage and healing: the four bars (and their names) take the second line. */
+  @container (max-width: 600px) {
+    .pl.combat {
+      grid-template-columns: 28px 13px repeat(4, minmax(0, 1fr));
+    }
+    .pl.combat:not(.head) {
+      padding-block: 4px;
+    }
+    .combat .pname {
+      grid-column: 3 / span 2;
+    }
+    .combat .tm-h {
+      grid-column: 1 / span 4;
+    }
+    .combat .dealt {
+      grid-column: 3;
+    }
+  }
+  /* Narrowest (a small window at a large text size): no farm or gold, items under the augments. */
+  @container (max-width: 480px) {
+    .pl,
+    .pl.with-augs {
+      grid-template-columns: 28px 13px minmax(0, 1.4fr) 76px 70px minmax(0, 1fr);
+    }
+    .cs,
+    .gold {
+      display: none;
+    }
+    .pa,
+    .its {
+      grid-column: 3 / -1;
+      justify-content: flex-start;
+    }
   }
 </style>

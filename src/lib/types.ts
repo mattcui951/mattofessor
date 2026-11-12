@@ -16,6 +16,7 @@ export type Settings = {
   aramBracket: AramBracket;
   captureAugments: boolean;
   cardReader: boolean;
+  matchView: 'overview' | 'combat';
 };
 
 export type Summoner = { puuid: string; gameName: string; tagLine: string; level: number; icon: number; summonerId: number };

@@ -4,7 +4,8 @@ A local Porofessor replacement for League of Legends on Windows, without Overwol
 accounts. English and Simplified Chinese.
 
 - **Profile**: your (or any Riot ID's) solo and flex rank, past ranks, tags, most played
-  champions, roles, mastery and match history with full 10-player game details.
+  champions, roles, mastery and match history with full 10-player game details (items and gold,
+  or damage dealt, taken, mitigated and healing).
 - **Live game**: in champ select it scouts your team; once the game starts, everyone (Arena
   included). Each player: rank and peak rank, possible smurf, games / win rate / KDA / mastery
   on their champion, last 5 games' KDA, and tags (one-trick, strong champion, win rate, the
