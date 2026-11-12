@@ -58,6 +58,10 @@ def ffplay() -> Path:
         sys.exit("ffplay.exe is needed for the stand-in game window: put it on PATH or set MATTOFESSOR_FFPLAY.")
     return Path(found)
 GAME_EXE = "Mattofessor Mock Game.exe"
+
+# The game's text key for a champion's name is "game_character_displayname_<key>" except for
+# these, written as the real game reported them (Seraphine: a ranked game on 2026-11-11).
+RAW_CHAMPION_NAMES = {147: "Character_Seraphine_Name"}
 SUPPORT_ITEMS = {3865, 3866, 3867, 3869, 3870, 3871, 3876, 3877}
 INSECURE = ssl._create_unverified_context()
 
@@ -189,7 +193,8 @@ class Script:
 
     def session(self):
         def entry(p):
-            return {"puuid": p["puuid"], "championId": p["champ"], "selectedPosition": p["position"], "gameName": p["name"], "tagLine": p["tag"]}
+            # No Riot IDs here: the real client's game session has only an empty summonerName.
+            return {"puuid": p["puuid"], "championId": p["champ"], "selectedPosition": p["position"], "summonerName": ""}
 
         return {
             "phase": self.phase(),
@@ -213,7 +218,7 @@ class Script:
         def player(p):
             return {
                 "riotId": f"{p['name']}#{p['tag']}",
-                "rawChampionName": f"game_character_displayname_{self.champ_keys.get(p['champ'], 'Unknown')}",
+                "rawChampionName": RAW_CHAMPION_NAMES.get(p["champ"]) or f"game_character_displayname_{self.champ_keys.get(p['champ'], 'Unknown')}",
                 "team": "ORDER" if p["team"] == 100 else "CHAOS",
                 "level": min(18, 1 + int(gt // self.level_every)),
                 # With --deaths, you are dead for 15 s of every minute (to test augment picks).

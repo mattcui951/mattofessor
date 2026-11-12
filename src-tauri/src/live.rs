@@ -23,7 +23,8 @@ fn client() -> &'static reqwest::Client {
 #[serde(rename_all = "camelCase")]
 pub struct LivePlayer {
     pub riot_id: String,
-    /// Data Dragon key, e.g. "MonkeyKing".
+    /// Data Dragon key, e.g. "MonkeyKing". Straight from the game it is the game's own spelling
+    /// ("FiddleSticks"); `game::settle` rewrites it to Data Dragon's.
     pub champion: String,
     pub team: String,
     pub level: u32,
@@ -44,9 +45,11 @@ pub struct InGame {
     pub players: Vec<LivePlayer>,
 }
 
-/// "game_character_displayname_MonkeyKing" -> "MonkeyKing"
+/// The champion's internal name out of the game's text key for it. Two shapes are in use:
+/// "game_character_displayname_MonkeyKing" -> "MonkeyKing", "Character_Seraphine_Name" -> "Seraphine".
 fn champion_key(raw: &str) -> String {
-    raw.rsplit('_').next().unwrap_or("").to_string()
+    const LABELS: [&str; 4] = ["game", "character", "displayname", "name"];
+    raw.rsplit('_').find(|part| !LABELS.iter().any(|l| part.eq_ignore_ascii_case(l))).unwrap_or("").to_string()
 }
 
 /// "GeneratedTip_SummonerSpell_SummonerFlash_DisplayName" -> "SummonerFlash"
@@ -138,5 +141,14 @@ mod tests {
         assert!(g.players[0].me && !g.players[1].me);
         assert_eq!(g.players[1].spells[0], "SummonerDot");
         assert!(g.players[1].dead);
+    }
+
+    #[test]
+    fn champion_keys() {
+        assert_eq!(champion_key("game_character_displayname_AurelionSol"), "AurelionSol");
+        // As the game reported Seraphine on 2026-11-11; read as "Name" before, which dropped her
+        // player from the scouting panel.
+        assert_eq!(champion_key("Character_Seraphine_Name"), "Seraphine");
+        assert_eq!(champion_key(""), "");
     }
 }

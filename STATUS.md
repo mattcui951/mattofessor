@@ -59,6 +59,22 @@ Version: 1.0.5
 
 ## Recently done
 
+- 1.0.6: a teammate was missing from the in-game panel and the Live page
+  in a ranked game (11 Nov, Seraphine on your team). The game writes Seraphine's name key as
+  `Character_Seraphine_Name` (everyone else: `game_character_displayname_X`), it was read as
+  "Name", matched no session player (a ranked session has no Riot IDs, so the champion is the
+  only link) and the player was dropped as "left over from an earlier game". Fixed in three
+  layers: both key shapes are read, champion keys are compared without case, and
+  `game::settle` no longer drops anyone on a side where a game player is still unmatched (one
+  left over on a side is paired by elimination, which also gives the spell tracker its icon).
+  An unknown champion name is logged once per game. Seen on the real game (old build 4 allies,
+  fixed build scouted all 10) and on a replay of that game through the mock (panel and Live
+  page list 5 + 5). `mock_client.py` now sends the session without Riot IDs and Seraphine's
+  real name key, as the real client and game do.
+- 1.0.6: "Show in-game panel" / "Enemy summoner spells" on the Live page (and opening a
+  profile from the panel while the main window is closed) froze the app when the window had not
+  been created yet in that run: a window created inside a plain command deadlocks on Windows.
+  Those three commands now run off the main thread.
 - Match history, opened game: a second view "Damage and healing" with bars and exact numbers for
   damage dealt, taken, self-mitigated and healing per player (the choice is saved as
   `matchView`); column headings in both views; in narrow windows the rows use a second line

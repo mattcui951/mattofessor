@@ -181,37 +181,90 @@ fn session_entries(session: &Value, me: &str) -> Vec<Entry> {
     out
 }
 
-/// Keeps the session players the game itself reports, matched by Riot ID or else by champion on
-/// the same side. The client's session can hold players from an earlier game; once the game
-/// answers, its own player list is the truth. Without champion ids (static data not loaded)
-/// nothing is dropped.
-fn match_game(entries: Vec<Entry>, game: &live::InGame, champ_ids: &HashMap<String, i32>) -> Vec<Entry> {
-    if game.players.is_empty() || champ_ids.is_empty() {
-        return entries;
-    }
-    let mut used = vec![false; entries.len()];
-    for p in &game.players {
-        let team = if p.team == "ORDER" { 100 } else { 200 };
-        let champ = champ_ids.get(&p.champion).copied().unwrap_or(0);
-        let by_name = entries.iter().enumerate().position(|(i, e)| !used[i] && !e.name.is_empty() && e.name.eq_ignore_ascii_case(&p.riot_id));
-        let by_me = || entries.iter().enumerate().position(|(i, e)| !used[i] && p.me && e.me);
-        let by_champ = || entries.iter().enumerate().position(|(i, e)| !used[i] && champ > 0 && e.champion_id == champ && e.team_id == team);
-        if let Some(i) = by_name.or_else(by_me).or_else(by_champ) {
-            used[i] = true;
-        }
-    }
-    entries.into_iter().zip(used).filter_map(|(e, keep)| keep.then_some(e)).collect()
+/// Champions by Data Dragon key, for matching the game's players. The game does not always
+/// write a key the way Data Dragon does ("FiddleSticks"), so the lookup ignores case.
+#[derive(Default)]
+struct Champs {
+    /// Lower-case key -> id.
+    ids: HashMap<String, i32>,
+    /// Id -> key as Data Dragon writes it.
+    keys: HashMap<i32, String>,
 }
 
-/// Data Dragon key ("MonkeyKing") to champion id, for matching the game's players.
-async fn champion_ids() -> HashMap<String, i32> {
-    match dd::get("en").await {
-        Ok(d) => d.champions.iter().map(|(id, c)| (c.key.clone(), *id)).collect(),
-        Err(e) => {
-            log::warn!("champion ids: {e:#}");
-            HashMap::new()
+impl Champs {
+    fn new(list: impl IntoIterator<Item = (i32, String)>) -> Self {
+        let keys: HashMap<i32, String> = list.into_iter().collect();
+        Champs { ids: keys.iter().map(|(id, key)| (key.to_ascii_lowercase(), *id)).collect(), keys }
+    }
+
+    /// 0 when the name is not a champion's.
+    fn id(&self, key: &str) -> i32 {
+        self.ids.get(&key.to_ascii_lowercase()).copied().unwrap_or(0)
+    }
+
+    async fn load() -> Self {
+        match dd::get("en").await {
+            Ok(d) => Self::new(d.champions.iter().map(|(id, c)| (*id, c.key.clone()))),
+            Err(e) => {
+                log::warn!("champion ids: {e:#}");
+                Self::default()
+            }
         }
     }
+}
+
+/// Brings the client's session and the game's own player list together.
+///
+/// Each player the game reports is matched to a session player: by Riot ID, as you, by champion
+/// on the same side, or as the one player left over on a side. Session players nobody matches
+/// are dropped (the session can hold players from an earlier game), but only on a side where
+/// every game player found theirs: a champion name that is not understood must never cost a
+/// real player their place. The game's champion names are rewritten to Data Dragon's spelling,
+/// taking the session's champion where the name itself did not tell.
+///
+/// Without champion data (static data not loaded) nothing changes.
+fn settle(entries: Vec<Entry>, game: &mut live::InGame, champs: &Champs) -> Vec<Entry> {
+    if game.players.is_empty() || champs.ids.is_empty() {
+        return entries;
+    }
+    let side = |p: &live::LivePlayer| if p.team == "ORDER" { 100 } else { 200 };
+    let mut keep = vec![false; entries.len()];
+    // For each game player, their session player.
+    let mut found: Vec<Option<usize>> = vec![None; game.players.len()];
+    for (n, p) in game.players.iter().enumerate() {
+        let (team, champ) = (side(p), champs.id(&p.champion));
+        let by_name = entries.iter().enumerate().position(|(i, e)| !keep[i] && !e.name.is_empty() && e.name.eq_ignore_ascii_case(&p.riot_id));
+        let by_me = || entries.iter().enumerate().position(|(i, e)| !keep[i] && p.me && e.me);
+        let by_champ = || entries.iter().enumerate().position(|(i, e)| !keep[i] && champ > 0 && e.champion_id == champ && e.team_id == team);
+        if let Some(i) = by_name.or_else(by_me).or_else(by_champ) {
+            keep[i] = true;
+            found[n] = Some(i);
+        }
+    }
+    for team in [100, 200] {
+        let players: Vec<usize> = (0..found.len()).filter(|n| found[*n].is_none() && side(&game.players[*n]) == team).collect();
+        let left: Vec<usize> = (0..entries.len()).filter(|i| !keep[*i] && entries[*i].team_id == team).collect();
+        match (players.as_slice(), left.as_slice()) {
+            // Everyone the game has on this side is matched: what is left is not in this game.
+            ([], _) => {}
+            ([n], [i]) => {
+                keep[*i] = true;
+                found[*n] = Some(*i);
+            }
+            // Which is whose cannot be told, so nobody goes.
+            _ => left.iter().for_each(|i| keep[*i] = true),
+        }
+    }
+    for (n, p) in game.players.iter_mut().enumerate() {
+        let id = match champs.id(&p.champion) {
+            0 => found[n].map(|i| entries[i].champion_id).unwrap_or(0),
+            id => id,
+        };
+        if let Some(key) = champs.keys.get(&id) {
+            p.champion.clone_from(key);
+        }
+    }
+    entries.into_iter().zip(keep).filter_map(|(e, keep)| keep.then_some(e)).collect()
 }
 
 fn start_fetches(entries: &[Entry]) {
@@ -337,7 +390,7 @@ struct Watch {
     resolved: HashMap<String, String>,
     /// The game's own player list, last time it answered (this match).
     last_game: Option<live::InGame>,
-    champ_ids: HashMap<String, i32>,
+    champs: Champs,
 }
 
 pub(crate) fn in_game_phase(p: &str) -> bool {
@@ -549,19 +602,29 @@ async fn tick(core: &Arc<Core>, w: &mut Watch) {
         if let Some(r) = &raw {
             crate::capture::tick(core.settings().capture_augments, r);
         }
-        let game = raw.as_ref().map(live::parse);
+        let mut game = raw.as_ref().map(live::parse);
         if let Some(g) = &game {
             resolve_from_game(w, g).await;
             if w.roster.mode.is_empty() {
                 w.roster.mode = g.mode.clone();
             }
-            w.last_game = Some(g.clone());
         }
-        if let Some(g) = &w.last_game {
-            if w.champ_ids.is_empty() {
-                w.champ_ids = champion_ids().await;
+        // The session is read again every few seconds, so the game's list is applied every time,
+        // from its last answer when it did not answer just now.
+        let first_answer = w.last_game.is_none();
+        if let Some(g) = game.as_mut().or(w.last_game.as_mut()) {
+            if w.champs.ids.is_empty() {
+                w.champs = Champs::load().await;
             }
-            w.roster.entries = match_game(std::mem::take(&mut w.roster.entries), g, &w.champ_ids);
+            if first_answer && !w.champs.ids.is_empty() {
+                for p in g.players.iter().filter(|p| w.champs.id(&p.champion) == 0) {
+                    log::warn!("the game names a champion that is not known: {:?} ({})", p.champion, p.team);
+                }
+            }
+            w.roster.entries = settle(std::mem::take(&mut w.roster.entries), g, &w.champs);
+        }
+        if game.is_some() {
+            w.last_game.clone_from(&game);
         }
         // Loading screen: show the panel by itself until the match starts.
         let game_time = game.as_ref().map(|g| g.game_time).unwrap_or(0.0);
@@ -652,11 +715,73 @@ mod tests {
         });
         let entries = roster_from_session(&gs, "me");
         assert_eq!(entries.len(), 2, "both of your entries are kept by the session rule");
-        let game = live::InGame { players: vec![player("Me#NA1", "Jax", "ORDER", true)], ..Default::default() };
-        let ids = HashMap::from([("Jax".to_string(), 24), ("Akali".to_string(), 84)]);
-        let kept = match_game(entries, &game, &ids);
+        let mut game = live::InGame { players: vec![player("Me#NA1", "Jax", "ORDER", true)], ..Default::default() };
+        let kept = settle(entries, &mut game, &champs(&[(24, "Jax"), (84, "Akali")]));
         assert_eq!(kept.len(), 1);
         assert_eq!((kept[0].champion_id, kept[0].team_id), (24, 100));
+    }
+
+    fn champs(list: &[(i32, &str)]) -> Champs {
+        Champs::new(list.iter().map(|(id, key)| (*id, key.to_string())))
+    }
+
+    /// A ranked game's session: champions and sides, no names (the client leaves them out).
+    fn solo_queue() -> Vec<Entry> {
+        let e = |puuid: &str, champion_id, team_id| Entry { puuid: puuid.into(), champion_id, team_id, ..Default::default() };
+        let mut entries = vec![e("me", 901, 100), e("adc", 22, 100), e("mid", 136, 100), e("sup", 147, 100), e("jg", 30, 100)];
+        entries.extend([e("f1", 200, 200), e("f2", 21, 200), e("f3", 37, 200), e("f4", 9, 200), e("f5", 103, 200)]);
+        entries[0].me = true;
+        entries
+    }
+
+    const CHAMPS: [(i32, &str); 10] =
+        [(901, "Smolder"), (22, "Ashe"), (136, "AurelionSol"), (147, "Seraphine"), (30, "Karthus"), (200, "Belveth"), (21, "MissFortune"), (37, "Sona"), (9, "Fiddlesticks"), (103, "Ahri")];
+
+    fn puuids(entries: &[Entry]) -> Vec<&str> {
+        entries.iter().map(|e| e.puuid.as_str()).collect()
+    }
+
+    #[test]
+    fn unknown_champion_name_keeps_the_player() {
+        // The game of 2026-11-11: Seraphine's name was read as "Name", so her player matched
+        // nobody and was dropped from your team. (The second enemy shows the game's own spelling.)
+        let mut game = live::InGame {
+            players: vec![
+                player("Me#NA1", "Smolder", "ORDER", true),
+                player("Jg#1", "Karthus", "ORDER", false),
+                player("Mid#1", "AurelionSol", "ORDER", false),
+                player("Adc#1", "Ashe", "ORDER", false),
+                player("Sup#1", "Name", "ORDER", false),
+                player("F4#1", "FiddleSticks", "CHAOS", false),
+                player("F1#1", "Belveth", "CHAOS", false),
+                player("F5#1", "Ahri", "CHAOS", false),
+                player("F2#1", "MissFortune", "CHAOS", false),
+                player("F3#1", "Sona", "CHAOS", false),
+            ],
+            ..Default::default()
+        };
+        let kept = settle(solo_queue(), &mut game, &champs(&CHAMPS));
+        assert_eq!(puuids(&kept), puuids(&solo_queue()), "all ten stay, in the session's order");
+        assert_eq!(game.players[4].champion, "Seraphine", "named after the one session player left on that side");
+        assert_eq!(game.players[5].champion, "Fiddlesticks", "Data Dragon's spelling, for the icon");
+    }
+
+    #[test]
+    fn two_unknown_names_on_a_side_keep_everyone() {
+        let mut game = live::InGame {
+            players: vec![
+                player("Me#NA1", "Smolder", "ORDER", true),
+                player("Jg#1", "Karthus", "ORDER", false),
+                player("Mid#1", "AurelionSol", "ORDER", false),
+                player("Adc#1", "?", "ORDER", false),
+                player("Sup#1", "?", "ORDER", false),
+                player("F1#1", "Belveth", "CHAOS", false),
+            ],
+            ..Default::default()
+        };
+        let kept = settle(solo_queue(), &mut game, &champs(&CHAMPS));
+        assert_eq!(puuids(&kept), ["me", "adc", "mid", "sup", "jg", "f1"], "your side whole; the other side as the game has it");
+        assert_eq!(game.players[3].champion, "?", "no guessing which of the two is which");
     }
 
     #[test]
@@ -667,7 +792,7 @@ mod tests {
             Entry { puuid: "b".into(), champion_id: 64, team_id: 200, name: "Foe#EUW".into(), ..Default::default() },
             Entry { puuid: "stale".into(), champion_id: 81, team_id: 200, ..Default::default() },
         ];
-        let game = live::InGame {
+        let mut game = live::InGame {
             players: vec![
                 player("Me#NA1", "Ahri", "ORDER", true),
                 player("Ally#NA1", "LeeSin", "ORDER", false),
@@ -675,11 +800,11 @@ mod tests {
             ],
             ..Default::default()
         };
-        let ids = HashMap::from([("Ahri".to_string(), 103), ("LeeSin".to_string(), 64)]);
-        let kept: Vec<String> = match_game(entries.clone(), &game, &ids).into_iter().map(|e| e.puuid).collect();
+        let ids = champs(&[(103, "Ahri"), (64, "LeeSin")]);
+        let kept: Vec<String> = settle(entries.clone(), &mut game, &ids).into_iter().map(|e| e.puuid).collect();
         assert_eq!(kept, ["me", "a", "b"], "same champion on each side is matched by side; the stale player goes");
-        assert_eq!(match_game(entries.clone(), &game, &HashMap::new()).len(), 4, "no static data: keep everyone");
-        assert_eq!(match_game(entries, &live::InGame::default(), &ids).len(), 4, "no game players yet: keep everyone");
+        assert_eq!(settle(entries.clone(), &mut game, &Champs::default()).len(), 4, "no static data: keep everyone");
+        assert_eq!(settle(entries, &mut live::InGame::default(), &ids).len(), 4, "no game players yet: keep everyone");
     }
 
     #[test]
