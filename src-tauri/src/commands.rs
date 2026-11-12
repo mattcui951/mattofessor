@@ -231,7 +231,9 @@ pub fn save_settings(core: State<'_, Arc<Core>>, settings: Settings) -> Res<()> 
     core.set_settings(settings).map_err(err)
 }
 
-#[tauri::command]
+/// Runs off the main thread (`async`): this can create the window, and on Windows creating a
+/// window inside a plain command (a call from another window's page) freezes the app.
+#[tauri::command(async)]
 pub fn toggle_overlay(core: State<'_, Arc<Core>>) {
     core.toggle_overlay();
 }
@@ -246,7 +248,9 @@ pub fn hide_overlay(core: State<'_, Arc<Core>>) {
     core.hide_overlay();
 }
 
-#[tauri::command]
+/// Runs off the main thread (`async`): this can create the window, and on Windows creating a
+/// window inside a plain command (a call from another window's page) freezes the app.
+#[tauri::command(async)]
 pub fn toggle_spells(core: State<'_, Arc<Core>>) {
     core.toggle_spells();
 }
@@ -262,7 +266,9 @@ pub fn hide_spells(core: State<'_, Arc<Core>>) {
 }
 
 /// Open a player's profile in the main window (from the overlay).
-#[tauri::command]
+/// Runs off the main thread (`async`): this can create the window, and on Windows creating a
+/// window inside a plain command (a call from another window's page) freezes the app.
+#[tauri::command(async)]
 pub fn open_profile(core: State<'_, Arc<Core>>, puuid: String) {
     core.show_main(Some(&format!("profile/{puuid}")));
 }
