@@ -1,6 +1,6 @@
 # Status
 
-Updated: 2026-11-11
+Updated: 2026-11-14
 Version: 1.0.6
 
 ## In progress
@@ -59,6 +59,17 @@ Version: 1.0.6
 
 ## Recently done
 
+- Not released yet (after 1.0.6): the main window's close (and minimize) button did nothing.
+  The app had two main windows on top of each other: 1.0.6 was installed by the in-app update
+  and restarted during champ select, and the setup and the game watcher ("open in champ
+  select") each found no main window and opened one. Both had the label "main", so the title
+  bar buttons worked the hidden one. Windows are now looked up and created on the main thread
+  only, one request after another (`Core::on_main`), for the main window and the in-game ones.
+  A page asked for while the main window's page is still loading is kept until the page takes
+  it (`take_main_route`), so starting during champ select still opens on the Live page.
+  Reproduced with a stand-in client that is in champ select from the start (old build: two
+  windows, X dead; fixed build: one window on the Live page, 8 starts); close, minimize,
+  reopening on a profile, the panel and the spell tracker buttons checked after the fix.
 - 1.0.6: a teammate was missing from the in-game panel and the Live page
   in a ranked game (11 Nov, Seraphine on your team). The game writes Seraphine's name key as
   `Character_Seraphine_Name` (everyone else: `game_character_displayname_X`), it was read as

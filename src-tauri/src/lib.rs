@@ -165,6 +165,7 @@ pub fn run() {
             commands::augment_names,
             commands::import_build,
             commands::save_settings,
+            commands::take_main_route,
             commands::toggle_overlay,
             commands::hide_overlay,
             commands::fit_overlay,

@@ -178,7 +178,14 @@ export async function init() {
     app.settings = e.payload;
     await applyPrefs();
   });
-  listen<string>('navigate', (e) => go(routeFrom(e.payload)));
+  // "navigate": the main window was asked for a page. The page waits in the app until taken, so
+  // one asked for while this page was still loading (the app started during champ select) shows too.
+  const showAsked = async () => {
+    const route = await api.takeMainRoute();
+    if (route) go(routeFrom(route));
+  };
+  await listen('navigate', showAsked);
+  await showAsked();
   listen<{ text: string; tone: Toast['tone'] }>('toast', (e) => toast(errorText(e.payload.text), e.payload.tone));
   listen('profile-stale', () => app.profileEpoch++);
   listen<UpdateState>('update', (e) => {

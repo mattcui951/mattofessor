@@ -43,6 +43,7 @@ export const api = {
   hideSpells: () => invoke<void>('hide_spells'),
   fitSpells: (height: number) => invoke<void>('fit_spells', { height }),
   openProfile: (puuid: string) => invoke<void>('open_profile', { puuid }),
+  takeMainRoute: () => invoke<string | null>('take_main_route'),
   setRiotKey: (key: string) => invoke<RiotStatus>('set_riot_key', { key }),
   checkUpdate: () => invoke<UpdateState>('check_update'),
   installUpdate: () => invoke<void>('install_update'),

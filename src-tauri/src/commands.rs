@@ -265,6 +265,16 @@ pub fn hide_spells(core: State<'_, Arc<Core>>) {
     core.hide_spells();
 }
 
+/// The page the main window was asked to show and has not shown yet; nothing for other windows.
+#[tauri::command]
+pub fn take_main_route(core: State<'_, Arc<Core>>, window: tauri::WebviewWindow) -> Option<String> {
+    if window.label() == "main" {
+        core.take_main_route()
+    } else {
+        None
+    }
+}
+
 /// Open a player's profile in the main window (from the overlay).
 /// Runs off the main thread (`async`): this can create the window, and on Windows creating a
 /// window inside a plain command (a call from another window's page) freezes the app.

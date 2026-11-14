@@ -37,6 +37,11 @@ pub struct Core {
     spells_content: AtomicU32,
     /// Where the spell timers were last placed, to tell a user's drag from our own placement.
     spells_placed: Mutex<Option<(i32, i32)>>,
+    /// The thread the app's windows live on (`on_main`).
+    main_thread: std::thread::ThreadId,
+    /// A page the main window was asked to show that its page has not taken yet. A page still
+    /// loading misses the "navigate" event, so the page takes the route from here.
+    main_route: Mutex<Option<String>>,
 }
 
 #[derive(Clone, Serialize)]
@@ -62,6 +67,9 @@ impl Core {
             overlay_content: AtomicU32::new(640),
             spells_content: AtomicU32::new(300),
             spells_placed: Mutex::new(None),
+            // `init` runs in the app's setup, on the main thread.
+            main_thread: std::thread::current().id(),
+            main_route: Mutex::new(None),
         });
         let _ = CORE.set(core.clone());
         core
@@ -121,13 +129,40 @@ impl Core {
         self.app.exit(0);
     }
 
+    /// Runs `f` on the main thread and waits for it. Windows are looked up and created there
+    /// only, one request after another: two threads could otherwise both find a window missing
+    /// and both create it. That happened to the main window when the app started during champ
+    /// select (the setup and the game watcher each opened one): two windows on top of each other,
+    /// one label, and the title bar buttons worked the hidden one. None when the app is closing.
+    fn on_main<R: Send + 'static>(&self, f: impl FnOnce(&Core) -> R + Send + 'static) -> Option<R> {
+        if std::thread::current().id() == self.main_thread {
+            return Some(f(self));
+        }
+        let (tx, rx) = std::sync::mpsc::sync_channel(1);
+        self.app
+            .run_on_main_thread(move || {
+                if let Some(core) = get() {
+                    let _ = tx.send(f(core));
+                }
+            })
+            .ok()?;
+        rx.recv().ok()
+    }
+
     /// Show the main window, optionally on a page ("live", "profile", "builds", "settings").
     pub fn show_main(&self, route: Option<&str>) {
+        let route = route.map(str::to_string);
+        self.on_main(move |core| core.show_main_here(route.as_deref()));
+    }
+
+    fn show_main_here(&self, route: Option<&str>) {
         if let Some(w) = self.app.get_webview_window("main") {
             let _ = w.unminimize();
             let _ = w.show();
             let _ = w.set_focus();
         } else {
+            // A new window starts on the page it was opened for.
+            *self.main_route.lock() = None;
             let hash = route.map(|r| format!("#/{r}")).unwrap_or_default();
             let built = WebviewWindowBuilder::new(&self.app, "main", WebviewUrl::App(format!("index.html{hash}").into()));
             let built = dev_data(built)
@@ -143,11 +178,22 @@ impl Core {
             return;
         }
         if let Some(r) = route {
+            *self.main_route.lock() = Some(r.to_string());
             let _ = self.app.emit_to("main", "navigate", r);
         }
     }
 
-    fn overlay_window(&self, label: &str) -> Option<WebviewWindow> {
+    /// The page the main window was last asked to show, once (`show_main`).
+    pub fn take_main_route(&self) -> Option<String> {
+        self.main_route.lock().take()
+    }
+
+    /// One of the in-game windows, created (hidden) the first time.
+    fn overlay_window(&self, label: &'static str) -> Option<WebviewWindow> {
+        self.on_main(move |core| core.overlay_window_here(label)).flatten()
+    }
+
+    fn overlay_window_here(&self, label: &str) -> Option<WebviewWindow> {
         if let Some(w) = self.app.get_webview_window(label) {
             return Some(w);
         }
