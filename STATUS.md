@@ -1,7 +1,7 @@
 # Status
 
 Updated: 2026-11-14
-Version: 1.0.6
+Version: 1.0.7
 
 ## In progress
 
@@ -59,7 +59,7 @@ Version: 1.0.6
 
 ## Recently done
 
-- Not released yet (after 1.0.6): the main window's close (and minimize) button did nothing.
+- 1.0.7: the main window's close (and minimize) button did nothing.
   The app had two main windows on top of each other: 1.0.6 was installed by the in-app update
   and restarted during champ select, and the setup and the game watcher ("open in champ
   select") each found no main window and opened one. Both had the label "main", so the title
