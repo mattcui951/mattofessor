@@ -129,9 +129,10 @@ live in `src/lib/themes.ts`.
 Settings > Riot API key fills in what the client hides: exact ranked wins and losses (and so
 win rates) for every player, which also sharpens the smurf check. Get a key at
 [developer.riotgames.com](https://developer.riotgames.com/) after signing in with a Riot
-account: the Development API Key on the dashboard works immediately but stops after 24 hours;
-for a lasting one, Register Product > Personal API Key (personal use only; 20 requests per
-second, 100 per 2 minutes). Each player costs two requests (Riot ID to this key's PUUID, then
+account and choose Register Product > Personal API Key: personal use only, approved right away,
+no expiry (20 requests per second, 100 per 2 minutes). The Development API Key on the dashboard
+stops after 24 hours, so the app's guide skips it. Until a working key is set, the Profile and
+Live pages show a banner that links to the guide, and wins-only lines are marked. Each player costs two requests (Riot ID to this key's PUUID, then
 ranked entries), throttled under those limits. The key is stored with Windows DPAPI in
 `%APPDATA%\Mattofessor\riot-key.bin` and never reaches the UI (`src-tauri/src/riot.rs`).
 

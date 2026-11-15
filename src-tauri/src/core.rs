@@ -8,7 +8,7 @@ use crate::settings::Settings;
 use crate::win;
 use parking_lot::{Mutex, RwLock};
 use serde::Serialize;
-use std::sync::atomic::{AtomicBool, AtomicU32, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU32, AtomicU64, Ordering};
 use std::sync::{Arc, OnceLock};
 use tauri::{AppHandle, Emitter, Manager, WebviewUrl, WebviewWindow, WebviewWindowBuilder};
 
@@ -34,6 +34,11 @@ pub struct Core {
     pub overlay_auto: AtomicBool,
     /// Height the overlay's content asked for (CSS pixels).
     overlay_content: AtomicU32,
+    /// The zoom last given to the panel's page (f64 bits).
+    overlay_zoom: AtomicU64,
+    /// The player asked for the panel or spell timers while League ran in Full screen (they
+    /// stayed closed): told once the game is over.
+    fullscreen_tried: AtomicBool,
     spells_content: AtomicU32,
     /// Where the spell timers were last placed, to tell a user's drag from our own placement.
     spells_placed: Mutex<Option<(i32, i32)>>,
@@ -65,6 +70,8 @@ impl Core {
             quitting: AtomicBool::new(false),
             overlay_auto: AtomicBool::new(false),
             overlay_content: AtomicU32::new(640),
+            overlay_zoom: AtomicU64::new(0),
+            fullscreen_tried: AtomicBool::new(false),
             spells_content: AtomicU32::new(300),
             spells_placed: Mutex::new(None),
             // `init` runs in the app's setup, on the main thread.
@@ -83,6 +90,12 @@ impl Core {
         s.save()?;
         *self.settings.write() = s;
         self.reregister_hotkeys();
+        // A new panel size shows at once.
+        if self.overlay_visible() {
+            if let Some(w) = self.app.get_webview_window("overlay") {
+                self.place_overlay(&w);
+            }
+        }
         let _ = self.app.emit("settings", self.settings());
         Ok(())
     }
@@ -223,6 +236,10 @@ impl Core {
         if let Some(r) = win::game_window().and_then(win::window_rect) {
             return r;
         }
+        // Champ select: the screen the League client is on.
+        if let Some(r) = win::client_window().and_then(win::monitor_rect) {
+            return r;
+        }
         if let Some(m) = self.app.primary_monitor().ok().flatten() {
             let (p, s) = (m.position(), m.size());
             return win::Rect { x: p.x, y: p.y, w: s.width as i32, h: s.height as i32 };
@@ -247,32 +264,71 @@ impl Core {
         self.visible("overlay")
     }
 
-    /// Centered on the game, as tall as its content (within the game area).
-    fn overlay_rect(&self) -> win::Rect {
+    /// Centered on the game, as tall as its content (within the game area), and the zoom its
+    /// page is drawn at.
+    fn overlay_layout(&self) -> (win::Rect, f64) {
         let area = self.game_area();
-        let scale = self.scale_at(area);
-        let width = ((1500.0 * scale * self.ui_scale()) as i32).min(area.w - (40.0 * scale) as i32);
+        let dpi = self.scale_at(area);
+        let zoom = overlay_zoom(&self.settings.read().overlay_size, area.w as f64 / dpi);
+        let width = ((OVERLAY_WIDTH * zoom * dpi) as i32).min(area.w);
         let content = self.overlay_content.load(Ordering::Relaxed) as f64;
-        let height = ((content * scale) as i32).min(area.h - (60.0 * scale) as i32);
-        win::Rect { x: area.x + (area.w - width) / 2, y: area.y + (area.h - height) / 2, w: width, h: height }
+        let height = ((content * zoom * dpi) as i32).min(area.h - (40.0 * dpi) as i32);
+        (win::Rect { x: area.x + (area.w - width) / 2, y: area.y + (area.h - height) / 2, w: width, h: height }, zoom)
+    }
+
+    /// Size, place and zoom the panel (shown).
+    fn place_overlay(&self, w: &WebviewWindow) {
+        let (rect, zoom) = self.overlay_layout();
+        if (f64::from_bits(self.overlay_zoom.load(Ordering::Relaxed)) - zoom).abs() > 1e-6 {
+            self.overlay_zoom.store(zoom.to_bits(), Ordering::Relaxed);
+            let _ = w.set_zoom(zoom);
+        }
+        if let Ok(h) = w.hwnd() {
+            win::show_topmost(h.0 as isize, rect);
+        }
+    }
+
+    /// In-game windows stay closed over a Full screen game (it would minimize).
+    fn held_back(&self) -> bool {
+        crate::display::game_fullscreen()
+    }
+
+    /// The player asked for an in-game window during a Full screen game.
+    fn tried_in_fullscreen(&self) {
+        if !self.fullscreen_tried.swap(true, Ordering::Relaxed) {
+            log::info!("in-game panel asked for while League runs in Full screen: kept closed");
+            let _ = self.app.emit("fullscreen-tried", true);
+        }
+    }
+
+    pub fn fullscreen_tried(&self) -> bool {
+        self.fullscreen_tried.load(Ordering::Relaxed)
+    }
+
+    pub fn clear_fullscreen_tried(&self) {
+        if self.fullscreen_tried.swap(false, Ordering::Relaxed) {
+            let _ = self.app.emit("fullscreen-tried", false);
+        }
     }
 
     pub fn show_overlay(&self) {
-        let Some(w) = self.overlay_window("overlay") else { return };
-        if let Ok(h) = w.hwnd() {
-            win::show_topmost(h.0 as isize, self.overlay_rect());
+        if self.held_back() {
+            return;
         }
+        let Some(w) = self.overlay_window("overlay") else { return };
+        self.place_overlay(&w);
         let _ = self.app.emit("overlay-shown", true);
     }
 
-    /// The overlay page reports its content height; resize to fit when it changed.
+    /// The overlay page reports its content height (CSS pixels, before its zoom); resize to fit
+    /// when it changed.
     pub fn fit_overlay(&self, css_height: f64) {
-        let h = css_height.clamp(160.0, 1400.0).round() as u32;
+        let h = css_height.clamp(120.0, 2400.0).round() as u32;
         if self.overlay_content.swap(h, Ordering::Relaxed) == h || !self.overlay_visible() {
             return;
         }
-        if let Some(Ok(hwnd)) = self.app.get_webview_window("overlay").map(|w| w.hwnd()) {
-            win::show_topmost(hwnd.0 as isize, self.overlay_rect());
+        if let Some(w) = self.app.get_webview_window("overlay") {
+            self.place_overlay(&w);
         }
     }
 
@@ -283,9 +339,20 @@ impl Core {
         }
     }
 
+    /// The player closed the panel (hotkey or its X): also bring back a Full screen game that
+    /// stepped aside (minimized) when the panel showed.
+    pub fn close_overlay(&self) {
+        self.hide_overlay();
+        if let Some(g) = win::game_window() {
+            win::restore_if_minimized(g);
+        }
+    }
+
     pub fn toggle_overlay(&self) {
         if self.overlay_visible() {
-            self.hide_overlay();
+            self.close_overlay();
+        } else if self.held_back() {
+            self.tried_in_fullscreen();
         } else {
             self.overlay_auto.store(false, Ordering::Relaxed);
             self.show_overlay();
@@ -294,6 +361,9 @@ impl Core {
 
     /// Show the augment card win rates over `r` (physical pixels), click-through.
     pub fn show_cards(&self, r: win::Rect, offer: &crate::cards::Offer) {
+        if self.held_back() {
+            return;
+        }
         let Some(w) = self.overlay_window("cards") else { return };
         let _ = w.set_ignore_cursor_events(true);
         let _ = self.app.emit_to("cards", "offer", offer);
@@ -313,6 +383,9 @@ impl Core {
     }
 
     pub fn show_spells(&self) {
+        if self.held_back() {
+            return;
+        }
         let Some(w) = self.overlay_window("spells") else { return };
         let area = self.game_area();
         let scale = self.scale_at(area);
@@ -358,6 +431,8 @@ impl Core {
     pub fn toggle_spells(&self) {
         if self.spells_visible() {
             self.hide_spells();
+        } else if self.held_back() {
+            self.tried_in_fullscreen();
         } else {
             self.show_spells();
         }
@@ -391,7 +466,9 @@ impl Core {
     pub fn on_hotkey(&self, action: Action) {
         match action {
             Action::Overlay => self.toggle_overlay(),
-            Action::Spells => self.toggle_spells(),
+            // The spell timers are for a running game (champ select has the panel only).
+            Action::Spells if crate::game::in_game_phase(&self.live.lock().phase) => self.toggle_spells(),
+            Action::Spells => {}
         }
     }
 }
@@ -411,5 +488,42 @@ fn dev_data<'a>(b: WebviewWindowBuilder<'a, tauri::Wry, AppHandle>) -> WebviewWi
             "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --autoplay-policy=no-user-gesture-required --remote-debugging-port={port}"
         )),
         None => b,
+    }
+}
+
+/// Width the in-game panel is laid out at (CSS pixels): both teams side by side with their last
+/// games. The size setting zooms it as a whole, so nothing stretches or leaves gaps.
+const OVERLAY_WIDTH: f64 = 1520.0;
+
+/// The panel's zoom for a size setting, for a game `game_width` CSS pixels wide. A game too
+/// narrow for the size gets a smaller zoom instead of a squeezed layout; "xlarge" fills the width.
+pub fn overlay_zoom(size: &str, game_width: f64) -> f64 {
+    let fits = (game_width - 24.0) / OVERLAY_WIDTH;
+    let wanted = match size {
+        "small" => 0.75,
+        "medium" => 0.875,
+        "large" => 1.15,
+        "xlarge" => fits,
+        _ => 1.0,
+    };
+    wanted.min(fits).clamp(0.5, 3.0)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::overlay_zoom;
+
+    #[test]
+    fn panel_zoom_follows_the_size_and_fits_the_game() {
+        // A 2560-wide game has room for every size.
+        assert_eq!(overlay_zoom("small", 2560.0), 0.75);
+        assert_eq!(overlay_zoom("regular", 2560.0), 1.0);
+        assert_eq!(overlay_zoom("large", 2560.0), 1.15);
+        assert!((overlay_zoom("xlarge", 2560.0) * 1520.0 - (2560.0 - 24.0)).abs() < 1e-6);
+        // Unknown sizes are regular.
+        assert_eq!(overlay_zoom("huge", 2560.0), 1.0);
+        // A 1366-wide laptop: even "regular" shrinks to fit rather than squeezing the layout.
+        assert!(overlay_zoom("regular", 1366.0) < 0.95);
+        assert!(overlay_zoom("large", 1366.0) <= overlay_zoom("xlarge", 1366.0) + 1e-9);
     }
 }

@@ -120,27 +120,53 @@ impl Names {
         if let Some((_, id)) = self.list.iter().find(|(n, _)| *n == t) {
             return Some((*id, 0));
         }
-        // Close matches allow about one wrong letter in six; short names must match exactly.
-        if t.len() < 5 {
+        // Close matches allow about one wrong letter in six (Latin) or one character in four
+        // (Chinese, Japanese, Korean: short names, a character each word); shorter names must
+        // match exactly. Only a clear winner counts: two names as close are a guess.
+        let cjk = t.iter().any(|c| is_cjk(*c));
+        let allowed = if cjk { t.len() / 4 } else { t.len() / 6 };
+        if allowed == 0 {
             return None;
         }
-        let mut best: Option<(usize, i32)> = None;
+        // The list holds Hextech augments first, so of two ids with one name the Hextech one wins.
+        let mut best: Option<(usize, i32, &[char])> = None;
+        let mut tied = false;
         for (n, id) in &self.list {
-            if n.len().abs_diff(t.len()) > t.len() / 6 {
+            if n.len().abs_diff(t.len()) > allowed {
                 continue;
             }
             let d = levenshtein(n, &t);
-            if d <= n.len().max(t.len()) / 6 && best.is_none_or(|(bd, _)| d < bd) {
-                best = Some((d, *id));
+            if d > allowed {
+                continue;
+            }
+            match best {
+                Some((bd, _, bn)) if d == bd && bn != n.as_slice() => tied = true,
+                Some((bd, _, _)) if d >= bd => {}
+                _ => {
+                    best = Some((d, *id, n.as_slice()));
+                    tied = false;
+                }
             }
         }
-        best.map(|(d, id)| (id, d))
+        if tied {
+            return None;
+        }
+        best.map(|(d, id, _)| (id, d))
     }
 }
 
 /// Words of at most this many letters and digits may sit around a title and be ignored: a
-/// sparkle or a card's frame read as "x", "+" or "Il".
+/// sparkle or a card's frame read as "x", "+" or "Il". Not Chinese (or Japanese, Korean) words:
+/// the OCR gives each character of those as a word of its own.
 const JUNK: usize = 2;
+
+/// A Chinese, Japanese or Korean character.
+fn is_cjk(c: char) -> bool {
+    matches!(c as u32, 0x3040..=0x30FF | 0x3400..=0x4DBF | 0x4E00..=0x9FFF | 0xAC00..=0xD7AF | 0xF900..=0xFAFF)
+}
+
+/// The most cards an offer can have (three today; a mode with four is coming).
+const MAX_CARDS: usize = 5;
 /// Words closer than this many word heights belong to one piece of text (a card title). Words of
 /// a title are about 0.3 heights apart (more in a wide font), titles of neighbouring cards 5+
 /// (long names) and a card's frame about 4.5 away from its title.
@@ -191,7 +217,10 @@ fn phrases(lines: &[Line]) -> Vec<Vec<Word>> {
 /// junk words around it. A name inside other words does not count ("Recursion" is an augment of
 /// its own, and so is a word in many descriptions).
 fn title(phrase: &[Word], names: &Names) -> Option<(i32, Line)> {
-    let junk = |w: &Word| normalize(&w.text).chars().count() <= JUNK;
+    let junk = |w: &Word| {
+        let n = normalize(&w.text);
+        n.chars().count() <= JUNK && !n.chars().any(is_cjk)
+    };
     let start = phrase.iter().position(|w| !junk(w))?;
     let end = phrase.iter().rposition(|w| !junk(w))?;
     // The longest run first: the whole phrase, then without junk at the ends.
@@ -218,8 +247,8 @@ fn title(phrase: &[Word], names: &Names) -> Option<(i32, Line)> {
     Some((id, Line { text, x, y, w: x2 - x, h: y2 - y, words: run.to_vec() }))
 }
 
-/// The cards among the text read: augment titles, left to right, at most three, each with where
-/// its title is.
+/// The cards among the text read: augment titles, left to right (any number: three today, four
+/// in a coming mode), each with where its title is.
 pub fn cards(lines: &[Line], names: &Names) -> Vec<(i32, Line)> {
     let mut found: Vec<(i32, Line)> = Vec::new();
     for phrase in phrases(lines) {
@@ -245,7 +274,7 @@ pub fn cards(lines: &[Line], names: &Names) -> Vec<(i32, Line)> {
         found.retain(|(_, l)| (mid(l) - y).abs() < h);
     }
     found.sort_by(|a, b| a.1.x.total_cmp(&b.1.x));
-    found.truncate(3);
+    found.truncate(MAX_CARDS);
     found
 }
 
@@ -346,6 +375,41 @@ struct Reader {
     misses: u32,
     /// The cards the last read found (ids and places), shown once the next read agrees.
     last: Vec<(i32, f64)>,
+    /// This game's setup was logged (`describe_setup`).
+    told: bool,
+    /// A black screen capture was logged this game.
+    told_black: bool,
+}
+
+/// Whether Windows can read the game's text, for the game's language ("zh_CN", "en_US"...).
+#[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ReaderStatus {
+    pub ocr_en: bool,
+    pub ocr_zh: bool,
+    /// "en" or "zh": the League client's language; none before it connected once.
+    pub game_lang: Option<&'static str>,
+    /// The game's language cannot be read on this PC (its OCR language is not installed).
+    pub missing: bool,
+}
+
+pub fn status(core: &Core) -> ReaderStatus {
+    let (ocr_en, ocr_zh) = (ocr::available("en"), ocr::available("zh"));
+    let game_lang = core.client_locale.read().as_deref().map(|l| if l.starts_with("zh") { "zh" } else { "en" });
+    let missing = match game_lang {
+        Some("zh") => !ocr_zh,
+        Some(_) => !ocr_en,
+        None => false,
+    };
+    ReaderStatus { ocr_en, ocr_zh, game_lang, missing }
+}
+
+/// Mostly black: what a screen capture of a game in exclusive Full screen gives.
+pub fn black(rgba: &[u8]) -> bool {
+    let (px, _) = rgba.as_chunks::<4>();
+    let n = px.len().max(1);
+    let dark = px.iter().step_by(7).filter(|p| p[0] < 12 && p[1] < 12 && p[2] < 12).count();
+    dark * 7 * 100 >= n * 98
 }
 
 async fn names() -> anyhow::Result<Names> {
@@ -420,9 +484,26 @@ async fn step(core: &Arc<Core>, r: &mut Reader) -> bool {
         w: game.w,
         h: (game.h as f64 * (BAND.1 - BAND.0)) as i32,
     };
+    if !r.told {
+        r.told = true;
+        let st = status(core);
+        let mode = crate::display::window_mode().await.unwrap_or("unknown");
+        log::info!(
+            "card reader: game window {}x{} at {},{}, League {mode}, OCR en={} zh={}, game language {}",
+            game.w, game.h, game.x, game.y, st.ocr_en, st.ocr_zh, st.game_lang.unwrap_or("?")
+        );
+        if st.missing {
+            log::warn!("card reader: Windows cannot read {} text (its OCR language is not installed)", st.game_lang.unwrap_or("?"));
+        }
+    }
     let first = r.lang;
+    let tell_black = !r.told_black;
     let read = tauri::async_runtime::spawn_blocking(move || {
         let px = win::capture(band)?;
+        if tell_black && black(&px) {
+            log::warn!("card reader: the game screen captures as black (League in Full screen?)");
+            return Some(Err(()));
+        }
         let other = if first == "en" { "zh" } else { "en" };
         for lang in [first, other] {
             if !ocr::available(lang) {
@@ -432,7 +513,7 @@ async fn step(core: &Arc<Core>, r: &mut Reader) -> bool {
                 Ok(lines) => {
                     let found = cards(&lines, &names);
                     if found.len() >= 2 {
-                        return Some((lang, found));
+                        return Some(Ok((lang, found)));
                     }
                 }
                 Err(e) => log::warn!("card reader OCR: {e:#}"),
@@ -444,7 +525,10 @@ async fn step(core: &Arc<Core>, r: &mut Reader) -> bool {
     .ok()
     .flatten();
 
-    let Some((lang, found)) = read else {
+    if matches!(read, Some(Err(()))) {
+        r.told_black = true;
+    }
+    let Some(Ok((lang, found))) = read else {
         r.last.clear();
         r.misses += 1;
         if r.misses >= MISSES_TO_HIDE {
@@ -493,6 +577,8 @@ pub fn spawn(core: Arc<Core>) {
             lang: "en",
             misses: 0,
             last: Vec::new(),
+            told: false,
+            told_black: false,
         };
         loop {
             let active = core.settings().card_reader && step(&core, &mut r).await;
@@ -500,6 +586,8 @@ pub fn spawn(core: Arc<Core>) {
                 clear(&core);
                 r.misses = 0;
                 r.last.clear();
+                r.told = false;
+                r.told_black = false;
             }
             tokio::time::sleep(if active { EVERY } else { IDLE }).await;
         }
@@ -509,6 +597,17 @@ pub fn spawn(core: Arc<Core>) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_black_capture_is_seen() {
+        let black = [0u8, 0, 0, 255].repeat(1000);
+        assert!(super::black(&black));
+        let mut cards = black.clone();
+        for p in cards.as_chunks_mut::<4>().0.iter_mut().step_by(3) {
+            p[0] = 200;
+        }
+        assert!(!super::black(&cards));
+    }
 
     fn names() -> Names {
         let hextech: HashSet<i32> = [1088, 1325, 1225].into();
@@ -610,6 +709,57 @@ mod tests {
         assert_eq!(n.find("双 持"), Some(1225), "Chinese with OCR spaces");
         assert_eq!(n.find("Tamk"), None, "short names match exactly only");
         assert_eq!(n.find("Reduce max Health by 30%. Deal an extra"), None);
+    }
+
+    #[test]
+    fn chinese_titles_are_cards() {
+        // What Windows' Chinese OCR read from a real Hextech ARAM pick (1525 px wide): each
+        // character a word, with a description line under each title.
+        let zh = |text: &str, x: f32, y: f32| {
+            let chars: Vec<&str> = text.split(' ').collect();
+            let words = chars
+                .iter()
+                .enumerate()
+                .map(|(i, c)| Word { text: (*c).into(), x: x + i as f32 * 19.0, y, w: 16.0, h: 18.0 })
+                .collect::<Vec<_>>();
+            Line { text: text.into(), x, y, w: chars.len() as f32 * 19.0, h: 18.0, words }
+        };
+        let names = Names::new(
+            [(1375, "吞噬灵魂"), (2116, "威能之追求"), (3116, "将他们放倒倒倒"), (1323, "残忍"), (3, "放倒")],
+            &HashSet::new(),
+        );
+        let lines = [
+            zh("吞 噬 灵 魂", 383.0, 99.0),
+            zh("定 身 一 个 敌 方 雄 时 会 提 供", 313.0, 166.0),
+            // The mouse covered the last character; the "、" is the cursor's edge.
+            zh("威 能 之 追 求 、", 700.0, 99.0),
+            zh("将 他 们 放 倒 倒 倒", 1028.0, 99.0),
+        ];
+        let ids: Vec<i32> = cards(&lines, &names).iter().map(|(id, _)| *id).collect();
+        assert_eq!(ids, [1375, 2116, 3116]);
+        // One wrong character in a long enough name still matches; a short one must be exact.
+        assert_eq!(names.find("将他们放到倒倒"), Some(3116));
+        assert_eq!(names.find("残恩"), None);
+    }
+
+    #[test]
+    fn four_cards_are_read() {
+        let lines = [
+            line("Ultimate Revolution", 100.0),
+            line("Glass Cannon", 700.0),
+            line("Dual Wield", 1300.0),
+            line("Clown College", 1900.0),
+        ];
+        let ids: Vec<i32> = cards(&lines, &names()).iter().map(|(id, _)| *id).collect();
+        assert_eq!(ids, [1088, 1325, 1225, 1310]);
+    }
+
+    #[test]
+    fn a_close_match_needs_a_clear_winner() {
+        let names = Names::new([(1, "Glass Cannon"), (2, "Glass Cannot")], &HashSet::new());
+        // One letter from both: a guess, not a match.
+        assert_eq!(names.find("Glass Cannox"), None);
+        assert_eq!(names.find("Glass Canon"), Some(1));
     }
 
     #[test]
@@ -822,5 +972,43 @@ mod scan {
             }
         }
         println!("cards found in {with} of {total} samples");
+    }
+    /// One screenshot (, a PNG of the whole game window) read in both languages, with
+    /// the client's augment lists as the app caches them (, : the
+    /// "augments:*" values of the kv table). Prints what each step saw. Run by hand:
+    /// .
+    #[test]
+    #[ignore]
+    fn scan_image() {
+        let list = |var: &str| -> Vec<(i32, String)> {
+            let (_, raw): (i64, serde_json::Value) = serde_json::from_str(&std::fs::read_to_string(std::env::var(var).expect(var)).unwrap()).unwrap();
+            crate::augments::parse(&raw).into_iter().map(|(id, a)| (id, a.name)).collect()
+        };
+        let (en, zh) = (list("MF_AUG_EN"), list("MF_AUG_ZH"));
+        let names = Names::new(en.iter().chain(zh.iter()).map(|(id, n)| (*id, n.as_str())), &HashSet::new());
+        let path = std::env::var("MF_IMAGE").expect("MF_IMAGE");
+        let mut dec = png::Decoder::new(std::io::BufReader::new(std::fs::File::open(&path).unwrap()));
+        dec.set_transformations(png::Transformations::EXPAND | png::Transformations::ALPHA);
+        let mut reader = dec.read_info().unwrap();
+        let mut buf = vec![0; reader.output_buffer_size()];
+        let info = reader.next_frame(&mut buf).unwrap();
+        let (w, h) = (info.width, info.height);
+        let y0 = (BAND.0 * h as f64) as u32;
+        let bh = ((BAND.1 - BAND.0) * h as f64) as u32;
+        let row = (w * 4) as usize;
+        let band = &buf[y0 as usize * row..(y0 + bh) as usize * row];
+        println!("{path}: {w}x{h}, band y {y0}..{}", y0 + bh);
+        for lang in ["en", "zh"] {
+            let t = std::time::Instant::now();
+            let lines = ocr::read(band, w, bh, lang).unwrap();
+            let ms = t.elapsed().as_millis();
+            let found = cards(&lines, &names);
+            println!("[{lang}] {ms} ms, {} lines, cards: {:?}", lines.len(), found.iter().map(|(id, l)| (*id, l.text.clone(), ((l.x + l.w / 2.0) / w as f32 * 1000.0).round() / 1000.0)).collect::<Vec<_>>());
+            if std::env::var_os("MF_LINES").is_some() {
+                for l in &lines {
+                    println!("  {:?} x={:.0} y={:.0} w={:.0} h={:.0}", l.text, l.x, l.y, l.w, l.h);
+                }
+            }
+        }
     }
 }

@@ -29,13 +29,14 @@
 </div>
 
 <style>
+  /* auto-fill: a team alone (the others not known yet) keeps its share instead of stretching. */
   .teams {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 700px), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 700px), 1fr));
     container-type: inline-size;
   }
   .teams.many {
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 440px), 1fr));
   }
   .team {
     display: grid;

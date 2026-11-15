@@ -11,7 +11,9 @@
   import { hasKey } from '../lib/i18n.svelte';
   import Icon from '../components/Icon.svelte';
   import ThemeCard from '../components/ThemeCard.svelte';
-  import type { Settings } from '../lib/types';
+  import FullscreenNotice from '../components/FullscreenNotice.svelte';
+  import type { OverlaySize, Settings } from '../lib/types';
+  import { OVERLAY_SIZES } from '../lib/appearance.svelte';
 
   const s = $derived(app.settings);
 
@@ -37,6 +39,12 @@
   );
 
   let captures = $state(0);
+  // Whether Windows can read the augment cards in the game's language.
+  let reader = $state<Awaited<ReturnType<typeof api.cardReaderStatus>> | null>(null);
+  $effect(() => {
+    app.connected;
+    api.cardReaderStatus().then((r) => (reader = r), () => (reader = null));
+  });
   async function refreshCaptures() {
     try {
       captures = (await api.captureInfo()).count;
@@ -119,6 +127,21 @@
       </section>
 
       <section>
+        <h3>{t('panel.title')}</h3>
+        <div class="row">
+          <span>{t('panel.size')}</span>
+          <Segmented
+            label={t('panel.size')}
+            value={s.overlaySize ?? 'regular'}
+            options={OVERLAY_SIZES.map((v) => ({ value: v, label: t(`panel.size.${v}`) }))}
+            onchange={(v) => updateSettings({ overlaySize: v as OverlaySize })}
+          />
+        </div>
+        <p class="note">{t('panel.sizeNote')}</p>
+        <FullscreenNotice always />
+      </section>
+
+      <section>
         <h3>{t('settings.behavior')}</h3>
         {@render toggleRow(t('settings.openInChampSelect'), 'openInChampSelect')}
         {@render toggleRow(t('settings.showDuringLoading'), 'showDuringLoading')}
@@ -137,6 +160,13 @@
         <h3>{t('capture.title')}</h3>
         {@render toggleRow(t('cards.toggle'), 'cardReader')}
         <p class="note">{t('cards.note')}</p>
+        {#if s.cardReader && reader?.missing}
+          <div class="ocr-warn">
+            <b>{t(reader.gameLang === 'zh' ? 'cards.noOcrZh' : 'cards.noOcrEn')}</b>
+            <span>{t(reader.gameLang === 'zh' ? 'cards.ocrHowZh' : 'cards.ocrHowEn')}</span>
+            <code>{reader.gameLang === 'zh' ? 'Add-WindowsCapability -Online -Name "Language.OCR~~~zh-CN~0.0.1.0"' : 'Add-WindowsCapability -Online -Name "Language.OCR~~~en-US~0.0.1.0"'}</code>
+          </div>
+        {/if}
         {@render toggleRow(t('capture.toggle'), 'captureAugments')}
         <p class="note">{t('capture.note')}</p>
         <div class="how-actions">
@@ -198,6 +228,28 @@
 </div>
 
 <style>
+  .ocr-warn {
+    display: grid;
+    gap: 4px;
+    margin: 6px 0 10px;
+    padding: 10px 12px;
+    border-radius: var(--r-md);
+    background: color-mix(in oklab, var(--warn) 10%, var(--panel));
+    border: 1px solid color-mix(in oklab, var(--warn) 40%, var(--seam));
+    font-size: 12.5px;
+  }
+  .ocr-warn span {
+    color: var(--text-2);
+  }
+  .ocr-warn code {
+    font-size: 11.5px;
+    user-select: all;
+    color: var(--text-2);
+    background: var(--bg-sunk);
+    border-radius: var(--r-sm);
+    padding: 4px 6px;
+    word-break: break-all;
+  }
   .page {
     height: 100%;
     overflow-y: auto;

@@ -55,6 +55,9 @@ pub struct Build {
     pub skill_max: Vec<String>,
     /// The first levels' skill order.
     pub skill_order: Vec<String>,
+    /// A lane OP.GG lists for neither the champion nor the lane (an off-meta pick): its few games
+    /// are all there is, so the numbers are a rough guide.
+    pub rare: bool,
 }
 
 fn u(v: &Value, k: &str) -> u32 {
@@ -155,6 +158,7 @@ pub fn from_analysis(champion_id: i32, mode: &str, role: &str, a: &Value) -> Opt
         core,
         skill_max: d.get("skill_masteries").map(|s| strings(s, "ids")).unwrap_or_default(),
         skill_order: d.get("skills").map(|s| strings(s, "order")).unwrap_or_default(),
+        rare: false,
     })
 }
 
@@ -184,7 +188,29 @@ pub async fn build(champion_id: i32, role: &str, mode: &str) -> Result<Option<Bu
         ("ranked", role)
     };
     let a = opgg::analysis(&champ.key, &role, game_mode).await?;
-    Ok(from_analysis(champion_id, if mode == "aram" { "aram" } else { "rift" }, &role, &a))
+    let mut b = from_analysis(champion_id, if mode == "aram" { "aram" } else { "rift" }, &role, &a);
+    if let Some(b) = b.as_mut().filter(|b| b.mode == "rift" && !b.roles.iter().any(|r| r.value == role)) {
+        let lane = opgg::tiers().await.ok().and_then(|t| t.rows.iter().find(|r| r.champion_id == champion_id && r.position == role).cloned());
+        off_lane(b, &role, lane.as_ref());
+    }
+    Ok(b)
+}
+
+/// A lane the champion's own summary leaves out (it lists its usual lanes only): the lane's
+/// numbers come from OP.GG's lane list when it has them (an off-meta pick with many games),
+/// else from the build itself (a rare pick: a handful of games).
+fn off_lane(b: &mut Build, role: &str, lane: Option<&opgg::TierRow>) {
+    let (games, wins) = match lane {
+        Some(r) => (r.games as u32, (r.games as f64 * r.win_rate).round() as u32),
+        None => {
+            b.rare = true;
+            b.runes.first().map(|p| (p.games, p.wins)).unwrap_or((0, 0))
+        }
+    };
+    if lane.is_some() {
+        b.roles.push(Pick { value: role.to_string(), games, wins });
+    }
+    (b.games, b.wins) = (games, wins);
 }
 
 /// Fallback stat shards (offense, flex, defense) when a build has none.
@@ -318,6 +344,21 @@ mod tests {
         let item_ids: Vec<i32> = b.items.iter().map(|p| p.value).collect();
         assert_eq!(item_ids, [3078, 6610, 3157, 6333, 3053], "core first, then options without repeats");
         assert_eq!(b.skill_max, ["Q", "E", "W"]);
+    }
+
+    #[test]
+    fn an_off_meta_lane_gets_its_own_numbers() {
+        let a = opgg::parse(JAX).unwrap();
+        // Mid: OP.GG's lane list has it (many games).
+        let mut b = from_analysis(24, "rift", "mid", &a).unwrap();
+        let row = opgg::TierRow { champion_id: 24, position: "mid".into(), tier: 4, rank: 50, games: 12000, win_rate: 0.5, pick_rate: 0.01, ban_rate: 0.0, role_rate: 0.12 };
+        off_lane(&mut b, "mid", Some(&row));
+        assert_eq!((b.games, b.wins, b.rare), (12000, 6000, false));
+        assert!(b.roles.iter().any(|r| r.value == "mid" && r.games == 12000));
+        // Support: nowhere but in the build itself.
+        let mut b = from_analysis(24, "rift", "support", &a).unwrap();
+        off_lane(&mut b, "support", None);
+        assert_eq!((b.games, b.wins, b.rare), (45548, 21825, true), "the rune page's games, not the champion's");
     }
 
     #[test]

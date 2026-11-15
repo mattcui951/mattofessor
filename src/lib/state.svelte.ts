@@ -32,6 +32,10 @@ export const app = $state({
   update: { phase: 'idle', version: null, progress: null, error: null, checkedAt: null } as UpdateState,
   /** "Later" on the update banner hides it for that version until the app restarts. */
   updateDismissed: null as string | null,
+  /** The Full screen notice was closed (until the app restarts). */
+  fullscreenNoticeClosed: false,
+  /** "Later" on the Riot API key banner hides it for that key status until the app restarts. */
+  riotKeyDismissed: null as RiotStatus | null,
   ingame: null as InGame | null,
   route: { name: 'profile' } as Route,
   history: [] as Route[],
@@ -70,7 +74,12 @@ export function back() {
 export function routeFrom(path: string): Route {
   const [name, arg] = path.replace(/^#?\/?/, '').split('/');
   if (name === 'live') return { name: 'live' };
-  if (name === 'builds') return { name: 'builds' };
+  if (name === 'builds') {
+    // builds/<championId>/<mode>, from the in-game panel.
+    const championId = Number(arg) || undefined;
+    const mode = path.replace(/^#?\/?/, '').split('/')[2];
+    return { name: 'builds', championId, mode: mode === 'aram' ? 'aram' : championId ? 'rift' : undefined };
+  }
   if (name === 'meta') return { name: 'meta' };
   if (name === 'settings') return { name: 'settings' };
   if (name === 'appearance') return { name: 'appearance' };

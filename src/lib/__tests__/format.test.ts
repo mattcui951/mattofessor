@@ -4,7 +4,7 @@ vi.mock('../api', () => ({ api: {} }));
 vi.mock('@tauri-apps/api/event', () => ({ listen: vi.fn() }));
 
 import { _dicts, i18n } from '../i18n.svelte';
-import { gamesText, kdaRatio, ordinal, positionRole, roleName, tagText } from '../format';
+import { gamesText, kdaRatio, ordinal, positionRole, queueName, roleName, tagText } from '../format';
 import { tierScore, tierText } from '../dd.svelte';
 import { errorText } from '../state.svelte';
 import { cooldownFor } from '../../overlay/spells';
@@ -39,6 +39,12 @@ describe('format', () => {
     expect(roleName('')).toBe('');
     i18n.lang = 'zh';
     expect(roleName('adc')).toBe('下路');
+  });
+
+  it('names custom games', () => {
+    expect(queueName(3100)).toBe('Custom');
+    expect(queueName(3140)).toBe('Practice Tool');
+    expect(queueName(450)).toBe('ARAM');
   });
 
   it('maps client positions', () => {

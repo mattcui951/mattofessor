@@ -3,8 +3,9 @@
 
 use crate::commands;
 use crate::core::Core;
-use crate::{builds, dd};
+use crate::{builds, dd, store};
 use serde_json::{json, Value};
+use tauri::Emitter;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
@@ -107,12 +108,79 @@ async fn route(core: &Core, path: &str, p: &HashMap<String, String>) -> Result<V
             log::info!("report: {}", arg("text"));
             Ok(Value::Null)
         }
+        // A stand-in Hextech ARAM game for the in-game panel without League: the players of your
+        // latest cached game (`gameId` picks another), with their saved profiles. A player never
+        // looked up borrows another saved profile, so every row shows a full layout.
+        "/demo_game" => {
+            let mut state = demo_game(core, num("gameId") as u64).await.map_err(e)?;
+            if arg("phase") == "ChampSelect" {
+                // Champ select: a bench, and the other team not known yet.
+                state.phase = "ChampSelect".into();
+                state.bench = vec![86, 22, 157, 25, 120, 498, 81, 17, 99, 412];
+                for t in state.teams.iter_mut().filter(|t| !t.ally) {
+                    for p in &mut t.players {
+                        (p.status, p.card, p.name, p.puuid, p.champion_id) = ("hidden".into(), None, String::new(), String::new(), 0);
+                    }
+                }
+            }
+            let _ = core.app.emit("live", &state);
+            *core.live.lock() = state;
+            Ok(Value::Null)
+        }
         "/hide_cards" => {
             core.hide_cards();
             Ok(Value::Null)
         }
         _ => Err(format!("unknown {path}")),
     }
+}
+
+async fn demo_game(core: &Core, game_id: u64) -> anyhow::Result<crate::game::LiveState> {
+    use crate::game::{LiveState, LiveTeam, Slot};
+    let me = commands::saved_profile(core, None).ok_or_else(|| anyhow::anyhow!("no saved profile of yours"))?;
+    let game_id = if game_id > 0 { game_id } else { me.history.first().ok_or_else(|| anyhow::anyhow!("no cached games"))?.game_id };
+    let g = crate::players::game(game_id).await?;
+    let my_puuid = me.card.summoner.puuid.clone();
+    let ids = g["participantIdentities"].as_array().cloned().unwrap_or_default();
+    let saved = store::get().saved_puuids();
+    let mut lent = saved.iter().cycle();
+    let mut teams: Vec<LiveTeam> = Vec::new();
+    for p in g["participants"].as_array().cloned().unwrap_or_default() {
+        let pid = p["participantId"].as_i64().unwrap_or(0);
+        let who = ids.iter().find(|i| i["participantId"].as_i64() == Some(pid)).map(|i| i["player"].clone()).unwrap_or_default();
+        let puuid = who["puuid"].as_str().unwrap_or_default().to_string();
+        let team_id = p["teamId"].as_i64().unwrap_or(100) as i32;
+        let card = commands::saved_profile(core, Some(puuid.clone()))
+            .or_else(|| lent.next().and_then(|other| commands::saved_profile(core, Some(other.clone()))))
+            .map(|p| p.card)
+            // A real game fills "this champion"; borrow their most played one's numbers.
+            .map(|mut c| {
+                if c.champ.is_none() {
+                    c.champ = c.top_champs.first().cloned();
+                }
+                c
+            });
+        let slot = Slot {
+            me: puuid == my_puuid,
+            champion_id: p["championId"].as_i64().unwrap_or(0) as i32,
+            spells: [p["spell1Id"].as_i64().unwrap_or(0) as i32, p["spell2Id"].as_i64().unwrap_or(0) as i32],
+            name: format!("{}#{}", who["gameName"].as_str().unwrap_or_default(), who["tagLine"].as_str().unwrap_or_default()),
+            status: if card.is_some() { "ready" } else { "error" }.into(),
+            error: None,
+            card,
+            puuid,
+            position: String::new(),
+        };
+        match teams.iter_mut().find(|t| t.id == team_id) {
+            Some(t) => t.players.push(slot),
+            None => teams.push(LiveTeam { id: team_id, ally: false, players: vec![slot] }),
+        }
+    }
+    for t in &mut teams {
+        t.ally = t.players.iter().any(|s| s.me);
+    }
+    teams.sort_by_key(|t| !t.ally);
+    Ok(LiveState { phase: "InProgress".into(), connected: true, queue_id: 2400, mode: "KIWI".into(), map_id: 12, teams, bench: Vec::new() })
 }
 
 async fn handle(mut stream: tokio::net::TcpStream, core: Arc<Core>) {

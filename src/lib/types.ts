@@ -17,7 +17,10 @@ export type Settings = {
   captureAugments: boolean;
   cardReader: boolean;
   matchView: 'overview' | 'combat';
+  overlaySize: OverlaySize;
 };
+
+export type OverlaySize = 'small' | 'medium' | 'regular' | 'large' | 'xlarge';
 
 export type Summoner = { puuid: string; gameName: string; tagLine: string; level: number; icon: number; summonerId: number };
 
@@ -177,6 +180,8 @@ export type Build = {
   core: number;
   skillMax: string[];
   skillOrder: string[];
+  /** An off-meta lane with only a handful of games on OP.GG. */
+  rare: boolean;
 };
 export type TierRow = {
   championId: number;

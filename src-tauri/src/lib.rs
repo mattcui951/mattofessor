@@ -9,6 +9,7 @@ pub mod core;
 #[cfg(debug_assertions)]
 mod dev;
 pub mod dd;
+pub mod display;
 pub mod game;
 pub mod hotkeys;
 pub mod lcu;
@@ -166,6 +167,13 @@ pub fn run() {
             commands::import_build,
             commands::save_settings,
             commands::take_main_route,
+            commands::log_error,
+            commands::league_window_mode,
+            commands::set_borderless,
+            commands::fullscreen_tried,
+            commands::dismiss_fullscreen_tried,
+            commands::card_reader_status,
+            commands::open_build,
             commands::toggle_overlay,
             commands::hide_overlay,
             commands::fit_overlay,

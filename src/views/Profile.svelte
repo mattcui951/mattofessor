@@ -82,7 +82,7 @@
     <div class="label">{label}</div>
     {#if r}
       <div class="tier num" style="color:{tierColor(r.tier)}">{tierText(r)} <span class="lp">{t('common.lp', r.lp)}</span></div>
-      <div class="sub num">{#if r.losses > 0 || card?.ranked.exact}{t('row.recentWr', r.wins, r.losses)} · {t('common.wr', pct(r.wins, r.wins + r.losses))}{:else}{t('row.wins', r.wins)}{/if}</div>
+      <div class="sub num">{#if r.losses > 0 || card?.ranked.exact}{t('row.recentWr', r.wins, r.losses)} · {t('common.wr', pct(r.wins, r.wins + r.losses))}{:else}{t('row.wins', r.wins)} · <button class="needkey" title={t('riotBanner.winsOnly')} onclick={() => go({ name: 'riotGuide' })}>{t('riotBanner.short')}</button>{/if}</div>
     {:else}
       <div class="tier dim">{t('common.unranked')}</div>
     {/if}
@@ -320,6 +320,16 @@
   .sub {
     color: var(--text-3);
     font-size: 12.5px;
+  }
+  .needkey {
+    color: var(--warn);
+    font: inherit;
+    text-decoration: underline dotted;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+  .needkey:hover {
+    text-decoration-style: solid;
   }
   .past {
     display: grid;

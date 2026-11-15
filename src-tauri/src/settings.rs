@@ -39,6 +39,9 @@ pub struct Settings {
     /// What an opened game in the match history lists per player: "overview" (items, CS, gold)
     /// or "combat" (damage dealt, taken, mitigated and healing).
     pub match_view: String,
+    /// The in-game panel's size: "small", "medium", "regular", "large" or "xlarge" (as wide as
+    /// the game). Text and everything else scale together.
+    pub overlay_size: String,
 }
 
 impl Default for Settings {
@@ -62,6 +65,7 @@ impl Default for Settings {
             capture_augments: false,
             card_reader: true,
             match_view: "overview".into(),
+            overlay_size: "regular".into(),
         }
     }
 }
@@ -97,5 +101,6 @@ mod tests {
         assert_eq!(s.theme, "arcade");
         assert_eq!(s.ui_scale, 1.0);
         assert_eq!(s.match_view, "overview");
+        assert_eq!(s.overlay_size, "regular");
     }
 }

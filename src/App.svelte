@@ -2,6 +2,7 @@
   import Rail from './components/Rail.svelte';
   import TitleBar from './components/TitleBar.svelte';
   import Toasts from './components/Toasts.svelte';
+  import RiotKeyBanner from './components/RiotKeyBanner.svelte';
   import UpdateBanner from './components/UpdateBanner.svelte';
   import ZoomBadge from './components/ZoomBadge.svelte';
   import Builds from './views/Builds.svelte';
@@ -12,6 +13,8 @@
   import RiotGuide from './views/RiotGuide.svelte';
   import Settings from './views/Settings.svelte';
   import { app } from './lib/state.svelte';
+  import { t } from './lib/i18n.svelte';
+  import { logError } from './lib/errors';
   import { gameEnded, startAutoRefresh } from './lib/profiles.svelte';
   import { installZoom } from './lib/zoom.svelte';
 
@@ -33,7 +36,11 @@
     <Rail />
     <div class="content">
       <UpdateBanner />
+      <RiotKeyBanner />
       <div class="view">
+        <!-- A page that fails while drawing shows the error instead of freezing half drawn. -->
+        {#key app.route.name}
+        <svelte:boundary onerror={logError}>
         {#if !app.ready}
           <div class="empty"><p>...</p></div>
         {:else if app.route.name === 'profile'}
@@ -51,6 +58,15 @@
         {:else}
           <Settings />
         {/if}
+        {#snippet failed(error, reset)}
+          <div class="empty">
+            <h3>{t('common.pageError')}</h3>
+            <p class="err">{error instanceof Error ? error.message : String(error)}</p>
+            <button class="btn" onclick={reset}>{t('common.retry')}</button>
+          </div>
+        {/snippet}
+        </svelte:boundary>
+        {/key}
       </div>
     </div>
   </div>
@@ -79,5 +95,10 @@
     flex: 1;
     min-height: 0;
     position: relative;
+  }
+  .err {
+    max-width: 560px;
+    font-size: 12px;
+    word-break: break-word;
   }
 </style>

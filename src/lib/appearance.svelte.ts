@@ -1,7 +1,10 @@
 /** The active theme and text size, applied to whichever window this page runs in. */
 import { getCurrentWebview } from '@tauri-apps/api/webview';
 import { BUILT_IN, cssVars, findTheme, sanitize, type Theme } from './themes';
-import type { Settings } from './types';
+import type { OverlaySize, Settings } from './types';
+
+/** The in-game panel's sizes, smallest first (Settings and the panel's own buttons). */
+export const OVERLAY_SIZES: OverlaySize[] = ['small', 'medium', 'regular', 'large', 'xlarge'];
 
 export const appearance = $state({
   theme: BUILT_IN[0] as Theme,
@@ -26,6 +29,8 @@ export function applySettings(s: Settings) {
   applyTheme(findTheme(s.theme, appearance.custom));
   const scale = Math.max(0.8, Math.min(1.4, s.uiScale || 1));
   appearance.scale = scale;
+  // The in-game panel has its own size setting; the app zooms that window itself.
+  if (location.hash === '#overlay') return;
   if (scale !== lastZoom) {
     lastZoom = scale;
     getCurrentWebview()

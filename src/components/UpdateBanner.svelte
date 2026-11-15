@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { openUrl } from '@tauri-apps/plugin-opener';
   import Icon from './Icon.svelte';
   import { t } from '../lib/i18n.svelte';
-  import { app, installUpdate, inGame, releaseUrl } from '../lib/state.svelte';
+  import { app } from '../lib/state.svelte';
 
   const u = $derived(app.update);
   const working = $derived(u.phase === 'downloading' || u.phase === 'installing');
-  const show = $derived(Boolean(u.version) && (working || (u.phase === 'available' && app.updateDismissed !== u.version)));
+  // A new version is announced by the card beside Settings (UpdateNotice); this shows the download.
+  const show = $derived(Boolean(u.version) && working);
   const pct = $derived(u.progress == null ? null : Math.round(u.progress * 100));
 </script>
 
@@ -17,21 +17,11 @@
       {#if u.phase === 'downloading'}
         <b>{pct == null ? t('update.downloadingNoPct', u.version) : t('update.downloading', u.version, pct)}</b>
         <span>{t('update.adminNote')}</span>
-      {:else if u.phase === 'installing'}
+      {:else}
         <b>{t('update.installing', u.version)}</b>
         <span>{t('update.adminNote')}</span>
-      {:else}
-        <b>{t('update.available', u.version)}</b>
-        <span>{inGame() ? t('update.afterGame') : t('update.current', app.version)}</span>
       {/if}
     </div>
-    {#if !working}
-      <div class="actions">
-        <button class="btn sm ghost" onclick={() => openUrl(releaseUrl(u.version!))}>{t('update.whatsNew')}</button>
-        <button class="btn sm ghost" onclick={() => (app.updateDismissed = u.version)}>{t('update.later')}</button>
-        <button class="btn sm primary" disabled={inGame()} onclick={installUpdate}>{t('update.now')}</button>
-      </div>
-    {/if}
     {#if u.phase === 'downloading'}
       <div class="bar" class:indeterminate={pct == null}><i style:width={pct == null ? null : `${pct}%`}></i></div>
     {/if}
@@ -73,11 +63,6 @@
   .text span {
     color: var(--text-2);
     font-size: 12.5px;
-  }
-  .actions {
-    flex: none;
-    display: flex;
-    gap: 6px;
   }
   .bar {
     position: absolute;

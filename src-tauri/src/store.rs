@@ -246,6 +246,14 @@ impl Store {
         j.and_then(|j| serde_json::from_str(&j).ok())
     }
 
+    /// Every player with a saved profile (the dev bridge's stand-in game).
+    #[cfg(debug_assertions)]
+    pub fn saved_puuids(&self) -> Vec<String> {
+        let db = self.db.lock();
+        let Ok(mut st) = db.prepare("SELECT puuid FROM players ORDER BY updated DESC") else { return Vec::new() };
+        st.query_map([], |r| r.get(0)).map(|rows| rows.flatten().collect()).unwrap_or_default()
+    }
+
     pub fn snapshot_rank(&self, puuid: &str, day: &str, rank: &Rank) -> Result<()> {
         self.db.lock().execute(
             "INSERT OR REPLACE INTO rank_snapshots (puuid, day, queue, tier, division, lp) VALUES (?1, ?2, ?3, ?4, ?5, ?6)",

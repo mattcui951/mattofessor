@@ -1,8 +1,11 @@
 <script lang="ts">
   import Icon from './Icon.svelte';
+  import UpdateNotice from './UpdateNotice.svelte';
   import { app, go } from '../lib/state.svelte';
   import { t } from '../lib/i18n.svelte';
 
+  /** A new version waits (until installed, even after its card is closed). */
+  const update = $derived(app.update.phase === 'available' && Boolean(app.update.version));
   const live = $derived(['ChampSelect', 'InProgress', 'GameStart', 'Reconnect'].includes(app.live.phase));
 </script>
 
@@ -23,8 +26,10 @@
   <div class="grow"></div>
   <button class="item" class:on={['settings', 'appearance', 'riotGuide'].includes(app.route.name)} aria-label={t('nav.settings')} title={t('nav.settings')} onclick={() => go({ name: 'settings' })}>
     <Icon name="settings" size={21} />
+    {#if update}<span class="dot update" title={t('update.available', app.update.version ?? '')}></span>{/if}
   </button>
 </nav>
+<UpdateNotice />
 
 <style>
   .rail {
@@ -76,5 +81,8 @@
     height: 7px;
     border-radius: 50%;
     background: var(--death);
+  }
+  .dot.update {
+    box-shadow: 0 0 0 2px var(--bg-sunk);
   }
 </style>

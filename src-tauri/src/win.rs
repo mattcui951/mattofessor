@@ -97,6 +97,12 @@ pub fn game_running() -> bool {
     find_process(&processes(), &game_exe()).is_some()
 }
 
+/// The League client's window, while it runs.
+pub fn client_window() -> Option<isize> {
+    let procs = processes();
+    ["LeagueClientUx.exe", "LeagueClient.exe"].iter().filter_map(|n| find_process(&procs, n)).find_map(main_window_of)
+}
+
 /// The game window, when League's game process is running.
 pub fn game_window() -> Option<isize> {
     let pid = find_process(&processes(), &game_exe())?;
@@ -160,6 +166,19 @@ pub fn hide(hwnd: isize) {
     use windows::Win32::UI::WindowsAndMessaging::{ShowWindow, SW_HIDE};
     unsafe {
         let _ = ShowWindow(HWND(hwnd as *mut _), SW_HIDE);
+    }
+}
+
+/// Bring back a window that was minimized (a Full screen game steps aside when another window
+/// shows over it). Plain window calls only: no synthetic keys while the game runs.
+pub fn restore_if_minimized(hwnd: isize) {
+    use windows::Win32::UI::WindowsAndMessaging::{IsIconic, ShowWindow, SW_RESTORE};
+    unsafe {
+        let h = HWND(hwnd as *mut _);
+        if IsIconic(h).as_bool() {
+            let _ = ShowWindow(h, SW_RESTORE);
+            let _ = SetForegroundWindow(h);
+        }
     }
 }
 

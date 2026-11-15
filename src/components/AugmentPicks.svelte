@@ -33,6 +33,18 @@
 
 </script>
 
+<!-- The in-game panel's form: rows only as wide as their text, the number right after the name,
+     and the augments to avoid beside the ones to take. -->
+{#snippet line(a: AugRow, bad: boolean)}
+  {@const info = augment(a.id)}
+  <div class="ln" class:bad title={t('recs.games', a.games.toLocaleString())}>
+    <Img src={info?.icon ?? null} size={20} />
+    <span class="nm">{info?.name ?? `#${a.id}`}</span>
+    <b class="num" class:hi={!bad} class:lo={bad}>{delta(a.delta)}</b>
+    <small class="num">{pct1(a.winRate)}%</small>
+  </div>
+{/snippet}
+
 {#snippet row(a: AugRow, bad: boolean)}
   {@const info = augment(a.id)}
   <div class="aug" class:bad>
@@ -58,6 +70,22 @@
     <p class="dim">{t('common.loading')}</p>
   {:else if data.rarities.every((r) => !r.take.length && !r.avoid.length)}
     <p class="dim">{t('meta.noAugments')}</p>
+  {:else if compact}
+    <div class="tight">
+      {#each data.rarities as r (r.rarity)}
+        <div class="rcol">
+          <h4 class={r.rarity}>{t(`aug.${r.rarity}`)}</h4>
+          {#if r.avoid.length}<h4 class="sub">{t('recs.avoid')}</h4>{/if}
+          <div class="list take">
+            {#each r.take.slice(0, 3) as a (a.id)}{@render line(a, false)}{/each}
+            {#if !r.take.length}<p class="dim small">{t('recs.noneTake')}</p>{/if}
+          </div>
+          {#if r.avoid.length}
+            <div class="list avoid">{#each r.avoid.slice(0, 3) as a (a.id)}{@render line(a, true)}{/each}</div>
+          {/if}
+        </div>
+      {/each}
+    </div>
   {:else}
     <div class="rar">
       {#each data.rarities as r (r.rarity)}
@@ -172,6 +200,68 @@
   .st small {
     color: var(--text-3);
     font-size: 11px;
+  }
+  /* Compact (in-game): each rarity is a take list and an avoid list side by side. */
+  .tight {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 36px;
+  }
+  .rcol {
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-template-rows: auto auto;
+    gap: 3px 14px;
+    align-content: start;
+  }
+  .rcol h4.sub {
+    grid-area: 1 / 2;
+    margin: 0 0 2px;
+    color: var(--text-3);
+  }
+  .rcol .take {
+    grid-area: 2 / 1;
+  }
+  .rcol .avoid {
+    grid-area: 2 / 2;
+  }
+  .list {
+    display: grid;
+    grid-template-columns: 20px fit-content(9.5em) auto auto;
+    gap: 3px 0;
+    align-content: start;
+  }
+  .ln {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
+    align-items: center;
+    column-gap: 7px;
+    padding: 3px 8px 3px 4px;
+    border-radius: var(--r-md);
+    background: var(--panel-2);
+  }
+  .ln.bad {
+    background: transparent;
+    box-shadow: inset 0 0 0 1px var(--seam);
+  }
+  .ln .nm {
+    font-size: 12.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .ln b {
+    font-size: 12.5px;
+    text-align: right;
+  }
+  .ln small {
+    font-size: 11px;
+    color: var(--text-3);
+    text-align: right;
+  }
+  .ln.bad .nm {
+    color: var(--text-2);
   }
   .hi {
     color: var(--win);

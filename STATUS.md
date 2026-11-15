@@ -1,6 +1,6 @@
 # Status
 
-Updated: 2026-11-14
+Updated: 2026-11-15
 Version: 1.0.7
 
 ## In progress
@@ -30,6 +30,19 @@ Version: 1.0.7
 
 ## Next
 
+- Not verified yet (2026-11-15, needs the real client or a real game):
+  - "Switch to Borderless" (`display::set_borderless`: PATCH `/lol-game-settings/v1/game-settings`
+    `{"General":{"WindowMode":2}}`, then POST `/lol-game-settings/v1/save`). Reading the mode from
+    `Config/game.cfg` was confirmed on a real Full screen game (log line at game start).
+  - Ctrl+X during a real champ select (the panel with the ARAM picks), and that the keyboard hook
+    there does not get in the way of the client's chat.
+  - The Full screen hold-back with a real key press, and the notice after that game.
+  - The card reader's new log lines on a Full screen game ("captures as black") and on a PC without
+    Chinese OCR. A friend's PC shows no card win rates at all: get his app.log after updating.
+  - A rare lane on the Builds page (e.g. Orianna jungle: OP.GG has 1 to 3 games) and its note.
+- Off-meta picks below OP.GG's ~10,000-game lane cutoff (Orianna or Aurelion Sol jungle) can only
+  be found by asking OP.GG for every champion and lane (~850 calls); not done. The Builds page
+  offers every lane on a build instead.
 - Watch the card reader in the next games (the log now shows each change). The augment sample
   capture can go once the reader is confirmed (one game made 824 PNGs, 3.4 GB); Matt Game
   Recorder's videos (F:\Matt Game Recorder) are a better source: whole picks, alive too.
@@ -54,11 +67,64 @@ Version: 1.0.7
 - Profile page at a small window with a large text size (history column under about 480 px wide,
   e.g. the smallest window at 140%): the collapsed game rows are cut off on the right. The fixed
   width of the left column is the cause.
-- Without a Riot API key, other players' ranked losses show as 0 (an LCU limit).
+- Without a Riot API key, other players' ranked losses are unknown (an LCU limit); the UI says so.
 - Match history from the LCU is limited to 40 games and the first lookup takes about 5 s.
 
 ## Recently done
 
+- Not released yet (after 1.0.7), from a friend's first install:
+  - In-game panel size in Settings: small, medium, regular, large, extra large (fills the game's
+    width). The app zooms the panel (`core::overlay_zoom`, layout 1520 CSS px, smaller zoom when
+    the game is too narrow); the page reports its unzoomed height.
+  - Panel layout: augment rows are as wide as their text (number right after the name, plus the
+    win rate) with the augments to avoid beside them; a team alone keeps half the width
+    (`auto-fill`); recent game cells fit ARAM scores like 36/21/40 (they overlapped).
+  - Full screen: no window can show over a Full screen game; tested 2026-11-15 in a custom game:
+    the panel stayed invisible and Ctrl+X minimized the game. Now the panel, spell timers and card
+    win rates stay closed while the game runs in Full screen (`display::game_fullscreen`, from
+    `Config/game.cfg`, which the game rewrites when its mode changes; the client's setting is
+    stale during a game). A key press then is remembered: after the game the main window opens on
+    Live with "the panel stayed closed: switch to Borderless or Windowed" and the one-click switch
+    (client setting, plus `game.cfg` when no game runs). Overwolf apps (Porofessor) draw inside the
+    game by injecting into it; not an option here (Vanguard). Windowed: the panel shows over the
+    game (tested).
+    Tested 2026-11-15 with a real key press in a Full screen custom game: kept closed, and the
+    notice opened on Live after the game. The notice has a close button (until the app restarts;
+    it also forgets the kept-closed panel).
+  - Panel header: size buttons (A- / size / A+) step through the five sizes at once.
+  - Custom games (queue 3100 and on) are labelled Custom (they showed "Other mode").
+  - Card reader read no Chinese card ever (a friend's PC, Chinese client): Windows' Chinese OCR
+    gives each character as a word, and every word of 2 characters or less around a title was
+    dropped as junk, so the whole title went. CJK words are never junk now; CJK names allow one
+    wrong character from 4 characters on; a close match needs a clear winner; up to 5 cards
+    (a 4-card mode is coming). Checked on two of the friend's real screenshots (3 of 3 each, ~50 ms)
+    and live in an English game. `cards::scan::scan_image` reads any screenshot by hand.
+  - Card reader: logs its setup once per game (game window, League mode, OCR languages, game
+    language) and a black screen capture; Settings warns when Windows cannot read the game's
+    language (no OCR pack) with the fix.
+  - Ctrl+X works from champ select: the panel shows the Hextech ARAM win rates of your team and the
+    bench (click opens the ARAM build in the main window) and opens on the client's monitor. The
+    spell timer key still only works in game.
+  - Update available: red dot on Settings and a closable card beside it (`UpdateNotice`); the top
+    banner now only shows the download.
+  - Builds page: lane tabs (All, Top, Jungle, Mid, Bot, Support, Off-meta) from OP.GG's lane lists
+    (a lane is regular from 20% of a champion's games); Off-meta groups the rest by lane. A build
+    shows every lane: an off-meta lane gets its own game count, a rare one is marked as such.
+  - Dev: `/demo_game` on the dev bridge loads a stand-in Hextech game (`?phase=ChampSelect` for
+    champ select) from the cache, to check the panel without League.
+- Not released yet (after 1.0.7): Builds stuck on "Loading..." for many champions, Rift and
+  ARAM. OP.GG now lists starter items with repeats (Doran's Ring + 2 Health Potions) and the page
+  keyed that list by item id, so Svelte threw `each_key_duplicate` while drawing and the page
+  stayed half drawn. The backend was fine (it fetched and cached the build). Build lists are now
+  keyed by position. The keystone row was squeezed to 28 px by the skill badges' `.key` style
+  (same class name), so the 4th keystone (Conqueror) sat on the secondary tree; renamed to
+  `keystone`. Pages now sit in an error boundary (message + Try again, cleared by changing page)
+  and page errors go to app.log (`log_error`), which had no trace of this bug.
+- Missing or rejected Riot API key: a banner on the Profile and Live pages says losses and win
+  rates cannot be loaded and opens the guide ("Later" hides it until the app restarts or the key
+  status changes). Wins-only lines show a "?" (tooltip) in player rows and a "Win rate needs a
+  Riot API key" link on profile rank cards. Settings and the guide now point to the Personal
+  API Key (no expiry) and tell people to skip the 24-hour development key.
 - 1.0.7: the main window's close (and minimize) button did nothing.
   The app had two main windows on top of each other: 1.0.6 was installed by the in-app update
   and restarted during champ select, and the setup and the game watcher ("open in champ

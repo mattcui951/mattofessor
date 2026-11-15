@@ -2,6 +2,7 @@
   import Icon from '../components/Icon.svelte';
   import AramPicks from '../components/AramPicks.svelte';
   import AugmentPicks from '../components/AugmentPicks.svelte';
+  import FullscreenNotice from '../components/FullscreenNotice.svelte';
   import Teams from '../components/Teams.svelte';
   import { api } from '../lib/api';
   import { champName } from '../lib/dd.svelte';
@@ -53,6 +54,8 @@
       {/if}
     </div>
   </header>
+
+  <div class="fsn"><FullscreenNotice /></div>
 
   {#if !app.connected && !inGame}
     <div class="empty">
@@ -115,6 +118,17 @@
     color: var(--text-3);
     font-size: 12.5px;
     margin-right: 4px;
+  }
+  /* Lined up with the header; nothing to show leaves no gap. */
+  .fsn {
+    flex: none;
+    padding: 12px 20px 0;
+  }
+  .fsn:empty {
+    display: none;
+  }
+  .fsn :global(.notice) {
+    margin-bottom: 0;
   }
   .body {
     overflow-y: auto;

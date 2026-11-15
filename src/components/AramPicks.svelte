@@ -8,6 +8,10 @@
   import { app, go } from '../lib/state.svelte';
   import type { AramOverview } from '../lib/types';
 
+  /** `onpick`: a champion was clicked (default: open its ARAM build here). */
+  let { onpick }: { onpick?: (championId: number) => void } = $props();
+  const pick = (id: number) => (onpick ? onpick(id) : go({ name: 'builds', championId: id, mode: 'aram' }));
+
   let overview = $state<AramOverview | null>(null);
 
   $effect(() => {
@@ -32,7 +36,7 @@
 
 {#snippet champ(id: number, me = false)}
   {@const wr = rates.get(id)}
-  <button class="c" class:me class:best={id === best && !me} onclick={() => go({ name: 'builds', championId: id, mode: 'aram' })} title={champName(id)}>
+  <button class="c" class:me class:best={id === best && !me} onclick={() => pick(id)} title={champName(id)}>
     <Img src={champIcon(id)} size={44} />
     {#if wr !== undefined}<span class="tier t{aramTier(wr)}">{aramTier(wr)}</span>{/if}
     <span class="nm">{me ? t('picks.you') : champName(id)}</span>

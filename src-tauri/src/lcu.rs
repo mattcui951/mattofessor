@@ -95,6 +95,10 @@ impl Lcu {
         self.request(reqwest::Method::POST, path, Some(body)).await
     }
 
+    pub async fn patch(&self, path: &str, body: &Value) -> Result<Value> {
+        self.request(reqwest::Method::PATCH, path, Some(body)).await
+    }
+
     pub async fn put(&self, path: &str, body: &Value) -> Result<Value> {
         self.request(reqwest::Method::PUT, path, Some(body)).await
     }
@@ -118,6 +122,14 @@ static GENERATION: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::
 /// Which client the current connection is (changes when the client restarts).
 pub fn generation() -> u64 {
     GENERATION.load(std::sync::atomic::Ordering::Relaxed)
+}
+
+/// The League install folder (where the client's lockfile is), while the client runs.
+pub fn install_dir() -> Option<PathBuf> {
+    if std::env::var("MATTOFESSOR_LOCKFILE").is_ok() {
+        return None; // a stand-in client: its lockfile is not in a League folder
+    }
+    lockfile_path()?.parent().map(|d| d.to_path_buf())
 }
 
 fn lockfile_path() -> Option<PathBuf> {

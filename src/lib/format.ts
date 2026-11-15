@@ -50,6 +50,8 @@ const BOT_QUEUES = [830, 840, 850, 870, 880, 890];
 
 export function queueName(id: number): string {
   if (BOT_QUEUES.includes(id)) return t('queue.bot');
+  // Custom games (3100 and on; 3140 is the Practice Tool).
+  if (id >= 3100 && id < 3200 && id !== 3140) return t('queue.0');
   const k = `queue.${id}`;
   return hasKey(k) ? t(k) : t('queue.other');
 }

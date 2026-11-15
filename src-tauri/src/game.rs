@@ -432,8 +432,20 @@ async fn on_connected(core: &Core, w: &mut Watch) {
     emit_connection(core, true);
 }
 
+/// The hotkeys work from champ select (the panel shows the picks there) to the end of the game.
+fn keys_phase(p: &str) -> bool {
+    p == "ChampSelect" || in_game_phase(p)
+}
+
 fn on_phase_change(core: &Core, w: &mut Watch, old: &str, new: &str) {
     log::info!("phase {old} -> {new}");
+    if keys_phase(new) && !keys_phase(old) {
+        core.register_hotkeys(true);
+    }
+    if !keys_phase(new) && keys_phase(old) {
+        core.register_hotkeys(false);
+        core.hide_overlay();
+    }
     if new == "ChampSelect" {
         w.imported_for = None;
         w.roster = Roster::default();
@@ -443,17 +455,25 @@ fn on_phase_change(core: &Core, w: &mut Watch, old: &str, new: &str) {
     }
     if in_game_phase(new) && !in_game_phase(old) {
         w.loading_handled = false;
+        // Full screen hides every Mattofessor window: worth a line in a bug report.
+        tauri::async_runtime::spawn(async {
+            if let Some(m) = crate::display::window_mode().await {
+                log::info!("League window mode: {m}");
+            }
+        });
         w.spells_started = false;
         w.last_session_fetch = None;
         w.last_game = None;
-        core.register_hotkeys(true);
     }
     if !in_game_phase(new) && in_game_phase(old) {
-        core.register_hotkeys(false);
         crate::capture::game_over();
         core.hide_overlay();
         core.hide_spells();
         *core.ingame.lock() = None;
+        // The panel was asked for but kept closed (Full screen): say why, now the game is over.
+        if core.fullscreen_tried() {
+            core.show_main(Some("live"));
+        }
     }
     if new == "EndOfGame" {
         let _ = core.app.emit("profile-stale", ());

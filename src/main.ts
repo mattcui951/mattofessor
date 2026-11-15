@@ -4,7 +4,12 @@ import App from './App.svelte';
 import Overlay from './overlay/Overlay.svelte';
 import Spells from './overlay/Spells.svelte';
 import Cards from './overlay/Cards.svelte';
+import { logError } from './lib/errors';
 import { init } from './lib/state.svelte';
+
+// Errors no code caught go to app.log.
+window.addEventListener('error', (e) => logError(e.error ?? e.message));
+window.addEventListener('unhandledrejection', (e) => logError(e.reason));
 
 async function start() {
   if (import.meta.env.DEV && !('__TAURI_INTERNALS__' in window)) {

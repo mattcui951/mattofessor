@@ -245,7 +245,7 @@ pub fn fit_overlay(core: State<'_, Arc<Core>>, height: f64) {
 
 #[tauri::command]
 pub fn hide_overlay(core: State<'_, Arc<Core>>) {
-    core.hide_overlay();
+    core.close_overlay();
 }
 
 /// Runs off the main thread (`async`): this can create the window, and on Windows creating a
@@ -265,6 +265,45 @@ pub fn hide_spells(core: State<'_, Arc<Core>>) {
     core.hide_spells();
 }
 
+/// Whether this PC can read the augment cards in the game's language.
+#[tauri::command]
+pub fn card_reader_status(core: State<'_, Arc<Core>>) -> crate::cards::ReaderStatus {
+    crate::cards::status(&core)
+}
+
+/// League's window mode: "fullscreen", "windowed", "borderless" or "unknown" (`display`).
+#[tauri::command]
+pub async fn league_window_mode() -> Option<&'static str> {
+    crate::display::window_mode().await
+}
+
+/// Switch League to Borderless so the in-game windows can show over it.
+#[tauri::command]
+pub async fn set_borderless(core: State<'_, Arc<Core>>) -> Res<()> {
+    crate::display::set_borderless().await.map_err(err)?;
+    core.clear_fullscreen_tried();
+    Ok(())
+}
+
+/// The player closed the "panel stayed closed" notice.
+#[tauri::command]
+pub fn dismiss_fullscreen_tried(core: State<'_, Arc<Core>>) {
+    core.clear_fullscreen_tried();
+}
+
+/// The in-game panel was asked for during a Full screen game (and kept closed).
+#[tauri::command]
+pub fn fullscreen_tried(core: State<'_, Arc<Core>>) -> bool {
+    core.fullscreen_tried()
+}
+
+/// A page's error (a crash while drawing it, an uncaught exception) into app.log, which otherwise
+/// only sees the app's side.
+#[tauri::command]
+pub fn log_error(window: tauri::WebviewWindow, message: String) {
+    log::error!("page {}: {}", window.label(), message.chars().take(2000).collect::<String>());
+}
+
 /// The page the main window was asked to show and has not shown yet; nothing for other windows.
 #[tauri::command]
 pub fn take_main_route(core: State<'_, Arc<Core>>, window: tauri::WebviewWindow) -> Option<String> {
@@ -281,6 +320,13 @@ pub fn take_main_route(core: State<'_, Arc<Core>>, window: tauri::WebviewWindow)
 #[tauri::command(async)]
 pub fn open_profile(core: State<'_, Arc<Core>>, puuid: String) {
     core.show_main(Some(&format!("profile/{puuid}")));
+}
+
+/// Open a champion's build in the main window (from the overlay). `mode` "rift" or "aram".
+#[tauri::command(async)]
+pub fn open_build(core: State<'_, Arc<Core>>, champion_id: i32, mode: String) {
+    let mode = if mode == "aram" { "aram" } else { "rift" };
+    core.show_main(Some(&format!("builds/{champion_id}/{mode}")));
 }
 
 /// Save the Riot API key (empty removes it); returns how Riot answered.

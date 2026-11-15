@@ -11,7 +11,12 @@
   import { i18n, t } from '../lib/i18n.svelte';
   import { ARAM_CREDIT, BRACKETS, bracket, setBracket } from '../lib/meta.svelte';
   import { app, errorText, toast } from '../lib/state.svelte';
-  import type { Build, BuildMode } from '../lib/types';
+  import type { Build, BuildMode, TierRow } from '../lib/types';
+
+  const LANES = ['top', 'jungle', 'mid', 'adc', 'support'] as const;
+  type Lane = (typeof LANES)[number];
+  /** A champion plays a lane regularly when at least this share of its games is there (OP.GG). */
+  const REGULAR = 0.2;
 
   let { championId, role, mode: startMode }: { championId?: number; role?: string; mode?: BuildMode } = $props();
 
@@ -27,6 +32,27 @@
   let doItems = $state(true);
 
   let grid = $state<HTMLElement>();
+
+  // Lane tabs (Summoner's Rift): from OP.GG's lane tier lists, which hold every champion played
+  // in a lane in at least ~10,000 games. "off" groups the ones rarely played there.
+  let lane = $state<'all' | Lane | 'off'>('all');
+  let tierRows = $state<TierRow[]>([]);
+  $effect(() => {
+    api.riftTiers().then(
+      (t) => (tierRows = t.rows),
+      () => (tierRows = []),
+    );
+  });
+  const laneSets = $derived.by(() => {
+    const regular = new Map<Lane, Set<number>>(LANES.map((l) => [l, new Set()]));
+    const off = new Map<Lane, Set<number>>(LANES.map((l) => [l, new Set()]));
+    for (const r of tierRows) {
+      const l = r.position as Lane;
+      (r.roleRate >= REGULAR ? regular : off).get(l)?.add(r.championId);
+    }
+    return { regular, off };
+  });
+  const lanesOn = $derived(mode === 'rift' && tierRows.length > 0);
 
   $effect(() => {
     if (startMode) mode = startMode;
@@ -48,6 +74,20 @@
     const rank = new Map(searchChamps(index, query, Infinity).map((h, i) => [h.id, i]));
     return all.filter((c) => rank.has(c.id)).sort((a, b) => rank.get(a.id)! - rank.get(b.id)!);
   });
+
+  /** What the grid shows: one list, or the off-meta picks grouped by lane. */
+  const groups = $derived.by((): { lane: Lane | null; list: typeof champs }[] => {
+    if (!lanesOn || lane === 'all') return [{ lane: null, list: champs }];
+    if (lane === 'off') {
+      return LANES.map((l) => ({ lane: l, list: champs.filter((c) => laneSets.off.get(l)!.has(c.id)) })).filter((g) => g.list.length > 0);
+    }
+    const l = lane;
+    return [{ lane: l, list: champs.filter((c) => laneSets.regular.get(l)!.has(c.id)) }];
+  });
+  function pickChamp(id: number, l: Lane | null) {
+    selected = id;
+    selRole = l ?? '';
+  }
 
   let run = 0;
   async function load() {
@@ -101,12 +141,26 @@
       <Icon name="search" size={15} />
       <input class="field" bind:value={query} placeholder={t('builds.search')} spellcheck="false" onfocus={loadOtherNames} />
     </div>
+    {#if lanesOn}
+      <div class="lanes" role="tablist" aria-label={t('builds.lanes')}>
+        {#each ['all', ...LANES, 'off'] as const as l (l)}
+          <button role="tab" aria-selected={lane === l} class:on={lane === l} onclick={() => (lane = l)}>
+            {l === 'all' ? t('builds.allLanes') : l === 'off' ? t('builds.offMeta') : roleName(l)}
+          </button>
+        {/each}
+      </div>
+    {/if}
     <div class="grid" bind:this={grid}>
-      {#each champs as c (c.id)}
-        <button class="c" class:on={selected === c.id} title={c.name} onclick={() => { selected = c.id; selRole = ''; }}>
-          <Img src={champIcon(c.id)} size={42} alt={c.name} />
-          <span>{c.name}</span>
-        </button>
+      {#each groups as g (g.lane ?? 'all')}
+        {#if lane === 'off' && g.lane}<h4 class="glabel">{t('builds.offMetaLane', roleName(g.lane))}</h4>{/if}
+        {#each g.list as c (c.id)}
+          <button class="c" class:on={selected === c.id && (!g.lane || selRole === g.lane)} title={c.name} onclick={() => pickChamp(c.id, g.lane)}>
+            <Img src={champIcon(c.id)} size={42} alt={c.name} />
+            <span>{c.name}</span>
+          </button>
+        {/each}
+      {:else}
+        <p class="gempty">{t('search.noMatch')}</p>
       {/each}
     </div>
   </aside>
@@ -141,12 +195,17 @@
         <div>
           <h2>{dd.data?.champions[String(build.championId)]?.name}</h2>
           <div class="sub num">{t('builds.sample', build.games.toLocaleString())} · {t('builds.wr', pct(build.wins, build.games))}</div>
-          {#if build.roles.length}
+          {#if build.mode === 'rift'}
             <div class="roles">
               {#each build.roles as r (r.value)}
                 <button class:on={build.role === r.value} onclick={() => (selRole = r.value)}>{roleName(r.value)} <span class="num">{r.games.toLocaleString()}</span></button>
               {/each}
+              <!-- The other lanes: off-meta, OP.GG may have a few games there. -->
+              {#each LANES.filter((l) => !build!.roles.some((r) => r.value === l)) as l (l)}
+                <button class="rare" class:on={build.role === l} title={t('builds.rareLane')} onclick={() => (selRole = l)}>{roleName(l)}</button>
+              {/each}
             </div>
+            {#if build.rare}<p class="rare-note">{t('builds.rareNote', build.games.toLocaleString())}</p>{/if}
           {/if}
         </div>
         <div class="imp">
@@ -180,7 +239,7 @@
               <div class="tree">
                 <div class="tree-h"><Img src={runeIcon(primaryTree.id)} size={22} round /><b>{primaryTree.name}</b></div>
                 {#each primaryTree.slots as slot, si (si)}
-                  <div class="slot" class:key={si === 0}>
+                  <div class="slot" class:keystone={si === 0}>
                     {#each slot as r (r.id)}
                       <span class="r" class:on={page.perks.includes(r.id)} title={r.name}><Img src={runeIcon(r.id)} size={si === 0 ? 40 : 30} round /></span>
                     {/each}
@@ -205,7 +264,7 @@
                 </div>
               {/if}
               <div class="picked">
-                {#each page.perks as id (id)}<div><Img src={runeIcon(id)} size={20} round /><span>{rune(id)?.name}</span></div>{/each}
+                {#each page.perks as id, i (i)}<div><Img src={runeIcon(id)} size={20} round /><span>{rune(id)?.name}</span></div>{/each}
               </div>
             </div>
           {/if}
@@ -215,7 +274,7 @@
       <div class="two">
         <section class="card">
           <div class="label">{t('builds.spells')}</div>
-          {#each build.spells as sp (sp.value.join())}
+          {#each build.spells as sp, i (i)}
             <div class="opt">
               <Img src={spellIcon(sp.value[0])} size={32} title={spell(sp.value[0])?.name} />
               <Img src={spellIcon(sp.value[1])} size={32} title={spell(sp.value[1])?.name} />
@@ -226,7 +285,7 @@
           {#if build.skillMax.length}
             <div class="label gap">{t('builds.skills')}</div>
             <div class="skills">
-              {#each build.skillMax as k, i (k)}{#if i}<span class="arrow">›</span>{/if}<b class="key">{k}</b>{/each}
+              {#each build.skillMax as k, i (i)}{#if i}<span class="arrow">›</span>{/if}<b class="key">{k}</b>{/each}
             </div>
             {#if build.skillOrder.length}
               <div class="order">{#each build.skillOrder as k, i (i)}<span class="num">{k}</span>{/each}</div>
@@ -237,13 +296,13 @@
           {#if build.starters.length}
             <div class="label">{t('builds.starters')}</div>
             <div class="opt">
-              {#each build.starters[0].value as id (id)}<Img src={itemIcon(id)} size={32} title={itemName(id)} />{/each}
+              {#each build.starters[0].value as id, i (i)}<Img src={itemIcon(id)} size={32} title={itemName(id)} />{/each}
               <span class="num">{t('builds.pick', p(build.starters[0].games))}</span>
               <span class="num dim">{t('builds.wr', pct(build.starters[0].wins, build.starters[0].games))}</span>
             </div>
           {/if}
           <div class="label" class:gap={build.starters.length}>{t('builds.boots')}</div>
-          {#each build.boots as b (b.value)}
+          {#each build.boots as b, i (i)}
             <div class="opt">
               <Img src={itemIcon(b.value)} size={32} title={itemName(b.value)} />
               <span class="iname">{itemName(b.value)}</span>
@@ -257,7 +316,7 @@
       <section class="card">
         <div class="label">{t('builds.core')} <span class="num">· {t('builds.pick', p(build.items[0]?.games ?? 0))} · {t('builds.wr', pct(build.items[0]?.wins ?? 0, build.items[0]?.games ?? 0))}</span></div>
         <div class="items">
-          {#each build.items as it, i (it.value)}
+          {#each build.items as it, i (i)}
             {#if i === build.core && i > 0}<div class="sep"><span>{t('builds.more')}</span></div>{/if}
             <div class="it" class:core={i < build.core}>
               {#if i < build.core}<span class="step num">{i + 1}</span>{/if}
@@ -299,6 +358,47 @@
   }
   .search .field {
     flex: 1;
+  }
+  .lanes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--seam);
+  }
+  .lanes button {
+    height: 26px;
+    padding: 0 9px;
+    border-radius: var(--r-sm);
+    color: var(--text-2);
+    font-size: 12.5px;
+    font-weight: 600;
+  }
+  .lanes button:hover {
+    background: var(--panel-2);
+    color: var(--text);
+  }
+  .lanes button.on {
+    background: var(--panel-3);
+    color: var(--you);
+    box-shadow: inset 0 -2px 0 var(--you);
+  }
+  .glabel {
+    grid-column: 1 / -1;
+    margin: 8px 4px 2px;
+    font: 700 11.5px var(--font-score);
+    letter-spacing: 0.06em;
+    color: var(--text-3);
+  }
+  .glabel:first-child {
+    margin-top: 0;
+  }
+  .gempty {
+    grid-column: 1 / -1;
+    padding: 20px 8px;
+    text-align: center;
+    color: var(--text-3);
+    font-size: 12.5px;
   }
   .grid {
     overflow-y: auto;
@@ -441,6 +541,23 @@
     background: var(--panel-3);
     color: var(--you);
     box-shadow: inset 0 -2px 0 var(--you);
+  }
+  .roles button.rare {
+    background: transparent;
+    box-shadow: inset 0 0 0 1px var(--seam);
+    color: var(--text-3);
+  }
+  .roles button.rare:hover {
+    color: var(--text);
+  }
+  .roles button.rare.on {
+    color: var(--warn);
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--warn) 50%, var(--seam));
+  }
+  .rare-note {
+    margin: 6px 0 0;
+    font-size: 12px;
+    color: var(--warn);
   }
   .roles .num {
     color: var(--text-3);

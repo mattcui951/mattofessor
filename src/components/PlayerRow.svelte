@@ -93,7 +93,7 @@
             {#if rank && (rank.losses > 0 || card.ranked.exact)}
               <span class:hi={pct(rank.wins, rank.wins + rank.losses) >= 55} class:lo={pct(rank.wins, rank.wins + rank.losses) < 47}>{pct(rank.wins, rank.wins + rank.losses)}%</span> · {gamesText(rank.wins + rank.losses)}
             {:else if rank}
-              {t('row.wins', rank.wins)}
+              <span class="winsonly" title={t('riotBanner.winsOnly')}>{t('row.wins', rank.wins)}<i>?</i></span>
             {:else if card.games > 0}
               <span class:hi={wr >= 55} class:lo={wr < 47}>{wr}%</span> · {gamesText(card.games)}
             {/if}
@@ -176,7 +176,7 @@
   .main {
     width: 100%;
     display: grid;
-    grid-template-columns: 70px minmax(0, 1fr) 104px 214px 124px;
+    grid-template-columns: 70px minmax(0, 1fr) 104px 238px 124px;
     align-items: center;
     gap: 10px;
     padding: 6px 8px;
@@ -275,9 +275,21 @@
   .sub .d {
     color: var(--death);
   }
+  /* Losses unknown without a Riot API key: the "?" says the line is not the whole story. */
+  .winsonly {
+    cursor: help;
+  }
+  .winsonly i {
+    font-style: normal;
+    font-weight: 700;
+    margin-left: 4px;
+    color: var(--warn);
+  }
   .none {
     white-space: normal;
     line-height: 1.25;
+    /* Break at the space, not inside a champion name. */
+    word-break: keep-all;
   }
   .tier {
     font-size: 13.5px;
@@ -310,14 +322,15 @@
   }
   .recent {
     display: flex;
-    gap: 3px;
+    gap: 2px;
     justify-content: flex-start;
   }
   .g {
     display: grid;
     justify-items: center;
     gap: 2px;
-    width: 40px;
+    /* Wide enough for an ARAM score like 36/21/40. */
+    width: 46px;
     padding-top: 3px;
     border-top: 2px solid var(--death);
   }
