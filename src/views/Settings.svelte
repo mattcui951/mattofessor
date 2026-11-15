@@ -204,12 +204,12 @@
   }
   .col {
     max-width: 680px;
-    padding: 22px 28px 40px;
+    padding: 24px 28px 40px;
     display: grid;
-    gap: 22px;
+    gap: 24px;
   }
   h2 {
-    font-size: 22px;
+    font-size: 24px;
   }
   section {
     display: grid;
@@ -221,9 +221,7 @@
     max-width: 420px;
   }
   h3 {
-    font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
+    font-size: 12px;
     color: var(--text-3);
   }
   .row {
@@ -238,7 +236,7 @@
   }
   .note {
     color: var(--text-3);
-    font-size: 12.5px;
+    font-size: 13px;
   }
   .appearance {
     justify-self: stretch;
@@ -249,7 +247,7 @@
   }
   .ap-text {
     display: grid;
-    gap: 10px;
+    gap: 12px;
     justify-items: start;
     color: var(--text-2);
     font-size: 13px;
@@ -281,7 +279,7 @@
     background: var(--panel);
     border: 1px solid var(--seam);
     border-radius: var(--r-lg);
-    padding: 12px 14px;
+    padding: 12px 16px;
     display: grid;
     gap: 8px;
     justify-items: start;
@@ -297,10 +295,10 @@
   }
   .how ol {
     margin: 0;
-    padding-left: 18px;
+    padding-left: 20px;
     display: grid;
-    gap: 5px;
+    gap: 4px;
     color: var(--text-2);
-    font-size: 12.5px;
+    font-size: 13px;
   }
 </style>

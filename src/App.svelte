@@ -34,6 +34,7 @@
     <div class="content">
       <UpdateBanner />
       <div class="view">
+        {#key app.route.name}<div class="route">
         {#if !app.ready}
           <div class="empty"><p>...</p></div>
         {:else if app.route.name === 'profile'}
@@ -51,6 +52,7 @@
         {:else}
           <Settings />
         {/if}
+        </div>{/key}
       </div>
     </div>
   </div>

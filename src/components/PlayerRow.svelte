@@ -1,7 +1,8 @@
 <script lang="ts">
+  import Count from './Count.svelte';
   import Img from './Img.svelte';
   import TagChip from './TagChip.svelte';
-  import { champIcon, champName, spellIcon, tierColor, tierScore, tierText } from '../lib/dd.svelte';
+  import { champIcon, champName, spellIcon, tierScore, tierText } from '../lib/dd.svelte';
   import { ago, compact, gamesText, one, pct, queueName, roleName } from '../lib/format';
   import { t } from '../lib/i18n.svelte';
   import type { Slot, TierDiv } from '../lib/types';
@@ -60,7 +61,7 @@
       <div class="champ">
         {#if champ}
           {#if champ.games > 0}
-            <div class="big num"><span style="color:{champWr >= 55 ? 'var(--win)' : champWr < 45 ? 'var(--death)' : 'var(--text)'}">{champWr}%</span> <span class="unit">{gamesText(champ.games)}</span></div>
+            <div class="big num rise-in"><span style="color:{champWr >= 55 ? 'var(--win)' : champWr < 45 ? 'var(--death)' : 'var(--text)'}"><Count value={champWr} />%</span> <span class="unit">{gamesText(champ.games)}</span></div>
             <div class="sub num">{one(champ.kills)} / <span class="d">{one(champ.deaths)}</span> / {one(champ.assists)}</div>
           {:else if !card?.fresh}
             <span class="skel" style="width:70px"></span>
@@ -75,8 +76,8 @@
   
       <div class="recent" aria-label={t('row.recent')}>
         {#if card && !card.fresh && recent.length === 0}<span class="skel" style="width:150px;height:30px"></span>{/if}
-        {#each recent as g (g.gameId)}
-          <span class="g" class:win={g.win} title="{champName(g.championId)} · {queueName(g.queueId)} · {ago(g.created)}">
+        {#each recent as g, i (g.gameId)}
+          <span class="g rise-in" style="--i:{i}" class:win={g.win} title="{champName(g.championId)} · {queueName(g.queueId)} · {ago(g.created)}">
             <Img src={champIcon(g.championId)} size={20} />
             <span class="num kda">{g.kills}/{g.deaths}/{g.assists}</span>
           </span>
@@ -87,7 +88,7 @@
         {#if card}
           <div class="tier num">
             {#if rank && card.ranked.solo === null}<span class="q">{t('filter.flex')}</span>{/if}
-            <span style="color:{tierColor(rank?.tier)}">{tierText(rank, true)}</span>{#if rank}<span class="lp">{t('common.lp', rank.lp)}</span>{/if}
+            <span>{tierText(rank, true)}</span>{#if rank}<span class="lp">{t('common.lp', rank.lp)}</span>{/if}
           </div>
           <div class="sub num">
             {#if rank && (rank.losses > 0 || card.ranked.exact)}
@@ -98,7 +99,7 @@
               <span class:hi={wr >= 55} class:lo={wr < 47}>{wr}%</span> · {gamesText(card.games)}
             {/if}
           </div>
-          {#if peak}<div class="peak num" style="color:{tierColor(peak.tier)}">{t('row.peak', tierText(peak, true))}</div>{/if}
+          {#if peak}<div class="peak num">{t('row.peak', tierText(peak, true))}</div>{/if}
         {:else if slot.status === 'loading'}
           <span class="skel" style="width:64px"></span>
         {/if}
@@ -139,11 +140,11 @@
         </div>
         <div class="col">
           <div class="label">{t('profile.pastRanks')}</div>
-          {#if card.ranked.solo}<div class="pr"><span>{t('profile.solo')}</span><b style="color:{tierColor(card.ranked.solo.tier)}">{tierText(card.ranked.solo)} {card.ranked.solo.lp}</b></div>{/if}
-          {#if card.ranked.flex}<div class="pr"><span>{t('profile.flex')}</span><b style="color:{tierColor(card.ranked.flex.tier)}">{tierText(card.ranked.flex)} {card.ranked.flex.lp}</b></div>{/if}
-          {#if card.ranked.seasonPeak}<div class="pr"><span>{t('profile.seasonPeak')}</span><b style="color:{tierColor(card.ranked.seasonPeak.tier)}">{tierText(card.ranked.seasonPeak)}</b></div>{/if}
-          {#if card.ranked.prevPeak}<div class="pr"><span>{t('profile.prevPeak')}</span><b style="color:{tierColor(card.ranked.prevPeak.tier)}">{tierText(card.ranked.prevPeak)}</b></div>{/if}
-          {#if card.ranked.prevEnd}<div class="pr"><span>{t('profile.prevEnd')}</span><b style="color:{tierColor(card.ranked.prevEnd.tier)}">{tierText(card.ranked.prevEnd)}</b></div>{/if}
+          {#if card.ranked.solo}<div class="pr"><span>{t('profile.solo')}</span><b>{tierText(card.ranked.solo)} {card.ranked.solo.lp}</b></div>{/if}
+          {#if card.ranked.flex}<div class="pr"><span>{t('profile.flex')}</span><b>{tierText(card.ranked.flex)} {card.ranked.flex.lp}</b></div>{/if}
+          {#if card.ranked.seasonPeak}<div class="pr"><span>{t('profile.seasonPeak')}</span><b>{tierText(card.ranked.seasonPeak)}</b></div>{/if}
+          {#if card.ranked.prevPeak}<div class="pr"><span>{t('profile.prevPeak')}</span><b>{tierText(card.ranked.prevPeak)}</b></div>{/if}
+          {#if card.ranked.prevEnd}<div class="pr"><span>{t('profile.prevEnd')}</span><b>{tierText(card.ranked.prevEnd)}</b></div>{/if}
           <div class="alltags">{#each card.tags as tag (tag.key)}<TagChip {tag} size="sm" />{/each}</div>
           {#if onprofile && slot.puuid}<button class="btn sm ghost" onclick={() => onprofile?.(slot.puuid)}>{t('row.openProfile')}</button>{/if}
         </div>
@@ -176,10 +177,10 @@
   .main {
     width: 100%;
     display: grid;
-    grid-template-columns: 70px minmax(0, 1fr) 104px 214px 124px;
+    grid-template-columns: 70px minmax(0, 1fr) 104px 228px 124px;
     align-items: center;
-    gap: 10px;
-    padding: 6px 8px;
+    gap: 12px;
+    padding: 8px 8px;
     text-align: left;
     border-radius: var(--r-md);
     color: var(--text);
@@ -204,22 +205,22 @@
   }
   .pic {
     display: flex;
-    gap: 3px;
+    gap: 4px;
     align-items: center;
   }
   .spells {
     display: grid;
-    gap: 3px;
+    gap: 4px;
   }
   .who {
     min-width: 0;
     display: grid;
-    gap: 5px;
+    gap: 4px;
   }
   .name {
     display: flex;
     align-items: baseline;
-    gap: 6px;
+    gap: 8px;
     min-width: 0;
     white-space: nowrap;
   }
@@ -231,11 +232,11 @@
     min-width: 0;
   }
   .lvl {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--text-3);
     background: var(--panel-3);
     border-radius: var(--r-sm);
-    padding: 0 5px;
+    padding: 0 4px;
   }
   .tags {
     display: flex;
@@ -247,7 +248,7 @@
   }
   .dim {
     color: var(--text-3);
-    font-size: 12.5px;
+    font-size: 13px;
   }
   .champ,
   .rank {
@@ -259,16 +260,16 @@
     text-align: right;
   }
   .big {
-    font-size: 15px;
+    font-size: 16px;
     white-space: nowrap;
   }
   .unit {
-    font-size: 11.5px;
+    font-size: 12px;
     color: var(--text-3);
     font-weight: 500;
   }
   .sub {
-    font-size: 11.5px;
+    font-size: 12px;
     color: var(--text-3);
     white-space: nowrap;
   }
@@ -280,21 +281,19 @@
     line-height: 1.25;
   }
   .tier {
-    font-size: 13.5px;
+    font-size: 14px;
     white-space: nowrap;
   }
   .lp {
-    margin-left: 5px;
+    margin-left: 4px;
     color: var(--text-3);
-    font-size: 11.5px;
+    font-size: 12px;
     font-weight: 500;
   }
   .q {
-    margin-right: 5px;
-    font-size: 10.5px;
+    margin-right: 4px;
+    font-size: 12px;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
     color: var(--text-3);
   }
   .hi {
@@ -304,31 +303,33 @@
     color: var(--death);
   }
   .peak {
-    font-size: 11px;
+    font-size: 12px;
     white-space: nowrap;
     opacity: 0.9;
   }
   .recent {
     display: flex;
-    gap: 3px;
+    gap: 2px;
     justify-content: flex-start;
   }
   .g {
     display: grid;
     justify-items: center;
     gap: 2px;
-    width: 40px;
-    padding-top: 3px;
+    width: 44px;
+    padding-top: 4px;
     border-top: 2px solid var(--death);
   }
   .g.win {
     border-top-color: var(--win);
   }
+  /* The UI face is narrower than the score face, so a 12px "10/5/13" fits the 44px column. */
   .kda {
-    font-size: 10px;
-    font-weight: 600;
+    font-family: var(--font-ui);
+    font-variant-numeric: proportional-nums;
+    font-size: 12px;
+    font-weight: 500;
     color: var(--text-2);
-    letter-spacing: -0.02em;
     white-space: nowrap;
   }
   .skel {
@@ -348,7 +349,7 @@
     display: grid;
     grid-template-columns: 1fr 1.2fr 1fr;
     gap: 16px;
-    padding: 4px 12px 12px 86px;
+    padding: 4px 12px 12px 88px;
   }
   @container (max-width: 860px) {
     .more {
@@ -375,19 +376,17 @@
   }
   .label {
     font-family: var(--font-score);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
     color: var(--text-3);
     margin-bottom: 2px;
   }
   .tc {
     display: grid;
     grid-template-columns: 22px minmax(0, 1fr) 24px 36px;
-    gap: 7px;
+    gap: 8px;
     align-items: center;
-    font-size: 12.5px;
+    font-size: 13px;
   }
   .tc .cn {
     overflow: hidden;
@@ -399,7 +398,7 @@
   }
   .roles {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     font-size: 12px;
     color: var(--text-3);
     margin-top: 4px;
@@ -410,7 +409,7 @@
   .lg {
     display: grid;
     grid-template-columns: 3px 20px 62px minmax(0, 1fr) auto;
-    gap: 7px;
+    gap: 8px;
     align-items: center;
     font-size: 12px;
   }
@@ -436,13 +435,13 @@
   }
   .lg .ago {
     color: var(--text-3);
-    font-size: 11px;
+    font-size: 12px;
   }
   .pr {
     display: flex;
     justify-content: space-between;
     gap: 8px;
-    font-size: 12.5px;
+    font-size: 13px;
   }
   .pr span {
     color: var(--text-3);
@@ -455,6 +454,6 @@
     display: flex;
     flex-wrap: wrap;
     gap: 4px;
-    margin: 6px 0;
+    margin: 8px 0;
   }
 </style>

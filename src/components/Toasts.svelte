@@ -21,7 +21,7 @@
   }
   .toast {
     pointer-events: auto;
-    padding: 10px 14px;
+    padding: 12px 16px;
     background: var(--panel);
     border: 1px solid var(--seam-strong);
     border-radius: var(--r-lg);

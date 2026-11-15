@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Count from '../components/Count.svelte';
   import { untrack } from 'svelte';
   import Img from '../components/Img.svelte';
   import Icon from '../components/Icon.svelte';
@@ -127,13 +128,13 @@
       <section>
         <div class="label">{t('profile.pastRanks')}</div>
         <div class="past">
-          {#if card.ranked.seasonPeak}<div class="pr"><span>{t('profile.seasonPeak')}</span><b style="color:{tierColor(card.ranked.seasonPeak.tier)}">{tierText(card.ranked.seasonPeak)}</b></div>{/if}
-          {#if card.ranked.prevPeak}<div class="pr"><span>{t('profile.prevPeak')}</span><b style="color:{tierColor(card.ranked.prevPeak.tier)}">{tierText(card.ranked.prevPeak)}</b></div>{/if}
-          {#if card.ranked.prevEnd}<div class="pr"><span>{t('profile.prevEnd')}</span><b style="color:{tierColor(card.ranked.prevEnd.tier)}">{tierText(card.ranked.prevEnd)}</b></div>{/if}
+          {#if card.ranked.seasonPeak}<div class="pr"><span>{t('profile.seasonPeak')}</span><b>{tierText(card.ranked.seasonPeak)}</b></div>{/if}
+          {#if card.ranked.prevPeak}<div class="pr"><span>{t('profile.prevPeak')}</span><b>{tierText(card.ranked.prevPeak)}</b></div>{/if}
+          {#if card.ranked.prevEnd}<div class="pr"><span>{t('profile.prevEnd')}</span><b>{tierText(card.ranked.prevEnd)}</b></div>{/if}
           {#if months.length}
             <div class="sublabel">{t('profile.recorded')}</div>
             {#each months as [m, p] (m)}
-              <div class="pr"><span>{monthLabel(m)}</span><b style="color:{tierColor(p.tier)}">{tierText(p)} <em>{p.lp}</em></b></div>
+              <div class="pr"><span>{monthLabel(m)}</span><b>{tierText(p)} <em>{p.lp}</em></b></div>
             {/each}
           {/if}
           {#if !card.ranked.seasonPeak && !card.ranked.prevPeak && !card.ranked.prevEnd && !months.length}<p class="dim">{t('profile.noPast')}</p>{/if}
@@ -145,7 +146,7 @@
         {#if perfStats.games > 0}
           <div class="perf">
             <div class="avg">
-              <span class="num big">{perfStats.avg.toFixed(1)}</span>
+              <span class="num big"><Count value={perfStats.avg} digits={1} /></span>
               <span class="dim">{t('score.avg')} · {t('score.games', perfStats.games)}</span>
             </div>
             <div class="counts">
@@ -236,8 +237,8 @@
         {/if}
       </div>
       <div class="list">
-        {#each games as g (g.gameId)}
-          <MatchRow {g} puuid={card.summoner.puuid} perf={scoreOf(entry, g.gameId)} onprofile={(id) => go({ name: 'profile', puuid: id })} />
+        {#each games as g, gi (g.gameId)}
+          <MatchRow {g} index={gi} puuid={card.summoner.puuid} perf={scoreOf(entry, g.gameId)} onprofile={(id) => go({ name: 'profile', puuid: id })} />
         {:else}
           <p class="dim pad">{entry?.partial ? t('profile.loadingGames') : t('profile.empty')}</p>
         {/each}
@@ -258,7 +259,7 @@
   }
   .side {
     border-right: 1px solid var(--seam);
-    padding: 18px 16px;
+    padding: 20px 16px;
     display: grid;
     gap: 16px;
     align-content: start;
@@ -270,7 +271,7 @@
     align-items: center;
   }
   h2 {
-    font-size: 19px;
+    font-size: 20px;
     word-break: break-word;
   }
   .tagline {
@@ -281,36 +282,34 @@
   }
   .link {
     color: var(--you);
-    font-size: 12.5px;
+    font-size: 13px;
     margin-top: 2px;
   }
   .label {
     font-family: var(--font-score);
-    font-size: 11.5px;
+    font-size: 12px;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
     color: var(--text-3);
-    margin-bottom: 6px;
+    margin-bottom: 8px;
   }
   .sublabel {
-    font-size: 11.5px;
+    font-size: 12px;
     color: var(--text-3);
-    margin-top: 6px;
+    margin-top: 8px;
   }
   .rankcard {
     background: var(--panel);
     border: 1px solid var(--seam);
     border-radius: var(--r-lg);
-    padding: 11px 13px;
+    padding: 12px 12px;
   }
   .rankcard .label {
     margin-bottom: 2px;
   }
   .tier {
     font-family: var(--font-score);
-    font-weight: 700;
-    font-size: 19px;
+    font-weight: 600;
+    font-size: 20px;
   }
   .lp {
     font-size: 13px;
@@ -319,7 +318,7 @@
   }
   .sub {
     color: var(--text-3);
-    font-size: 12.5px;
+    font-size: 13px;
   }
   .past {
     display: grid;
@@ -363,20 +362,20 @@
   .counts span {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
   }
   .counts b {
-    font-size: 15px;
+    font-size: 16px;
   }
   .tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 5px;
+    gap: 4px;
   }
   .champ {
     display: grid;
     grid-template-columns: 30px minmax(0, 1fr) auto;
-    gap: 9px;
+    gap: 8px;
     align-items: center;
     padding: 4px 0;
   }
@@ -392,7 +391,7 @@
   }
   .cn span,
   .cw span {
-    font-size: 11.5px;
+    font-size: 12px;
     color: var(--text-3);
   }
   .cw {
@@ -403,9 +402,9 @@
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
-    font-size: 12.5px;
+    font-size: 13px;
     color: var(--text-3);
-    margin-top: 6px;
+    margin-top: 8px;
   }
   .roles b {
     color: var(--text-2);
@@ -419,7 +418,7 @@
     display: grid;
     justify-items: center;
     gap: 2px;
-    font-size: 11px;
+    font-size: 12px;
     color: var(--text-2);
   }
   .main {
@@ -441,8 +440,8 @@
     margin-left: auto;
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 12.5px;
+    gap: 8px;
+    font-size: 13px;
     white-space: nowrap;
   }
   .fresh .spin :global(svg) {
@@ -456,7 +455,7 @@
   .hist-head {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 16px;
     flex-wrap: wrap;
   }
   h3 {
@@ -472,11 +471,11 @@
   }
   .filters button {
     height: 26px;
-    padding: 0 10px;
+    padding: 0 12px;
     border-radius: var(--r-sm);
     color: var(--text-2);
     font-weight: 600;
-    font-size: 12.5px;
+    font-size: 13px;
   }
   .filters button:hover:not(.on) {
     background: var(--panel-2);
@@ -488,11 +487,11 @@
   }
   .summary {
     color: var(--text-2);
-    font-size: 12.5px;
+    font-size: 13px;
   }
   .list {
     display: grid;
-    gap: 6px;
+    gap: 8px;
   }
   .dim {
     color: var(--text-3);

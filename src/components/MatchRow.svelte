@@ -1,5 +1,7 @@
 <script lang="ts">
+  import { fly } from 'svelte/transition';
   import AugIcon from './AugIcon.svelte';
+  import { dur, ease, ENTER } from '../lib/motion';
   import Img from './Img.svelte';
   import ScoreBadge from './ScoreBadge.svelte';
   import { api } from '../lib/api';
@@ -10,7 +12,7 @@
   import { app, errorText, updateSettings } from '../lib/state.svelte';
   import type { FullGame, GameRow, MyScore, PlayerScore } from '../lib/types';
 
-  let { g, puuid, perf, onprofile }: { g: GameRow; puuid: string; perf?: MyScore; onprofile: (puuid: string) => void } = $props();
+  let { g, puuid, perf, onprofile, index = 0 }: { g: GameRow; puuid: string; perf?: MyScore; onprofile: (puuid: string) => void; index?: number } = $props();
   let open = $state(false);
   let full = $state<FullGame | null>(null);
   let error = $state<string | null>(null);
@@ -88,11 +90,11 @@
   const withAugs = $derived(players.some((p) => p.augs.length > 0));
 </script>
 
-{#snippet bar(v: number, most: number, kind: string)}
-  <span class="dmg {kind}" title={exact(v)}><i style="width:{(v / most) * 100}%"></i><span class="num">{combat ? exact(v) : compact(v)}</span></span>
+{#snippet bar(v: number, most: number, kind: string, i: number)}
+  <span class="dmg {kind}" title={exact(v)}><i class="fill-in" style="width:{(v / most) * 100}%; --i:{i}"></i><span class="num">{combat ? exact(v) : compact(v)}</span></span>
 {/snippet}
 
-<div class="match {tone}" class:open>
+<div class="match rise-in {tone}" class:open style="--i:{index}">
   <button class="line" onclick={toggle} aria-expanded={open}>
     <i class="bar"></i>
     <div class="res">
@@ -134,7 +136,7 @@
   </button>
 
   {#if open}
-    <div class="detail">
+    <div class="detail" transition:fly={{ y: -6, duration: dur(ENTER), easing: ease }}>
       {#if error}
         <p class="err">{t('match.loadFailed')} <span>{error}</span></p>
       {:else if !full}
@@ -180,18 +182,18 @@
                 <span class="h wide">{t('match.col.items')}</span>
               {/if}
             </div>
-            {#each team as p (p.puuid + p.champ)}
-              <div class="pl" class:self={p.puuid === puuid} class:won={ranked && p.win} class:lost={ranked && !p.win} class:combat class:with-augs={withAugs && !combat}>
+            {#each team as p, pi (p.puuid + p.champ)}
+              <div class="pl rise-in" style="--i:{ti * 5 + pi}" class:self={p.puuid === puuid} class:won={ranked && p.win} class:lost={ranked && !p.win} class:combat class:with-augs={withAugs && !combat}>
                 <Img src={champIcon(p.champ)} size={28} title={champName(p.champ)} />
                 <div class="ss2"><Img src={spellIcon(p.spells[0])} size={13} /><Img src={spellIcon(p.spells[1])} size={13} /></div>
                 <button class="pname" onclick={() => p.puuid && onprofile(p.puuid)} title={t('row.openProfile')}>{p.name}<span>#{p.tag}</span></button>
                 <span class="sc">{#if scoreOf(p.pid)}{@const s = scoreOf(p.pid)!}<ScoreBadge size="sm" score={s.score} badge={s.badge} place={s.place} players={scores.length} />{/if}</span>
                 <span class="num">{p.k}/{p.d}/{p.a}</span>
-                {@render bar(p.dmg, max.dmg, 'dealt')}
+                {@render bar(p.dmg, max.dmg, 'dealt', ti * 5 + pi)}
                 {#if combat}
-                  {@render bar(p.taken, max.taken, 'taken')}
-                  {@render bar(p.mit, max.mit, 'mit')}
-                  {@render bar(p.heal, max.heal, 'heal')}
+                  {@render bar(p.taken, max.taken, 'taken', ti * 5 + pi)}
+                  {@render bar(p.mit, max.mit, 'mit', ti * 5 + pi)}
+                  {@render bar(p.heal, max.heal, 'heal', ti * 5 + pi)}
                 {:else}
                   <span class="num dim cs">{p.cs}</span>
                   <span class="num dim gold">{compact(p.gold)}</span>
@@ -220,7 +222,7 @@
     display: grid;
     grid-template-columns: 4px 120px 136px 110px 82px 120px minmax(0, 1fr);
     align-items: center;
-    gap: 14px;
+    gap: 16px;
     padding: 8px 12px 8px 0;
     text-align: left;
     color: var(--text);
@@ -260,7 +262,7 @@
   }
   .loadout {
     display: flex;
-    gap: 3px;
+    gap: 4px;
     align-items: center;
   }
   .ss {
@@ -272,31 +274,29 @@
     display: grid;
     grid-template-columns: repeat(3, 19px);
     grid-auto-rows: 19px;
-    gap: 5px 4px;
+    gap: 4px 4px;
     align-content: center;
-    margin-left: 3px;
+    margin-left: 4px;
   }
   .picked {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 6px 8px;
+    gap: 8px 8px;
   }
   .picked .lbl {
     font-family: var(--font-score);
-    font-size: 11.5px;
+    font-size: 12px;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    color: var(--text-2);
+    color: var(--text-3);
     margin-right: 2px;
   }
   .chip {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     height: 26px;
-    padding: 0 9px 0 5px;
+    padding: 0 8px 0 4px;
     background: var(--panel);
     border: 1px solid var(--seam);
     border-radius: var(--r-md);
@@ -336,7 +336,7 @@
   @container (max-width: 860px) {
     .line {
       grid-template-columns: 4px 108px 136px 100px 82px minmax(0, 1fr);
-      gap: 10px;
+      gap: 12px;
     }
     .stats {
       display: none;
@@ -350,7 +350,7 @@
   @container (max-width: 620px) {
     .line {
       grid-template-columns: 4px 108px 136px 100px minmax(0, 1fr);
-      row-gap: 6px;
+      row-gap: 8px;
     }
     .bar {
       grid-row: 1 / span 2;
@@ -369,14 +369,14 @@
   }
   .items {
     display: flex;
-    gap: 3px;
+    gap: 4px;
     justify-content: flex-end;
   }
   .detail {
     border-top: 1px solid var(--seam);
-    padding: 10px 12px 12px;
+    padding: 12px 12px 12px;
     display: grid;
-    gap: 10px;
+    gap: 12px;
     background: var(--bg-sunk);
   }
   .tm {
@@ -386,21 +386,19 @@
   .tm-h {
     grid-column: 1 / span 3;
     font-family: var(--font-score);
-    font-size: 11.5px;
+    font-size: 12px;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
     color: var(--death);
     white-space: nowrap;
   }
   /* The team's name and, on the same grid as the players below, what each column is. */
   .pl.head {
     align-items: baseline;
-    padding-bottom: 3px;
+    padding-bottom: 4px;
   }
   .h {
     font-family: var(--font-score);
-    font-size: 11.5px;
+    font-size: 12px;
     font-weight: 600;
     color: var(--text-3);
     white-space: nowrap;
@@ -429,7 +427,7 @@
   }
   .view button {
     height: 24px;
-    padding: 0 10px;
+    padding: 0 12px;
     border-radius: var(--r-sm);
     color: var(--text-2);
     font-size: 12px;
@@ -454,7 +452,7 @@
     grid-template-columns: 28px 13px minmax(0, 1.4fr) 76px 70px minmax(0, 1fr) 40px 44px 152px;
     gap: 8px;
     align-items: center;
-    font-size: 12.5px;
+    font-size: 13px;
     padding: 2px 4px;
     border-radius: var(--r-sm);
   }
@@ -467,7 +465,7 @@
   }
   .pa {
     display: flex;
-    gap: 3px;
+    gap: 4px;
   }
   .pl.self {
     background: color-mix(in oklab, var(--you) 10%, transparent);
@@ -489,7 +487,7 @@
   }
   .pname span {
     color: var(--text-3);
-    font-size: 11px;
+    font-size: 12px;
   }
   .dmg {
     position: relative;
@@ -514,8 +512,8 @@
   }
   .dmg span {
     position: relative;
-    padding-left: 5px;
-    font-size: 11px;
+    padding-left: 4px;
+    font-size: 12px;
     line-height: 16px;
   }
   .its {
@@ -537,7 +535,7 @@
     .pl,
     .pl.with-augs {
       grid-template-columns: 28px 13px minmax(0, 1.4fr) 76px 70px minmax(0, 1fr) 40px 44px;
-      row-gap: 3px;
+      row-gap: 4px;
     }
     .pl:not(.head, .combat) {
       padding-block: 4px;

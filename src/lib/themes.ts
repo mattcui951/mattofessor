@@ -120,7 +120,7 @@ const c = (
 //                         bg         sunk       panel      panel2     panel3     seam       seamStrong text       text2      text3      you        death      objective  win        assist     warn
 export const BUILT_IN: Theme[] = [
   theme({ id: 'arcade', name: 'Arcade', group: 'dark', dark: true,
-    colors: c('#100d26', '#0b0920', '#161238', '#1d1847', '#262058', '#2a2461', '#3b3485', '#eeebff', '#bdb6e6', '#908ac2', '#3fe0f0', '#ff4f8b', '#ffc83d', '#52f0a8', '#b197ff', '#ffa53d') }),
+    colors: c('#0f0e18', '#0b0a12', '#15141f', '#1b1a28', '#242334', '#262536', '#37364b', '#ecebf3', '#b4b2c4', '#8d8ba0', '#3fe0f0', '#f06a8c', '#eec25a', '#6dd69e', '#a99cf0', '#f0a356') }),
   theme({ id: 'rose-pine', name: 'Rosé Pine', group: 'dark', dark: true,
     colors: c('#191724', '#13111d', '#1f1d2e', '#26233a', '#2f2c44', '#403d52', '#524f67', '#e0def4', '#b8b5cf', '#908caa', '#c4a7e7', '#eb6f92', '#f6c177', '#9ccfd8', '#ebbcba', '#f6c177') }),
   theme({ id: 'rose-pine-moon', name: 'Rosé Pine Moon', group: 'dark', dark: true,

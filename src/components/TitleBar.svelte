@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Logo from './Logo.svelte';
   import { getCurrentWindow } from '@tauri-apps/api/window';
   import Icon from './Icon.svelte';
   import { app } from '../lib/state.svelte';
@@ -19,10 +20,7 @@
 
 <header class="bar" data-tauri-drag-region>
   <div class="brand" data-tauri-drag-region>
-    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-      <circle cx="10.5" cy="10.5" r="6" fill="none" stroke="var(--you)" stroke-width="2.6" />
-      <path d="M15 15l5 5" stroke="var(--objective)" stroke-width="2.8" stroke-linecap="round" />
-    </svg>
+    <Logo />
     <span class="name" data-tauri-drag-region>Mattofessor</span>
     <span class="status" data-tauri-drag-region><i style="background:{status.color}"></i>{status.text}</span>
   </div>
@@ -39,7 +37,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-left: 14px;
+    padding-left: 16px;
     background: var(--bg-sunk);
     border-bottom: 1px solid var(--seam);
     flex: none;
@@ -47,23 +45,21 @@
   .brand {
     display: flex;
     align-items: center;
-    gap: 9px;
+    gap: 8px;
     min-width: 0;
   }
   .name {
     font-family: var(--font-score);
-    font-weight: 700;
+    font-weight: 600;
     font-size: 14px;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
     white-space: nowrap;
   }
   .status {
     display: flex;
     align-items: center;
-    gap: 7px;
-    margin-left: 14px;
-    font-size: 12.5px;
+    gap: 8px;
+    margin-left: 16px;
+    font-size: 13px;
     color: var(--text-2);
     white-space: nowrap;
   }

@@ -19,8 +19,8 @@
     z-index: 101;
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 6px 6px 6px 14px;
+    gap: 12px;
+    padding: 8px 8px 8px 16px;
     background: var(--panel);
     border: 1px solid var(--seam-strong);
     border-radius: var(--r-lg);

@@ -45,7 +45,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 9px 16px 9px 14px;
+    padding: 8px 16px 8px 16px;
     background: color-mix(in oklab, var(--you) 12%, var(--bg-sunk));
     border-bottom: 1px solid color-mix(in oklab, var(--you) 35%, var(--seam));
     overflow: hidden;
@@ -68,16 +68,16 @@
   }
   .text b {
     font-weight: 600;
-    font-size: 13.5px;
+    font-size: 14px;
   }
   .text span {
     color: var(--text-2);
-    font-size: 12.5px;
+    font-size: 13px;
   }
   .actions {
     flex: none;
     display: flex;
-    gap: 6px;
+    gap: 8px;
   }
   .bar {
     position: absolute;
