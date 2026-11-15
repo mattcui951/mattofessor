@@ -25,15 +25,15 @@
   .score {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 4px;
     white-space: nowrap;
   }
   .value {
-    font-size: 15px;
+    font-size: 16px;
     color: var(--text);
   }
   .sm .value {
-    font-size: 12.5px;
+    font-size: 13px;
   }
   .value.high {
     color: var(--win);
@@ -43,10 +43,9 @@
   }
   .badge {
     font-family: var(--font-score);
-    font-weight: 700;
-    font-size: 10.5px;
-    letter-spacing: 0.06em;
-    padding: 1px 6px;
+    font-weight: 600;
+    font-size: 12px;
+    padding: 1px 8px;
     border-radius: var(--r-sm);
   }
   .badge.mvp {
@@ -68,7 +67,7 @@
     box-shadow: inset 0 0 0 1px var(--seam-strong);
   }
   .sm .badge {
-    font-size: 9.5px;
-    padding: 0 5px;
+    font-size: 12px;
+    padding: 0 4px;
   }
 </style>

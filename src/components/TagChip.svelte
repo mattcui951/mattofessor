@@ -11,9 +11,9 @@
     display: inline-flex;
     align-items: center;
     height: 20px;
-    padding: 0 7px;
+    padding: 0 8px;
     border-radius: var(--r-sm);
-    font-size: 11.5px;
+    font-size: 12px;
     font-weight: 600;
     white-space: nowrap;
     background: var(--panel-3);
@@ -21,8 +21,8 @@
   }
   .tag.sm {
     height: 18px;
-    padding: 0 6px;
-    font-size: 11px;
+    padding: 0 8px;
+    font-size: 12px;
   }
   .pos {
     color: var(--win);
@@ -32,9 +32,9 @@
     color: var(--death);
     background: color-mix(in oklab, var(--death) 14%, transparent);
   }
+  /* Facts about the player (role, main, style): neutral, so good and bad signals stand out. */
   .info {
-    color: var(--objective);
-    background: color-mix(in oklab, var(--objective) 13%, transparent);
+    color: var(--text);
   }
   .duo {
     color: var(--assist);

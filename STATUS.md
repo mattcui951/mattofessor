@@ -59,6 +59,17 @@ Version: 1.0.7
 
 ## Recently done
 
+- UI polish (branch `ui-polish`, not released): one type scale (12/13/14/16/20/24 px, nothing
+  under 12 px), sentence-case labels, weights up to 600, padding/margin/gap on a 4 px grid; Arcade palette calmer (graphite surfaces,
+  neutral text, quieter accents so cyan leads; rank names in lists in the text colour, tier
+  colour kept on the profile rank cards); role/style tags neutral; Meta tier letters calm (only S
+  tinted); Builds shards beside the rune names and a Q/W/E/R by level skill grid; starting items
+  keyed by position (OP.GG can list a potion twice); `Logo.svelte` from the app icon; hammer icon
+  for Builds. Motion (`src/lib/motion.ts`): pages fade in, the average score and a Live player's
+  champion win rate count up, match rows / an opened lobby / its damage bars / Live's last five
+  games arrive in order, Builds runes and skill grid light up in order, Meta re-sorts fade; off
+  under reduced motion. Checked in a browser on macOS with a stand-in bridge, not yet on Windows
+  (Segoe UI widths, the in-game panel, the Chinese client).
 - 1.0.7: the main window's close (and minimize) button did nothing.
   The app had two main windows on top of each other: 1.0.6 was installed by the in-app update
   and restarted during champ select, and the setup and the game watcher ("open in champ

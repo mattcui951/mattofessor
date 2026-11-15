@@ -29,8 +29,8 @@
 <style>
   .card {
     display: grid;
-    gap: 7px;
-    padding: 6px;
+    gap: 8px;
+    padding: 8px;
     border-radius: var(--r-lg);
     border: 1px solid transparent;
     text-align: left;
@@ -60,8 +60,8 @@
   .body {
     flex: 1;
     display: flex;
-    gap: 6px;
-    padding: 0 6px 6px 0;
+    gap: 8px;
+    padding: 0 8px 8px 0;
   }
   .side {
     width: 12px;
@@ -69,11 +69,11 @@
   }
   .panel {
     flex: 1;
-    margin-top: 6px;
+    margin-top: 8px;
     border: 1px solid;
-    padding: 6px;
+    padding: 8px;
     display: grid;
-    gap: 5px;
+    gap: 4px;
     align-content: start;
   }
   .line {
@@ -93,8 +93,8 @@
   .name {
     display: flex;
     align-items: center;
-    gap: 5px;
-    font-size: 12.5px;
+    gap: 4px;
+    font-size: 13px;
     font-weight: 600;
     min-width: 0;
   }

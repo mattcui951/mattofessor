@@ -135,9 +135,9 @@ Data and key handling: results are shown only on my own PC and are not stored on
   }
   .col {
     max-width: 980px;
-    padding: 18px 28px 48px;
+    padding: 20px 28px 48px;
     display: grid;
-    gap: 14px;
+    gap: 16px;
   }
   .top {
     display: flex;
@@ -145,7 +145,7 @@ Data and key handling: results are shown only on my own PC and are not stored on
     gap: 12px;
   }
   h2 {
-    font-size: 22px;
+    font-size: 24px;
   }
   .lead {
     color: var(--text-2);
@@ -157,18 +157,18 @@ Data and key handling: results are shown only on my own PC and are not stored on
     margin: 0;
     padding: 0;
     display: grid;
-    gap: 18px;
+    gap: 20px;
   }
   .steps > li {
     counter-increment: step;
     position: relative;
     display: grid;
-    gap: 10px;
+    gap: 12px;
     justify-items: start;
     background: var(--panel);
     border: 1px solid var(--seam);
     border-radius: var(--r-lg);
-    padding: 16px 18px 18px 58px;
+    padding: 16px 20px 20px 60px;
   }
   .steps > li::before {
     content: counter(step);
@@ -183,7 +183,7 @@ Data and key handling: results are shown only on my own PC and are not stored on
     background: var(--you);
     color: var(--you-ink);
     font-family: var(--font-score);
-    font-weight: 700;
+    font-weight: 600;
   }
   h3 {
     font-size: 16px;
@@ -197,13 +197,13 @@ Data and key handling: results are shown only on my own PC and are not stored on
     margin: 0;
     padding: 0;
     display: grid;
-    gap: 7px;
+    gap: 8px;
     color: var(--text-2);
     font-size: 13px;
   }
   .callouts li {
     display: flex;
-    gap: 9px;
+    gap: 8px;
     align-items: flex-start;
   }
   /* Matches the numbered badges drawn on the screenshots. */
@@ -217,7 +217,7 @@ Data and key handling: results are shown only on my own PC and are not stored on
     background: #00a8d6;
     color: #fff;
     font-family: var(--font-score);
-    font-weight: 700;
+    font-weight: 600;
     font-size: 12px;
     margin-top: 1px;
   }
@@ -226,7 +226,7 @@ Data and key handling: results are shown only on my own PC and are not stored on
     background: var(--bg-sunk);
     border: 1px solid var(--seam);
     border-radius: var(--r-sm);
-    padding: 0 5px;
+    padding: 0 4px;
     color: var(--text);
   }
   .shot {
@@ -246,7 +246,7 @@ Data and key handling: results are shown only on my own PC and are not stored on
   .split {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 360px);
-    gap: 18px;
+    gap: 20px;
     align-items: start;
     width: 100%;
   }
@@ -257,13 +257,13 @@ Data and key handling: results are shown only on my own PC and are not stored on
   }
   .fields {
     display: grid;
-    gap: 14px;
+    gap: 16px;
   }
   .desc {
     background: var(--bg-sunk);
     border: 1px solid var(--seam);
     border-radius: var(--r-md);
-    padding: 10px 12px;
+    padding: 12px 12px;
     display: grid;
     gap: 8px;
   }
@@ -271,15 +271,15 @@ Data and key handling: results are shown only on my own PC and are not stored on
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
-    font-size: 12.5px;
+    gap: 12px;
+    font-size: 13px;
     color: var(--text-3);
   }
   pre {
     margin: 0;
     white-space: pre-wrap;
     font-family: Consolas, ui-monospace, monospace;
-    font-size: 11.5px;
+    font-size: 12px;
     line-height: 1.5;
     color: var(--text-2);
     max-height: 220px;
@@ -289,12 +289,12 @@ Data and key handling: results are shown only on my own PC and are not stored on
   .finish {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 16px;
   }
   .state {
     display: flex;
     align-items: center;
-    gap: 7px;
+    gap: 8px;
     font-size: 13px;
     color: var(--text-2);
   }
@@ -316,7 +316,7 @@ Data and key handling: results are shown only on my own PC and are not stored on
   }
   .note {
     color: var(--text-3);
-    font-size: 12.5px;
+    font-size: 13px;
   }
   .lightbox {
     position: fixed;

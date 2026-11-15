@@ -69,15 +69,13 @@
   }
   .col {
     display: grid;
-    gap: 5px;
+    gap: 4px;
     align-content: start;
     min-width: 0;
   }
   h4 {
     margin: 0 0 2px;
-    font: 700 11.5px var(--font-score);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    font: 600 12px var(--font-score);
   }
   h4.silver {
     color: var(--text-2);
@@ -93,7 +91,7 @@
     grid-template-columns: 26px minmax(0, 1fr) auto;
     gap: 8px;
     align-items: center;
-    padding: 4px 6px;
+    padding: 4px 8px;
     border-radius: var(--r-md);
     background: var(--panel-2);
   }
@@ -112,12 +110,12 @@
   .st {
     display: grid;
     justify-items: end;
-    font-size: 12.5px;
+    font-size: 13px;
     line-height: 1.2;
   }
   .st small {
     color: var(--text-3);
-    font-size: 11px;
+    font-size: 12px;
   }
   .hi {
     color: var(--win);

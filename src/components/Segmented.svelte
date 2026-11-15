@@ -29,11 +29,11 @@
   button {
     flex: 1;
     height: 26px;
-    padding: 0 10px;
+    padding: 0 12px;
     border-radius: var(--r-sm);
     color: var(--text-2);
     font-weight: 600;
-    font-size: 12.5px;
+    font-size: 13px;
     white-space: nowrap;
     transition: background 120ms, color 120ms;
   }

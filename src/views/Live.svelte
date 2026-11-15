@@ -96,14 +96,12 @@
   }
   .label {
     font-family: var(--font-score);
-    font-size: 11.5px;
+    font-size: 12px;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
     color: var(--you);
   }
   h2 {
-    font-size: 20px;
+    font-size: 24px;
   }
   .actions {
     display: flex;
@@ -113,19 +111,19 @@
   }
   .hint {
     color: var(--text-3);
-    font-size: 12.5px;
+    font-size: 13px;
     margin-right: 4px;
   }
   .body {
     overflow-y: auto;
-    padding: 6px 10px 20px;
+    padding: 8px 12px 20px;
   }
   .body.past {
     opacity: 0.92;
   }
   .note {
     color: var(--text-3);
-    font-size: 12.5px;
-    padding: 4px 18px;
+    font-size: 13px;
+    padding: 4px 20px;
   }
 </style>

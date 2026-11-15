@@ -165,7 +165,8 @@
               {@render th('games', t('meta.games'))}
             </tr>
           </thead>
-          <tbody>
+          {#key `${sortKey}-${sortDesc}-${lane}-${rarity}-${bracket()}`}
+          <tbody class="rows">
             {#each riftRows as r, i (r.championId + r.position)}
               <tr onclick={() => go({ name: 'builds', championId: r.championId, role: r.position, mode: 'rift' })}>
                 <td class="n num">{i + 1}</td>
@@ -179,6 +180,7 @@
               </tr>
             {/each}
           </tbody>
+          {/key}
         </table>
       {/if}
     {:else if !aram}
@@ -195,7 +197,8 @@
             {@render th('games', t('meta.games'))}
           </tr>
         </thead>
-        <tbody>
+        {#key `${sortKey}-${sortDesc}-${lane}-${rarity}-${bracket()}`}
+        <tbody class="rows">
           {#each aramChamps as r, i (r.championId)}
             <tr onclick={() => go({ name: 'builds', championId: r.championId, mode: 'aram' })}>
               <td class="n num">{i + 1}</td>
@@ -207,6 +210,7 @@
             </tr>
           {/each}
         </tbody>
+        {/key}
       </table>
     {:else}
       <table>
@@ -220,7 +224,8 @@
             {@render th('games', t('meta.games'))}
           </tr>
         </thead>
-        <tbody>
+        {#key `${sortKey}-${sortDesc}-${lane}-${rarity}-${bracket()}`}
+        <tbody class="rows">
           {#each aramAugs as a, i (a.id)}
             {@const info = augment(a.id)}
             <tr class="static">
@@ -233,6 +238,7 @@
             </tr>
           {/each}
         </tbody>
+        {/key}
       </table>
     {/if}
   </div>
@@ -240,12 +246,21 @@
 </div>
 
 <style>
+  /* A new order or filter fades in rather than sliding: a re-sort moves most rows at once. */
+  .rows {
+    animation: rows-in var(--dur-enter) var(--ease-out);
+  }
+  @keyframes rows-in {
+    from {
+      opacity: 0.35;
+    }
+  }
   .page {
     height: 100%;
     display: flex;
     flex-direction: column;
     gap: 12px;
-    padding: 16px 20px 14px;
+    padding: 16px 20px 16px;
     min-height: 0;
   }
   .head {
@@ -255,7 +270,7 @@
     flex-wrap: wrap;
   }
   .head h2 {
-    font-size: 22px;
+    font-size: 24px;
   }
   .head :global(.seg) {
     width: 280px;
@@ -279,7 +294,7 @@
   .source {
     margin-left: auto;
     color: var(--text-3);
-    font-size: 12.5px;
+    font-size: 13px;
   }
   .table-wrap {
     flex: 1;
@@ -292,7 +307,7 @@
   table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 13.5px;
+    font-size: 14px;
   }
   thead th {
     position: sticky;
@@ -300,14 +315,12 @@
     z-index: 1;
     background: var(--panel-2);
     text-align: left;
-    font: 600 11.5px var(--font-score);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    font: 600 12px var(--font-score);
     color: var(--text-3);
-    padding: 8px 10px;
+    padding: 8px 12px;
   }
   td {
-    padding: 6px 10px;
+    padding: 8px 12px;
     border-top: 1px solid var(--seam);
   }
   tbody tr {
@@ -337,35 +350,31 @@
   .champ {
     display: flex;
     align-items: center;
-    gap: 9px;
+    gap: 8px;
     font-weight: 500;
   }
+  /* Tier as a letter: only S is coloured, so the column stays calm and the best stand out. */
   .tier {
     display: inline-grid;
     place-items: center;
     width: 24px;
     height: 24px;
     border-radius: var(--r-md);
-    font: 700 13px var(--font-score);
-    color: var(--bg);
-    background: var(--text-3);
+    font: 600 14px var(--font-score);
+    color: var(--text-3);
   }
   .tier.tS {
-    background: var(--death);
+    color: var(--objective);
+    background: color-mix(in oklab, var(--objective) 14%, transparent);
   }
   .tier.tA {
-    background: var(--objective);
+    color: var(--text);
   }
   .tier.tB {
-    background: var(--win);
-  }
-  .tier.tC {
-    background: var(--text-2);
+    color: var(--text-2);
   }
   .rar {
-    font: 600 11.5px var(--font-score);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+    font: 600 12px var(--font-score);
   }
   .rar.silver {
     color: var(--text-2);
@@ -391,6 +400,6 @@
   }
   .credit {
     color: var(--text-3);
-    font-size: 11.5px;
+    font-size: 12px;
   }
 </style>

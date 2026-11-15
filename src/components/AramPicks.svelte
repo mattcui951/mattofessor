@@ -67,9 +67,9 @@
     background: var(--panel);
     border: 1px solid var(--seam);
     border-radius: var(--r-lg);
-    padding: 12px 14px;
+    padding: 12px 16px;
     display: grid;
-    gap: 10px;
+    gap: 12px;
     margin-bottom: 12px;
   }
   .head {
@@ -91,15 +91,13 @@
     flex-wrap: wrap;
   }
   .label {
-    font: 600 11px var(--font-score);
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
+    font: 600 12px var(--font-score);
     color: var(--text-3);
-    margin-bottom: 6px;
+    margin-bottom: 8px;
   }
   .list {
     display: flex;
-    gap: 6px;
+    gap: 8px;
     flex-wrap: wrap;
   }
   .c {
@@ -108,10 +106,10 @@
     display: grid;
     justify-items: center;
     gap: 2px;
-    padding: 6px 4px;
+    padding: 8px 4px;
     border-radius: var(--r-md);
     background: var(--panel-2);
-    font-size: 11.5px;
+    font-size: 12px;
   }
   .c:hover {
     background: var(--panel-3);
@@ -141,7 +139,7 @@
     display: grid;
     place-items: center;
     border-radius: 4px;
-    font: 700 11px var(--font-score);
+    font: 600 12px var(--font-score);
     color: var(--bg);
     background: var(--text-3);
   }
@@ -165,6 +163,6 @@
   }
   .credit {
     color: var(--text-3);
-    font-size: 11px;
+    font-size: 12px;
   }
 </style>

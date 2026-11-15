@@ -106,14 +106,12 @@
   header {
     display: flex;
     align-items: center;
-    gap: 7px;
+    gap: 8px;
     height: 30px;
-    padding: 0 4px 0 10px;
+    padding: 0 4px 0 12px;
     font-family: var(--font-score);
-    font-size: 11.5px;
+    font-size: 12px;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
     color: var(--text-2);
     border-bottom: 1px solid var(--seam);
     cursor: move;
@@ -136,12 +134,12 @@
   }
   .list {
     display: grid;
-    gap: 6px;
-    padding: 8px 10px;
+    gap: 8px;
+    padding: 8px 12px;
   }
   .enemy {
     display: flex;
-    gap: 6px;
+    gap: 8px;
     align-items: center;
   }
   .enemy.dead :global(.img:first-child) {
@@ -168,9 +166,9 @@
   }
   .wait,
   .hint {
-    padding: 8px 10px;
+    padding: 8px 12px;
     color: var(--text-3);
-    font-size: 11.5px;
+    font-size: 12px;
     line-height: 1.35;
   }
 </style>

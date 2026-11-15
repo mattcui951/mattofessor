@@ -38,7 +38,7 @@
     appearance: none;
     width: 100%;
     height: 32px;
-    padding: 0 32px 0 10px;
+    padding: 0 32px 0 12px;
     border-radius: var(--r-md);
     background: var(--bg-sunk);
     border: 1px solid var(--seam);

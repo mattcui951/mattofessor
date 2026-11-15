@@ -75,7 +75,7 @@
   }
   b {
     font-size: 36vh;
-    font-weight: 700;
+    font-weight: 600;
     line-height: 1;
   }
   .d {
@@ -113,9 +113,7 @@
   .tag {
     align-self: center;
     font-size: 17vh;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    font-weight: 600;
     color: var(--bg);
     background: var(--win);
     padding: 2vh 8vh;

@@ -182,7 +182,7 @@
                 {#each primaryTree.slots as slot, si (si)}
                   <div class="slot" class:key={si === 0}>
                     {#each slot as r (r.id)}
-                      <span class="r" class:on={page.perks.includes(r.id)} title={r.name}><Img src={runeIcon(r.id)} size={si === 0 ? 40 : 30} round /></span>
+                      <span class="r" class:on={page.perks.includes(r.id)} class:light-in={page.perks.includes(r.id)} style="--i:{page.perks.indexOf(r.id)}; --step:70ms" title={r.name}><Img src={runeIcon(r.id)} size={si === 0 ? 40 : 30} round /></span>
                     {/each}
                   </div>
                 {/each}
@@ -193,19 +193,18 @@
                   {#each subTree.slots.slice(1) as slot, si (si)}
                     <div class="slot">
                       {#each slot as r (r.id)}
-                        <span class="r" class:on={page.perks.includes(r.id)} title={r.name}><Img src={runeIcon(r.id)} size={30} round /></span>
+                        <span class="r" class:on={page.perks.includes(r.id)} class:light-in={page.perks.includes(r.id)} style="--i:{page.perks.indexOf(r.id)}; --step:70ms" title={r.name}><Img src={runeIcon(r.id)} size={30} round /></span>
                       {/each}
                     </div>
                   {/each}
-                  {#if page.shards.length}
-                    <div class="shards">
-                      {#each page.shards as s, i (i)}<span>{SHARD_NAMES[s]?.[i18n.lang] ?? s}</span>{/each}
-                    </div>
-                  {/if}
                 </div>
               {/if}
               <div class="picked">
                 {#each page.perks as id (id)}<div><Img src={runeIcon(id)} size={20} round /><span>{rune(id)?.name}</span></div>{/each}
+                {#if page.shards.length}
+                  <div class="shards-h">{t('builds.shards')}</div>
+                  {#each page.shards as s, i (i)}<div class="shard"><i></i><span>{SHARD_NAMES[s]?.[i18n.lang] ?? s}</span></div>{/each}
+                {/if}
               </div>
             </div>
           {/if}
@@ -229,7 +228,14 @@
               {#each build.skillMax as k, i (k)}{#if i}<span class="arrow">›</span>{/if}<b class="key">{k}</b>{/each}
             </div>
             {#if build.skillOrder.length}
-              <div class="order">{#each build.skillOrder as k, i (i)}<span class="num">{k}</span>{/each}</div>
+              <div class="order" style="--levels:{build.skillOrder.length}">
+                <span></span>
+                {#each build.skillOrder as _, i (i)}<span class="lvl num">{i + 1}</span>{/each}
+                {#each ['Q', 'W', 'E', 'R'] as key (key)}
+                  <b class="row-key">{key}</b>
+                  {#each build.skillOrder as k, i (i)}<span class="cell" class:on={k === key} class:light-in={k === key} style="--i:{i}; --step:40ms">{k === key ? key : ''}</span>{/each}
+                {/each}
+              </div>
             {/if}
           {/if}
         </section>
@@ -237,7 +243,7 @@
           {#if build.starters.length}
             <div class="label">{t('builds.starters')}</div>
             <div class="opt">
-              {#each build.starters[0].value as id (id)}<Img src={itemIcon(id)} size={32} title={itemName(id)} />{/each}
+              {#each build.starters[0].value as id, i (i)}<Img src={itemIcon(id)} size={32} title={itemName(id)} />{/each}
               <span class="num">{t('builds.pick', p(build.starters[0].games))}</span>
               <span class="num dim">{t('builds.wr', pct(build.starters[0].wins, build.starters[0].games))}</span>
             </div>
@@ -305,17 +311,17 @@
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 4px;
-    padding: 10px;
+    padding: 12px;
     align-content: start;
   }
   .c {
     display: grid;
     justify-items: center;
-    gap: 3px;
-    padding: 5px 2px;
+    gap: 4px;
+    padding: 4px 2px;
     border-radius: var(--r-md);
     color: var(--text-2);
-    font-size: 11px;
+    font-size: 12px;
     min-width: 0;
   }
   .c span {
@@ -334,9 +340,9 @@
   }
   .main {
     overflow-y: auto;
-    padding: 14px 20px 24px;
+    padding: 16px 20px 24px;
     display: grid;
-    gap: 14px;
+    gap: 16px;
     align-content: start;
   }
   .bar {
@@ -350,14 +356,14 @@
   }
   .src {
     color: var(--text-3);
-    font-size: 12.5px;
+    font-size: 13px;
   }
   .label-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     flex-wrap: wrap;
   }
   .label-row .label {
@@ -367,12 +373,12 @@
     width: 340px;
   }
   .label.gap {
-    margin-top: 14px;
+    margin-top: 16px;
   }
   .skills {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
   }
   .key {
     display: inline-grid;
@@ -382,55 +388,69 @@
     border-radius: var(--r-md);
     background: var(--panel-3);
     color: var(--you);
-    font: 700 14px var(--font-score);
+    font: 600 14px var(--font-score);
   }
   .arrow {
     color: var(--text-3);
   }
+  /* Skill order: one row per skill, one column per level. */
   .order {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 3px;
-    margin-top: 8px;
+    display: grid;
+    grid-template-columns: 20px repeat(var(--levels), 20px);
+    gap: 4px 2px;
+    margin-top: 12px;
+    align-items: center;
   }
-  .order span {
-    width: 20px;
+  .order .lvl {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-3);
+    text-align: center;
+  }
+  .row-key {
+    font: 600 12px var(--font-score);
+    color: var(--text-2);
+  }
+  .cell {
     height: 20px;
     display: grid;
     place-items: center;
     border-radius: var(--r-sm);
     background: var(--panel-2);
-    font-size: 11px;
-    color: var(--text-2);
+    font: 600 12px var(--font-score);
+  }
+  .cell.on {
+    background: var(--panel-3);
+    color: var(--you);
   }
   .step {
     position: absolute;
     top: 4px;
     left: 6px;
-    font-size: 11px;
+    font-size: 12px;
     color: var(--text-3);
   }
   .head {
     display: flex;
-    gap: 14px;
+    gap: 16px;
     align-items: center;
     flex-wrap: wrap;
   }
   .head h2 {
-    font-size: 22px;
+    font-size: 24px;
   }
   .sub {
     color: var(--text-3);
-    font-size: 12.5px;
+    font-size: 13px;
   }
   .roles {
     display: flex;
     gap: 4px;
-    margin-top: 6px;
+    margin-top: 8px;
   }
   .roles button {
     height: 24px;
-    padding: 0 9px;
+    padding: 0 8px;
     border-radius: var(--r-sm);
     background: var(--panel-2);
     color: var(--text-2);
@@ -457,7 +477,7 @@
   .imp label {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     cursor: pointer;
   }
   input[type='checkbox'] {
@@ -467,16 +487,14 @@
     background: var(--panel);
     border: 1px solid var(--seam);
     border-radius: var(--r-lg);
-    padding: 14px 16px;
+    padding: 16px 16px;
   }
   .label {
     font-family: var(--font-score);
-    font-size: 11.5px;
+    font-size: 12px;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
     color: var(--text-3);
-    margin-bottom: 10px;
+    margin-bottom: 12px;
   }
   .label .num {
     text-transform: none;
@@ -491,7 +509,7 @@
   }
   .tree {
     display: grid;
-    gap: 10px;
+    gap: 12px;
     justify-items: start;
   }
   .tree-h {
@@ -515,17 +533,27 @@
     opacity: 1;
     box-shadow: 0 0 0 2px var(--objective);
   }
-  .shards {
+  .shards-h {
+    margin-top: 8px;
+    font: 600 12px var(--font-score);
+    color: var(--text-3);
+  }
+  .shard i {
+    width: 20px;
     display: grid;
-    gap: 3px;
-    font-size: 12px;
-    color: var(--text-2);
-    margin-top: 4px;
+    place-items: center;
+  }
+  .shard i::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--text-3);
   }
   .picked {
     display: grid;
-    gap: 6px;
-    font-size: 12.5px;
+    gap: 8px;
+    font-size: 13px;
     color: var(--text-2);
   }
   .picked div {
@@ -536,14 +564,14 @@
   .two {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 14px;
+    gap: 16px;
   }
   .opt {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 3px 0;
-    font-size: 12.5px;
+    padding: 4px 0;
+    font-size: 13px;
   }
   .opt .iname {
     flex: 1;
@@ -555,16 +583,16 @@
   .items {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 10px;
+    gap: 12px;
   }
   .it {
     position: relative;
     display: grid;
     justify-items: center;
-    gap: 3px;
+    gap: 4px;
     text-align: center;
     font-size: 12px;
-    padding: 6px 4px;
+    padding: 8px 4px;
     border-radius: var(--r-md);
   }
   .it.core {
@@ -578,10 +606,8 @@
   .sep {
     grid-column: 1 / -1;
     font-family: var(--font-score);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
     color: var(--text-3);
     border-top: 1px solid var(--seam);
     padding-top: 8px;

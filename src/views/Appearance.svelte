@@ -310,9 +310,9 @@
   }
   .col {
     max-width: 980px;
-    padding: 18px 28px 48px;
+    padding: 20px 28px 48px;
     display: grid;
-    gap: 26px;
+    gap: 28px;
   }
   .top {
     display: flex;
@@ -323,27 +323,23 @@
     flex: 1;
   }
   h2 {
-    font-size: 22px;
+    font-size: 24px;
   }
   section {
     display: grid;
-    gap: 10px;
+    gap: 12px;
   }
   h3 {
-    font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
+    font-size: 12px;
     color: var(--text-3);
   }
   .glabel,
   .blabel {
     font-family: var(--font-score);
-    font-size: 11.5px;
+    font-size: 12px;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    color: var(--text-2);
-    margin-top: 6px;
+    color: var(--text-3);
+    margin-top: 8px;
   }
   .grid {
     display: grid;
@@ -354,12 +350,12 @@
     display: grid;
     place-items: center;
     align-content: center;
-    gap: 6px;
+    gap: 8px;
     min-height: 112px;
     border: 1px dashed var(--seam-strong);
     border-radius: var(--r-lg);
     color: var(--text-2);
-    font-size: 12.5px;
+    font-size: 13px;
     font-weight: 600;
     padding: 8px;
     text-align: center;
@@ -372,12 +368,12 @@
     background: var(--panel);
     border: 1px solid var(--seam);
     border-radius: var(--r-lg);
-    padding: 16px 18px;
+    padding: 16px 20px;
   }
   .ehead {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     flex-wrap: wrap;
   }
   .field.name {
@@ -385,31 +381,31 @@
   }
   .dim {
     color: var(--text-3);
-    font-size: 12.5px;
+    font-size: 13px;
   }
   .preview {
     background: var(--bg);
     border: 1px solid var(--seam);
     border-radius: var(--r-lg);
-    padding: 12px 14px;
+    padding: 12px 16px;
     display: grid;
     gap: 12px;
   }
   .pv-row {
     display: grid;
     grid-template-columns: 36px minmax(0, 1fr) auto auto;
-    gap: 14px;
+    gap: 16px;
     align-items: center;
   }
   .pv-who b {
     font-weight: 600;
   }
   .lvl {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--text-3);
     background: var(--panel-3);
     border-radius: var(--r-sm);
-    padding: 0 5px;
+    padding: 0 4px;
   }
   .tags {
     display: flex;
@@ -432,7 +428,7 @@
   .pv-rank {
     display: grid;
     text-align: right;
-    font-size: 12.5px;
+    font-size: 13px;
   }
   .pv-buttons {
     display: flex;
@@ -454,7 +450,7 @@
   .cgrid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 6px 18px;
+    gap: 8px 20px;
   }
   .crow {
     display: grid;
@@ -483,10 +479,10 @@
   }
   .hex {
     height: 28px;
-    font-size: 12.5px;
+    font-size: 13px;
   }
   .ratio {
-    font-size: 11.5px;
+    font-size: 12px;
     color: var(--win);
     text-align: right;
   }
@@ -496,7 +492,7 @@
   .frow {
     display: grid;
     grid-template-columns: 170px 220px minmax(0, 1fr);
-    gap: 10px;
+    gap: 12px;
     align-items: center;
   }
   .frow input {
@@ -505,7 +501,7 @@
   .fsample {
     grid-column: 3;
     grid-row: 1;
-    font-size: 15px;
+    font-size: 16px;
     color: var(--text);
     white-space: nowrap;
     overflow: hidden;
@@ -520,7 +516,7 @@
     accent-color: var(--you);
   }
   .val {
-    font-size: 12.5px;
+    font-size: 13px;
     color: var(--text-2);
   }
   .trow {
@@ -539,11 +535,11 @@
   }
   .note {
     color: var(--text-3);
-    font-size: 12.5px;
+    font-size: 13px;
   }
   .area {
     height: auto;
-    padding: 8px 10px;
+    padding: 8px 12px;
     font-family: Consolas, ui-monospace, monospace;
     font-size: 12px;
     resize: vertical;

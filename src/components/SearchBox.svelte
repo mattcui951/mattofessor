@@ -166,8 +166,8 @@
   .row {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 6px 8px;
+    gap: 12px;
+    padding: 8px 8px;
     border-radius: var(--r-md);
     text-align: left;
     color: var(--text);
@@ -182,7 +182,7 @@
   }
   .text b {
     font-weight: 600;
-    font-size: 13.5px;
+    font-size: 14px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -218,19 +218,19 @@
     color: var(--you);
   }
   .hint {
-    padding: 8px 10px;
+    padding: 8px 12px;
     color: var(--text-3);
-    font-size: 12.5px;
+    font-size: 13px;
   }
   .hint.tip {
     border-top: 1px solid var(--seam);
-    margin-top: 3px;
-    padding-top: 7px;
+    margin-top: 4px;
+    padding-top: 8px;
   }
   .err {
-    margin-top: 6px;
+    margin-top: 8px;
     padding-left: 24px;
     color: var(--death);
-    font-size: 12.5px;
+    font-size: 13px;
   }
 </style>

@@ -81,9 +81,9 @@
     background: var(--panel);
     border: 1px solid var(--seam);
     border-radius: var(--r-lg);
-    padding: 12px 14px;
+    padding: 12px 16px;
     display: grid;
-    gap: 10px;
+    gap: 12px;
     margin-bottom: 12px;
   }
   .recs.compact {
@@ -91,7 +91,7 @@
     border: 0;
     border-bottom: 1px solid var(--seam);
     border-radius: 0;
-    padding: 8px 12px 10px;
+    padding: 8px 12px 12px;
     gap: 8px;
     margin-bottom: 0;
   }
@@ -115,15 +115,13 @@
   }
   .col {
     display: grid;
-    gap: 5px;
+    gap: 4px;
     align-content: start;
     min-width: 0;
   }
   h4 {
     margin: 0 0 2px;
-    font: 700 11.5px var(--font-score);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    font: 600 12px var(--font-score);
   }
   h4.silver {
     color: var(--text-2);
@@ -135,10 +133,8 @@
     color: var(--assist);
   }
   .sub {
-    margin-top: 6px;
-    font: 600 11px var(--font-score);
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
+    margin-top: 8px;
+    font: 600 12px var(--font-score);
     color: var(--text-3);
   }
   .aug {
@@ -146,7 +142,7 @@
     grid-template-columns: auto minmax(0, 1fr) auto;
     gap: 8px;
     align-items: center;
-    padding: 4px 6px;
+    padding: 4px 8px;
     border-radius: var(--r-md);
     background: var(--panel-2);
   }
@@ -161,17 +157,17 @@
     text-overflow: ellipsis;
   }
   .compact .nm {
-    font-size: 12.5px;
+    font-size: 13px;
   }
   .st {
     display: grid;
     justify-items: end;
-    font-size: 12.5px;
+    font-size: 13px;
     line-height: 1.2;
   }
   .st small {
     color: var(--text-3);
-    font-size: 11px;
+    font-size: 12px;
   }
   .hi {
     color: var(--win);
@@ -188,7 +184,7 @@
   }
   .note {
     color: var(--text-3);
-    font-size: 11px;
+    font-size: 12px;
   }
   @media (max-width: 760px) {
     .rar {

@@ -42,7 +42,7 @@
     grid-row: span var(--tracks);
     grid-template-rows: subgrid;
     row-gap: 0;
-    padding: 6px 10px 10px;
+    padding: 8px 12px 12px;
     min-width: 0;
   }
   .team :global(.row + .row) {
@@ -58,14 +58,12 @@
     }
   }
   header {
-    padding: 4px 8px 6px;
+    padding: 4px 8px 8px;
   }
   .label {
     font-family: var(--font-score);
     font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
+    font-weight: 600;
     color: var(--text-3);
   }
   .label.ally {

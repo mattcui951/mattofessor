@@ -11,26 +11,26 @@
 
 :root {
   /* Defaults are the Arcade theme; src/lib/themes.ts sets every token at runtime. */
-  --bg: #100d26;
-  --bg-sunk: #0b0920;
-  --panel: #161238;
-  --panel-2: #1d1847;
-  --panel-3: #262058;
-  --seam: #2a2461;
-  --seam-strong: #3b3485;
+  --bg: #0f0e18;
+  --bg-sunk: #0b0a12;
+  --panel: #15141f;
+  --panel-2: #1b1a28;
+  --panel-3: #242334;
+  --seam: #262536;
+  --seam-strong: #37364b;
 
-  --text: #eeebff;
-  --text-2: #bdb6e6;
-  --text-3: #908ac2;
+  --text: #ecebf3;
+  --text-2: #b4b2c4;
+  --text-3: #8d8ba0;
 
   /* Phosphor palette: every color has one job. */
   --you: #3fe0f0;        /* you: kills, multikills, your APM, primary actions */
   --you-ink: #062a30;
-  --death: #ff4f8b;      /* deaths, destructive, recording */
-  --objective: #ffc83d;  /* turret, inhibitor, dragon, herald, baron */
-  --win: #52f0a8;        /* victory, healthy */
-  --assist: #b197ff;     /* assists, ultimate */
-  --warn: #ffa53d;       /* low disk, partial events */
+  --death: #f06a8c;      /* deaths, destructive, recording */
+  --objective: #eec25a;  /* turret, inhibitor, dragon, herald, baron */
+  --win: #6dd69e;        /* victory, healthy */
+  --assist: #a99cf0;     /* assists, ultimate */
+  --warn: #f0a356;       /* low disk, partial events */
   --mark: #e8e4ff;       /* bookmarks, manual */
 
   --font-ui: 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif;
@@ -44,6 +44,9 @@
   /* In-game windows: how opaque their background is over the game. */
   --overlay-alpha: 97%;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  /* Motion: feedback is fast, things that enter take a little longer (src/lib/motion.ts). */
+  --dur-fast: 120ms;
+  --dur-enter: 220ms;
 
   color-scheme: dark;
 }
@@ -60,7 +63,7 @@ body {
   height: 100%;
   background: var(--bg);
   color: var(--text);
-  font: 400 13.5px/1.45 var(--font-ui);
+  font: 400 14px/1.45 var(--font-ui);
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
   user-select: none;
@@ -150,15 +153,19 @@ p {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
+  gap: 8px;
   height: 32px;
-  padding: 0 14px;
+  padding: 0 16px;
   border-radius: var(--r-md);
   background: var(--panel-2);
   color: var(--text);
   font-weight: 600;
   white-space: nowrap;
-  transition: background 120ms, color 120ms, opacity 120ms;
+  transition: background var(--dur-fast), color var(--dur-fast), opacity var(--dur-fast), transform var(--dur-fast) var(--ease-out);
+}
+.btn:active:not(:disabled),
+.icon-btn:active:not(:disabled) {
+  transform: scale(0.97);
 }
 .btn:hover:not(:disabled) {
   background: var(--panel-3);
@@ -199,8 +206,8 @@ p {
 }
 .btn.sm {
   height: 28px;
-  padding: 0 10px;
-  font-size: 12.5px;
+  padding: 0 12px;
+  font-size: 13px;
 }
 
 .icon-btn {
@@ -210,7 +217,7 @@ p {
   height: 30px;
   border-radius: var(--r-md);
   color: var(--text-2);
-  transition: background 120ms, color 120ms;
+  transition: background var(--dur-fast), color var(--dur-fast), transform var(--dur-fast) var(--ease-out);
 }
 .icon-btn:hover:not(:disabled) {
   background: var(--panel-2);
@@ -226,7 +233,7 @@ p {
 
 .field {
   height: 32px;
-  padding: 0 10px;
+  padding: 0 12px;
   border-radius: var(--r-md);
   background: var(--bg-sunk);
   border: 1px solid var(--seam);
@@ -245,15 +252,71 @@ p {
   place-items: center;
   /* One centered block, even when the state fills a tall page. */
   align-content: center;
-  gap: 10px;
+  gap: 12px;
   padding: 64px 24px;
   color: var(--text-3);
   text-align: center;
 }
 .empty h3 {
   color: var(--text-2);
-  font-size: 17px;
+  font-size: 16px;
 }
 .empty p {
   max-width: 52ch;
+}
+
+/* A page fades and rises a few pixels when you open it; nothing else enters on its own. */
+.route {
+  height: 100%;
+  animation: route-in var(--dur-enter) var(--ease-out);
+}
+@keyframes route-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+/* Data motion: values arrive in the order that means something. `--i` is the item's place in
+   that order (capped so long lists don't drag); `--step` spaces a sequence such as skill levels. */
+.fill-in {
+  transform-origin: left center;
+  animation: fill-in 520ms var(--ease-out) both;
+  animation-delay: calc(min(var(--i, 0), 12) * 30ms);
+}
+@keyframes fill-in {
+  from {
+    transform: scaleX(0);
+  }
+}
+.rise-in {
+  animation: rise-in var(--dur-enter) var(--ease-out) both;
+  animation-delay: calc(min(var(--i, 0), 12) * 28ms);
+}
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+.light-in {
+  animation: light-in 260ms var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * var(--step, 45ms));
+}
+@keyframes light-in {
+  from {
+    opacity: 0.2;
+    transform: scale(0.82);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-delay: 0s !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

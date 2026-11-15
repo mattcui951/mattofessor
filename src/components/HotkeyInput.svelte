@@ -50,7 +50,7 @@
     border: 1px solid var(--seam);
     text-align: left;
     color: var(--text);
-    font-size: 13.5px;
+    font-size: 14px;
   }
   .hk.listening {
     border-color: var(--you);
