@@ -1,7 +1,7 @@
 # Status
 
 Updated: 2026-11-15
-Version: 1.0.7
+Version: 1.0.8
 
 ## In progress
 
@@ -72,7 +72,7 @@ Version: 1.0.7
 
 ## Recently done
 
-- Not released yet (after 1.0.7), from a friend's first install:
+- 1.0.8, from a friend's first install:
   - In-game panel size in Settings: small, medium, regular, large, extra large (fills the game's
     width). The app zooms the panel (`core::overlay_zoom`, layout 1520 CSS px, smaller zoom when
     the game is too narrow); the page reports its unzoomed height.
@@ -112,7 +112,7 @@ Version: 1.0.7
     shows every lane: an off-meta lane gets its own game count, a rare one is marked as such.
   - Dev: `/demo_game` on the dev bridge loads a stand-in Hextech game (`?phase=ChampSelect` for
     champ select) from the cache, to check the panel without League.
-- Not released yet (after 1.0.7): Builds stuck on "Loading..." for many champions, Rift and
+- 1.0.8: Builds stuck on "Loading..." for many champions, Rift and
   ARAM. OP.GG now lists starter items with repeats (Doran's Ring + 2 Health Potions) and the page
   keyed that list by item id, so Svelte threw `each_key_duplicate` while drawing and the page
   stayed half drawn. The backend was fine (it fetched and cached the build). Build lists are now
