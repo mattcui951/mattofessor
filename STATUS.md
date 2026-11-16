@@ -1,7 +1,7 @@
 # Status
 
 Updated: 2026-11-15
-Version: 1.0.8
+Version: 1.0.9
 
 ## In progress
 
@@ -30,7 +30,7 @@ Version: 1.0.8
 
 ## Next
 
-- Not released yet (after 1.0.8): the first augment pick of a game took 10+ s on a friend's PC
+- 1.0.9: the first augment pick of a game took 10+ s on a friend's PC
   (rerolls fast; OCR is ~50 ms a read in release). At the start of a Hextech game the card window is
   now made (hidden) and the bracket numbers loaded (`cards::prepare`); OCR engines are cached; the
   game's language is read first; reads every 350 ms (at least twice a read's time) and new cards
@@ -81,7 +81,7 @@ Version: 1.0.8
 
 ## Recently done
 
-- Not released yet (after 1.0.8), cleanup: one HTTP client for public data (`net::http`, timeout
+- 1.0.9, cleanup: one HTTP client for public data (`net::http`, timeout
   per request; dd, opgg, aramhex, augments and riot each built their own, three per request); one
   cache-with-fallback (`store::cached`, was copied in opgg and augments); window helpers in core
   (`hwnd`, `hide_window`); `Callout` for the notices (RiotKeyBanner, UpdateBanner, FullscreenNotice
