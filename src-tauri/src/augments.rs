@@ -66,35 +66,15 @@ pub async fn all(lang: &str) -> Result<Augments> {
     if let Some(m) = CACHE.lock().as_ref().and_then(|c| c.get(f).cloned()) {
         return Ok(m);
     }
-    let key = format!("augments:{f}");
-    let st = crate::store::get();
-    let now = crate::players::now_ms();
-    let old: Option<(i64, Value)> = st.kv_get(&key).and_then(|t| serde_json::from_str(&t).ok());
-    let v = match &old {
-        Some((at, v)) if now - at < TTL_MS => v.clone(),
-        _ => {
-            let fetched: Result<Value> = async {
-                let c = reqwest::Client::builder().timeout(Duration::from_secs(30)).build()?;
-                let r = c.get(format!("{CDRAGON}/{f}/v1/cherry-augments.json")).send().await?;
-                if !r.status().is_success() {
-                    bail!("augment list answered {}", r.status());
-                }
-                Ok(r.json().await?)
-            }
-            .await;
-            match (fetched, old) {
-                (Ok(v), _) => {
-                    st.kv_set(&key, &serde_json::to_string(&(now, &v))?);
-                    v
-                }
-                (Err(e), Some((_, v))) => {
-                    log::warn!("augment list: {e:#}; using the last copy");
-                    v
-                }
-                (Err(e), None) => return Err(e),
-            }
+    let v = crate::store::cached(&format!("augments:{f}"), TTL_MS, "augment list", async {
+        let url = format!("{CDRAGON}/{f}/v1/cherry-augments.json");
+        let r = crate::net::http().get(url).timeout(Duration::from_secs(30)).send().await?;
+        if !r.status().is_success() {
+            bail!("augment list answered {}", r.status());
         }
-    };
+        Ok(r.json().await?)
+    })
+    .await?;
     let m = Arc::new(parse(&v));
     CACHE.lock().get_or_insert_with(HashMap::new).insert(f.to_string(), m.clone());
     Ok(m)

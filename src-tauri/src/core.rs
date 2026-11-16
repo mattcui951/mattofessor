@@ -142,11 +142,9 @@ impl Core {
         self.app.exit(0);
     }
 
-    /// Runs `f` on the main thread and waits for it. Windows are looked up and created there
-    /// only, one request after another: two threads could otherwise both find a window missing
-    /// and both create it. That happened to the main window when the app started during champ
-    /// select (the setup and the game watcher each opened one): two windows on top of each other,
-    /// one label, and the title bar buttons worked the hidden one. None when the app is closing.
+    /// Runs `f` on the main thread and waits for it. Windows are looked up and created there only,
+    /// one request at a time, so two threads cannot both create the same window (that once gave
+    /// two stacked main windows). None when the app is closing.
     fn on_main<R: Send + 'static>(&self, f: impl FnOnce(&Core) -> R + Send + 'static) -> Option<R> {
         if std::thread::current().id() == self.main_thread {
             return Some(f(self));
@@ -225,8 +223,8 @@ impl Core {
             .build()
             .map_err(|e| log::error!("{label} window: {e}"))
             .ok()?;
-        if let Ok(h) = w.hwnd() {
-            win::set_no_activate(h.0 as isize);
+        if let Some(h) = hwnd(&w) {
+            win::set_no_activate(h);
         }
         Some(w)
     }
@@ -257,7 +255,13 @@ impl Core {
     }
 
     fn visible(&self, label: &str) -> bool {
-        self.app.get_webview_window(label).and_then(|w| w.hwnd().ok()).is_some_and(|h| win::is_visible(h.0 as isize))
+        self.app.get_webview_window(label).as_ref().and_then(hwnd).is_some_and(win::is_visible)
+    }
+
+    fn hide_window(&self, label: &str) {
+        if let Some(h) = self.app.get_webview_window(label).as_ref().and_then(hwnd) {
+            win::hide(h);
+        }
     }
 
     pub fn overlay_visible(&self) -> bool {
@@ -283,8 +287,8 @@ impl Core {
             self.overlay_zoom.store(zoom.to_bits(), Ordering::Relaxed);
             let _ = w.set_zoom(zoom);
         }
-        if let Ok(h) = w.hwnd() {
-            win::show_topmost(h.0 as isize, rect);
+        if let Some(h) = hwnd(w) {
+            win::show_topmost(h, rect);
         }
     }
 
@@ -334,9 +338,7 @@ impl Core {
 
     pub fn hide_overlay(&self) {
         self.overlay_auto.store(false, Ordering::Relaxed);
-        if let Some(Ok(h)) = self.app.get_webview_window("overlay").map(|w| w.hwnd()) {
-            win::hide(h.0 as isize);
-        }
+        self.hide_window("overlay");
     }
 
     /// The player closed the panel (hotkey or its X): also bring back a Full screen game that
@@ -367,15 +369,20 @@ impl Core {
         let Some(w) = self.overlay_window("cards") else { return };
         let _ = w.set_ignore_cursor_events(true);
         let _ = self.app.emit_to("cards", "offer", offer);
-        if let Ok(h) = w.hwnd() {
-            win::show_topmost(h.0 as isize, r);
+        if let Some(h) = hwnd(&w) {
+            win::show_topmost(h, r);
+        }
+    }
+
+    /// The card win-rate window, made ahead and hidden (`cards::prepare`).
+    pub fn prepare_cards(&self) {
+        if let Some(w) = self.overlay_window("cards") {
+            let _ = w.set_ignore_cursor_events(true);
         }
     }
 
     pub fn hide_cards(&self) {
-        if let Some(Ok(h)) = self.app.get_webview_window("cards").map(|w| w.hwnd()) {
-            win::hide(h.0 as isize);
-        }
+        self.hide_window("cards");
     }
 
     pub fn spells_visible(&self) -> bool {
@@ -391,8 +398,8 @@ impl Core {
         let scale = self.scale_at(area);
         let (width, height) = ((236.0 * scale * self.ui_scale()) as i32, (self.spells_content.load(Ordering::Relaxed) as f64 * scale) as i32);
         let (x, y) = self.settings().spells_pos.unwrap_or((area.x + (12.0 * scale) as i32, area.y + area.h / 2 - height / 2));
-        if let Ok(h) = w.hwnd() {
-            win::show_topmost(h.0 as isize, win::Rect { x, y, w: width, h: height });
+        if let Some(h) = hwnd(&w) {
+            win::show_topmost(h, win::Rect { x, y, w: width, h: height });
         }
         *self.spells_placed.lock() = Some((x, y));
     }
@@ -403,9 +410,9 @@ impl Core {
             return;
         }
         if let Some(w) = self.app.get_webview_window("spells") {
-            if let (Ok(hwnd), Ok(p), Ok(s)) = (w.hwnd(), w.outer_position(), w.outer_size()) {
+            if let (Some(hw), Ok(p), Ok(s)) = (hwnd(&w), w.outer_position(), w.outer_size()) {
                 let scale = w.scale_factor().unwrap_or(1.0);
-                win::show_topmost(hwnd.0 as isize, win::Rect { x: p.x, y: p.y, w: s.width as i32, h: (h as f64 * scale) as i32 });
+                win::show_topmost(hw, win::Rect { x: p.x, y: p.y, w: s.width as i32, h: (h as f64 * scale) as i32 });
             }
         }
     }
@@ -422,10 +429,8 @@ impl Core {
                     *self.settings.write() = s;
                 }
             }
-            if let Ok(h) = w.hwnd() {
-                win::hide(h.0 as isize);
-            }
         }
+        self.hide_window("spells");
     }
 
     pub fn toggle_spells(&self) {
@@ -438,7 +443,8 @@ impl Core {
         }
     }
 
-    /// In-game keys exist only while a match runs, so they never take over keys in other apps.
+    /// The hotkeys exist only from champ select to the end of a game (`game::keys_phase`), so
+    /// they never take over keys in other apps.
     pub fn register_hotkeys(&self, in_game: bool) {
         self.in_game_keys.store(in_game, Ordering::Relaxed);
         if !in_game {
@@ -489,6 +495,11 @@ fn dev_data<'a>(b: WebviewWindowBuilder<'a, tauri::Wry, AppHandle>) -> WebviewWi
         )),
         None => b,
     }
+}
+
+/// A window's handle, for the `win` calls.
+fn hwnd(w: &WebviewWindow) -> Option<isize> {
+    w.hwnd().ok().map(|h| h.0 as isize)
 }
 
 /// Width the in-game panel is laid out at (CSS pixels): both teams side by side with their last

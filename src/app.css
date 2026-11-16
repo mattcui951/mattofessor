@@ -223,6 +223,12 @@ p {
 .icon-btn:disabled {
   opacity: 0.4;
 }
+.icon-btn.sm {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--r-sm);
+  color: var(--text-3);
+}
 
 .field {
   height: 32px;

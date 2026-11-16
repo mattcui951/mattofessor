@@ -38,7 +38,7 @@ async fn route(core: &Core, path: &str, p: &HashMap<String, String>) -> Result<V
     let e = |e: anyhow::Error| format!("{e:#}");
     match path {
         "/bootstrap" => Ok(commands::boot_value(core)),
-        "/live_state" => Ok(commands::live_value(core)),
+        "/live_state" => Ok(json!({ "live": *core.live.lock(), "ingame": *core.ingame.lock() })),
         "/static_data" => dd::get(&arg("lang")).await.map(|d| json!(*d)).map_err(e),
         "/profile" => commands::load_profile(core, Some(arg("puuid")).filter(|s| !s.is_empty())).await.map(|v| json!(v)).map_err(e),
         "/search" => {
@@ -125,6 +125,7 @@ async fn route(core: &Core, path: &str, p: &HashMap<String, String>) -> Result<V
             }
             let _ = core.app.emit("live", &state);
             *core.live.lock() = state;
+            crate::game::DEMO.store(true, std::sync::atomic::Ordering::Relaxed);
             Ok(Value::Null)
         }
         "/hide_cards" => {

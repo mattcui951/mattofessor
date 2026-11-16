@@ -9,6 +9,7 @@ use anyhow::Result;
 use parking_lot::Mutex;
 use rusqlite::{params, Connection, OpenFlags, OptionalExtension};
 use serde_json::Value;
+use std::future::Future;
 use std::path::Path;
 use std::sync::OnceLock;
 
@@ -281,6 +282,30 @@ impl Store {
 
     pub fn kv_set(&self, key: &str, value: &str) {
         let _ = self.db.lock().execute("INSERT OR REPLACE INTO kv (key, value) VALUES (?1, ?2)", params![key, value]);
+    }
+}
+
+/// Downloaded JSON kept in the cache: the saved copy while younger than `ttl_ms`, else `fetch`'s
+/// answer (saved), else the saved copy whatever its age (offline). `what` names it in the log.
+pub async fn cached(key: &str, ttl_ms: i64, what: &str, fetch: impl Future<Output = Result<Value>>) -> Result<Value> {
+    let st = get();
+    let now = crate::players::now_ms();
+    let old: Option<(i64, Value)> = st.kv_get(key).and_then(|t| serde_json::from_str(&t).ok());
+    if let Some((at, v)) = &old {
+        if now - at < ttl_ms {
+            return Ok(v.clone());
+        }
+    }
+    match (fetch.await, old) {
+        (Ok(v), _) => {
+            st.kv_set(key, &serde_json::to_string(&(now, &v))?);
+            Ok(v)
+        }
+        (Err(e), Some((_, v))) => {
+            log::warn!("{what}: {e:#}; using the last copy");
+            Ok(v)
+        }
+        (Err(e), None) => Err(e),
     }
 }
 

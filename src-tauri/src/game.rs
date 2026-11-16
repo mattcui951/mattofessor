@@ -437,6 +437,13 @@ fn keys_phase(p: &str) -> bool {
     p == "ChampSelect" || in_game_phase(p)
 }
 
+/// A stand-in game from the dev bridge is shown (debug builds): the watcher leaves it alone.
+pub static DEMO: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
+/// Game time (s) from which the loading screen is over: the panel it opened closes then (in
+/// Hextech ARAM the first augment cards come at once, and the reader waits for the panel).
+const LOADING_DONE: f64 = 0.5;
+
 fn on_phase_change(core: &Core, w: &mut Watch, old: &str, new: &str) {
     log::info!("phase {old} -> {new}");
     if keys_phase(new) && !keys_phase(old) {
@@ -651,12 +658,12 @@ async fn tick(core: &Arc<Core>, w: &mut Watch) {
         let s = core.settings();
         if !w.loading_handled && win::game_window().is_some() {
             w.loading_handled = true;
-            if s.show_during_loading && game_time < 2.0 {
+            if s.show_during_loading && game_time < LOADING_DONE {
                 core.overlay_auto.store(true, Ordering::Relaxed);
                 core.show_overlay();
             }
         }
-        if game_time >= 2.0 {
+        if game_time >= LOADING_DONE {
             if core.overlay_auto.load(Ordering::Relaxed) {
                 core.hide_overlay();
             }
@@ -676,6 +683,10 @@ async fn tick(core: &Arc<Core>, w: &mut Watch) {
     }
     let state = build_state(&phase, connected, &w.roster);
     let json = serde_json::to_string(&state).unwrap_or_default();
+    // Debug builds: a stand-in game from the dev bridge (`/demo_game`) stays until a restart.
+    if cfg!(debug_assertions) && DEMO.load(Ordering::Relaxed) {
+        return;
+    }
     if json != w.last_emit {
         w.last_emit = json;
         let _ = core.app.emit("live", &state);

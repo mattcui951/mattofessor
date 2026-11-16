@@ -67,9 +67,7 @@ pub struct StaticData {
     pub trees: Vec<Tree>,
 }
 
-fn client() -> reqwest::Client {
-    reqwest::Client::builder().timeout(Duration::from_secs(20)).build().expect("http")
-}
+const TIMEOUT: Duration = Duration::from_secs(20);
 
 /// "en" / "zh" (or a Data Dragon locale) to a Data Dragon locale.
 pub fn dd_locale(lang: &str) -> &'static str {
@@ -89,7 +87,7 @@ async fn latest_version() -> Result<String> {
         }
     }
     let fetched: Result<String> = async {
-        let v: Value = client().get(format!("{CDN}/api/versions.json")).send().await?.json().await?;
+        let v: Value = crate::net::http().get(format!("{CDN}/api/versions.json")).timeout(TIMEOUT).send().await?.json().await?;
         v.get(0).and_then(Value::as_str).map(str::to_string).ok_or_else(|| anyhow!("no versions"))
     }
     .await;
@@ -105,7 +103,7 @@ async fn latest_version() -> Result<String> {
 }
 
 async fn fetch_json(url: &str) -> Result<Value> {
-    let r = client().get(url).send().await.with_context(|| format!("GET {url}"))?;
+    let r = crate::net::http().get(url).timeout(TIMEOUT).send().await.with_context(|| format!("GET {url}"))?;
     if !r.status().is_success() {
         return Err(anyhow!("{url}: {}", r.status()));
     }

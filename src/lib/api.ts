@@ -26,7 +26,6 @@ export const api = {
   game: (gameId: number) => invoke<FullGame>('game', { gameId }),
   gameScores: (gameId: number) => invoke<PlayerScore[]>('game_scores', { gameId }),
   playerScores: (puuid: string, gameIds: number[]) => invoke<MyScore[]>('player_scores', { puuid, gameIds }),
-  liveState: () => invoke<{ live: LiveState; ingame: InGame | null }>('live_state'),
   build: (championId: number, role: string, mode: BuildMode) => invoke<Build | null>('build', { championId, role, mode }),
   importBuild: (championId: number, role: string, mode: BuildMode, runes: boolean, items: boolean) =>
     invoke<ImportResult>('import_build', { championId, role, mode, runes, items }),

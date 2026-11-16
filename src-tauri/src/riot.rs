@@ -149,10 +149,6 @@ fn account_cluster(platform: &str) -> &'static str {
     }
 }
 
-fn client() -> &'static reqwest::Client {
-    static C: std::sync::OnceLock<reqwest::Client> = std::sync::OnceLock::new();
-    C.get_or_init(|| reqwest::Client::builder().timeout(Duration::from_secs(10)).build().expect("http client"))
-}
 
 /// Wait until a request fits in 20/s and 100/120 s.
 async fn throttle() {
@@ -184,7 +180,7 @@ async fn get(url: &str) -> Result<Option<Value>> {
     let key = STATE.read().key.clone().ok_or_else(|| anyhow!("no Riot API key"))?;
     for _ in 0..3 {
         throttle().await;
-        let resp = match client().get(url).header("X-Riot-Token", &key).send().await {
+        let resp = match crate::net::http().get(url).timeout(Duration::from_secs(10)).header("X-Riot-Token", &key).send().await {
             Ok(r) => r,
             Err(e) => {
                 set_status(KeyStatus::Unreachable);

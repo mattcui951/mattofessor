@@ -109,12 +109,8 @@ fn rel(bracket: &str, file: &str) -> String {
     }
 }
 
-fn client() -> reqwest::Client {
-    reqwest::Client::builder().timeout(Duration::from_secs(60)).build().expect("http")
-}
-
 async fn fetch(url: &str) -> Result<Vec<u8>> {
-    let r = client().get(url).send().await.with_context(|| format!("AramHex data not reachable ({url})"))?;
+    let r = crate::net::http().get(url).timeout(Duration::from_secs(60)).send().await.with_context(|| format!("AramHex data not reachable ({url})"))?;
     if !r.status().is_success() {
         bail!("AramHex data answered {}", r.status());
     }

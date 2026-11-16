@@ -173,8 +173,6 @@ export const BUILT_IN: Theme[] = [
     colors: c('#ffffff', '#f0f0f0', '#ffffff', '#ececec', '#d9d9d9', '#595959', '#000000', '#000000', '#111111', '#2e2e2e', '#0040c8', '#b00020', '#6e5100', '#006b2b', '#6a1b9a', '#9c4100') }),
 ];
 
-export const DEFAULT_THEME = 'arcade';
-
 // ---------- color math ----------
 
 export function parseHex(hex: string): [number, number, number] | null {

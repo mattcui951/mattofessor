@@ -127,9 +127,6 @@
   .fsn:empty {
     display: none;
   }
-  .fsn :global(.notice) {
-    margin-bottom: 0;
-  }
   .body {
     overflow-y: auto;
     padding: 6px 10px 20px;

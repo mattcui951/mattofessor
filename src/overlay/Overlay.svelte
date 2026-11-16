@@ -55,11 +55,11 @@
       <button class="a lg" aria-label={t('panel.bigger')} title={t('panel.bigger')} disabled={sizeIx === OVERLAY_SIZES.length - 1} onclick={() => resize(1)}>A<sub>+</sub></button>
     </div>
     <span class="hint">{t('overlay.hide')} <kbd>{app.settings?.hotkeyOverlay ?? 'Ctrl+Shift+M'}</kbd></span>
-    <button class="x" aria-label={t('overlay.hide')} onclick={() => api.hideOverlay()}><Icon name="close" size={16} /></button>
+    <button class="icon-btn" aria-label={t('overlay.hide')} onclick={() => api.hideOverlay()}><Icon name="close" size={16} /></button>
   </header>
   <div class="body">
     <div bind:this={content}>
-      <!-- Over a Full screen game the panel cannot show without the game stepping aside: say so first. -->
+      <!-- Champ select: warn before a Full screen game, where this panel stays closed. -->
       <div class="fs"><FullscreenNotice /></div>
       {#if champSelect && isAramMode(app.live.mode)}
         <div class="picks"><AramPicks onpick={(id) => api.openBuild(id, 'aram')} /></div>
@@ -193,24 +193,12 @@
     color: var(--text-2);
     background: var(--bg-sunk);
   }
-  .x {
-    width: 32px;
-    height: 32px;
-    display: grid;
-    place-items: center;
-    border-radius: var(--r-md);
-    color: var(--text-2);
-  }
-  .x:hover {
-    background: var(--panel-2);
-    color: var(--text);
-  }
   .body {
     flex: 1;
     overflow-y: auto;
     padding: 4px 4px 10px;
   }
-  .fs :global(.notice) {
+  .fs :global(.callout) {
     margin: 8px 8px 0;
   }
   .picks {

@@ -51,12 +51,6 @@ export function champIconByKey(key: string): string | null {
   return dd.data && key ? `${CDN}/${dd.data.version}/img/champion/${key}.png` : null;
 }
 
-export function champByKey(key: string) {
-  if (!dd.data) return null;
-  for (const [id, c] of Object.entries(dd.data.champions)) if (c.key === key) return { id: Number(id), ...c };
-  return null;
-}
-
 export function itemIcon(id: number): string | null {
   return dd.data && id > 0 ? `${CDN}/${dd.data.version}/img/item/${id}.png` : null;
 }

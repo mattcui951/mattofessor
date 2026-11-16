@@ -47,10 +47,18 @@ pub fn available(lang: &str) -> bool {
         .unwrap_or(false)
 }
 
+/// An engine per language, made once: making one loads the language's model (slow), and the
+/// card reader reads twice a second.
 fn engine(lang: &str) -> Result<OcrEngine> {
-    let l = Language::CreateLanguage(&HSTRING::from(tag(lang)))?;
-    OcrEngine::TryCreateFromLanguage(&l)
-        .map_err(|e| anyhow!("no {} OCR on this PC: {e}", tag(lang)))
+    static ENGINES: parking_lot::Mutex<Vec<(&'static str, OcrEngine)>> = parking_lot::Mutex::new(Vec::new());
+    let tag = tag(lang);
+    if let Some((_, e)) = ENGINES.lock().iter().find(|(t, _)| *t == tag) {
+        return Ok(e.clone());
+    }
+    let l = Language::CreateLanguage(&HSTRING::from(tag))?;
+    let e = OcrEngine::TryCreateFromLanguage(&l).map_err(|e| anyhow!("no {tag} OCR on this PC: {e}"))?;
+    ENGINES.lock().push((tag, e.clone()));
+    Ok(e)
 }
 
 /// Lines of text in an RGBA image (rows top to bottom). Images wider than the engine's limit

@@ -30,6 +30,15 @@ Version: 1.0.8
 
 ## Next
 
+- Not released yet (after 1.0.8): the first augment pick of a game took 10+ s on a friend's PC
+  (rerolls fast; OCR is ~50 ms a read in release). At the start of a Hextech game the card window is
+  now made (hidden) and the bracket numbers loaded (`cards::prepare`); OCR engines are cached; the
+  game's language is read first; reads every 350 ms (at least twice a read's time) and new cards
+  are confirmed 150 ms later; the loading-screen panel closes at game time 0.5 s. Measured
+  2026-11-15 (debug build, the friend's Chinese frame in a stand-in game window): cards on screen
+  to win rates ready 0.72-0.87 s, ~0.3 s after first seen. Each shown offer logs that time.
+  Dev: `/demo_game` now holds until a restart (`game::DEMO`), so a stand-in game window (the
+  mock's ffplay copy with MATTOFESSOR_GAME_EXE) can be read without the client.
 - Not verified yet (2026-11-15, needs the real client or a real game):
   - "Switch to Borderless" (`display::set_borderless`: PATCH `/lol-game-settings/v1/game-settings`
     `{"General":{"WindowMode":2}}`, then POST `/lol-game-settings/v1/save`). Reading the mode from
@@ -72,6 +81,12 @@ Version: 1.0.8
 
 ## Recently done
 
+- Not released yet (after 1.0.8), cleanup: one HTTP client for public data (`net::http`, timeout
+  per request; dd, opgg, aramhex, augments and riot each built their own, three per request); one
+  cache-with-fallback (`store::cached`, was copied in opgg and augments); window helpers in core
+  (`hwnd`, `hide_window`); `Callout` for the notices (RiotKeyBanner, UpdateBanner, FullscreenNotice
+  had the same markup and CSS); close buttons use `.icon-btn` / `.icon-btn.sm`; removed the unused
+  `live_state` command, `champByKey`, `DEFAULT_THEME`; stale and repeated comments trimmed.
 - 1.0.8, from a friend's first install:
   - In-game panel size in Settings: small, medium, regular, large, extra large (fills the game's
     width). The app zooms the panel (`core::overlay_zoom`, layout 1520 CSS px, smaller zoom when

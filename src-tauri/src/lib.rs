@@ -14,6 +14,7 @@ pub mod game;
 pub mod hotkeys;
 pub mod lcu;
 pub mod live;
+pub mod net;
 pub mod model;
 pub mod ocr;
 pub mod opgg;
@@ -156,7 +157,6 @@ pub fn run() {
             commands::game,
             commands::game_scores,
             commands::player_scores,
-            commands::live_state,
             commands::build,
             commands::rift_tiers,
             commands::aram_overview,

@@ -163,15 +163,6 @@ pub async fn player_scores(puuid: String, game_ids: Vec<u64>) -> Res<Vec<MyScore
     Ok(out)
 }
 
-#[tauri::command]
-pub fn live_state(core: State<'_, Arc<Core>>) -> Value {
-    live_value(&core)
-}
-
-pub fn live_value(core: &Core) -> Value {
-    json!({ "live": *core.live.lock(), "ingame": *core.ingame.lock() })
-}
-
 /// OP.GG lane tier lists (Summoner's Rift, ranked).
 #[tauri::command]
 pub async fn rift_tiers() -> Res<Arc<crate::opgg::Tiers>> {

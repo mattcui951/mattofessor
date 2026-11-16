@@ -1,10 +1,10 @@
 //! The augment card reader: during Hextech ARAM, finds the augment cards on screen and shows your
 //! champion's win rate with each one in a small click-through window above the cards.
 //!
-//! About twice a second it captures the band of the game window where card titles sit, reads it
-//! with Windows' own OCR (English, then Chinese), joins the words that sit together into titles
-//! and matches each title to an augment name. Two or three matches mean the cards are open.
-//! Nothing is saved and nothing leaves the PC.
+//! Every `EVERY` it captures the band of the game window where card titles sit, reads it with
+//! Windows' own OCR (the game's language first), joins the words that sit together into titles
+//! and matches each title to an augment name. Two or more titles on one row mean the cards are
+//! open. Nothing is saved and nothing leaves the PC.
 
 use crate::aramhex::{self, AugRow};
 use crate::core::Core;
@@ -24,7 +24,11 @@ const TITLE_TO_TOP: f64 = 0.683;
 /// Height of the window with the win rates, and the gap below it, in card spacings.
 const STRIP: f64 = 0.2;
 const GAP: f64 = 0.012;
-const EVERY: Duration = Duration::from_millis(500);
+/// How often the screen is read while a Hextech game runs (or twice the time a read takes, on a
+/// slow PC: the reader never takes more than about a third of one core).
+const EVERY: Duration = Duration::from_millis(350);
+/// A read that found new cards is confirmed this soon (`SETTLED`).
+const CONFIRM: Duration = Duration::from_millis(150);
 const IDLE: Duration = Duration::from_secs(2);
 /// Reads without cards before the win rates are hidden.
 const MISSES_TO_HIDE: u32 = 2;
@@ -247,8 +251,7 @@ fn title(phrase: &[Word], names: &Names) -> Option<(i32, Line)> {
     Some((id, Line { text, x, y, w: x2 - x, h: y2 - y, words: run.to_vec() }))
 }
 
-/// The cards among the text read: augment titles, left to right (any number: three today, four
-/// in a coming mode), each with where its title is.
+/// The cards among the text read: augment titles, left to right, each with where its title is.
 pub fn cards(lines: &[Line], names: &Names) -> Vec<(i32, Line)> {
     let mut found: Vec<(i32, Line)> = Vec::new();
     for phrase in phrases(lines) {
@@ -375,10 +378,51 @@ struct Reader {
     misses: u32,
     /// The cards the last read found (ids and places), shown once the next read agrees.
     last: Vec<(i32, f64)>,
-    /// This game's setup was logged (`describe_setup`).
+    /// This game's setup was logged.
     told: bool,
     /// A black screen capture was logged this game.
     told_black: bool,
+    /// The card window and the bracket's numbers are ready for this game (`prepare`).
+    prepared: bool,
+    /// When the read that first saw these cards started (for the log).
+    seen_at: Option<std::time::Instant>,
+    /// How long the last read took.
+    read_time: Duration,
+    /// How long to wait before the next read.
+    next: Duration,
+}
+
+impl Reader {
+    fn new() -> Reader {
+        Reader {
+            names: None,
+            lang: "en",
+            misses: 0,
+            last: Vec::new(),
+            told: false,
+            told_black: false,
+            prepared: false,
+            seen_at: None,
+            read_time: Duration::ZERO,
+            next: EVERY,
+        }
+    }
+}
+
+/// Ready for the first pick of a game: the card window made (hidden; a new web view takes a
+/// moment to start), the numbers of the bracket in use loaded, the game's language read first.
+async fn prepare(core: &Arc<Core>, r: &mut Reader) {
+    r.prepared = true;
+    let started = std::time::Instant::now();
+    core.prepare_cards();
+    let bracket = core.settings().aram_bracket;
+    if let Err(e) = aramhex::bracket(&bracket).await {
+        log::warn!("card reader stats: {e:#}");
+    }
+    if status(core).game_lang == Some("zh") {
+        r.lang = "zh";
+    }
+    log::info!("card reader ready in {} ms", started.elapsed().as_millis());
 }
 
 /// Whether Windows can read the game's text, for the game's language ("zh_CN", "en_US"...).
@@ -468,6 +512,9 @@ async fn step(core: &Arc<Core>, r: &mut Reader) -> bool {
         }
     }
     let names = r.names.clone().expect("names");
+    if !r.prepared {
+        prepare(core, r).await;
+    }
     // Mattofessor's own panel covers the cards and lists augments by name in columns: read
     // through it, its names look like cards in the wrong places. Wait until it closes.
     if core.overlay_visible() {
@@ -498,6 +545,7 @@ async fn step(core: &Arc<Core>, r: &mut Reader) -> bool {
     }
     let first = r.lang;
     let tell_black = !r.told_black;
+    let read_started = std::time::Instant::now();
     let read = tauri::async_runtime::spawn_blocking(move || {
         let px = win::capture(band)?;
         if tell_black && black(&px) {
@@ -525,6 +573,7 @@ async fn step(core: &Arc<Core>, r: &mut Reader) -> bool {
     .ok()
     .flatten();
 
+    r.read_time = read_started.elapsed();
     if matches!(read, Some(Err(()))) {
         r.told_black = true;
     }
@@ -546,8 +595,13 @@ async fn step(core: &Arc<Core>, r: &mut Reader) -> bool {
         log::info!("card read ({lang}): {}", describe(&xs));
     }
     let previous = std::mem::replace(&mut r.last, xs.clone());
+    let same_cards = previous.len() == xs.len() && previous.iter().zip(&xs).all(|(a, b)| a.0 == b.0);
+    if !same_cards {
+        r.seen_at = Some(read_started);
+    }
     if !settled(&previous, &xs) {
-        // Still moving (opening, or a card just rerolled): wait for the next read.
+        // Still moving (opening, or a card just rerolled): look again soon.
+        r.next = CONFIRM;
         return true;
     }
 
@@ -563,7 +617,8 @@ async fn step(core: &Arc<Core>, r: &mut Reader) -> bool {
     let rect = strip(game, band.y, &found);
     let changed = OFFER.lock().as_ref() != Some(&o);
     if changed {
-        log::info!("card win rates shown: {}", describe(&xs));
+        let after = r.seen_at.take().map(|t| t.elapsed().as_millis()).unwrap_or(0);
+        log::info!("card win rates shown: {} ({after} ms after the cards were first seen; a read takes {} ms)", describe(&xs), r.read_time.as_millis());
         *OFFER.lock() = Some(o.clone());
         core.show_cards(rect, &o);
     }
@@ -572,24 +627,21 @@ async fn step(core: &Arc<Core>, r: &mut Reader) -> bool {
 
 pub fn spawn(core: Arc<Core>) {
     tauri::async_runtime::spawn(async move {
-        let mut r = Reader {
-            names: None,
-            lang: "en",
-            misses: 0,
-            last: Vec::new(),
-            told: false,
-            told_black: false,
-        };
+        let mut r = Reader::new();
         loop {
+            r.next = EVERY;
             let active = core.settings().card_reader && step(&core, &mut r).await;
             if !active {
                 clear(&core);
-                r.misses = 0;
-                r.last.clear();
-                r.told = false;
-                r.told_black = false;
+                // A new game starts over (its window, language and data are prepared again).
+                if r.prepared || r.told {
+                    let names = r.names.take();
+                    r = Reader::new();
+                    r.names = names;
+                }
             }
-            tokio::time::sleep(if active { EVERY } else { IDLE }).await;
+            let wait = if active { r.next.max(r.read_time * 2) } else { IDLE };
+            tokio::time::sleep(wait).await;
         }
     });
 }
@@ -998,7 +1050,7 @@ mod scan {
         let row = (w * 4) as usize;
         let band = &buf[y0 as usize * row..(y0 + bh) as usize * row];
         println!("{path}: {w}x{h}, band y {y0}..{}", y0 + bh);
-        for lang in ["en", "zh"] {
+        for lang in ["en", "zh", "zh"] {
             let t = std::time::Instant::now();
             let lines = ocr::read(band, w, bh, lang).unwrap();
             let ms = t.elapsed().as_millis();

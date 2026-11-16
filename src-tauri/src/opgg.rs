@@ -25,10 +25,6 @@ static SESSION: Mutex<Option<String>> = Mutex::new(None);
 /// One request at a time keeps us polite and the session simple.
 static GATE: tokio::sync::Mutex<()> = tokio::sync::Mutex::const_new(());
 
-fn client() -> reqwest::Client {
-    reqwest::Client::builder().timeout(Duration::from_secs(25)).build().expect("http")
-}
-
 /// The JSON-RPC message of a reply, which is plain JSON or a server-sent event.
 fn rpc_body(text: &str) -> Result<Value> {
     let json = text.lines().find_map(|l| l.strip_prefix("data:")).map(str::trim).unwrap_or(text.trim());
@@ -36,8 +32,9 @@ fn rpc_body(text: &str) -> Result<Value> {
 }
 
 async fn post(body: &Value, session: Option<&str>) -> Result<(Option<String>, Value)> {
-    let mut req = client()
+    let mut req = crate::net::http()
         .post(ENDPOINT)
+        .timeout(Duration::from_secs(25))
         .header("Content-Type", "application/json")
         .header("Accept", "application/json, text/event-stream")
         .json(body);
@@ -99,30 +96,9 @@ async fn call(tool: &str, args: Value) -> Result<Value> {
     unreachable!()
 }
 
-/// A cached tool call: fresh copy when younger than `ttl`, else asks OP.GG and falls back to the
-/// old copy when that fails.
+/// A tool's answer through the cache (`store::cached`).
 async fn cached(key: &str, ttl: i64, tool: &str, args: Value) -> Result<Value> {
-    let now = crate::players::now_ms();
-    let st = store::get();
-    let old: Option<(i64, Value)> = st.kv_get(key).and_then(|t| serde_json::from_str::<(i64, Value)>(&t).ok());
-    if let Some((at, v)) = &old {
-        if now - at < ttl {
-            return Ok(v.clone());
-        }
-    }
-    match call(tool, args).await {
-        Ok(v) => {
-            st.kv_set(key, &serde_json::to_string(&(now, &v))?);
-            Ok(v)
-        }
-        Err(e) => match old {
-            Some((_, v)) => {
-                log::warn!("{tool}: {e:#}; using the last copy");
-                Ok(v)
-            }
-            None => Err(e),
-        },
-    }
+    store::cached(key, ttl, tool, call(tool, args)).await
 }
 
 // ---------------------------------------------------------------------------------------------

@@ -11,7 +11,7 @@
 
 {#if show && u.version}
   <div class="notice" role="status">
-    <button class="x" aria-label={t('common.close')} title={t('common.close')} onclick={() => (app.updateDismissed = u.version)}><Icon name="close" size={14} /></button>
+    <button class="x icon-btn sm" aria-label={t('common.close')} title={t('common.close')} onclick={() => (app.updateDismissed = u.version)}><Icon name="close" size={14} /></button>
     <div class="top">
       <span class="mark"><Icon name="download" size={15} /></span>
       <b>{t('update.available', u.version)}</b>
@@ -85,17 +85,7 @@
   }
   .x {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 24px;
-    height: 24px;
-    display: grid;
-    place-items: center;
-    border-radius: var(--r-sm);
-    color: var(--text-3);
-  }
-  .x:hover {
-    color: var(--text);
-    background: var(--panel-2);
+    top: 7px;
+    right: 7px;
   }
 </style>

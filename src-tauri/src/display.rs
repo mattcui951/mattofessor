@@ -68,8 +68,7 @@ pub async fn window_mode() -> Option<&'static str> {
     v.pointer("/General/WindowMode").and_then(Value::as_i64).map(name)
 }
 
-/// A game is running in Full screen: no other window can show over it, and one that tries makes
-/// the game minimize, so the in-game windows stay closed.
+/// A game is running in Full screen (the in-game windows then stay closed).
 pub fn game_fullscreen() -> bool {
     crate::win::game_running() && file_mode() == Some("fullscreen")
 }
