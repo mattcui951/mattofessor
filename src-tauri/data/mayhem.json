@@ -7930,5 +7930,939 @@
    "aram": {},
    "abilities": []
   }
+ },
+ "augments": {
+  "1001": {
+   "en": "Dealing and receiving champion damage grants you 1 stack of <keyword>Juggernauting</keyword> for 6 seconds. For every 7 stacks of <keyword>Juggernauting</keyword> you gain <attention>25 - 75 (based on level) Adaptive Force</attention>, <scaleArmor>5 - 10 (based on level) Armor</scaleArmor>, <scaleMR>5 - 10 (based on level) Magic Resist</scaleMR>, <attention>10% Size</attention>, and <status>8% Tenacity</status>.<br><br><rules>Stacks fall off faster the more you have.",
+   "zh": "在造成或承受英雄伤害时为你提供1层持续6秒的<keyword>战神附体</keyword>。每7层<keyword>战神附体</keyword>，你获得<attention>25 - 75（基于等级）适应之力</attention>、<scaleArmor>5 - 10（基于等级）护甲</scaleArmor>、<scaleMR>5 - 10（基于等级）魔法抗性</scaleMR>、<attention>10%体型</attention>和<status>8%韧性</status>。<br><br><rules>你拥有的层数越多，层数就衰减得越快。"
+  },
+  "1002": {
+   "en": "Gain <scaleBonus>100 Item Haste</scaleBonus> (equivalent to 50% Item CDR).<br><br><rules>Item Haste reduces the cooldown of all Item Abilities.</rules>",
+   "zh": "获得<scaleBonus>100装备急速</scaleBonus>(相当于50%装备冷却缩减)。<br><br><rules>装备急速可缩减所有装备技能的冷却时间。</rules>"
+  },
+  "1004": {
+   "en": "Your Ultimate Ability is sealed. Gain 35% Ability Damage, <healing>Healing</healing>, <shield>Shielding</shield>, and <scaleAbilityHaste>70 Ability Haste</scaleAbilityHaste>.",
+   "zh": "你的终极技能已被封印。获得35%技能伤害、<healing>治疗效果</healing>、<shield>护盾</shield>和<scaleAbilityHaste>70技能急速</scaleAbilityHaste>。"
+  },
+  "1005": {
+   "en": "Gain up to <speed>50% Move Speed</speed> toward nearby allies based on their <scaleHealth>missing Health</scaleHealth>. Your <healing>healing</healing> and <shield>shielding</shield> are also increased up to 50% based on the <scaleHealth>target's missing Health</scaleHealth>.",
+   "zh": "朝着附近友军移动时，获得至多<speed>50%移动速度</speed>，基于其<scaleHealth>已损失生命值</scaleHealth>。你的<healing>治疗</healing>和<shield>护盾</shield>也会提升至多50%，基于<scaleHealth>目标的已损失生命值</scaleHealth>。"
+  },
+  "1006": {
+   "en": "Makes you untargetable while you dash at and deal 30 - 150 (based on level) (+10% bonus AD) (+6% AP) damage to enemies 8 times (deals 50% On-Hit damage).",
+   "zh": "让你进入不可被选取状态，在此期间对敌人进行突进并造成30 - 150（基于等级）（+10%额外攻击力）（+6%法术强度）伤害8次(造成50%附带伤害)。"
+  },
+  "1011": {
+   "en": "Casting your <attention>Ultimate</attention> makes you <status>Invulnerable</status> for 2 seconds (8s Cooldown).",
+   "zh": "施放你的<attention>终极技能</attention>会使你进入持续2秒的的<status>免疫伤害</status>状态(8秒冷却时间)。"
+  },
+  "1013": {
+   "en": "Gain <scaleHealth>1500 Health</scaleHealth>, but you deal 10% less damage.",
+   "zh": "获得<scaleHealth>1500生命值</scaleHealth>，但你造成的伤害降低10%。"
+  },
+  "1015": {
+   "en": "Your <health>healing</health> and <health>Health Regen</health> deal <magicDamage>70% of the value magic damage</magicDamage> to the nearest enemy champion.",
+   "zh": "你的<health>治疗效果</health>和<health>生命回复效果</health>会对相距最近的那个敌方英雄造成<magicDamage>70%该数额的魔法伤害</magicDamage>。"
+  },
+  "1018": {
+   "en": "Gain <shield>150 - 450 (based on level) (+4% max Health) Shield</shield> after <status>Immobilizing</status> or <status>Grounding</status> an enemy champion.",
+   "zh": "<status>定身</status>或<status>缚地</status>一个敌方英雄后获得<shield>150 - 450（基于等级）（+4%最大生命值）护盾值</shield>。"
+  },
+  "1019": {
+   "en": "Your dash, leap, blink, or teleport Abilities gain <scaleAbilityHaste>175 Ability Haste</scaleAbilityHaste>.",
+   "zh": "你的冲刺、跳跃、闪烁或传送类技能获得<scaleAbilityHaste>175技能急速</scaleAbilityHaste>。"
+  },
+  "1020": {
+   "en": "When dropping below <scaleHealth>50% Health</scaleHealth>, <healing>heal for 35% max Health over 3 seconds</healing>. <br>Resets on death or every 45 seconds.",
+   "zh": "在跌到<scaleHealth>50%生命值</scaleHealth>以下时，<healing>在3秒里持续回复共35%最大生命值</healing>。<br>阵亡时或每45秒重置。"
+  },
+  "1022": {
+   "en": "Gain 60% <speed>Attack Speed</speed>.",
+   "zh": "获得60%<speed>攻击速度</speed>。"
+  },
+  "1025": {
+   "en": "Explodes when you die, dealing <trueDamage>20% of the target's max Health as true damage</trueDamage> to nearby enemies.",
+   "zh": "在你阵亡时爆炸，对附近的敌人们造成<trueDamage>目标20%最大生命值的真实伤害</trueDamage>。"
+  },
+  "1026": {
+   "en": "Gain 1% bonus damage per <speed>10 Movement Speed</speed> more you have than the target.",
+   "zh": "你每比目标多<speed>10移动速度</speed>，就会获得1%额外伤害。"
+  },
+  "1027": {
+   "en": "Your dash, leap, blink, or teleport Abilities leave behind a trail that detonates after 1 second, dealing <physicalDamage>90 - 250 (based on level) (+60% AP) (+125% bonus AD) physical damage</physicalDamage>.",
+   "zh": "你的冲刺、跳跃、闪烁或传送类技能会留下一条在1秒后爆炸的轨迹，造成<physicalDamage>90 - 250（基于等级）（+60%法术强度）（+125%额外攻击力）物理伤害</physicalDamage>。"
+  },
+  "1028": {
+   "en": "Damaging enemies shreds 1.5% <scaleArmor>Armor</scaleArmor> and <scaleMR>Magic Resist</scaleMR> for 4s, up to 30.01% at 20 stacks.",
+   "zh": "对敌人造成伤害时会施加一层持续4秒的1.5%<scaleArmor>护甲</scaleArmor>和<scaleMR>魔法抗性</scaleMR>击碎效果，至多在20层时击碎30.01%。"
+  },
+  "1029": {
+   "en": "Your Abilities apply <OnHit>On-Hit</OnHit> effects. 1 second Cooldown per target.",
+   "zh": "你的技能可施加<OnHit>攻击特效</OnHit>。每个目标有1秒冷却时间。"
+  },
+  "1030": {
+   "en": "Gain <scaleAbilityHaste>30% AP Ability Haste</scaleAbilityHaste>.",
+   "zh": "获得<scaleAbilityHaste>30%法术强度技能急速</scaleAbilityHaste>。"
+  },
+  "1034": {
+   "en": "Gain a <attention>Spell Shield</attention> every 30 seconds that blocks the next enemy Ability.",
+   "zh": "每30秒获得一层<attention>法术护盾</attention>来格挡下一个敌方技能。"
+  },
+  "1036": {
+   "en": "Your Attacks also <keywordMajor>Burn</keywordMajor> enemies, dealing <magicDamage>0.4% max Health magic damage</magicDamage> damage per second over 5 seconds. This <keywordMajor>Burn</keywordMajor> stacks infinitely.",
+   "zh": "你的攻击还会<keywordMajor>灼烧</keywordMajor>敌人，在5秒的持续时间里每秒持续造成<magicDamage>0.4%最大生命值的魔法伤害</magicDamage>。这个<keywordMajor>灼烧</keywordMajor>可无限叠加。"
+  },
+  "1037": {
+   "en": "Gain <healing>20% Heal and Shield Power</healing>.",
+   "zh": "获得<healing>20%治疗和护盾强度</healing>。"
+  },
+  "1038": {
+   "en": "Gain the <spellName>First Strike</spellName> and <spellName>Dark Harvest</spellName> Keystone Runes.<br><li><spellName>First Strike</spellName>: When you initiate champion combat, deal 10% extra damage for 3 seconds and gain Gold based on damage dealt.<br><li><spellName>Dark Harvest</spellName>: Damaging a low Health champion inflicts <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_AdaptiveDmg'>adaptive damage</lol-uikit-tooltipped-keyword> and harvests a soul from the victim.",
+   "zh": "获得<spellName>先攻</spellName>和<spellName>黑暗收割</spellName>基石符文。<br><li><spellName>先攻</spellName>：当你率先进入英雄战斗后，在3秒内可以造成10%额外伤害，并且基于造成的伤害获得金币。<br><li><spellName>黑暗收割</spellName>：伤害一名低生命值的英雄时会造成<lol-uikit-tooltipped-keyword key='LinkTooltip_Description_AdaptiveDmg'>自适应伤害</lol-uikit-tooltipped-keyword>并从该猎物身上收割灵魂。"
+  },
+  "1041": {
+   "en": "Become large, gaining <scaleHealth>35% Health</scaleHealth> and <scaleAF>15% Adaptive Force</scaleAF>.",
+   "zh": "体型变大，获得<scaleHealth>35%生命值</scaleHealth>和<scaleAF>15%适应之力</scaleAF>。"
+  },
+  "1044": {
+   "en": "Your <status>Slowing</status> effects reduce <speed>Movement Speed</speed> by an extra 75.",
+   "zh": "你的<status>减速</status>效果可使<speed>移动速度</speed>降低额外的75。"
+  },
+  "1045": {
+   "en": "Your Abilities apply an infinitely stacking <keywordMajor>Burn</keywordMajor>, dealing <magicDamage>2 - 20 (based on level) (+1.2% AP) (+2.8% bonus AD) magic damage</magicDamage> per second for 3 seconds.<br><br>All your <keywordMajor>Burn</keywordMajor> effects lower your basic Ability Cooldowns by 0.08 seconds when they damage enemy champions.",
+   "zh": "你的技能会施加一层可无限叠加的<keywordMajor>灼烧</keywordMajor>，在3秒的持续时间里每秒造成<magicDamage>2 - 20（基于等级）（+1.2%法术强度）（+2.8%额外攻击力）魔法伤害</magicDamage>。<br><br>你的所有<keywordMajor>灼烧</keywordMajor>效果会在对敌方英雄造成伤害时使你的各基础技能的冷却时间缩短0.08秒。"
+  },
+  "1046": {
+   "en": "You gain the Infernal Soul, dealing bonus damage when you hit enemies with Abilities or Attacks.",
+   "zh": "你获得炼狱龙魂，从而在你使用技能或普攻命中敌人时造成额外伤害。"
+  },
+  "1047": {
+   "en": "Gain <crit>50% Crit chance</crit>.",
+   "zh": "获得<crit>50%暴击几率</crit>。"
+  },
+  "1048": {
+   "en": "Your Abilities can <crit>Critically Strike</crit> for 45% increased damage.<br><br>Gain <crit>25% (+0% AP) Crit Chance</crit>.",
+   "zh": "你的技能可产生<crit>暴击</crit>以造成45%额外伤害。<br><br>获得<crit>25%（+0%法术强度）%暴击几率</crit>。"
+  },
+  "1051": {
+   "en": "Every 4th Attack shoots 4 missiles dealing <magicDamage>44 - 320 (based on level) (+140% bonus AD) (+76% AP) magic damage</magicDamage>.",
+   "zh": "每第4次攻击发射4个飞弹以造成<magicDamage>44 - 320（基于等级）（+140%额外攻击力）（+76%法术强度）魔法伤害</magicDamage>。"
+  },
+  "1053": {
+   "en": "On each Revive, you grow large (gaining <font color = '#8347ff'>30% Adaptive Force</font> and <scaleHealth>20% Health</scaleHealth>) or tiny (gaining 70 Ability Haste and <speed>40% Movement Speed</speed>).",
+   "zh": "每次重生时，你的体型要么变大(获得<font color = '#8347ff'>30%适应之力</font>和<scaleHealth>20%生命值</scaleHealth>)，要么变小(获得70技能急速和<speed>40%移动速度</speed>)。"
+  },
+  "1054": {
+   "en": "Your Attacks grant you <scaleAP>6 - 18 (based on level) Ability Power</scaleAP> and your Abilities that damage enemies grant you <scaleAD>3 - 9 (based on level) Attack Damage</scaleAD>.<br><br><rule>This buff stacks and refreshes infinitely but lasts 5 seconds.</rule>",
+   "zh": "你的每次攻击为你提供可叠加的<scaleAP>6 - 18（基于等级）法术强度</scaleAP>，并且你的每次技能在伤害敌人时为你提供可叠加的<scaleAD>3 - 9（基于等级）攻击力</scaleAD>，<br><br><rule>这个增益可无限叠加并刷新，但有5秒的持续时间。</rule>"
+  },
+  "1056": {
+   "en": "Gain <scaleHealth>50% max Mana Health</scaleHealth>.",
+   "zh": "获得<scaleHealth>50%最大法力值生命值</scaleHealth>。"
+  },
+  "1057": {
+   "en": "You gain the Mountain Soul, gaining <shield>Shield</shield> after being out of combat for a short time.",
+   "zh": "你获得【山脉龙魂】，在脱离战斗之后获得持续一小段时间的<shield>护盾值</shield>。"
+  },
+  "1058": {
+   "en": "<OnHit>On-Hit</OnHit> reduce the cooldown of your abilities by 1.25 seconds .",
+   "zh": "<OnHit>攻击特效</OnHit>使你的各个技能的冷却时间缩减1.25秒。"
+  },
+  "1060": {
+   "en": "Gain the Ocean Soul, granting high <healing>Health</healing> and <scaleMana>Mana Regen</scaleMana> after damaging enemies.",
+   "zh": "获得【海洋龙魂】，在对敌方英雄造成伤害后提供高额的<healing>生命</healing>和<scaleMana>法力</scaleMana>回复。"
+  },
+  "1061": {
+   "en": "<keywordMajor>Autocast</keywordMajor> a boomerang at a nearby enemy every 7 seconds, dealing 40 - 200 (based on level) (+30% bonus AD) (+20% AP) adaptive damage to enemies hit.",
+   "zh": "每7秒朝着一个附近的敌人<keywordMajor>自动施放</keywordMajor>投掷一个回力镖，对命中的敌人们造成40 - 200（基于等级）（+30%额外攻击力）（+20%法术强度）自适应伤害。"
+  },
+  "1062": {
+   "en": "Gain 3 random <attention>Dragon Souls</attention>.",
+   "zh": "获得3个随机<attention>龙魂</attention>。"
+  },
+  "1063": {
+   "en": "After using a Dash, Blink, or Teleport Ability you gain <scaleArmor>12 Armor</scaleArmor> and <scaleMR>Magic Resist</scaleMR> up to 60 at 5 stacks. <br>Resets every 15 seconds.",
+   "zh": "在使用一次冲刺、闪烁或传送之后，你获得<scaleArmor>12护甲</scaleArmor>和<scaleMR>魔法抗性</scaleMR>，这个效果至多可在5层时叠加至60。<br>每15秒重置。"
+  },
+  "1067": {
+   "en": "<rules>Heal amount equal to 30 - 100 (based on level) (+5% bonus max Health) (+15% AP) (+25% bonus AD), scale up to 50% more for longer cooldown abilities.</rules>",
+   "zh": "<rules>治疗量等同于30 - 100（基于等级）（+5%额外最大生命值）（+15%法术强度）（+25%额外攻击力），对于冷却时间较长的技能，该数值还会提升至50%。</rules>"
+  },
+  "1068": {
+   "en": "Gain 60 Ability Haste.",
+   "zh": "获得60技能急速。"
+  },
+  "1071": {
+   "en": "Gain 150 (66.7% for ranged) Attack Range.",
+   "zh": "获得150（远程英雄为66.7%）攻击距离。"
+  },
+  "1072": {
+   "en": "Your Abilities mark enemies, causing them to take an additional <magicDamage>40 - 200 (based on level) magic damage</magicDamage> from your ally's next Attack or Ability.",
+   "zh": "你的技能会标记敌人，使其在被你的友军的下一个攻击或技能命中时会受到额外<magicDamage>40 - 200（基于等级）魔法伤害</magicDamage>。"
+  },
+  "1073": {
+   "en": "After using a Dash, Blink, or Teleport Ability or exiting <stealth>Stealth</stealth>, gain <speed>300 Movement Speed</speed> for 2 seconds.",
+   "zh": "在使用一个冲刺、闪烁或传送类技能或离开<stealth>潜行</stealth>状态之后，获得持续2秒的<speed>300移动速度</speed>。"
+  },
+  "1074": {
+   "en": "Your Attacks reduce an enemy's damage by 15% for 3 seconds.",
+   "zh": "你的攻击会对敌人造成持续3秒的15%伤害削减效果。"
+  },
+  "1076": {
+   "en": "Buffing, <healing>healing</healing>, or <shield>Shielding</shield> your ally deals <trueDamage>30 - 150 (based on level) true damage</trueDamage> and <status>Slows enemies surrounding them</status> by 30% for 2 seconds (2 seconds Cooldown).",
+   "zh": "在为你的友军提供增益效果、<healing>治疗效果</healing>或<shield>护盾效果</shield>时，会对其附近的敌人们造成<trueDamage>30 - 150（基于等级）真实伤害</trueDamage>和持续2秒的30%<status>减速</status>。(2秒冷却时间)"
+  },
+  "1077": {
+   "en": "Gain <crit>25% Crit Chance</crit> and <lifeSteal>12% Lifesteal on <crit>Critical Strikes</crit></lifeSteal>.",
+   "zh": "获得<crit>25%暴击几率</crit>和作用于<crit>暴击</crit>的<lifeSteal>12%生命偷取</lifeSteal>。"
+  },
+  "1079": {
+   "en": "Gain the <spellName>Lethal Tempo</spellName> and <spellName>Conqueror</spellName> Keystone Runes.<br><li><spellName>Lethal Tempo</spellName> - Attacking champions grants <attackSpeed>Attack Speed</attackSpeed>, stacking up to 6 times. At 6 stacks, your Attacks launch a bolt that deals additional damage.<br><li><spellName>Conqueror</spellName>: Gain stacks of Adaptive Force when attacking enemy champions. After reaching 12 stacks, heal for a portion of damage you deal to champions.",
+   "zh": "获得<spellName>致命节奏</spellName>和<spellName>征服者</spellName>基石符文。<br><li><spellName>致命节奏</spellName> - 攻击英雄提供<attackSpeed>攻击速度</attackSpeed>，至多叠加6层。在6层时，你的攻击发射造成额外伤害的一个弩箭。<br><li><spellName>征服者</spellName>：攻击敌方英雄时提供适应之力层数。在达到12层后，将你的一部分伤害转化为等额的治疗效果。"
+  },
+  "1080": {
+   "en": "You can <crit>Critically Defend</crit> using your Crit Chance (max 50% chance), giving you a chance to reduce damage taken by 20%. Gain 25% Crit Chance.",
+   "zh": "你可以使用你的暴击几率(最大50%几率)来进行<crit>会心防御</crit>，使你有一定几率来使所受伤害降低20%。获得25%暴击几率。"
+  },
+  "1081": {
+   "en": "Your Attacks grant you <speed>10 Movement Speed</speed>. Gain <attackSpeed>0.1% Move Speed Attack Speed</attackSpeed>.<br><br><rule>The buff stacks and refreshes infinitely but lasts 5 seconds.</rule>",
+   "zh": "你的攻击会为你提供<speed>10移动速度</speed>。获得<attackSpeed>0.1%移动速度攻击速度</attackSpeed>。<br><br><rule>这个增益可无限叠加并刷新，但有5秒的持续时间。</rule>"
+  },
+  "1084": {
+   "en": "Gain 18% <armorPen>Armor Penetration</armorPen> and <magicPen>Magic Penetration</magicPen>.",
+   "zh": "获得18%<armorPen>护甲穿透</armorPen>和<magicPen>法术穿透</magicPen>。"
+  },
+  "1087": {
+   "en": "Your Attacks shoot a missile at an additional target, dealing 30% damage and applying <OnHit>On-Hit</OnHit> effects.",
+   "zh": "你的攻击会对一个额外目标发射一个飞弹，从而造成30%伤害并施加<OnHit>攻击特效</OnHit>。"
+  },
+  "1088": {
+   "en": "Refresh your <attention>Ultimate</attention> after casting it (75 seconds Cooldown or reset on death).",
+   "zh": "在施放<attention>终极技能</attention>后刷新你的终极技能(75秒冷却时间或阵亡时重置)。"
+  },
+  "1092": {
+   "en": "Your Item and damage over time effects can <crit>Critically Strike for 145% extra damage</crit>. <br><br>Gain <crit>25% Crit chance</crit>.",
+   "zh": "你的装备效果和持续伤害效果可以<crit>暴击来造成145%额外伤害</crit>。<br><br>获得<crit>25%暴击几率</crit>。"
+  },
+  "1095": {
+   "en": "Your <healing>Healing</healing> and <shield>Shielding</shield> also increases the target's <scaleArmor>Armor</scaleArmor> and <scaleMR>Magic Resist</scaleMR> by 30 - 60 (based on level) for 3 seconds.",
+   "zh": "你的<healing>治疗效果</healing>和<shield>护盾效果</shield>还会提升目标30 - 60（基于等级）<scaleArmor>护甲</scaleArmor>和<scaleMR>魔法抗性</scaleMR>，这些加成持续3秒。"
+  },
+  "1097": {
+   "en": "Gain <scaleAP>20 - 80 (based on level) Ability Power</scaleAP>.",
+   "zh": "获得<scaleAP>20 - 80（基于等级）法术强度</scaleAP>。"
+  },
+  "1098": {
+   "en": "Gain <speed>70% Ability Haste Move Speed</speed>.",
+   "zh": "获得<speed>70%技能急速移动速度</speed>。"
+  },
+  "1103": {
+   "en": "Your chosen ability gains 100 Ability Haste.",
+   "zh": "你的【指定】技能获得100技能急速。"
+  },
+  "1104": {
+   "en": "Your summons gain 40% increased size, health, and damage.",
+   "zh": "你的召唤物获得40%体型提升、生命值和伤害。"
+  },
+  "1105": {
+   "en": "Gain <speed>100% Movement Speed</speed>, disabled for 6 seconds after taking damage.",
+   "zh": "获得<speed>100%移动速度</speed>，在受到伤害后失效6秒。"
+  },
+  "1112": {
+   "en": "After using your Ultimate, you become immune to <status>crowd control</status> for 3 seconds. (8 second Cooldown).",
+   "zh": "在你使用你的终极技能后，你获得持续3秒的<status>控制免疫</status>。 (8秒冷却时间)。"
+  },
+  "1113": {
+   "en": "<keywordMajor>Snipe</keywordMajor> an enemy with a non-Ultimate Ability refunds 80% Cooldown (65% for periodic Abilities).<br><br><rules><keywordMajor>Snipe</keywordMajor> - Damage enemies over 600 distance away</rules>",
+   "zh": "用一个非终极技能<keywordMajor>狙击</keywordMajor>一个敌人时，返还该技能80%冷却时间(周期性技能返还65%)。<br><br><rules><keywordMajor>狙击</keywordMajor> - 从600码外对敌人造成伤害</rules>"
+  },
+  "1115": {
+   "en": "Gain 250 (60% for ranged) Attack Range.",
+   "zh": "获得250（远程英雄为60%）攻击距离。"
+  },
+  "1116": {
+   "en": "Your Flash has 3 charges. After 120 seconds, regain all charges.",
+   "zh": "你的闪现有3层充能。在120秒后，再次获得所有充能。"
+  },
+  "1118": {
+   "en": "Your <healing>healing</healing> and <shield>Shields</shield> can Critically Strike for 40% bonus amount. Gain 25% Crit Chance.",
+   "zh": "你的<healing>治疗</healing>和<shield>护盾</shield>可以暴击，造成40%额外数额的效果。获得25%暴击几率。"
+  },
+  "1129": {
+   "en": "Your Attacks deal an additional <physicalDamage>75% AP physical damage</physicalDamage>.",
+   "zh": "你的攻击造成额外<physicalDamage>75%法术强度物理伤害</physicalDamage>。"
+  },
+  "1133": {
+   "en": "Dealing Ability damage fires 3 missiles at each enemy hit, each dealing up to <trueDamage>1% max Health true damage</trueDamage> based on distance traveled.",
+   "zh": "造成技能伤害会对命中的每个敌人发射3个飞弹，基于飞行距离，每个造成至多<trueDamage>1%最大生命值的真实伤害</trueDamage>。"
+  },
+  "1134": {
+   "en": "You are now melee. Gain <physicalDamage>24% Attack Damage</physicalDamage>, <healing>24% Health</healing>, <attackSpeed>20% Attack Speed</attackSpeed>, <lifesteal>20% Lifesteal</lifesteal>, and <speed>20% Move Speed</speed> (each further increased based on Attack Range lost).",
+   "zh": "你现在是近战状态。获得<physicalDamage>24%攻击力</physicalDamage>、<healing>24%生命值</healing>、<attackSpeed>20%攻击速度</attackSpeed>、<lifesteal>20%生命偷取</lifesteal>和<speed>20%移动速度</speed> (每个属性都已基于攻击距离的损失而进一步提升)。"
+  },
+  "1136": {
+   "en": "Each time you <status>Immobilize</status> or <status>Ground</status> an enemy, gain a stack granting <scaleAF>10 Adaptive Force</scaleAF>. Lose 50% stacks on death.",
+   "zh": "每当你<status>定身</status>或<status>缚地</status>一个敌人时，获得一层可叠加的<scaleAF>10适应之力</scaleAF>。阵亡时损失50%层数。"
+  },
+  "1138": {
+   "en": "Gain <lifeSteal>15% Omnivamp</lifeSteal>.",
+   "zh": "获得<lifeSteal>15%全能吸血</lifeSteal>。"
+  },
+  "1141": {
+   "en": "Your <healing>Heals</healing> and <shield>Shields</shield> are 30% stronger when used on an ally.",
+   "zh": "你的<healing>治疗</healing>和<shield>护盾</shield>在用在一个友军身上时会变强30%。"
+  },
+  "1149": {
+   "en": "Gain the <spellName>Aftershock</spellName> and <spellName>Glacial Augment</spellName> Keystone Runes.<br><li><spellName>Aftershock</spellName>: After <lol-uikit-tooltipped-keyword key='LinkTooltip_Description_Immobilize'>Immobilizing</lol-uikit-tooltipped-keyword> an enemy champion, gain defenses and later deal a burst of magic damage around you.<li><spellName>Glacial Augment</spellName>: Immobilizing an enemy champion will spawn 3 glacial rays that Slow nearby enemies and reduce their damage to your allies.",
+   "zh": "获得<spellName>余震</spellName>和<spellName>冰川增幅</spellName>基石符文。<br><li><spellName>余震</spellName>：在你<lol-uikit-tooltipped-keyword key='LinkTooltip_Description_Immobilize'>定身</lol-uikit-tooltipped-keyword>一个敌方英雄后提供防御属性，稍后会在你的周围造成爆发性的魔法伤害。<li><spellName>冰川增幅</spellName>：定身一名敌方英雄时会生成3道冰川射线来减速附近的敌人们并降低他们对你的队友们的伤害。"
+  },
+  "1150": {
+   "en": "Your chosen ability gains 100 Ability Haste.",
+   "zh": "你的【指定】技能获得100技能急速。"
+  },
+  "1151": {
+   "en": "Your chosen ability gains 100 Ability Haste.",
+   "zh": "你的【指定】技能获得100技能急速。"
+  },
+  "1152": {
+   "en": "<font color='#F0C200'>QUEST:</font> Possess Heartsteel with 300+ stacks.<br><br>REWARD: Multiply your Heartsteel stacks by 3.",
+   "zh": "<font color='#F0C200'>任务：</font>需求：持有【心之钢】且层数在300层或以上。<br><br>奖励：将你的心之钢层数乘以3。"
+  },
+  "1154": {
+   "en": "<font color='#F0C200'>QUEST:</font> Score ? takedowns.<br><br>REWARD: Golden Spatula",
+   "zh": "<font color='#F0C200'>任务：</font>需求：参与击杀?次。<br><br>奖励：【金铲铲】"
+  },
+  "1156": {
+   "en": "Immediately gain a <attention>Needlessly Large Rod</attention>.<br><br><font color='#F0C200'>QUEST:</font> Possess <attention>Rabadon's Deathcap</attention> and <attention>Zhonya's Hourglass</attention>.<br><br><font color='#F0C200'>REWARD:</font> Gain <attention>Wooglet's Witchcap</attention>.",
+   "zh": "立刻获得一个<attention>无用大棒</attention>。<br><br><font color='#F0C200'>任务：</font>持有<attention>灭世者的死亡之帽</attention>和<attention>中娅沙漏</attention>。<br><br><font color='#F0C200'>奖励：</font>获得<attention>沃格勒特的巫师帽</attention>。"
+  },
+  "1170": {
+   "en": "Gain 75 (66.7% for ranged) Attack Range.",
+   "zh": "获得75（远程英雄为66.7%）攻击距离。"
+  },
+  "1180": {
+   "en": "Gain a <shield>300% AP Shield</shield>. Resets on death or 70 seconds after depletion.",
+   "zh": "获得<shield>300%法术强度护盾值</shield>。阵亡时或耗尽后70秒重置。"
+  },
+  "1181": {
+   "en": "Your Attacks deal additional <physicalDamage>3.5% max Health physical damage</physicalDamage>.",
+   "zh": "你的攻击造成额外<physicalDamage>3.5%最大生命值物理伤害</physicalDamage>。"
+  },
+  "1187": {
+   "en": "Your Flash causes an explosion that deals 70 (+60% AP) (+70% AD) damage and <status>Slows</status> (resets on death).",
+   "zh": "你的【闪现】会引发一次爆炸，造成70（+60%法术强度）（+70%攻击力）伤害和<status>减速</status>（阵亡时重置）。"
+  },
+  "1194": {
+   "en": "Damaging with your <attention>Ultimate</attention> <status>Polymorphs</status> enemies for 2 seconds (15 second Cooldown).",
+   "zh": "你的<attention>终极技能</attention>的伤害会对敌人造成2秒<status>变形</status>效果(15秒冷却时间)。"
+  },
+  "1195": {
+   "en": "Become tiny, gain <speed>20% Movement Speed</speed>, and deal between 10% and 30% bonus damage to champions based on how much larger they are than you.",
+   "zh": "体型变小，获得<speed>20%移动速度</speed>，并基于敌方英雄体型大于你的程度造成10%到30%额外伤害。"
+  },
+  "1204": {
+   "en": "When you gain permanent <keywordMajor>Stacks</keywordMajor> of an Ability, gain 100% more!",
+   "zh": "在你获得一个技能的永久<keywordMajor>层数</keywordMajor>时，多获得100%！"
+  },
+  "1205": {
+   "en": "Convert <scaleAD>Bonus Attack Damage</scaleAD> to <scaleAP>Ability Power</scaleAP>. Gain <scaleAP>15% Ability Power</scaleAP>.",
+   "zh": "将<scaleAD>额外攻击力</scaleAD>转化为<scaleAP>法术强度</scaleAP>。获得<scaleAP>15%法术强度</scaleAP>。"
+  },
+  "1206": {
+   "en": "Convert <scaleAP>Ability Power</scaleAP> to <scaleAD>Bonus Attack Damage</scaleAD> and gain <scaleAD>15% AD Attack Damage</scaleAD>.<br><br><rules>Converts at a rate of <scaleAD>0.6 Attack Damage</scaleAD> per point of <scaleAP>Ability Power</scaleAP>.</rules>",
+   "zh": "将<scaleAP>法术强度</scaleAP>转化为<scaleAD>额外攻击力</scaleAD>，并获得<scaleAD>15%攻击力攻击力</scaleAD>。<br><br><rules>每点<scaleAP>法术强度</scaleAP>转化为<scaleAD>0.6攻击力</scaleAD>。</rules>"
+  },
+  "1211": {
+   "en": "After casting your Ultimate, mark all enemies and store 40% of damage you deal to them. After 5 seconds, detonate the stored damage (8 second Cooldown).",
+   "zh": "在施放你的终极技能后，标记所有敌人并存储你对他们的40%造成伤害。在5秒之后，引爆储量伤害(8秒冷却时间)。"
+  },
+  "1214": {
+   "en": "Your spin Abilities gain 30 Ability Haste and deal 30% more damage, increase to 50% for Ultimates",
+   "zh": "你的旋转类技能获得30技能急速并且造成30%额外伤害，对于终极技能，该额外伤害提升至50%。"
+  },
+  "1225": {
+   "en": "When you Attack, fire a bolt that deals 40% damage and applies your <OnHit>On-Hit</OnHit> effects at 40% effectiveness. <br><br>Gain <attackSpeed>10% total Attack Speed</attackSpeed>.",
+   "zh": "在你攻击时，发射一个弩箭，它造成40%伤害并以40%效能施加你的<OnHit>攻击特效</OnHit>。<br><br>获得<attackSpeed>10% 总攻击速度</attackSpeed>。"
+  },
+  "1237": {
+   "en": "Gain a random <keywordMajor>Gold Augment</keywordMajor>.",
+   "zh": "获得1个随机<keywordMajor>黄金阶强化符文</keywordMajor>。"
+  },
+  "1238": {
+   "en": "Gain a random <keywordMajor>Prismatic Augment</keywordMajor>.",
+   "zh": "获得1个随机<keywordMajor>棱彩阶强化符文</keywordMajor>。"
+  },
+  "1243": {
+   "en": "Gain <keywordMajor>2 random Augments</keywordMajor>.",
+   "zh": "获得<keywordMajor>2个随机强化符文</keywordMajor>。"
+  },
+  "1301": {
+   "en": "Every 35 seconds, <keywordMajor>Autocast</keywordMajor> a protective star that slowly descends upon you. When it lands, you and nearby allies become <keywordMajor>Invulnerable</keywordMajor> for 2.5 seconds.",
+   "zh": "每35秒，<keywordMajor>自动施放</keywordMajor>一颗护体星星缓慢降临在你身上。在它着陆时，你和附近的友军们进入持续2.5秒的<keywordMajor>免疫伤害</keywordMajor>状态。"
+  },
+  "1305": {
+   "en": "Gain <speed>50 Movement Speed</speed> and <speed>50% Slow Resist</speed>.",
+   "zh": "获得<speed>50移动速度</speed>和<speed>50%减速抗性</speed>。"
+  },
+  "1308": {
+   "en": "<keywordMajor>Autocast</keywordMajor>: Gain <speed>25% movement speed</speed> and conjure three flames that orbit you every 7 seconds, targetting the closest visible enemy in range and dealing 45 - 200 (based on level) (+40% AP) (+25% bonus AD) adaptive damage. Subsequent hits do 30% damage.",
+   "zh": "<keywordMajor>自动施放</keywordMajor>：每7秒，获得<speed>25%移动速度</speed>并召唤3道烈焰环绕于你，瞄准距离内相距最近的那个可见英雄并造成45 - 200（基于等级）（+40%法术强度）（+25%额外攻击力）自适应伤害。后续命中造成30%伤害。"
+  },
+  "1310": {
+   "en": "<spellName>Backstab</spellName>: You deal 20 - 35 (based on level) (+35% AP) (+50% bonus AD) <physicalDamage>bonus physical damage</physicalDamage> when striking from behind.<br><br><spellName>Deceive</spellName>: You teleport and become <keywordStealth>Invisible</keywordStealth> for 3 seconds. Your next Attack while <keywordStealth>Invisible</keywordStealth> deals an additional <physicalDamage>100 (+150% bonus AD) (+55% AP) physical damage</physicalDamage>. If striking from behind, this Attack critically strikes for 155% (+100% bonus Crit Damage) damage.<br><br><spellName>Hallucinate: Death</spellName>: On death, deal <trueDamage>25% maximum Health true damage</trueDamage> and fear for 1s around you.",
+   "zh": "<spellName>背刺</spellName>：你从背后袭击敌人时，会造成20 - 35（基于等级）（+35%法术强度）（+50%额外攻击力）<physicalDamage>额外物理伤害</physicalDamage>。<br><br><spellName>欺诈魔术</spellName>：你传送并变为<keywordStealth>隐形</keywordStealth>，持续3秒。你在<keywordStealth>隐形</keywordStealth>状态下的第一次攻击将造成额外的<physicalDamage>100（+150%额外攻击力）（+55%法术强度）物理伤害</physicalDamage>。如果从背后进行打击，那么这个攻击会暴击，造成155%（+100%额外暴击伤害）伤害。<br><br><spellName>幻像：阵亡</spellName>：在阵亡时，在你周围造成<trueDamage>25%最大生命值的真实伤害</trueDamage>以及1秒恐惧。"
+  },
+  "1311": {
+   "en": "Your <scaleMana>Mana</scaleMana> costs double. Your Ability <healing>Heals</healing>, <shield>Shields</shield>, and damage are <scaleMana>10% (+0% max Mana)</scaleMana> more effective.",
+   "zh": "你的<scaleMana>法力值</scaleMana>消耗翻倍。你的技能的<healing>治疗效果</healing>、<shield>护盾效果</shield>和伤害的效能提升<scaleMana>10%（+0%最大法力值）</scaleMana>。"
+  },
+  "1314": {
+   "en": "Gain <font color = '#8347ff'>40 - 100 (based on level) Adaptive Force</font> for 3 seconds when you gain a Shield (5 seconds Cooldown).",
+   "zh": "当你获得护盾时，获得<font color = '#8347ff'>40 - 100（基于等级）适应之力</font>，持续3秒。(5秒冷却时间)"
+  },
+  "1315": {
+   "en": "Gain a <shield>65 - 290 (based on level) (+26% AP) (+65% bonus AD) Shield</shield> for 2 seconds after a Dash or Blink (5 seconds Cooldown).",
+   "zh": "在冲刺或闪烁后，获得持续2秒的<shield>65 - 290（基于等级）（+26%法术强度）（+65%额外攻击力）护盾值</shield>。 (5秒冷却时间)"
+  },
+  "1318": {
+   "en": "Reduce <attention>Zhonya's Hourglass</attention> Cooldown to 45 seconds. You can now move when in <attention>Zhonya's Hourglass, Seeker's Armguard,</attention> or <attention>Wooglet's Witchcap</attention> stasis and gain <speed>50% Movement Speed</speed> during it.",
+   "zh": "<attention>【中娅沙漏】</attention>的冷却时间降低至45秒。你现在可以在<attention>【中娅沙漏】、【探索者的护臂】</attention>或<attention>【沃格勒特的巫师帽】</attention>凝滞状态持续期间移动并获得<speed>50%移动速度</speed>。"
+  },
+  "1319": {
+   "en": "<attention>Hollow Radiance</attention> and <attention>Sunfire Aegis</attention> grant <gold>12 Gold</gold> per target affected with Immolate. Gain <gold>250 Gold</gold>.",
+   "zh": "<attention>【璀璨回响】</attention>和<attention>【日炎圣盾】</attention>每当有目标受到【献祭】效果影响时，提供<gold>12金币</gold>。获得<gold>250金币</gold>。"
+  },
+  "1320": {
+   "en": "Executing enemies with The Collector's Passive increases execute threshold by 0.5% and grant additional <gold>50 Gold</gold>. <br><br>Gain <gold>250 Gold</gold>.",
+   "zh": "在每次使用【收集者】的被动处决敌人时，会使处决阈值提升0.5%，并且提供额外<gold>50金币</gold>。<br><br>获得<gold>250金币</gold>。"
+  },
+  "1322": {
+   "en": "Gain <speed>100% Movement Speed</speed> and <attackSpeed>15% Attack Speed</attackSpeed> for 4 seconds on takedown.",
+   "zh": "参与击杀后，获得持续4秒的<speed>100%移动速度</speed>和<attackSpeed>15%攻击速度</attackSpeed>。"
+  },
+  "1323": {
+   "en": "On <status>Immobilizing</status> or <status>Grounding</status> an enemy champion, summon a comet above them. The comet lands after 1 second, dealing <magicDamage>50 - 150 (based on level) (+40% AP) (+4% max Health) magic damage</magicDamage> to nearby enemies. <br><rules>This effect has a 6 seconds Cooldown per target per spell cast.</rules>",
+   "zh": "<status>定身</status>或<status>缚地</status>一个敌方英雄时，召唤一颗彗星至敌人上方。彗星会在1秒后着陆，对附近的敌人们造成<magicDamage>50 - 150（基于等级）（+40%法术强度）（+4%最大生命值）魔法伤害</magicDamage>。<br><rules>这个效果对每次技能施放和每个目标都有6秒冷却时间。</rules>"
+  },
+  "1324": {
+   "en": "Gain <healing>25 (+35% bonus Armor) (+35% bonus Magic Resist)% Heal and Shield Power</healing> based on bonus <scaleArmor>Armor</scaleArmor> and <scaleMR>Magic Resist</scaleMR>.",
+   "zh": "获得<healing>25（+35%额外护甲）（+35%额外魔法抗性）%治疗和护盾强度</healing>，基于额外<scaleArmor>护甲</scaleArmor>和<scaleMR>魔抗</scaleMR>。"
+  },
+  "1325": {
+   "en": "Reduce <scaleHealth>max Health by 30%</scaleHealth>. Deal an extra 25% (60% for ranged) damage as <trueDamage>true damage</trueDamage>.",
+   "zh": "减少<scaleHealth>30%最大生命值</scaleHealth>。造成额外的25%（远程英雄为60%）伤害作为<trueDamage>真实伤害</trueDamage>。"
+  },
+  "1326": {
+   "en": "Takedowns against enemy champions within 3 seconds of damaging them grants you <speed>40% Move Speed</speed> and renders you invisible for 1.5 seconds.",
+   "zh": "在对敌人造成伤害的3秒内参与击杀该敌人会为你提供<speed>40%移动速度</speed>并使你进入隐身状态1.5秒。"
+  },
+  "1328": {
+   "en": "Your basic Attack stacks <attackSpeed>6% Attack Speed</attackSpeed> on <crit>Critical Strikes</crit> up to 10 stacks.<br><br>Gain <crit>25% Crit chance</crit>.",
+   "zh": "你的普攻在<crit>暴击</crit>时获得可叠加的<attackSpeed>6%攻击速度</attackSpeed>，至多至10层。<br><br>获得<crit>25%暴击几率</crit>。"
+  },
+  "1329": {
+   "en": "Gain 100 Ability Haste on <spellName>Snowball</spellName>. <br><br>Your snowball is <attention>BIG</attention> and will pass through minions. It <status>Slows</status> enemies for 20% for 2 seconds, <status>Knocks Up</status> for 0.75 seconds, and deals an additional <magicDamage>200 - 350 (based on level) (+60% AP) (+0% bonus AD) damage</magicDamage>.<br><br><rules>If you don't have one, gain a <spellName>Snowball</spellName>.</rules>",
+   "zh": "你的<spellName>雪球</spellName>获得100技能急速。<br><br>你的雪球现在变得<attention>非常大</attention>，并且可以穿过小兵。它会对敌人造成持续2秒的20%<status>减速</status>， 将他们<status>击飞</status>0.75秒，并造成额外<magicDamage>200 - 350（基于等级）（+60%法术强度）（+0%额外攻击力）伤害</magicDamage>。<br><br><rules>如果你没有雪球，则获得一个<spellName>雪球</spellName>。</rules>"
+  },
+  "1331": {
+   "en": "Gain 15% Heal and Shield power. Gain <spellName>Empyrean Promise</spellName> as a Summoner Spell.<br><br><rules><active>Vigilance</active><br>Teleport to an ally and grant <shield>100 - 250 (based on level) (+100% AP) (+10% bonus max Health) Shield</shield> for 3 seconds after landing.</rules>",
+   "zh": "获得15%治疗和护盾强度。获得<spellName>至高天诺言</spellName>作为一个召唤师技能。<br><br><rules><active>警惕</active><br>传送至你的友军并在着陆时提供持续3秒的<shield>100 - 250（基于等级）（+100%法术强度）（+10%额外最大生命值）护盾值</shield>。</rules>"
+  },
+  "1332": {
+   "en": "Gain <magicDamage>75 - 150 (based on level) Ability Power</magicDamage>, <speed>50% Movement Speed</speed>, and <omnivamp>20% Omnivamp</omnivamp> based on <scaleHealth>missing Health</scaleHealth>. Spell casts cost 5% of your current Health.<br><br><rules>Max benefit at 30% Health.</rules>",
+   "zh": "基于<scaleHealth>已损失生命值</scaleHealth>，获得<magicDamage>75 - 150（基于等级）法术强度</magicDamage>，<speed>50%移动速度</speed>和<omnivamp>20%全能吸血</omnivamp>。施放技能会消耗你的5%当前生命值。<br><br><rules>在30%生命值时获得最大增益。</rules>"
+  },
+  "1333": {
+   "en": "Gain a massive <shield>65% max Health decaying Shield</shield>, decaying <speed>150% Movement Speed</speed>, and a decaying shrink effect upon reaching <scaleHealth>35% Health</scaleHealth> (75 seconds Cooldown).",
+   "zh": "在降至<scaleHealth>35%生命值</scaleHealth>时，获得巨量<shield>65%最大生命值持续衰减的护盾</shield>、持续衰减的<speed>150%移动速度</speed>和持续衰减的缩小效果。(75秒冷却时间)"
+  },
+  "1335": {
+   "en": "Damaging a champion with Attacks or Abilities deals an additional <magicDamage>50 - 150 (based on level) (+20% AP) (+40% bonus AD) magic damage</magicDamage>, grants you <gold>30</gold> Gold and <speed>25% Movement Speed</speed> for 1.5 seconds (30 seconds Cooldown per champion).",
+   "zh": "用攻击或技能对一个英雄造成伤害时会造成额外<magicDamage>50 - 150（基于等级）（+20%法术强度）（+40%额外攻击力）魔法伤害</magicDamage>，并为你提供<gold>30</gold>金币和持续1.5秒的<speed>25%移动速度</speed>(每个英雄有30秒冷却时间)。"
+  },
+  "1336": {
+   "en": "Gain <gold>500 Gold</gold>.<br>Having Infinity Edge allows your Critical Strikes to deal random <keyword>bonus Critical Strike Damage</keyword>, scaling up to 50% of your Critical Strike Chance.",
+   "zh": "获得<gold>500金币</gold>。<br>装备【无尽之刃】后，可使你的暴击造成随机的<keyword>额外暴击伤害</keyword>，最高可至你暴击几率的50%。"
+  },
+  "1337": {
+   "en": "The first time you take the enemy transport <attention>with a Legendary Item</attention> you become <font color = '#d158f9'>Kinged</font>, upgrading your item and gaining a random Prismatic Augment.",
+   "zh": "当你第一次<attention>携带一件传说级装备</attention>并乘坐敌人的传送门时，你会<font color = '#d158f9'>加冕为王</font>，升级你的装备并获得一个随机棱彩阶强化符文。"
+  },
+  "1343": {
+   "en": "<mainText><font color='#a327ef'>Do the following quests for a super reward: </font></mainText>",
+   "zh": "<mainText><font color='#a327ef'>完成以下的任务即可获得一份超级大奖：</font></mainText>"
+  },
+  "1344": {
+   "en": "After casting your <attention>Ultimate</attention>, gain a <shield>50% max Health Shield</shield>, <lifeSteal>20% Omnivamp</lifeSteal> and <speed>30% bonus Movement Speed</speed> for 10 seconds. (20 seconds Cooldown).",
+   "zh": "在施放你的<attention>终极技能</attention>时，获得持续10秒的<shield>50%最大生命值护盾</shield>、<lifeSteal>20%全能吸血</lifeSteal>和<speed>30%额外移动速度</speed>。(20秒冷却时间)。"
+  },
+  "1347": {
+   "en": "Gain Poltergeist as a Summoner Spell.<br><br>Poltergeist casts both Barrier and Ghost.",
+   "zh": "获得【吵闹鬼】作为一个召唤师技能。<br><br>吵闹鬼会同时施放召唤师技能【屏障】和【幽灵疾步】。"
+  },
+  "1348": {
+   "en": "Gain a second Flash Summoner Spell and 70 Summoner Haste.",
+   "zh": "获得第二个【闪现】召唤师技能和70召唤师技能急速。"
+  },
+  "1349": {
+   "en": "Gain 30 Ultimate Ability Haste. <br>After using your <keyword>Ultimate</keyword>, refresh your basic abilities and gain 300 basic ability haste for 15s. (20s Cooldown)",
+   "zh": "获得30终极技能急速。<br>在施放你的<keyword>终极技能</keyword>后，刷新你的所有基础技能并获得持续15秒的300基础技能急速。(20秒冷却时间)"
+  },
+  "1353": {
+   "en": "On takedown, gain a stack that grants 5% increased size and <scaleHealth>5% max Health</scaleHealth>. Lose 65% of stacks on death.",
+   "zh": "参与击杀时，获得一个层数，使你的体型增大5%并提升<scaleHealth>5%最大生命值</scaleHealth>。阵亡时损失65%层数。"
+  },
+  "1358": {
+   "en": "Your <spellName>Snowball</spellName> gains 50 Ability Haste, deals extra 100 - 500 (based on level) <trueDamage>true damage</trueDamage> and bounces off walls. Each bounce increases its size by 25%, increases its damage dealt by 20% and reduces its Cooldown by 30%.",
+   "zh": "你的<spellName>雪球</spellName>获得50技能急速，造成额外的100 - 500（基于等级） <trueDamage>真实伤害</trueDamage>并且可以从墙体上反弹。每次反弹会提升它 25%体型、20%造成伤害，并且缩短它30%冷却时间。"
+  },
+  "1361": {
+   "en": "Immediately: Gain a Bami's Cinder.<br><br>Requirement: Possess <keywordMajor>Sunfire Aegis</keywordMajor> and <keywordMajor>Hollow Radiance</keywordMajor>.<br><br>Reward: Combine <keywordMajor>Sunfire Aegis</keywordMajor> and <keywordMajor>Hollow Radiance</keywordMajor> into <keywordMajor>Void Immolation</keywordMajor>.",
+   "zh": "即刻：获得1个【斑比的熔渣】。<br><br>任务：持有<keywordMajor>日炎圣盾</keywordMajor>和 <keywordMajor>璀璨回响</keywordMajor>。<br><br>奖励：将<keywordMajor>【日炎圣盾】</keywordMajor> 和<keywordMajor>【璀璨回响】</keywordMajor> 合成为<keywordMajor>【虚空献祭】</keywordMajor> 。"
+  },
+  "1373": {
+   "en": "Takedowns grant a stack that makes you 4% smaller, grants <speed>8 Ability Haste</speed>, and <speed>1% Movement Speed</speed>.<br><br>Lose 65% stacks on death.<br>------------------------------------------------------------",
+   "zh": "参与击杀后会让你变小4%，每次提供<speed>8技能急速</speed>和<speed>1%移动速度</speed>。<br><br>阵亡时损失65%层数。<br>------------------------------------------------------------"
+  },
+  "1375": {
+   "en": "<status>Immobilizing</status> an enemy champion grants <scaleHealth>30 max Health</scaleHealth>.<br><br>Total Health Gained: <scaleHealth>0 (+30 per stack)</scaleHealth><br><rules>If taken as your second Augment, starts with <scaleHealth>300 Health</scaleHealth>.</rules>",
+   "zh": "<status>定身</status>一个敌方英雄时会提供<scaleHealth>30最大生命值</scaleHealth>。<br><br>总生命值获取：<scaleHealth>0（每层+30）</scaleHealth><br><rules>如果是你的第二个强化符文，会自带<scaleHealth>300生命值</scaleHealth>。</rules>"
+  },
+  "1379": {
+   "en": "Gain <speed>100% Attack Speed</speed>.<br><br>Increase Sword of Blossoming Dawn's healing to <scaleHealth>250%</scaleHealth> when you attack enemy champions.",
+   "zh": "获得<speed>100%攻击速度</speed>。<br><br>你对英雄的攻击会使来自【花晓之剑】的治疗效果提升<scaleHealth>250%</scaleHealth>。"
+  },
+  "1384": {
+   "en": "Receive <font color=\"#ffd138\">1750</font> Gold. Thanks chat! :)",
+   "zh": "收到<font color=\"#ffd138\">1750</font>金币。谢了！ :)"
+  },
+  "1386": {
+   "en": "Replace a Summoner Spell with <spellName>Heroic Swing</spellName>.<br><br><rules><spellName>Heroic Swing</spellName> fires a grappling hook, sticking into terrain, after which you can <recast>Recast</recast> to swing around it. While swinging, automatically Attack the nearest enemy. Colliding with an enemy champion or <recast>Recasting</recast> ends the swing.</rules>",
+   "zh": "将一个召唤师技能替换为<spellName>骄行荡寇</spellName>。<br><br><rules><spellName>骄行荡寇</spellName>发射一根钩爪，吸附在地形上，在此之后，你可以<recast>再次施放</recast>来绕着它摆荡。在摆荡状态下，自动攻击相距最近的那个敌人。在与一个敌方英雄碰撞或<recast>再次施放</recast>时结束摆荡。</rules>"
+  },
+  "1388": {
+   "en": "Gain 60 Ability Haste, plus 3 Ability Haste per takedown.<br><br>Current Ability Haste: 60 (+3 per stack)",
+   "zh": "获得60技能急速，外加每次参与击杀3技能急速。<br><br>当前技能急速：60（每层+3）"
+  },
+  "1389": {
+   "en": "Gain <scaleAP>25% Adaptive Force</scaleAP>. Nearby allied minions are greatly empowered.",
+   "zh": "获得<scaleAP>25%适应之力</scaleAP>。附近友方小兵都获得极大增强。"
+  },
+  "1390": {
+   "en": "Permanently gain <scaleAP>1 Ability Power</scaleAP> when you damage enemy champions with Abilities.<br><br>If taken as your second Augment, starts with <scaleAP>40 Ability Power</scaleAP>.",
+   "zh": "在你用技能对敌人造成伤害时永久获得<scaleAP>1法术强度</scaleAP>。<br><br>如果是作为你的第二个强化符文，则自带<scaleAP>40法术强度</scaleAP>。"
+  },
+  "1392": {
+   "en": "Gain 100 Ability Haste on <spellName>Snowball</spellName>. <br><br>You become <keywordMajor>Invulnerable</keywordMajor> for 1.5 seconds when you dash with Snowball.<br><br><rules>If you don't have one, gain a <spellName>Snowball</spellName>.</rules>",
+   "zh": "<spellName>雪球</spellName>获得100技能急速。<br><br>你在用【雪球】冲刺后会<keywordMajor>免疫伤害</keywordMajor>1.5秒。<br><br><rules>如果你没有雪球，获得一个<spellName>雪球</spellName>。</rules>"
+  },
+  "1401": {
+   "en": "Gain <active>Growth Spurt</active> as a Summoner Spell.<br><br>Growth Spurt suddenly increases your size, <status>Knocking Up</status> nearby enemies for 1 second and granting <scaleHealth>300 (+20% max Health) max Health</scaleHealth> for 7 seconds.",
+   "zh": "获得<active>生机迸发</active>作为一个召唤师技能。<br><br>生机迸发会猛然提升你的体型，<status>击飞</status>附近的敌人们1秒并提供持续7秒的<scaleHealth>300（+20%最大生命值）最大生命值</scaleHealth>。"
+  },
+  "1402": {
+   "en": "Gain 4 Stat Anvils, with a higher chance of Gold and Prismatic Anvils!<br><br>On your next Augment selection, gain one additional reroll per slot.",
+   "zh": "获得4个【属性锻造器】，有更高几率出现黄金阶和棱彩阶锻造器！<br><br>在你的下一次强化符文选取时，每个栏位获得一次额外的刷新。"
+  },
+  "1403": {
+   "en": "Gain 3 Stat Anvils, with a higher chance of Gold and Prismatic Anvils!",
+   "zh": "获得3个【属性锻造器】，有更高几率出现黄金阶和棱彩阶锻造器！"
+  },
+  "1404": {
+   "en": "Gain 2 Stat Anvils!",
+   "zh": "获得2个【属性锻造器】！"
+  },
+  "1413": {
+   "en": "After using your <keywordMajor>Ultimate</keywordMajor>, gain 50% damage reduction for 2 seconds, after which you <status>Taunt</status> enemies inside for 2 seconds. <br><br>Gain 30 Ultimate Ability Haste.",
+   "zh": "在使用你的<keywordMajor>终极技能</keywordMajor>后，获得持续2秒的50%伤害减免，然后你<status>嘲讽</status>其中的敌人们2秒。<br><br>获得30终极技能急速。"
+  },
+  "1415": {
+   "en": "On ability damage, fire 1 plus 300% Crit Chance missiles that deal <magicDamage>10 - 30 (based on level) (+7% bonus AD) (+7% AP) magic damage</magicDamage> each. <br><br>Gain <attention>25% Critical Strike Chance</attention>.",
+   "zh": "造成技能伤害时，发射1+300%暴击几率个飞弹，每个造成<magicDamage>10 - 30（基于等级）（+7%额外攻击力）（+7%法术强度）魔法伤害</magicDamage>。<br><br>此外，获得<attention>25%暴击几率</attention>。"
+  },
+  "1416": {
+   "en": "Periodically your next damaging Ability or Attack triggers a lightning blast, chaining through enemies to deal damage and <status>Slow</status>.",
+   "zh": "周期性地使你的下一个伤害型技能或攻击触发一道闪电爆裂，连锁穿过敌人以造成伤害和<status>减速</status>。"
+  },
+  "1420": {
+   "en": "Every 10 seconds, <keywordMajor>automatically cast</keywordMajor> the <spellName>Aria of Perseverence</spellName> and <spellName>Song of Celerity</spellName> in an alternating melody.<br><br><rules><spellName>Aria of Perseverence</spellName> <healing>heals</healing> nearby allies and grants a temporary <shield>shielding aura</shield>.</rules><br><br><rules><spellName>Song of Celerity</spellName> grants a temporary aura that provides <speed>bonus Movement Speed.</speed></rules>",
+   "zh": "每10秒，以一个不断交替的旋律来<keywordMajor>自动施放</keywordMajor><spellName>坚毅咏叹调</spellName>和<spellName>迅捷奏鸣曲</spellName>。<br><br><rules><spellName>坚毅咏叹调</spellName><healing>治疗</healing>附近友军并提供一个临时的<shield>护盾光环</shield>。</rules><br><br><rules><spellName>迅捷奏鸣曲</spellName>提供一个临时光环来提供<speed>额外移动速度</speed>。</rules>"
+  },
+  "1421": {
+   "en": "Every 35 seconds, <keywordMajor>Autocast</keywordMajor> a sparkly tiara descends upon you. When it lands, gain Rakan's Ultimate, charming enemies you touch.",
+   "zh": "每35秒，<keywordMajor>自动施放</keywordMajor>一道闪亮宝冠降临在你头上。当它着陆时，获得洛的终极技能，魅惑你碰到的敌人们。"
+  },
+  "1996": {
+   "en": "Your <passive>Spellblade</passive> effects deal <physicalDamage>additional damage</physicalDamage> equal to 4% of the target's health and <healing>heal</healing> you for 3.5% of the target's health. Additionally, gain <gold>250 Gold</gold>.",
+   "zh": "你的<passive>咒刃</passive>效果造成相当于目标4%生命值的<physicalDamage>额外伤害</physicalDamage>，并<healing>治疗</healing>你自身，治疗效果相当于目标3.5%生命值。此外，获得<gold>250金币</gold>。"
+  },
+  "2004": {
+   "en": "<healing>Healing</healing> or <shield>Shielding</shield> an ally blesses them for 8 seconds. When blessed allies deal damage to enemy champions, gain stacks of <keywordMajor>Devotion</keywordMajor>. At 50 <keywordMajor>Devotion</keywordMajor>, unleash a shockwave that deals <magicDamage>50 - 300 (based on level) (+75000% Heal and Shield Power) magic damage</magicDamage> and executes enemies below <scaleHealth>25% Heal and Shield Power Health</scaleHealth>.",
+   "zh": "为友军提供<healing>治疗</healing>或<shield>护盾</shield>会赐福他们8秒。当被赐福的友军对敌方英雄造成伤害时，你获得<keywordMajor>虔诚</keywordMajor>层数。在50<keywordMajor>虔诚</keywordMajor>时，释放一道冲击波来造成<magicDamage>50 - 300（基于等级）（+75000%治疗和护盾强度）魔法伤害</magicDamage>并处决低于<scaleHealth>25%治疗和护盾强度生命值</scaleHealth>的敌人们。"
+  },
+  "2005": {
+   "en": "Damaging enemy champions with Attacks or Abilities different from the previous one grants <keywordMajor>Style</keywordMajor> (from F to S).<br><br>Gain <speed>4.3% - 5% (based on level) Movement Speed</speed> per <keywordMajor>Style</keywordMajor> rank.<br><br>At S <keywordMajor>Style</keywordMajor> consume your <keywordMajor>Style</keywordMajor> to unleash a torrent of gunshots at all nearby enemies 10 times over 2 seconds. Each shot deals <physicalDamage>20 - 40 (based on level) (+40% AD) (+25% AP) physical damage</physicalDamage>. Enemies below <scaleHealth>30% Health</scaleHealth> are struck Critically for <physicalDamage>0% AD + 0% AP physical damage</physicalDamage>.This has a 5 second Cooldown.<br><br><rules>Shots apply Lifesteal and deal 25% damage to minions.",
+   "zh": "使用与前一个不同的技能或攻击对敌人造成伤害时，会获得<keywordMajor>评价等级</keywordMajor> (从F到S)。<br><br>从每<keywordMajor>评价等级</keywordMajor>中获得<speed>4.3% - 5%（基于等级）移动速度</speed>。<br><br>在S<keywordMajor>评价等级</keywordMajor>时，消耗你的<keywordMajor>评价等级</keywordMajor>来倾泻出大量的子弹，在2秒里持续对周围的所有敌人进行10次射击。每颗子弹造成<physicalDamage>20 - 40（基于等级）（+40%攻击力）（+25%法术强度）物理伤害</physicalDamage>。低于<scaleHealth>30%生命值</scaleHealth>的敌人们会被暴击，受到<physicalDamage>0%攻击力 + 0%法术强度物理伤害</physicalDamage>。这个效果有5秒冷却时间。<br><br><rules>子弹会施加生命偷取并对小兵造成25%伤害。"
+  },
+  "2009": {
+   "en": "Gain <attention>25% (+0.1% AP) Critical Strike Chance</attention> and <attackSpeed>35% (+0.1% AP) Attack Speed</attackSpeed>.",
+   "zh": "获得<attention>25%（+0.1%法术强度）暴击几率</attention>和<attackSpeed>35%（+0.1%法术强度）攻击速度</attackSpeed>（随法术强度变化）。"
+  },
+  "2010": {
+   "en": "Your Critical Strikes apply <OnHit>On-Hit</OnHit> effects an additional time.<br><br>Gain <attention>25% Crit chance</attention>.",
+   "zh": "你的暴击施加一次额外的<OnHit>攻击特效</OnHit>。<br><br>获得<attention>25%暴击几率</attention>。"
+  },
+  "2016": {
+   "en": "<OnHit> On-Hit</OnHit> deal <magicDamage>0.07 (80% for ranged) magic damage</magicDamage>, this damage can <crit>Critically Strike</crit>.",
+   "zh": "<OnHit>攻击特效</OnHit>造成<magicDamage>0.07（远程英雄为80%）魔法伤害</magicDamage>，这个伤害可以<crit>暴击</crit>。"
+  },
+  "2018": {
+   "en": "<rules>Conversion Rate: 0.65 Ability Haste per <attackSpeed>1% Attack Speed</attackSpeed></rules>",
+   "zh": "<rules>转化率：0.65技能急速每<attackSpeed>1%攻击速度</attackSpeed></rules>"
+  },
+  "2026": {
+   "en": "Gain <speed>60% Movement Speed</speed> towards enemies below <health>40% health</health>.",
+   "zh": "在朝着低于<health>40%生命值</health>的敌人时，获得<speed>60%移动速度</speed>。"
+  },
+  "2032": {
+   "en": "On death, become <keyword>Shark Bait</keyword>. You can take no actions other than moving, which <status>slows nearby enemies by 40%</status>. After a few seconds, a <keyword>Shark</keyword> emerges, <status>knocking up</status> all nearby Enemies and biting them for <magicDamage>120 - 350 (based on level) + 30% Missing Health Magic Damage</magicDamage>.",
+   "zh": "阵亡时，变成一个<keyword>鲨鱼诱饵</keyword>。你不能采取除了移动之外的任何其它行动，会<status>对附近的敌人们造成40%减速</status>。在若干秒之后，一头<keyword>鲨鱼</keyword>会浮现，<status>击飞</status>所有附近的敌人们并啃咬他们，对范围内的所有敌人造成<magicDamage>120 - 350（基于等级） + 30%已损失生命值的魔法伤害</magicDamage>。"
+  },
+  "2043": {
+   "en": "Entering <keyword>Brush</keyword> restores <healing>40 - 300 (based on level) + 15% Missing Health</healing>, 20 second cooldown per brush.",
+   "zh": "进入<keyword>草丛</keyword>时回复<healing>40 - 300（基于等级） + 15%已损失生命值</healing>，每个草丛有20秒冷却时间。"
+  },
+  "2054": {
+   "en": "Your chosen ability targets 2 additional enemies in front of you.<br><br><rules>Units take less damage from the same spell.</rules>",
+   "zh": "你的【指定】技能会瞄准你前方2个额外的敌人。<br><br><rules>单位从同一技能中承受伤害会减少。</rules>"
+  },
+  "2055": {
+   "en": "<font color='#F0C200'>QUEST:</font> Hit enemy Champions with chosen ability ? times.<br><br><font color='#F0C200'>REWARD:</font> Fire additional missiles per Quest Level.",
+   "zh": "<font color='#F0C200'>任务：</font>用【指定】技能命中敌方英雄?次。<br><br><font color='#F0C200'>奖励：</font>发射数量基于任务等级的额外飞弹。"
+  },
+  "2062": {
+   "en": "Casting your chosen ability sends a clone of the ability toward your mouse position and recasts it after 0.25 seconds.",
+   "zh": "施放你的【指定】技能时会朝你的鼠标位置派出一个复制体并且在0.25秒之后再次施放该技能。"
+  },
+  "2064": {
+   "en": "When you use chosen ability, dash towards your cursor.",
+   "zh": "当你使用【指定】技能时，朝你的鼠标指针进行冲刺。"
+  },
+  "2065": {
+   "en": "Whenever you cast chosen ability, <status>Fear</status> enemies around you for 1.75 seconds.",
+   "zh": "每当你施放【指定】技能时，<status>恐惧</status>你周围的敌人们1.75秒。"
+  },
+  "2072": {
+   "en": "Your chosen ability missile splits into two on hit, at max Range, or when <recast>Recast</recast>.  <br><br><rules>Enemies take less damage if hit by the same spell.</rules>",
+   "zh": "在命中时、最大距离时或<recast>再次施放</recast>时，你的【指定】技能的飞弹会分裂为两部分。  <br><br><rules>敌人被同一技能命中时，承受伤害会减少。</rules>"
+  },
+  "2073": {
+   "en": "<healing>Heal</healing> for 30% of the damage dealt to enemy champions by chosen ability.",
+   "zh": "<healing>治疗</healing>相当于用【指定】技能对敌方英雄的30%造成伤害的生命值。"
+  },
+  "2076": {
+   "en": "Damaging enemy champions with chosen ability grants you 2 - 3 (based on level) <scaleArmor>Armor</scaleArmor> or <scaleMR>Magic Resistance</scaleMR> based on their Damage Type. <br><br><rules>If this is not your first augment, gain 20 <scaleArmor>Armor</scaleArmor> and <scaleMR>Magic Resistance</scaleMR>.</rules>",
+   "zh": "用【指定】技能对敌方英雄造成伤害会基于其伤害类型为你提供2 - 3（基于等级）<scaleArmor>护甲</scaleArmor>或<scaleMR>魔抗</scaleMR>。<br><br><rules>如果这不是你的第一个强化符文，获得20<scaleArmor>护甲</scaleArmor>和<scaleMR>魔抗</scaleMR>。</rules>"
+  },
+  "2077": {
+   "en": "Minimum healing: <healing>75 - 300 (based on level) (+5% AP) (+12% bonus max Health)</healing><br><br><rules>Healing increases up to 50% based on spell cooldown.</rules>",
+   "zh": "最小治疗：<healing>75 - 300（基于等级）（+5%法术强度）（+12%额外最大生命值）</healing><br><br><rules>治疗效果基于技能冷却时间至多提升至50%。</rules>"
+  },
+  "2078": {
+   "en": "If a champion you <status>Knock Back</status> with chosen ability hits another champion, they are <status>Knocked Up</status> for 0.5 seconds and are dealt <magicDamage>100 - 400 (based on level) magic damage</magicDamage>. If enemy champions collide with terrain, they are <status>Knocked Up</status> for 0.75 seconds and are dealt <magicDamage>150 - 800 (based on level) magic damage</magicDamage>.<br><br><rules>Knock Up Duration and Height scale with your spell's cooldown.<br><rules>Damage is increased to 250% for Ultimate Abilities.</rules></rules>",
+   "zh": "如果你用【指定】技能<status>击退</status>的一个英雄命中了另一个英雄，二者都会被<status>击飞</status>0.5秒并且受到<magicDamage>100 - 400（基于等级）魔法伤害</magicDamage>。如果敌方英雄们与地形产生碰撞，则会被<status>击飞</status>0.75秒并受到额外<magicDamage>150 - 800（基于等级）伤害</magicDamage>。<br><br><rules>击飞时长和高度受益于你的技能的冷却时间。<br><rules>对于终极技能，该伤害值提升至250%。</rules></rules>"
+  },
+  "2080": {
+   "en": "Your <spellName>Snowball</spellName> gains 100 Ability Haste. The ability's recast deals 100% increased <magicDamage>damage</magicDamage>, <status>Knocks Up</status> the target, and knocks back nearby enemies.",
+   "zh": "你的<spellName>雪球</spellName>获得100技能急速。这个技能的再次施放造成100%提升<magicDamage>伤害</magicDamage>、<status>击飞</status>该目标、并击退附近的敌人们。"
+  },
+  "2083": {
+   "en": "When you deal more than <attention>25%</attention> of an enemy champion's Health in less than <attention>2.5</attention> seconds, they drop a <keyword>Tooth</keyword>.<br><br><rules> 4 seconds cooldown per target</rules>",
+   "zh": "当你在<attention>2.5</attention>秒内对一个敌方英雄造成大于其<attention>25%</attention>生命值的伤害时，其会掉落一颗<keyword>牙齿</keyword>。<br><br><rules>对每个目标有4秒冷却时间</rules>"
+  },
+  "2087": {
+   "en": "Casting a spell refunds another random spell's cost by 30% of the original spell's Cooldown.",
+   "zh": "施放一个技能会返还另一个随机技能的花费，数额相当于30%原技能冷却时间。"
+  },
+  "2088": {
+   "en": "<spellName>Snowball</spellName> gains 100 Ability Haste and deals 100% increased <magicDamage>damage</magicDamage>.",
+   "zh": "<spellName>雪球</spellName>获得100技能急速并且造成<magicDamage>伤害</magicDamage>提升100%。"
+  },
+  "2091": {
+   "en": "<keywordMajor>Autocast</keywordMajor> a circular axe swing that deals <physicalDamage>physical damage</physicalDamage> every 8 seconds in combat. Enemies along the outer edge take increased damage (100 - 400 (based on level) (+40% AP) (+60% AD)) and <healing>heal you 18% of your Missing Health</healing>. Each enemy hit along the outer edge reduces this ability's cooldown by 10% down to a minimum of 3 seconds.",
+   "zh": "在战斗中每8秒<keywordMajor>自动施放</keywordMajor>一次环形斧头挥舞来造成<physicalDamage>物理伤害</physicalDamage>。被斧刃命中的敌人们受到额外伤害(100 - 400（基于等级）（+40%法术强度）（+60%攻击力）)并<healing>治疗你18%已损失生命值</healing>。用斧刃命中的每个敌人，都会将这个技能的冷却时间缩短10%，最小值为3秒。"
+  },
+  "2096": {
+   "en": "Gain 150 (66.7% for ranged) Attack Range and 75% (53.3% for ranged) <attackSpeed>Attack Speed</attackSpeed> during your chosen ability duration.",
+   "zh": "在你的【指定】技能持续期间获得150（远程英雄为66.7%）攻击距离和75%（远程英雄为53.3%）<attackSpeed>攻击速度</attackSpeed>。"
+  },
+  "2098": {
+   "en": "Periodically identify <keywordMajor>Vitals</keywordMajor> on enemy champions. Hitting <keywordMajor>Vitals</keywordMajor> with Attacks or Abilities deals an additional <trueDamage>6% + 1.5% per stack max Health true damage</trueDamage>, restores <healing>50 - 200 (based on level) + 5% Missing Health</healing>, and grants<speed> 50% + 5% per stack Bonus Movement Speed,</speed> decaying over 2 seconds.",
+   "zh": "周期性地识别出敌方英雄身上的<keywordMajor>破绽</keywordMajor>。 用攻击或技能命中<keywordMajor>破绽</keywordMajor>时，会造成额外的<trueDamage>6% + 每层1.5%最大生命值真实伤害</trueDamage>、回复<healing>50 - 200（基于等级） + 5%已损失生命值</healing>，并提供在2秒里持续衰减的<speed>50%+每层5%额外移动速度</speed>。"
+  },
+  "2099": {
+   "en": "Champion takedowns within 3 seconds of damaging them causes them to leave behind their <keywordMajor>Essence</keywordMajor> for 8 seconds. Attacking an <keywordMajor>Essence</keywordMajor> consumes it.<br><br>Consuming an <keywordMajor>Essence</keywordMajor> blinks you to its location, makes you <attention>Untargetable</attention> and <attention>Unstoppable</attention>, grants <speed>100% Move Speed</speed> decaying over 2 seconds, <healing>heals you 75 - 300 (based on level) (+50% bonus AD) (+25% AP) to 150 - 600 (based on level) (+100% bonus AD) (+50% AP) based on your Missing Health</healing>, and resets your basic Ability cooldowns. <br><br><flavorText>Today, you will see the power of Ascension! — Azir, the Emperor of the Sands</flavorText>",
+   "zh": "参与击杀你在过去3秒内造成过伤害的英雄，会使其留下其<keywordMajor>精华</keywordMajor>，持续8秒。攻击一个<keywordMajor>精华</keywordMajor>会消耗它。<br><br>消耗一个<keywordMajor>精华</keywordMajor>会使你闪烁至它的位置、让你变为<attention>不可被选取</attention>和<attention>不可阻挡</attention>、提供在2秒里持续衰减的<speed>100%移动速度</speed>、<healing>治疗你75 - 300（基于等级）（+50%额外攻击力）（+25%法术强度）到150 - 600（基于等级）（+100%额外攻击力）（+50%法术强度）生命值(基于已损失生命值)</healing>、并重置你的基础技能冷却时间。<br><br><flavorText>今天，你们将一睹飞升之威能！——沙漠皇帝 阿兹尔</flavorText></rules>"
+  },
+  "2103": {
+   "en": "<flavorText>Bang! Bang! Oh, what a shot!</flavorText>",
+   "zh": "<flavorText>砰！砰！噢，这枪打得好啊！</flavorText>"
+  },
+  "2104": {
+   "en": "<healing>Healing</healing> and <shield>Shielding</shield> builds up a <keywordMajor>Spirit Bomb</keywordMajor>. At max stacks, toss the <keywordMajor>Spirit Bomb</keywordMajor> at your <scaleHealth>lowest Health ally</scaleHealth>. After reaching the target, it <healing>heals nearby allies for 12% (+0% AP) of their missing Health</healing> and grants them a <shield>15% (+0% AP) current Health shield</shield> for 2 seconds.",
+   "zh": "提供<healing>治疗</healing>和<shield>护盾</shield>时会为你积攒一颗<keywordMajor>灵魄炸弹</keywordMajor>。在满层时，投掷该<keywordMajor>灵魄炸弹</keywordMajor>至你<scaleHealth>生命值最低的那个友军</scaleHealth>。在接触到该目标后，它会<healing>治疗附近友军们各自的12%（+0%法术强度）已损失生命值</healing>并为他们提供持续2秒的<shield>15%（+0%法术强度）当前生命值的护盾值</shield>。"
+  },
+  "2107": {
+   "en": "Striking enemy champions with Attacks or Abilities grants you a stack of <attention>Revivemaxxing</attention> for 6 seconds (max: 10). At max stacks become <danger>Hellbent</danger>.<br><br><danger>Hellbent</danger>: Upon dying, <attention>revive</attention> over the course of 4 seconds at <scaleHealth>35% - 75% (based on level) max Health</scaleHealth>. Afterwards, you gain <attention>25 - 200 (based on level) Adaptive Force</attention>, <speed>20% - 40% (based on level) Move Speed towards enemy champions</speed>, and <lifeSteal>15% - 30% (based on level) Omnivamp</lifeSteal> for 15 seconds.<br><br>This has a 90 second cooldown.",
+   "zh": "用攻击或技能打击敌方英雄时会提供给你一层持续6秒的<attention>复活限度</attention>(最大层数：10)。在满层时变为<danger>濒死悟道</danger>。<br><br><danger>濒死悟道</danger>：在濒临死亡时，在4秒里<attention>复活</attention>至<scaleHealth>35% - 75%（基于等级）最大生命值</scaleHealth>。在此之后，你获<attention>25 - 200（基于等级）适应之力</attention>、<speed>朝着敌方英雄时的20% - 40%（基于等级）移动速度</speed>、以及<lifeSteal>15% - 30%（基于等级）全能吸血</lifeSteal>，持续15秒。<br><br>这个效果有90秒冷却时间。"
+  },
+  "2109": {
+   "en": "Recast chosen ability to explode for 100 - 300 (based on level) (+20% AP) (+20% AD) magic damage and return to your original position.",
+   "zh": "再次施放【指定】技能时会产生爆炸，造成100 - 300（基于等级）（+20%法术强度）（+20%攻击力）魔法伤害，并回到你的原本位置。"
+  },
+  "2111": {
+   "en": "Attacks and Abilities empowered by chosen ability deal an additional 30% damage to the target and nearby enemies.",
+   "zh": "被【指定】技能强化的攻击或技能会对目标和附近的敌人们造成额外的30%伤害。"
+  },
+  "2115": {
+   "en": "Occasionally send out Squishy Slappy Hands that latch on to all nearby enemy champions for 4 seconds. While you're latched onto enemies, your next attack will <status>pull</status> them to you, deal <magicDamage>50 - 150 (based on level) (+15% bonus max Health) magic damage</magicDamage>, and <status>stun them for 0.25 seconds</status>. You gain <shield>100 - 300 (based on level) (+70% bonus Armor) (+70% bonus Magic Resist) shield</shield> for 2.5 seconds per <status>pulled</status> enemy.<br><br>This has a 30 second cooldown.",
+   "zh": "偶尔对所有附近的敌方英雄放出软弹啪叽的手，然后用灵链系住4秒。当你处于系住敌人的状态时，你的下一次攻击将<status>拉拽</status>其到你的位置，对其造成<magicDamage>50 - 150（基于等级）（+15%额外最大生命值）魔法伤害</magicDamage>和<status>0.25秒晕眩</status>。你每<status>拉拽</status>到一个敌人就会获得持续2.5秒的<shield>100 - 300（基于等级）（+70%额外护甲）（+70%额外魔法抗性）护盾值</shield>。<br><br>这个效果有30秒冷却时间。"
+  },
+  "2119": {
+   "en": "Your Cannon Launcher has significantly increased range, travel speed, and damage. Recall to enter your Cannon Launcher.",
+   "zh": "你的加农炮发射器的距离、飞行速度和伤害已经得到显著提升。回城并进入到你的加农炮发射器。"
+  },
+  "2123": {
+   "en": "Using another Ability resets the cooldown of chosen ability.<br><br><flavorText>\"They come for the scroll... Stick to the plan... EQEQEQ...\" — The Blue One</flavorText></rules>",
+   "zh": "使用另一个技能会重置【指定】技能的冷却时间。<br><br><flavorText>“它们来找卷轴了……按计划来……EQEQEQ……” —— 那个蓝人</flavorText></rules>"
+  },
+  "2125": {
+   "en": "Activating chosen ability grants you <speed>25% - 45% (based on level) Movement Speed</speed> for its duration.",
+   "zh": "激活【指定】技能会在其持续期间为你提供<speed>25% - 45%（基于等级）移动速度</speed>。"
+  },
+  "2127": {
+   "en": "Your <attention>Item</attention> and <attention>Augment</attention> damage are increased by <attention>45%</attention>.",
+   "zh": "你的<attention>装备</attention>和<attention>强化符文</attention>伤害提升<attention>45%</attention>。"
+  },
+  "2129": {
+   "en": "Your terrain created by chosen ability deals <magicDamage>20 - 180 (based on level) (+20% AP) magic damage</magicDamage> per second to nearby enemies.<br><br><rules>Damage is increased by 200% for Ultimate Abilities.</rules>",
+   "zh": "由你的【指定】技能生成的地形会每秒对附近的敌人们造成<magicDamage>20 - 180（基于等级）（+20%法术强度）魔法伤害</magicDamage>。<br><br><rules>如果是终极技能，那么此伤害提升200%。</rules>"
+  },
+  "2131": {
+   "en": "While <attention>Channeling</attention> gain <shield>50 - 200 (based on level) (+50% AD) (+25% AP) (+10% bonus max Health) Shield</shield> every second. It decays when you are not <attention>Channeling</attention>.",
+   "zh": "在<attention>引导</attention>状态下，每秒获得<shield>50 - 200（基于等级）（+50%攻击力）（+25%法术强度）（+10%额外最大生命值）护盾值</shield>。它会在你未处于<attention>引导</attention>状态时不断衰减。"
+  },
+  "2132": {
+   "en": "Gain <lifeSteal>10% (+0% AP) Omnivamp</lifeSteal>.",
+   "zh": "获得<lifeSteal>10%（+0%法术强度）全能吸血</lifeSteal>。"
+  },
+  "2133": {
+   "en": "After healing or shielding your ally with chosen ability, your next basic attack gains <attention>300 bonus attack range</attention>, <speed>75% attack speed</speed> and deals an additional <magicDamage>2.5% (+20% Heal and Shield Power) max Health magic damage</magicDamage>.<br><br><rules>Turret take 2.5% max health magic damage. </rules>",
+   "zh": "在使用【指定】技能为你的友军提供治疗或护盾之后之后，你的下一次普攻获得<attention>300额外攻击距离</attention>、<speed>75%攻击速度</speed>并造成额外的<magicDamage>2.5%（+20%治疗和护盾强度）最大生命值魔法伤害</magicDamage>。<br><br><rules>防御塔受到2.5%最大生命值魔法伤害。</rules>"
+  },
+  "2135": {
+   "en": "Attacks during chosen ability gouge your target with <keywordMajor>Nails</keywordMajor>.<br><br>Nails explode once chosen ability expires, dealing <physicalDamage>20 - 60 (based on level) Physical Damage</physicalDamage> and granting <speed>10 Move Speed</speed> per stack for 3 seconds. Nails will explode early and execute if the accumulated damage would kill the enemy champion.",
+   "zh": "在【指定】技能期间进行攻击会对你的目标凿下<keywordMajor>大钉</keywordMajor>。<br><br>大钉会在【指定】技能到期时引爆，每层造成<physicalDamage>20 - 60（基于等级）物理伤害</physicalDamage>并提供持续3秒的<speed>10移动速度</speed>。如果已积累的伤害足以击杀该敌方英雄，则大钉将提前引爆并将其处决。"
+  },
+  "2136": {
+   "en": "When you strike an enemy champion with chosen ability, forge a bond of <keyword>Friendship</keyword> that grants it <attention>5%</attention> increased damage for 6 seconds. This effect can stack.<br><br><flavorText>\"It's—it's not like I like you or anything!!\" — </flavorText>",
+   "zh": "在你用指定打击一个敌方英雄时，铸造一条<keyword>友谊</keyword>纽带来为该技能提供<attention>5%</attention>提升伤害，持续6秒。这个效果可以叠加。<br><br><flavorText>“我——我才不是喜欢你呢！”——</flavorText>"
+  },
+  "2138": {
+   "en": "Striking an enemy champion with chosen ability grants you <attention>7 - 12 (based on level)</attention> <scaleArmor>Armor</scaleArmor> or <scaleMR>Magic Resist</scaleMR> based on their damage type for 6 seconds. This effect can stack.",
+   "zh": "用【指定】技能打击一个敌方英雄时，为你提供持续6秒的<attention>7 - 12（基于等级）</attention><scaleArmor>护甲</scaleArmor>或<scaleMR>魔法抗性</scaleMR>，基于该技能的伤害类型。这个效果可以叠加。"
+  },
+  "2139": {
+   "en": "Taking damage from champions builds up a burst of needles. At critical mass, the needles burst, dealing <physicalDamage>75 - 200 (based on level) (+125% bonus Armor) (+125% bonus Magic Resist) physical damage</physicalDamage> and <status>Slowing </status> nearby enemies by 30% for 2 seconds.",
+   "zh": "承受来自英雄的伤害会积攒一次尖针迸发。当达到临界质量时，尖针就会爆裂，对附近敌人们造成<physicalDamage>75 - 200（基于等级）（+125%额外护甲）（+125%额外魔法抗性）物理伤害</physicalDamage>和持续2秒的30%<status>减速</status>。"
+  },
+  "2140": {
+   "en": "Your spell hits trigger Cleave against enemies. Increase Ravenous Hydra's Life Steal to 20%<br><br>Gain <font color=\"#ffd138\"><gold>500 Gold</gold></font>.",
+   "zh": "你对敌人的技能命中会触发顺劈。提升【贪欲九头蛇】的生命偷取至20%。<br><br>获得<font color=\"#ffd138\"><gold>500金币</gold></font>."
+  },
+  "2141": {
+   "en": "Gain a <attention>Tiamat</attention> when completing a Hydra Item.<br><br><font color='#F0C200'>QUEST:</font> Gain Ravenous Hydra, Profane Hydra and Titanic Hydra.<br><br><font color='#F0C200'>REWARD:</font> Gain Ultra Hydra.",
+   "zh": "在完成一个【九头蛇】装备时，获得一个<attention>提亚马特</attention>。<br><br><font color='#F0C200'>任务：</font>拥有【贪欲九头蛇】，【亵渎九头蛇】和【巨型九头蛇】。<br><br><font color='#F0C200'>奖励：</font>获得【终极九头蛇】。"
+  },
+  "2143": {
+   "en": "Reduce Sundered Sky's per target cooldown to 5 seconds and heal you for 9% of missing health.<br><br>Gain<gold> 500 Gold</gold>.",
+   "zh": "将【焚天】对每个目标的冷却时间缩短至5秒，并且治疗你9%已损失生命值。<br><br>获得<gold>500金币</gold>。"
+  },
+  "2144": {
+   "en": "Shields granted from chosen ability are up to 60% stronger, scaling with target's missing Health.<br><br><rules>Most effective at 30% max health</rules>.",
+   "zh": "来自【指定】技能的护盾变强至多60%，受益于目标的已损失生命值。<br><br><rules>在30%最大生命值时达到最大效能。</rules>"
+  },
+  "2157": {
+   "en": "Gain <gold>250</gold>.<br><br><keywordMajor>Death's Dance's</keywordMajor> <passive>Ignore Pain</passive> is increased to 40% (37.5% for ranged) of damage received, and heals for <healing>125% bonus AD</healing> <keywordMajor>instantly</keywordMajor> when scoring a takedown.",
+   "zh": "获得<gold>250</gold>。<br><br><keywordMajor>死亡之舞</keywordMajor>的<passive>无视痛苦</passive>提升至40%（远程英雄为37.5%）所受伤害，并且在参与一次击杀后，<keywordMajor>即刻</keywordMajor>治疗<healing>125%额外攻击力</healing>生命值。"
+  },
+  "3004": {
+   "en": "Replace a Summoner Spell with <spellName>Get Jinxed!</spellName><br><br><spellName>Get Jinxed!</spellName>: Ride a rocket that explodes upon hitting an enemy champion, structure, or terrain. The rocket deals from <physicalDamage>20 - 80 (based on level) (+12% bonus AD) (+8% AP) + 3% missing Health physical damage to 160 - 640 (based on level) (+96% bonus AD) (+64% AP) + 24% missing Health physical damage</physicalDamage> to the target and nearby enemies, based on how far the rocket traveled.<br><br><rules>The impact radius of the rocket grows as it travels.<br>You are <status>Invulnerable</status> and <status>Untargetable</status> while riding the rocket.</rules><br><br><rules><br><br><flavorText>\"Aww, c'mon. What's the worst that could happen?\" — Jinx, the Loose Cannon</flavorText></rules>",
+   "zh": "将一个召唤师技能替换为<spellName>罪恶快感！</spellName><br><br><spellName>罪恶快感！</spellName>：驾驶一枚飞弹，它会在命中敌方英雄、建筑物或地形时爆炸。该飞弹基于到达目标和附近敌方英雄时已行进的距离，对目标和附近敌方英雄造成<physicalDamage>20 - 80（基于等级）（+12%额外攻击力）（+8%法术强度）+3%已损失生命值的物理伤害至160 - 640（基于等级）（+96%额外攻击力）（+64%法术强度）+24%已损失生命值的物理伤害</physicalDamage>。<br><br><rules>飞弹的冲击半径会随行进而增长。<br>你在驾驭该飞弹期间处于<status>免疫伤害</status>和<status>不可被选取</status>状态。</rules><br><br><rules><br><br><flavorText>“别慌，还能发生什么更糟糕的事情呢？”— 暴走萝莉 金克丝</flavorText></rules>"
+  },
+  "3018": {
+   "en": "Gain <crit>35% Critical Strike Damage</crit> and <scaleAD>25% bonus Attack Damage</scaleAD>.<br><br><attackSpeed>75% of your Attack Speed</attackSpeed> is converted into <crit>Critical Strike Damage</crit>.<br>(<attackSpeed>1% Attack Speed</attackSpeed> to <crit>0.7% Critical Strike Damage</crit>)",
+   "zh": "获得<crit>35%暴击伤害</crit>和<scaleAD>25%额外攻击力</scaleAD>。<br><br><attackSpeed>你的75%攻击速度</attackSpeed>转化为<crit>暴击伤害</crit>。<br>(每<attackSpeed>1%攻击速度</attackSpeed>转为<crit>0.7%暴击伤害</crit>)"
+  },
+  "3025": {
+   "en": "<shield>Shielding</shield> an ally grants 20% - 40% (based on level) (+50% Heal and Shield Power) <speed>Move Speed</speed> and <status>Ghost</status> decaying over 1.5 seconds.<br><br><rules>Cooldown per target: 1.5 seconds.</rules>",
+   "zh": "为一名友军提供<shield>护盾</shield>时，会提供在1.5秒内持续衰减的20% - 40%（基于等级）（+50%治疗和护盾强度）<speed>移动速度</speed>和<status>幽灵疾步</status>。<br><br><rules>每个目标的冷却时间：1.5秒。</rules>"
+  },
+  "3036": {
+   "en": "Damaging an enemy champion with 2 separate Abilities within 4 seconds deals <magicDamage>10% max Mana magic damage</magicDamage> and grants <scaleMana>25 max Mana</scaleMana>.<br><br>4 second Cooldown Per Target</rules>",
+   "zh": "在4秒内用2种不同技能对一名敌方英雄造成伤害时，会造成<magicDamage>10%最大法力值魔法伤害</magicDamage>并提供<scaleMana>25最大法力值</scaleMana>。<br><br>每个目标有4秒冷却时间</rules>"
+  },
+  "3039": {
+   "en": "Taking damage that would reduce your Health below <scaleHealth>50%</scaleHealth> releases a shockwave which deals <magicDamage>100 - 500 (based on level) (+125% bonus AD) (+75% AP) magic damage</magicDamage> and <Status>Knocks Back</Status> enemy champions while <healing>restoring 200 - 550 (based on level) (+200% bonus AD) (+120% AP) health to all allied champions</healing> hit.",
+   "zh": "受到伤害导致你的生命值低于<scaleHealth>50%</scaleHealth>时，会释放一道冲击波，对敌方英雄造成<magicDamage>100 - 500（基于等级）（+125%额外攻击力）（+75%法术强度）魔法伤害</magicDamage>并将其<Status>击退</Status>，同时<healing>为所有被命中的友方英雄回复200 - 550（基于等级）（+200%额外攻击力）（+120%法术强度）生命值</healing>。"
+  },
+  "3048": {
+   "en": "After using an ability, your next attack bounces to the nearest enemy.<br><br><font color='#F0C200'>QUEST:</font> Bounce attacks onto enemy Champions<br><br><font color='#F0C200'>REWARD:</font> Gain <physicalDamage>+30AD</physicalDamage> and an extra bounce per Quest Level",
+   "zh": "使用技能后，你的下一次普攻会弹跳至相距最近的那个敌人。<br><br><font color='#F0C200'>任务：</font>将普攻弹跳至敌方英雄<br><br><font color='#F0C200'>奖励：</font>每任务等级获得<physicalDamage>+30攻击力</physicalDamage>和额外一次弹跳"
+  },
+  "3049": {
+   "en": "After casting an Ability, your next Attack deals 25 - 125 (based on level) (+220% bonus Armor) bonus physical damage to nearby enemies.",
+   "zh": "施放技能后，你的下一次普通攻击会对附近敌人造成25 - 125（基于等级）（+220%额外护甲）额外物理伤害。"
+  },
+  "3051": {
+   "en": "Gain 200% - 450% (based on level) of the <scaleMana>Mana</scaleMana> you spend as a <shield>Shield</shield> for 1.5 seconds.<br><br><rules>Shields up to 300 - 800 (based on level)</rules>",
+   "zh": "获得持续1.5秒的<shield>护盾</shield>，数额相当于你花费的200% - 450%（基于等级）<scaleMana>法力值</scaleMana>。<br><br><rules>护盾值至多为300 - 800（基于等级）</rules>"
+  },
+  "3052": {
+   "en": "Attacks fired at more than 75% of max Attack Range deal bonus <physicalDamage>15% bonus AD + 20% AP physical damage</physicalDamage> <OnHit>On-Hit</OnHit>.",
+   "zh": "在超过75%最大攻击距离处打出的攻击会额外造成<physicalDamage>15%额外攻击力 + 20%法术强度物理伤害</physicalDamage><OnHit>攻击特效</OnHit>。"
+  },
+  "3053": {
+   "en": "Casting chosen ability grants <scaleHealth>300 - 750 (based on level) bonus Health</scaleHealth> and <status>Slows</status> nearby enemies by 50% for the duration of chosen ability<br><br>Getting takedowns permanently increases the Health gained by 15 - 30 (based on level) and increases the area of the slow zone.<br><br><rules>Takedowns earned while using chosen ability are worth <attention>triple</attention>.</rules>",
+   "zh": "施放【指定】技能会获得<scaleHealth>300 - 750（基于等级）额外生命值</scaleHealth>，并在指定<br>持续期间使附近敌人<status>减速</status>50%<br>参与击杀会永久提升由15 - 30（基于等级）获得的生命值，并扩大减速地带的范围。<br><br><rules>使用【指定】技能时的参与击杀数算作<attention>三倍</attention>。</rules>"
+  },
+  "3055": {
+   "en": "Gain 50 Ultimate Ability Haste.",
+   "zh": "获得50终极技能急速。"
+  },
+  "3058": {
+   "en": "<scaleAD>Attack Damage</scaleAD> is converted into <attackSpeed>Attack Speed</attackSpeed>.<br>(<scaleAD>1 Attack Damage</scaleAD> to <attackSpeed>1.8% Attack Speed</attackSpeed>)<br><br>Attacks deal <magicDamage>5 - 50 (based on level) bonus magic damage</magicDamage> <OnHit>On-Hit</OnHit>.",
+   "zh": "<scaleAD>攻击力</scaleAD>转化为<attackSpeed>攻击速度</attackSpeed>。<br>(每<scaleAD>1攻击力</scaleAD>转为<attackSpeed>1.8%攻击速度</attackSpeed>)<br><br>普攻附带<magicDamage>5 - 50（基于等级）额外魔法伤害</magicDamage><OnHit>攻击特效</OnHit>。"
+  },
+  "3059": {
+   "en": "<scaleMana>Mana</scaleMana> from your items is converted into <scaleAP>Ability Power</scaleAP>.<br>(<scaleMana>10 Mana</scaleMana> to <scaleAP>1 Ability Power</scaleAP>)<br><br>Increase your total <scaleAP>Ability Power by 15%</scaleAP>.",
+   "zh": "来自你的装备的<scaleMana>法力值</scaleMana>转化为<scaleAP>法术强度</scaleAP>。<br>(每<scaleMana>10法力值</scaleMana>转为<scaleAP>1法术强度</scaleAP>)<br><br>使你的总<scaleAP>法术强度提升15%</scaleAP>。"
+  },
+  "3060": {
+   "en": "chosen ability's damage is increased by 75% per <scaleAbilityHaste>100 Ability Haste</scaleAbilityHaste>, but no longer benefits from <scaleAbilityHaste>Ability Haste</scaleAbilityHaste>.",
+   "zh": "每拥有<scaleAbilityHaste>100技能急速</scaleAbilityHaste>，【指定】技能的伤害就会提升75%，但它不再受益于<scaleAbilityHaste>技能急速</scaleAbilityHaste>。"
+  },
+  "3063": {
+   "en": "<scaleHealth>Bonus Health</scaleHealth> is converted into <scaleLethality>Lethality</scaleLethality>.<br>(<scaleHealth>100 Health</scaleHealth> to <scaleLethality>5 Lethality</scaleLethality>)<br><br>Gain <scaleLethality>10 - 25 (based on level) Lethality</scaleLethality>.",
+   "zh": "<scaleHealth>额外生命值</scaleHealth>转化为<scaleLethality>穿甲</scaleLethality>。<br>(每<scaleHealth>100生命值</scaleHealth>转为<scaleLethality>5穿甲</scaleLethality>)<br><br>获得<scaleLethality>10 - 25（基于等级）穿甲</scaleLethality>。"
+  },
+  "3071": {
+   "en": "Replace a Summoner Spell with <spellName>Brass Blast</spellName>.<br><br><charge>Begin Charging</charge>: Charge up a large trumpet for up to 1.5 seconds.<br><br><release>Release: Blow the trumpet, </release> <status>Knock Back</status> and deal between <magicDamage>120 - 140 (based on level) (+50% AP) (+70% bonus AD) to 200 - 600 (based on level) (+80% AP) (+115% bonus AD) magic damage</magicDamage> based on charge time. <br><br><rules>Minimum Charge Time: 0.25 seconds</rules>",
+   "zh": "将一个召唤师技能替换为<spellName>黄铜爆音</spellName>。<br><br><charge>开始蓄力</charge>：为大喇叭蓄力，最多蓄力1.5秒。<br><br><release>释放：吹响喇叭，</release><status>击退</status>敌人并基于蓄力时间造成<magicDamage>120 - 140（基于等级）（+50%法术强度）（+70%额外攻击力）至200 - 600（基于等级）（+80%法术强度）（+115%额外攻击力）魔法伤害</magicDamage>。<br><br><rules>最短蓄力时间：0.25秒</rules>"
+  },
+  "3075": {
+   "en": "chosen ability deals 25% increased damage and knocks you backward.",
+   "zh": "【指定】技能造成25%额外伤害并且你因反冲力而后退。"
+  },
+  "3078": {
+   "en": "After casting an Ability, your next Attack within 6 seconds is faster, deals <magicDamage>50 - 175 (based on level) (+40% bonus AD) (+25% AP) (50% for ranged) magic damage</magicDamage> <OnHit>On-Hit</OnHit>, and grants you <speed>75% - 150% (based on level) Move Speed</speed> decaying over 2 seconds.",
+   "zh": "施放技能后，你在6秒内的下一次普攻变得更快，附带<magicDamage>50 - 175（基于等级）（+40%额外攻击力）（+25%法术强度）（远程英雄为50%）魔法伤害</magicDamage><OnHit>攻击特效</OnHit>，并为你提供在2秒里持续衰减的<speed>75% - 150%（基于等级）移动速度</speed>。"
+  },
+  "3079": {
+   "en": "Replace a Summoner Spell with <spellName>A Dance with Death</spellName>.<br><br><spellName>A Dance with Death</spellName>: Become <attention>Unkillable</attention> for 5 seconds and blink forward.<br><br>If you get a takedown before the end of the duration, restore <healing>250 - 1000 (based on level) Health</healing>, blink back to your original position, and reduce this Summoner Spell's cooldown by 20 seconds. If not, <danger>YOU DIE</danger>.<br><br><flavorText>\"You all die, why not choose how?\" — Karthus, the Deathsinger</flavorText></rules>",
+   "zh": "将一个召唤师技能替换为<spellName>与死亡共舞一曲</spellName>。<br><br><spellName>与死亡共舞一曲</spellName>：进入持续5秒的<attention>不可被击杀</attention>状态并向前闪烁。<br><br>如果你在这个持续时间结束前参与击杀了一个英雄，你会回复<healing>250 - 1000（基于等级）生命值</healing>，闪烁回你原本的位置，并使这个召唤师技能的冷却时间缩减20秒。否则，<danger>你会直接阵亡</danger>。<br><br><flavorText>“你们终归是要死的，为什么不选择死亡的方式呢？” — 死亡颂唱者 卡尔萨斯</flavorText></rules>"
+  },
+  "3081": {
+   "en": "Your first Legendary Item becomes the <prismatic>Weapon of Destiny</prismatic>. When a champion you damaged within the last 3 seconds dies, increase the <prismatic>Weapon of Destiny's</prismatic> stats.<br><br><rules>The <prismatic>Weapon of Destiny</prismatic> cannot be sold.",
+   "zh": "你的第一件传说级装备成为<prismatic>命运之武器</prismatic>。过去3秒内受到过你伤害的英雄阵亡时，<prismatic>命运之武器</prismatic>会获得属性提升。<br><br><rules><prismatic>命运之武器</prismatic>无法售出。"
+  },
+  "3085": {
+   "en": "Casting chosen ability grants you <attackSpeed>60% - 120% (based on level) Attack Speed</attackSpeed> for 4 seconds.",
+   "zh": "施放【指定】技能会为你提供持续4秒的<attackSpeed>60% - 120%（基于等级）攻击速度</attackSpeed>。"
+  },
+  "3086": {
+   "en": "Every 15 - 10 (based on level) seconds, your next Ability hit against an enemy champion throws a beehive at the target. Upon arriving, the hive explodes and <keyword>Bees</keyword> swarm to all nearby enemy champions, <status>Slowing</status> them by 20% and dealing <magicDamage>75 - 140 (based on level) (+150% bonus AD) (+70% AP) magic damage</magicDamage> over 2 seconds.<br><br><rules><keyword>Bees</keyword> apply <OnHit>On-Hit</OnHit> effects at 40% effectiveness.<br><br><flavorText>According to all known laws of aviation, there is no way a bee should be able to fly...</flavorText></rules>",
+   "zh": "每15 - 10（基于等级）秒，你的下一个命中敌方英雄的技能会朝该目标投掷一个蜂巢。在抵达时，该蜂巢会爆炸并且<keyword>小蜜蜂</keyword>会蜂拥至所有附近的敌方英雄处，使其在2秒里<status>减速</status>20%并持续造成<magicDamage>75 - 140（基于等级）（+150%额外攻击力）（+70%法术强度）魔法伤害</magicDamage>。<br><br><rules><keyword>小蜜蜂</keyword>附带40%效能的<OnHit>攻击特效</OnHit>。<br><br><flavorText>根据所有已知的航空定律，蜜蜂就不可能会飞……</flavorText></rules>"
+  },
+  "3088": {
+   "en": "Enemy champions damaged by chosen ability are marked for 4 seconds. Attacking a marked enemy consumes the mark to deal <magicDamage>100 - 250 (based on level) (+70% bonus AD) (+35% AP) magic damage</magicDamage> and reduce the cooldown of chosen ability by 65%.",
+   "zh": "用【指定】技能伤害过的敌方英雄会被标记4秒。攻击一个带标记的敌人会造成<magicDamage>100 - 250（基于等级）（+70%额外攻击力）（+35%法术强度）魔法伤害</magicDamage>并缩减【指定】技能65%秒冷却时间。"
+  },
+  "3094": {
+   "en": "Gain <scaleAP>30 (+4% bonus max Health) Ability Power</scaleAP>.",
+   "zh": "获得<scaleAP>30（+4%额外最大生命值）法术强度</scaleAP>。"
+  },
+  "3116": {
+   "en": "Attacks and Abilities apply a stack to enemy champions for 5 seconds and deal <magicDamage>5 - 30 (based on level) (+35% bonus AD) (+15% AP) (50% for ranged) magic damage</magicDamage> + <magicDamage>1 - 6 (based on level) (+7% bonus AD) (+3% AP) magic damage per stack</magicDamage>.<br><br>Damaging an enemy that has 5 stacks consumes them to deal <magicDamage>17% (50% for ranged) missing Health magic damage</magicDamage> and <healing>you restore health equal to 67% (50% for ranged) of the damage dealt</healing>.",
+   "zh": "普攻和技能会对敌方英雄施加一层持续5秒的效果，并造成<magicDamage>5 - 30（基于等级）（+35%额外攻击力）（+15%法术强度）（远程英雄为50%）魔法伤害</magicDamage>+<magicDamage>1 - 6（基于等级）（+7%额外攻击力）（+3%法术强度）x层数的魔法伤害</magicDamage>。<br><br>对一个拥有5层效果的敌人造成伤害时，会消耗这些层数，造成<magicDamage>17%（远程英雄为50%）已损失生命值的魔法伤害</magicDamage>，并且<healing>你回复67%（远程英雄为50%）造成伤害的生命值</healing>。"
+  },
+  "3118": {
+   "en": "When a champion that you damaged within 3 seconds dies, refund 15% - 30% (based on level) of your Ultimate Ability's total cooldown.",
+   "zh": "在你对一名敌方英雄造成伤害后，如果该英雄在3秒内阵亡，则会返还你终极技能的15% - 30%（基于等级）总冷却时间。"
+  },
+  "3121": {
+   "en": "Scoring a Takedown causes the slain champion to explode into 3 - 6 (based on level) <keyword>Fruit</keyword>.<br><keyword>Fruit</keyword> <healing>restores 6% of your maximum health</healing> and restores <scaleMana>6% of your maximum Mana</scaleMana>.<br><br><rules><keyword>Fruit</keyword> also grant 10 <energy>Energy</energy>, <energy>Fury</energy>, <energy>Rage</energy>, <energy>Dragonfury</energy>, and <energy>Courage</energy>.",
+   "zh": "每次参与击杀，会使被击杀英雄爆炸为3 - 6（基于等级）个<keyword>水果</keyword>。<br><keyword>水果</keyword>将为你<healing>回复6%最大生命值</healing>和<scaleMana>6%最大法力值</scaleMana>。<br><br><rules><keyword>水果</keyword>还会提供10<energy>能量值</energy>、<energy>怒气值</energy>、<energy>(纳尔)怒气值</energy>、<energy>龙怒值</energy>和<energy>勇气值</energy>。"
+  },
+  "3123": {
+   "en": "chosen ability can <crit>Critically Strike</crit> for 45% increased damage.<br><br>Gain <crit>25% Critical Strike Chance</crit>.",
+   "zh": "【指定】可产生<crit>暴击</crit>以造成45%额外伤害。<br><br>获得<crit>25%暴击几率</crit>。"
+  },
+  "3129": {
+   "en": "Every 20 seconds, your next Attack deals <physicalDamage>80 - 300 (based on level) (+5% bonus max Health) bonus physical damage</physicalDamage> and restores <healing>50 - 250 (based on level) (+8% max Health) Health </healing><OnHit>On-Hit</OnHit>.<br><br>Casting an Ability reduces this effect's cooldown by <attention>3 seconds</attention>.",
+   "zh": "每20秒，你的下次攻击额外造成<physicalDamage>80 - 300（基于等级）（+5%额外最大生命值）物理伤害</physicalDamage>，并为你回复<healing>50 - 250（基于等级）（+8%最大生命值）生命值</healing><OnHit>攻击特效</OnHit>。<br><br>每次施放技能，会使该效果的冷却时间缩减<attention>3秒</attention>。"
+  },
+  "3131": {
+   "en": "Gain <attackSpeed>2% Attack Speed</attackSpeed> and <lifeSteal>0.35% Lifesteal</lifeSteal> for each 1% of missing <scaleHealth>Health</scaleHealth>.",
+   "zh": "每损失1%<scaleHealth>生命值</scaleHealth>，获得<attackSpeed>2%攻击速度</attackSpeed>和<lifeSteal>0.35%生命偷取</lifeSteal>。"
+  },
+  "3132": {
+   "en": "Gain <scaleAD>10 Attack Damage</scaleAD>, <scaleAP>25 Ability Power</scaleAP>, and increase your <scaleAD>Bonus Attack Damage</scaleAD>, <scaleAP>Bonus Ability Power</scaleAP>, and <attackSpeed>Total Attack Speed</attackSpeed> by 10%. <danger>Decrease your total</danger> <speed>Move Speed </speed>by 5% in combat.<br><br>Getting a takedown grants you a stack of Burden, increasing your <scaleAD>Bonus Attack Damage</scaleAD>, <scaleAP>Bonus Ability Power</scaleAP>, and <attackSpeed>Total Attack Speed</attackSpeed> by 5%, while further decreasing your <speed>Move Speed</speed> by 2.5% per stack to a minimum of 50%.<br><br>Lose 50% of your stacks on death.<br><br><flavorText>This is what you asked for...</flavorText>",
+   "zh": "获得<scaleAD>10攻击力</scaleAD>、<scaleAP>25法术强度</scaleAP>，并使你的<scaleAD>额外攻击力</scaleAD>、<scaleAP>额外法术强度</scaleAP>和<attackSpeed>总攻击速度</attackSpeed>提升10%。<danger>在战斗中，你的总</danger><speed>移动速度</speed>降低5%。<br><br>每次参与击杀都会获得一层【背负】，使你的<scaleAD>额外攻击力</scaleAD>、<scaleAP>额外法术强度</scaleAP>和<attackSpeed>总攻击速度</attackSpeed>提升5%，但每层重担会使你的<speed>移动速度</speed>额外降低2.5%，最低降至50%。<br><br>阵亡时失去50%层数。<br><br><flavorText>这就是你要的……</flavorText>"
+  },
+  "3134": {
+   "en": "Gain <attackSpeed>15% Attack Speed</attackSpeed>, <scaleArmor>10 Armor</scaleArmor>, and <scaleMR>10 Magic Resist</scaleMR> for each nearby enemy champion within 600 Range.",
+   "zh": "附近600码内每有一个敌方英雄，你就会获得<attackSpeed>15%攻击速度</attackSpeed>、<scaleArmor>10护甲</scaleArmor>和<scaleMR>10魔法抗性</scaleMR>。"
+  },
+  "3149": {
+   "en": "<healing>Healing</healing> or <shield>Shielding</shield> an allied champion with chosen ability casts that spell again on 2 other nearby allied champions.<br><br><rules>Heals and Shields are 100% effective.<br><flavorText>The power of friendship!</flavorText></rules>",
+   "zh": "用【指定】技能 为友方英雄提供<healing>治疗</healing>或<shield>护盾</shield>时，会对2名其他附近友方英雄再次施放该技能。<br><br><rules>治疗和护盾效能变为100%。<br><flavorText>这就是友谊的力量！</flavorText></rules>"
+  },
+  "3150": {
+   "en": "<passive>Stormsurge's Squall</passive> now always detonates in an area, dealing <magicDamage>10% (+0% AP) maximum Health magic damage</magicDamage> to all nearby enemies.<br><br>Enemy champions caught in the initial blast are marked by <passive>Squall</passive>.<br><br>Gain<gold> 500 Gold</gold>.",
+   "zh": "<passive>风暴狂涌 - 风啸</passive>现在总会在一个区域内引爆，对附近所有敌人造成<magicDamage>相当于10%（+0%法术强度）最大生命值的魔法伤害</magicDamage>。<br><br>被初段引爆命中的敌方英雄会被<passive>风啸</passive>标记。<br><br>获得<gold>500金币</gold>。"
+  },
+  "3159": {
+   "en": "If you use chosen ability to kill an enemy champion, you may <recast>Recast</recast> it once within 5 seconds. Each subsequent <recast>Recast</recast> deals additional damage.<br><br><rules>You may <recast>Recast</recast> up to two additional times, each dealing 25% more damage than the last. <br><br><flavorText>Make 'em remember you.</flavorText></rules>",
+   "zh": "如果你使用【指定】技能击杀了一个敌方英雄，你可以在5秒内<recast>再次施放</recast>该技能一次。后续每次<recast>再次施放</recast>都会造成额外伤害。<br><br><rules>你可以<recast>再次施放</recast>至多额外两次，每次造成的额外伤害会比上一次提高25%。<br><br><flavorText>让他们记住你。</flavorText></rules>"
+  },
+  "3163": {
+   "en": "<healing>Healing</healing> or <shield>Shielding</shield> allied champions gathers <keyword>Butterflies</keyword> around you. <br><br>After collecting 7 <keyword>Butterflies</keyword>, damaging an enemy champion fires all of them each dealing <magicDamage>50 - 100 (based on level) (+1% bonus max Health) (+30000% Heal and Shield Power) (+10% AP) Magic damage</magicDamage> with subsequent hits dealing 75% damage.",
+   "zh": "为友方英雄提供<healing>治疗</healing>或<shield>护盾</shield>时，会在你周围聚集<keyword>蝴蝶</keyword>。<br>收集7只<keyword>蝴蝶</keyword>后，对一个敌方英雄造成伤害时将它们全部发射出去，以造成<magicDamage>50 - 100（基于等级）（+1%额外最大生命值）（+30000%治疗和护盾强度）（+10%法术强度）魔法伤害</magicDamage>，后续命中造成75%伤害。"
+  },
+  "3170": {
+   "en": "<evolve>Empowered</evolve> chosen ability gains <scaleAbilityHaste>20 Ability Haste</scaleAbilityHaste>, 10% increased <silver>damage</silver>, and 10% increased <healing>healing</healing> and <shield>shielding</shield>.",
+   "zh": "<evolve>强化版</evolve>技能获得指定<scaleAbilityHaste>20技能急速</scaleAbilityHaste>、10%额外<silver>伤害</silver>、以及10%<healing>治疗</healing>和<shield>护盾</shield>效果。"
+  },
+  "3171": {
+   "en": "<evolve>Empowered</evolve> chosen ability gains <scaleAbilityHaste>20 Ability Haste</scaleAbilityHaste>, 10% increased <silver>damage</silver>, and 10% increased <healing>healing</healing> and <shield>shielding</shield>.",
+   "zh": "<evolve>强化版</evolve>技能获得指定<scaleAbilityHaste>20技能急速</scaleAbilityHaste>、10%额外<silver>伤害</silver>、以及10%<healing>治疗</healing>和<shield>护盾</shield>效果。"
+  },
+  "3172": {
+   "en": "<evolve>Empowered</evolve> chosen ability gains <scaleAbilityHaste>20 Ability Haste</scaleAbilityHaste>, 10% increased <silver>damage</silver>, and 10% increased <healing>healing</healing> and <shield>shielding</shield>.",
+   "zh": "<evolve>强化版</evolve>技能获得指定<scaleAbilityHaste>20技能急速</scaleAbilityHaste>、10%额外<silver>伤害</silver>、以及10%<healing>治疗</healing>和<shield>护盾</shield>效果。"
+  },
+  "3173": {
+   "en": "<evolve>Empowered</evolve> chosen ability gains <scaleAbilityHaste>20 Ability Haste</scaleAbilityHaste>, 10% increased <silver>damage</silver>, and 10% increased <healing>healing</healing> and <shield>shielding</shield>.",
+   "zh": "<evolve>强化版</evolve>技能获得指定<scaleAbilityHaste>20技能急速</scaleAbilityHaste>、10%额外<silver>伤害</silver>、以及10%<healing>治疗</healing>和<shield>护盾</shield>效果。"
+  },
+  "3176": {
+   "en": "<evolve>Empowered </evolve>",
+   "zh": "<evolve>强化版 </evolve>"
+  },
+  "12317": {
+   "en": "Transmute all of your augments into <keywordMajor>random PrismaticAugments</keywordMajor>.",
+   "zh": "将你的所有强化符文变为<keywordMajor>随机的棱彩阶强化符文</keywordMajor>。"
+  }
  }
 }
