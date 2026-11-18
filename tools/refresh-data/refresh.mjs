@@ -645,6 +645,16 @@ function stable(o) {
   return JSON.stringify(o, null, 1) + '\n';
 }
 
+/** The data branch's Chinese patch notes, or none. */
+function previousZh() {
+  if (!PREV) return [];
+  try {
+    return JSON.parse(readFileSync(join(PREV, 'patch-notes.json'), 'utf8')).zh?.patches ?? [];
+  } catch {
+    return [];
+  }
+}
+
 async function main() {
   const dd = await dataDragon();
   log(`Data Dragon ${dd.version} (patch ${dd.patch})`);
@@ -677,8 +687,14 @@ async function main() {
     const attack = await attackTypes(dd);
     const patches = await patchNotes(browser, dd);
     if (!patches.length) fail('no patch notes found');
-    const patchesZh = await patchNotesZh(browser, dd);
-    if (!patchesZh.length) fail('no Tencent patch notes found');
+    let patchesZh = await patchNotesZh(browser, dd);
+    if (!patchesZh.length) {
+      // lol.qq.com is sometimes out of reach from GitHub's runners: keep the last good Chinese
+      // notes rather than holding back everything else.
+      patchesZh = previousZh();
+      if (!patchesZh.length) fail('no Tencent patch notes found');
+      log(`Tencent not reachable: keeping the last ${patchesZh.length} Chinese patch notes`);
+    }
     const { known, untranslated } = await translateLines(champions);
     // Augment descriptions with their numbers (the game's text and the mode's spell data).
     const { texts: augments, problems } = augmentTexts(await json(KIWI), st.en, st.zh);
