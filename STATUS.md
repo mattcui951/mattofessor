@@ -1,7 +1,7 @@
 # Status
 
 Updated: 2026-11-18
-Version: 1.0.13
+Version: 1.0.14
 
 ## In progress
 
@@ -81,7 +81,7 @@ Version: 1.0.13
 
 ## Recently done
 
-- Not released yet (after 1.0.13):
+- 1.0.14:
   - Hextech ARAM redesign from the design review (`.lavish/ui-redesign/`, crawled haidoubang.com
     and arammeta.com; data stays AramHex, CN, ~10x their samples). The user picked 17 of 22
     features; skipped the five that need arammeta (TW) data: the companion-item comparison, early
