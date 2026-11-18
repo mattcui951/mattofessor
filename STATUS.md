@@ -1,7 +1,7 @@
 # Status
 
 Updated: 2026-11-18
-Version: 1.0.15
+Version: 1.0.16
 
 ## In progress
 
@@ -29,6 +29,8 @@ Version: 1.0.15
   - Not verified: the Chinese client, other HUD scales and window sizes.
 
 ## Next
+
+- Code signing, so antivirus stops flagging the installer: apply to SignPath Foundation (free for OSI-licensed projects; the user applies with their own account). It also needs a "Code signing policy" section in README with their credit line, team roles and a privacy statement (the app contacts Riot, op.gg, Community Dragon, Tencent and GitHub; update checks can be turned off), and every release approved by hand in SignPath. Check first that nothing bundled is non-OSI (the CC BY-SA wiki lines in mayhem.json). Then sign in release.yml. Meanwhile: report the false positive to Huorong and Microsoft per version.
 
 - 1.0.9: the first augment pick of a game took 10+ s on a friend's PC
   (rerolls fast; OCR is ~50 ms a read in release). At the start of a Hextech game the card window is
@@ -73,6 +75,8 @@ Version: 1.0.15
 
 ## Known issues
 
+- Huorong (火绒) blocks the 1.0.15 installer as "TrojanSpy/Stealer.jl" (2026-11-18). A false positive: the installer has no Authenticode signature, and the app reads the League lockfile, captures the screen and runs its own updates. VirusTotal had never seen the file. Fix: code signing (Next).
+
 - Profile page at a small window with a large text size (history column under about 480 px wide,
   e.g. the smallest window at 140%): the collapsed game rows are cut off on the right. The fixed
   width of the left column is the cause.
@@ -81,7 +85,8 @@ Version: 1.0.15
 
 ## Recently done
 
-- Not released yet (after 1.0.15):
+- 1.0.16:
+  - MIT license (LICENSE; package.json and Cargo.toml say so). Needed to apply for free code signing.
   - Seven languages: English, Simplified and Traditional Chinese, Japanese, Korean, Spanish,
     French. One registry each side (`src/lib/locales.ts`, `src-tauri/src/lang.rs`, a test keeps them
     equal), one dictionary per language (`src/lib/locales/<id>.ts`, English the source, every key
