@@ -1,22 +1,23 @@
 <script lang="ts">
   import { tick } from 'svelte';
-  import AugmentList from '../components/AugmentList.svelte';
+  import HexFilter from '../components/HexFilter.svelte';
   import MayhemBuild from '../components/MayhemBuild.svelte';
+  import MayhemChampion from '../components/MayhemChampion.svelte';
   import MayhemEditor from '../components/MayhemEditor.svelte';
-  import MayhemMods from '../components/MayhemMods.svelte';
   import { adminMode, content, loadContent } from '../lib/content.svelte';
   import Icon from '../components/Icon.svelte';
   import PublishState from '../components/PublishState.svelte';
   import Img from '../components/Img.svelte';
   import Segmented from '../components/Segmented.svelte';
   import { api } from '../lib/api';
-  import { buildIndex, searchChamps } from '../lib/champSearch';
+  import { searchChamps } from '../lib/champSearch';
+  import { champIndex, loadChampSearch } from '../lib/champFind.svelte';
   import { SHARD_NAMES, champIcon, dd, itemIcon, itemName, loadOtherNames, otherNames, rune, runeIcon, spell, spellIcon } from '../lib/dd.svelte';
   import { pct, roleName } from '../lib/format';
   import { i18n, t } from '../lib/i18n.svelte';
-  import { ARAM_CREDIT, BRACKETS, bracket, pct1, setBracket } from '../lib/meta.svelte';
-  import { app, errorText, toast } from '../lib/state.svelte';
-  import type { AramBracket, Build, BuildMode, TierRow } from '../lib/types';
+  import { aramTier, bracket, pct1, setBracket, share } from '../lib/meta.svelte';
+  import { app, errorText, go, toast } from '../lib/state.svelte';
+  import type { Build, BuildMode, ChampionPage, TierRow } from '../lib/types';
 
   const LANES = ['top', 'jungle', 'mid', 'adc', 'support'] as const;
   type Lane = (typeof LANES)[number];
@@ -34,24 +35,9 @@
   let editing = $state(false);
   const admin = $derived(adminMode() && mode === 'aram');
 
-  /** Hextech ARAM: every champion's win rate in each skill bracket, loaded once per bracket. */
-  let bracketWin = $state<Partial<Record<AramBracket, Record<number, { winRate: number; games: number }>>>>({});
-  const asked = new Set<AramBracket>();
-  $effect(() => {
-    if (mode !== 'aram') return;
-    for (const b of BRACKETS) {
-      if (asked.has(b)) continue;
-      asked.add(b);
-      api.aramOverview(b).then(
-        (o) => {
-          // A bracket the data set does not have comes back as all players: leave it out.
-          if (o.source.bracket !== b) return;
-          bracketWin = { ...bracketWin, [b]: Object.fromEntries(o.champions.map((r) => [r.championId, { winRate: r.winRate, games: r.games }])) };
-        },
-        () => asked.delete(b),
-      );
-    }
-  });
+  /** Hextech ARAM: the champion's page from AramHex (`MayhemChampion` loads it). */
+  let hexPage = $state<ChampionPage | null>(null);
+  const hexChamp = $derived(hexPage && hexPage.champion?.championId === selected ? hexPage : null);
   loadContent();
   const written = $derived(Object.keys(content.data.builds).length);
   let error = $state<string | null>(null);
@@ -89,12 +75,13 @@
       selected = championId;
       selRole = role ?? '';
       // Opened from search or a link: bring the champion into view in the picker.
-      tick().then(() => grid?.querySelector('.c.on')?.scrollIntoView({ block: 'center' }));
+      tick().then(() => grid?.querySelector('.c.on')?.scrollIntoView({ block: 'nearest' }));
     }
   });
 
   // Any language or pinyin; best matches first while searching, alphabetical otherwise.
-  const index = $derived(buildIndex([dd.data?.champions, otherNames.champions]));
+  loadChampSearch();
+  const index = $derived(champIndex());
   const champs = $derived.by(() => {
     const all = Object.entries(dd.data?.champions ?? {})
       .map(([id, c]) => ({ id: Number(id), ...c }))
@@ -113,9 +100,9 @@
     const l = lane;
     return [{ lane: l, list: champs.filter((c) => laneSets.regular.get(l)!.has(c.id)) }];
   });
+  /** A pick is a page of its own: back returns to the champion before. */
   function pickChamp(id: number, l: Lane | null) {
-    selected = id;
-    selRole = l ?? '';
+    go({ name: 'builds', championId: id, role: l ?? undefined, mode });
   }
 
   let run = 0;
@@ -210,8 +197,9 @@
           { value: 'rift', label: t('mode.rift') },
           { value: 'aram', label: t('mode.aram') },
         ]}
-        onchange={(v) => (mode = v as BuildMode)}
+        onchange={(v) => go({ name: 'builds', championId: selected ?? undefined, role: selRole || undefined, mode: v as BuildMode })}
       />
+      {#if mode === 'aram'}<HexFilter />{/if}
       <span class="src">{mode === 'rift' ? t('builds.srcRift') : t('builds.srcAram')}</span>
     </div>
 
@@ -236,19 +224,22 @@
       <header class="head">
         <Img src={champIcon(build.championId)} size={56} />
         <div>
-          <h2>{dd.data?.champions[String(build.championId)]?.name}</h2>
-          {#if build.mode === 'aram' && BRACKETS.some((b) => bracketWin[b]?.[build!.championId])}
-            <!-- Its win rate in every skill bracket; picking one also picks the augments' bracket. -->
-            <div class="roles brackets">
-              {#each BRACKETS as b (b)}
-                {@const r = bracketWin[b]?.[build.championId]}
-                {#if r}
-                  <button class:on={bracket() === b} title={t('builds.sample', r.games.toLocaleString())} onclick={() => setBracket(b)}>
-                    {t(`bracket.${b}`)} <span class="num">{pct1(r.winRate)}%</span>
-                  </button>
-                {/if}
-              {/each}
+          <h2>{dd.data?.champions[String(build.championId)]?.name}{#if build.mode === 'aram' && hexChamp?.champion}{@const tier = aramTier(hexChamp.champion.winRate)}<span class="tier t{tier}">{t(`tiers.${tier}`)}</span>{/if}</h2>
+          {#if build.mode === 'aram' && hexChamp?.champion}
+            {@const c = hexChamp.champion}
+            <div class="sub num">
+              {t('hex.headWin')} <b class="wr">{pct1(c.winRate)}%</b> · {t('hex.headRank', c.rank, hexChamp.champions)} · {t('builds.sample', c.games.toLocaleString())} · {t('hex.headPick', share(c.pickRate))} · {hexChamp.source.patch}
             </div>
+            <!-- Its win rate in every skill bracket; picking one picks the bracket for the whole page. -->
+            {#if hexChamp.bands.length > 1}
+              <div class="roles brackets">
+                {#each hexChamp.bands as r (r.bracket)}
+                  <button class:on={bracket() === r.bracket} title={t('builds.sample', r.games.toLocaleString())} onclick={() => setBracket(r.bracket)}>
+                    {t(`bracket.${r.bracket}`)} <span class="num">{pct1(r.winRate)}%</span>
+                  </button>
+                {/each}
+              </div>
+            {/if}
           {:else if build.games > 0}<div class="sub num">{t('builds.sample', build.games.toLocaleString())} · {t('builds.wr', pct(build.wins, build.games))}</div>{/if}
           {#if build.mode === 'rift'}
             <div class="roles">
@@ -272,23 +263,29 @@
       </header>
 
       {#if build.mode === 'aram'}
-        <MayhemMods championId={build.championId} />
-        <section class="card">
-          <div class="label-row">
-            <div class="label">{t('meta.augments')}</div>
-            <Segmented
-              label={t('meta.bracket')}
-              value={bracket()}
-              options={BRACKETS.map((b) => ({ value: b, label: t(`bracket.${b}`) }))}
-              onchange={(v) => setBracket(v as typeof BRACKETS[number])}
-            />
-          </div>
-          <AugmentList championId={build.championId} />
-          <p class="note">{t('meta.augmentHint')} · {ARAM_CREDIT}</p>
-        </section>
-      {/if}
-
-      {#if build.mode === 'rift'}
+        {#if build.mine}<MayhemBuild build={build.mine} />{/if}
+        {#if build.skillMax.length || build.starters.length}
+          <section class="card opgg">
+            {#if build.skillMax.length}
+              <div>
+                <div class="label">{t('builds.skills')}</div>
+                <div class="skills">
+                  {#each build.skillMax as k, i (i)}{#if i}<span class="arrow">›</span>{/if}<b class="key">{k}</b>{/each}
+                </div>
+              </div>
+              {#if build.skillOrder.length}<div class="order">{#each build.skillOrder as k, i (i)}<span class="num">{k}</span>{/each}</div>{/if}
+            {/if}
+            {#if build.starters.length && !build.mine}
+              <div>
+                <div class="label">{t('builds.starters')}</div>
+                <div class="opt">{#each build.starters[0].value as id, i (i)}<Img src={itemIcon(id)} size={32} title={itemName(id)} />{/each}</div>
+              </div>
+            {/if}
+            <p class="note src-note">{t('hex.opggNote')}</p>
+          </section>
+        {/if}
+        <MayhemChampion championId={build.championId} bind:page={hexPage} />
+      {:else}
         <section class="card">
           <div class="label">{t('builds.runes')} <span class="num">· {t('builds.pick', p(build.runes[0]?.games ?? 0))} · {t('builds.wr', pct(build.runes[0]?.wins ?? 0, build.runes[0]?.games ?? 0))}</span></div>
           {#if page && primaryTree}
@@ -326,11 +323,7 @@
             </div>
           {/if}
         </section>
-      {/if}
-
-      {#if build.mine}<MayhemBuild build={build.mine} />{/if}
-
-      <div class="two" class:one={build.mine}>
+      <div class="two">
         <section class="card">
           <div class="label">{t('builds.spells')}</div>
           {#each build.spells as sp, i (i)}
@@ -351,7 +344,6 @@
             {/if}
           {/if}
         </section>
-        {#if !build.mine}
         <section class="card">
           {#if build.starters.length}
             <div class="label">{t('builds.starters')}</div>
@@ -371,10 +363,8 @@
             </div>
           {/each}
         </section>
-        {/if}
       </div>
 
-      {#if !build.mine}
       <section class="card">
         <div class="label">{t('builds.core')} <span class="num">· {t('builds.pick', p(build.items[0]?.games ?? 0))} · {t('builds.wr', pct(build.items[0]?.wins ?? 0, build.items[0]?.games ?? 0))}</span></div>
         <div class="items">
@@ -391,7 +381,7 @@
             </div>
           {/each}
         </div>
-        <p class="note">{build.mode === 'aram' ? t('builds.aramItemsNote') : t('builds.order')}</p>
+        <p class="note">{t('builds.order')}</p>
       </section>
       {/if}
     {/if}
@@ -515,20 +505,6 @@
     color: var(--text-3);
     font-size: 12.5px;
   }
-  .label-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 10px;
-    flex-wrap: wrap;
-  }
-  .label-row .label {
-    margin: 0;
-  }
-  .label-row :global(.seg) {
-    width: 340px;
-  }
   .label.gap {
     margin-top: 14px;
   }
@@ -580,11 +556,52 @@
     flex-wrap: wrap;
   }
   .head h2 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     font-size: 22px;
+  }
+  .tier {
+    padding: 1px 7px;
+    border-radius: var(--r-sm);
+    font: 700 12.5px/18px var(--font-score);
+    color: var(--bg);
+    background: var(--text-3);
+  }
+  .tier.tS {
+    background: var(--death);
+  }
+  .tier.tA {
+    background: var(--objective);
+  }
+  .tier.tB {
+    background: var(--win);
+  }
+  .tier.tC {
+    background: var(--text-2);
   }
   .sub {
     color: var(--text-3);
     font-size: 12.5px;
+  }
+  .sub .wr {
+    color: var(--win);
+  }
+  .opgg {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px 28px;
+  }
+  .opgg .label {
+    margin-bottom: 6px;
+  }
+  .opgg .order {
+    margin-top: 0;
+  }
+  .opgg .src-note {
+    flex-basis: 100%;
+    margin-top: 0;
   }
   .roles {
     display: flex;

@@ -206,8 +206,10 @@ export type Build = {
   skillOrder: string[];
   /** An off-meta lane with only a handful of games on OP.GG. */
   rare: boolean;
-  /** Hextech ARAM: the hand-written build, shown instead of OP.GG's items. */
+  /** Hextech ARAM: the hand-written build, shown instead of the statistics' items. */
   mine: MayhemBuild | null;
+  /** Where the spells, boots and items are from. */
+  itemSource: 'opgg' | 'aramhex';
 };
 export type TierRow = {
   championId: number;
@@ -233,6 +235,33 @@ export type RarityPicks = { rarity: 'silver' | 'gold' | 'prismatic'; take: AugRo
 export type AramPicks = { source: AramSource; champion: AramChampRow | null; rarities: RarityPicks[] };
 export type CardOffer = { championId: number; base: number | null; cards: { id: number; x: number; stat: AugRow | null; best: boolean }[] };
 export type Augment = { name: string; rarity: 'silver' | 'gold' | 'prismatic' | ''; icon: string };
+
+// Hextech ARAM pages (`hexstats.rs`).
+export type PatchInfo = { patch: string; snapshotAt: string; matches: number; bands: boolean; items: boolean; itemsHigh: boolean };
+export type Core = { items: number[]; games: number; winRate: number; pickRate: number };
+export type BoardChamp = { championId: number; games: number; winRate: number; pickRate: number; rank: number; previous: number | null; best: Core | null };
+export type Board = { source: AramSource; patches: PatchInfo[]; previousPatch: string | null; buildsBracket: string | null; champions: BoardChamp[] };
+export type AugStat = { id: number; games: number; winRate: number; delta: number; pickRate: number; lowSample: boolean };
+export type AugBoard = { source: AramSource; patches: PatchInfo[]; augments: AugStat[]; removed: AugStat[]; previousPatch: string | null };
+export type Combo = { championId: number; augmentId: number; games: number; winRate: number; delta: number };
+export type Combos = { source: AramSource; patches: PatchInfo[]; total: number; rows: Combo[] };
+export type ItemStat = { id: number; name: string; icon: string; games: number; winRate: number; delta: number; pickRate: number; without: number; lowSample: boolean };
+export type SpellStat = { ids: [number, number]; games: number; winRate: number; delta: number; pickRate: number; lowSample: boolean };
+export type ChampionPage = {
+  source: AramSource;
+  patches: PatchInfo[];
+  champion: AramChampRow | null;
+  champions: number;
+  bands: { bracket: AramBracket; games: number; winRate: number }[];
+  history: { patch: string; games: number; winRate: number }[];
+  augments: AugStat[];
+  bandPicks: { bracket: AramBracket; picks: [number, number][] }[];
+  itemsBracket: AramBracket | null;
+  items: ItemStat[];
+  boots: ItemStat[];
+  spells: SpellStat[];
+  cores: Core[];
+};
 export type PlayerScore = { participantId: number; puuid: string; score: number; badge: '' | 'mvp' | 'svp'; place: number };
 export type MyScore = { gameId: number; score: number; badge: '' | 'mvp' | 'svp'; place: number; players: number };
 export type ImportResult = { runePage: string | null; itemSet: string | null };

@@ -1,6 +1,7 @@
 <script lang="ts">
   import Rail from './components/Rail.svelte';
   import TitleBar from './components/TitleBar.svelte';
+  import HoverLayer from './components/HoverLayer.svelte';
   import Toasts from './components/Toasts.svelte';
   import RiotKeyBanner from './components/RiotKeyBanner.svelte';
   import UpdateBanner from './components/UpdateBanner.svelte';
@@ -15,7 +16,7 @@
   import Appearance from './views/Appearance.svelte';
   import RiotGuide from './views/RiotGuide.svelte';
   import Settings from './views/Settings.svelte';
-  import { app } from './lib/state.svelte';
+  import { app, navKeys } from './lib/state.svelte';
   import { t } from './lib/i18n.svelte';
   import { logError } from './lib/errors';
   import { gameEnded, startAutoRefresh } from './lib/profiles.svelte';
@@ -23,6 +24,7 @@
 
   startAutoRefresh();
   $effect(() => installZoom());
+  $effect(() => navKeys());
   let epoch = 0;
   $effect(() => {
     // A game ended: the signed-in account has a new game to add.
@@ -53,7 +55,7 @@
         {:else if app.route.name === 'builds'}
           {#key `${app.route.championId}-${app.route.mode}`}<Builds championId={app.route.championId} role={app.route.role} mode={app.route.mode} />{/key}
         {:else if app.route.name === 'meta'}
-          <Meta mode={app.route.mode} />
+          <Meta mode={app.route.mode} view={app.route.view} augment={app.route.augment} />
         {:else if app.route.name === 'tiers'}
           <Tiers />
         {:else if app.route.name === 'guide'}
@@ -80,6 +82,7 @@
     </div>
   </div>
   <Toasts />
+  <HoverLayer />
   <ZoomBadge />
 </div>
 

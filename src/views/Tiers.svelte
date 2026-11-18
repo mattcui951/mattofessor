@@ -1,7 +1,16 @@
+<script lang="ts" module>
+  import type { ItemClass } from '../lib/types';
+
+  // What the page shows, kept while the app runs: back to this page lands on the same tabs.
+  let itemCls = $state<'all' | ItemClass>('all');
+  let names = $state(false);
+</script>
+
 <script lang="ts">
   /**
-   * The admin's Hextech ARAM tier lists: items, and champions by class. Everyone sees them; in
-   * admin mode icons are dragged between tiers (or clicked, then S/A/B/C/D or 1-5 pressed).
+   * The admin's Hextech ARAM item tier list. Everyone sees it; in admin mode icons are dragged
+   * between tiers (or clicked, then S/A/B/C/D or 1-5 pressed). Champions are ranked by win rate
+   * on the Meta page's champion board instead (their old hand-made tiers stay in the content).
    */
   import Icon from '../components/Icon.svelte';
   import Img from '../components/Img.svelte';
@@ -9,52 +18,37 @@
   import Segmented from '../components/Segmented.svelte';
   import { api } from '../lib/api';
   import { adminMode, content, editContent, loadContent } from '../lib/content.svelte';
-  import { champIcon, champName, dd, ITEM_CLASSES, itemClasses, itemIcon, itemName, OTHER_ITEMS } from '../lib/dd.svelte';
+  import { dd, ITEM_CLASSES, itemClasses, itemIcon, itemName, OTHER_ITEMS } from '../lib/dd.svelte';
   import { t } from '../lib/i18n.svelte';
-  import { bracket, pct1, setBracket } from '../lib/meta.svelte';
+  import { pct1 } from '../lib/meta.svelte';
   import { errorText, go, toast } from '../lib/state.svelte';
-  import type { ChampClass, ItemClass, Tier, TierBracket, Tiers } from '../lib/types';
+  import type { Tier, Tiers } from '../lib/types';
 
   const TIERS: Tier[] = ['S', 'A', 'B', 'C', 'D'];
-  const CLASSES: ChampClass[] = ['Fighter', 'Assassin', 'Mage', 'Tank', 'Support', 'Marksman'];
-  const TIER_BRACKETS: TierBracket[] = ['casual', 'mid', 'high'];
 
-  let view = $state<'items' | 'champions'>('items');
-  let cls = $state<ChampClass>('Fighter');
-  /** Champions: each skill bracket has its own tiers; the pick is shared with the Meta page. */
-  const br = $derived<TierBracket>(bracket() === 'all' ? 'mid' : (bracket() as TierBracket));
-  /** Items: the one ranking, all of it or one shop role's items in it. */
-  let itemCls = $state<'all' | ItemClass>('all');
-  let names = $state(false);
+  /** The one ranking, all of it or one shop role's items in it. */
   let query = $state('');
   const admin = $derived(adminMode());
   loadContent();
 
   // Win rates for the tooltips.
   let itemWin = $state<Record<number, number>>({});
-  let champWin = $state<Record<number, number>>({});
   api.aramItems('all').then((o) => (itemWin = Object.fromEntries(o.items.map((r) => [r.id, r.winRate]))), () => {});
-  $effect(() => {
-    api.aramOverview(br).then((o) => (champWin = Object.fromEntries(o.champions.map((r) => [r.championId, r.winRate]))), () => {});
-  });
 
-  const board = $derived<Tiers>((view === 'items' ? content.data.itemTiers : content.data.championTiersByBracket?.[br]?.[cls]) ?? {});
+  const board = $derived<Tiers>(content.data.itemTiers ?? {});
   const placed = $derived(new Set(TIERS.flatMap((tier) => board[tier] ?? [])));
-  /** Whether an id shows in the item role picked (champions: always). */
-  const shown = (id: number) => view === 'champions' || itemCls === 'all' || itemClasses(id).includes(itemCls);
+  /** Whether an item shows in the shop role picked. */
+  const shown = (id: number) => itemCls === 'all' || itemClasses(id).includes(itemCls);
   const empty = $derived(![...placed].some(shown));
 
   /**
    * What can be ranked, highest win rate first: Hextech ARAM's finished items, boots and
-   * `OTHER_ITEMS` (a search finds any item it sells), or the class's champions.
+   * `OTHER_ITEMS` (a search finds any item it sells).
    */
   const pool = $derived.by(() => {
     const searching = query.trim() !== '';
-    const ids =
-      view === 'items'
-        ? Object.entries(dd.data?.items ?? {}).filter(([id, it]) => (it.aram && (searching || it.aramLegendary || it.boots)) || OTHER_ITEMS.includes(Number(id)))
-        : Object.entries(dd.data?.champions ?? {}).filter(([, c]) => c.tags.includes(cls));
-    const win = view === 'items' ? itemWin : champWin;
+    const ids = Object.entries(dd.data?.items ?? {}).filter(([id, it]) => (it.aram && (searching || it.aramLegendary || it.boots)) || OTHER_ITEMS.includes(Number(id)));
+    const win = itemWin;
     return ids
       .map(([id]) => Number(id))
       .filter(shown)
@@ -68,26 +62,21 @@
   const tierName = (tier: Tier) => t(`tiers.${tier}`);
 
   function label(id: number) {
-    return view === 'items' ? itemName(id) : champName(id);
+    return itemName(id);
   }
   function icon(id: number) {
-    return view === 'items' ? itemIcon(id) : champIcon(id);
+    return itemIcon(id);
   }
   function tip(id: number) {
-    const w = (view === 'items' ? itemWin : champWin)[id];
+    const w = itemWin[id];
     return w ? `${label(id)} · ${t('meta.winRate')} ${pct1(w)}%` : label(id);
   }
 
   async function save(next: Tiers) {
-    const edit = view === 'items' ? ({ kind: 'itemTiers', tiers: next } as const) : ({ kind: 'championTiers', bracket: br, class: cls, tiers: next } as const);
     // Show the move at once; the saved copy follows.
-    if (view === 'items') content.data.itemTiers = next;
-    else {
-      const all = content.data.championTiersByBracket ?? {};
-      content.data.championTiersByBracket = { ...all, [br]: { ...all[br], [cls]: next } };
-    }
+    content.data.itemTiers = next;
     try {
-      await editContent(edit);
+      await editContent({ kind: 'itemTiers', tiers: next });
     } catch (e) {
       toast(errorText(e), 'error');
     }
@@ -179,14 +168,7 @@
     selected = null;
   }
 
-  function open(id: number) {
-    if (!admin && view === 'champions') go({ name: 'builds', championId: id, mode: 'aram' });
-  }
-
   $effect(() => {
-    view;
-    cls;
-    br;
     itemCls;
     selected = null;
     query = '';
@@ -206,7 +188,6 @@
     data-id={id}
     title={tip(id)}
     onpointerdown={(e) => down(e, id)}
-    onclick={() => open(id)}
   >
     <Img src={icon(id)} size={52} />
     {#if names}<span class="name">{label(id)}</span>{/if}
@@ -215,28 +196,15 @@
 
 <div class="page">
   <header class="head">
-    <h2>{t('tiers.title')}</h2>
+    <h2>{t('tiers.itemsTitle')}</h2>
     <Segmented
-      label={t('meta.view')}
-      value={view}
-      options={[
-        { value: 'items', label: t('tiers.items') },
-        { value: 'champions', label: t('tiers.champions') },
-      ]}
-      onchange={(v) => (view = v as typeof view)}
+      label={t('meta.class')}
+      value={itemCls}
+      options={(['all', ...ITEM_CLASSES] as const).map((c) => ({ value: c, label: c === 'all' ? t('meta.allClasses') : t(`itemClass.${c}`) }))}
+      onchange={(v) => (itemCls = v as typeof itemCls)}
     />
-    {#if view === 'champions'}
-      <Segmented label={t('meta.bracket')} value={br} options={TIER_BRACKETS.map((b) => ({ value: b, label: t(`bracket.${b}`) }))} onchange={(v) => setBracket(v as TierBracket)} />
-      <Segmented label={t('meta.class')} value={cls} options={CLASSES.map((c) => ({ value: c, label: t(`class.${c}`) }))} onchange={(v) => (cls = v as ChampClass)} />
-    {:else}
-      <Segmented
-        label={t('meta.class')}
-        value={itemCls}
-        options={(['all', ...ITEM_CLASSES] as const).map((c) => ({ value: c, label: c === 'all' ? t('meta.allClasses') : t(`itemClass.${c}`) }))}
-        onchange={(v) => (itemCls = v as typeof itemCls)}
-      />
-    {/if}
     <span class="grow"></span>
+    <button class="btn sm ghost" onclick={() => go({ name: 'meta', mode: 'aram', view: 'champions' })}>{t('tiers.champsMoved')} ›</button>
     {#if admin}<PublishState />{:else if updated}<span class="dim">{t('tiers.updated', updated)}</span>{/if}
     <button class="btn sm ghost" class:on={names} aria-pressed={names} onclick={() => (names = !names)}>{t('tiers.names')}</button>
   </header>
@@ -269,7 +237,7 @@
             <span class="hint">{t('tiers.hint')}</span>
             <span class="grow"></span>
             <Icon name="search" size={15} />
-            <input class="field" bind:value={query} placeholder={t(view === 'items' ? 'tiers.findItems' : 'tiers.find')} spellcheck="false" />
+            <input class="field" bind:value={query} placeholder={t('tiers.findItems')} spellcheck="false" />
           </div>
           <div class="tiles" class:names>
             {#each unranked as id (id)}{@render tile(id)}{/each}

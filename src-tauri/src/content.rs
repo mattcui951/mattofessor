@@ -59,6 +59,10 @@ pub struct Content {
     /// What apps before 1.0.13 read: class to tiers for all players. Passed on unchanged.
     #[serde(rename = "championTiers", skip_serializing_if = "serde_json::Value::is_null")]
     pub old_champion_tiers: serde_json::Value,
+    /// Fields a newer app version added: passed on as they are, so an older copy publishing an
+    /// edit never drops them (1.0.12 dropped the per-bracket champion tiers that way).
+    #[serde(flatten)]
+    pub other: serde_json::Map<String, serde_json::Value>,
 }
 
 /// One admin edit.
@@ -510,6 +514,9 @@ mod tests {
         let c: Content = serde_json::from_str(r#"{"builds": {"1": {"order": [3089]}}}"#).unwrap();
         assert_eq!(c.builds[&1].order, [3089]);
         assert!(!serde_json::to_string(&c).unwrap().contains(r#""championTiers""#), "no old key when there was none");
+        // A field from a newer version survives a round trip through this one.
+        let c: Content = serde_json::from_str(r#"{"updated": "x", "futureThing": {"a": [1]}}"#).unwrap();
+        assert!(serde_json::to_string(&c).unwrap().contains(r#""futureThing":{"a":[1]}"#));
         // Older apps' all-players champion tiers are passed on as they are.
         let c: Content = serde_json::from_str(r#"{"championTiers": {"Mage": {"S": [1]}}, "championTiersByBracket": {"mid": {"Tank": {"A": [2]}}}}"#).unwrap();
         assert_eq!(c.champion_tiers["mid"]["Tank"]["A"], [2]);

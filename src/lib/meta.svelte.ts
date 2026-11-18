@@ -2,7 +2,7 @@
 import { api } from './api';
 import { i18n } from './i18n.svelte';
 import { app, updateSettings } from './state.svelte';
-import type { AramBracket, Augment } from './types';
+import type { AramBracket, Augment, PatchInfo } from './types';
 
 /** Required by the data's license (CC BY-NC 4.0) wherever its numbers show. */
 export const ARAM_CREDIT = '海克斯大乱斗统计数据 (github.com/czgreat/aramhex-data), CC BY-NC 4.0';
@@ -41,9 +41,38 @@ export function setBracket(b: AramBracket) {
   updateSettings({ aramBracket: b });
 }
 
-/** Hextech ARAM tier from a win rate: S 54%+, A 52%+, B 50%+, C 48%+, D below. */
-export function aramTier(winRate: number): string {
-  return winRate >= 0.54 ? 'S' : winRate >= 0.52 ? 'A' : winRate >= 0.5 ? 'B' : winRate >= 0.48 ? 'C' : 'D';
+/**
+ * The Hextech ARAM pages' shared patch: "" is the current one. Kept while the app runs; the
+ * skill bracket is shared the same way (a setting). `patches` is what AramHex has, newest first.
+ */
+export const hex = $state({ patch: '', patches: [] as PatchInfo[] });
+
+export function setPatch(p: string) {
+  hex.patch = p === hex.patches[0]?.patch ? '' : p;
+}
+
+/** Keeps the patch list from a page's answer. */
+export function notePatches(list: PatchInfo[]) {
+  if (list.length && JSON.stringify(list) !== JSON.stringify(hex.patches)) hex.patches = list;
+}
+
+/** The patch picked (its info), or the current one. */
+export function patchInfo(): PatchInfo | undefined {
+  return hex.patches.find((p) => p.patch === hex.patch) ?? hex.patches[0];
+}
+
+/** Win rate lines of the tiers, best first: S (夯) 53.5%+, A 51.5%+, B 50%+, C 48%+, D below. */
+export const TIER_LINES: { tier: 'S' | 'A' | 'B' | 'C' | 'D'; min: number }[] = [
+  { tier: 'S', min: 0.535 },
+  { tier: 'A', min: 0.515 },
+  { tier: 'B', min: 0.5 },
+  { tier: 'C', min: 0.48 },
+  { tier: 'D', min: 0 },
+];
+
+/** Hextech ARAM tier from a win rate (`TIER_LINES`). */
+export function aramTier(winRate: number): 'S' | 'A' | 'B' | 'C' | 'D' {
+  return TIER_LINES.find((l) => winRate >= l.min)!.tier;
 }
 
 /** OP.GG tier 1 (OP) to 5 as a letter. */
@@ -60,8 +89,19 @@ export function pct1(rate: number): string {
   return (rate * 100).toFixed(1);
 }
 
-/** "+2.3" / "−1.0" percentage points. */
+/** A share as a percentage with one decimal, "<0.1" for tiny ones. */
+export function share(rate: number): string {
+  return rate > 0 && rate < 0.0005 ? '<0.1' : pct1(rate);
+}
+
+/** "+2.3" / "−1.0" percentage points ("0.0" when it rounds to nothing). */
 export function delta(rate: number): string {
-  const v = rate * 100;
-  return (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(1);
+  const v = Math.round(rate * 1000) / 10;
+  if (v === 0) return '0.0';
+  return (v > 0 ? '+' : '−') + Math.abs(v).toFixed(1);
+}
+
+/** A game count in short: "57.8M" / "5,782 万". */
+export function gamesShort(n: number): string {
+  return i18n.lang === 'zh' ? `${Math.round(n / 1e4).toLocaleString()} 万` : `${(n / 1e6).toFixed(1)}M`;
 }

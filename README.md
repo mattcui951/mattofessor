@@ -84,13 +84,15 @@ own; a Riot API key is optional (see below).
 
 Meta and builds come from two public sources, cached locally so the app keeps working offline:
 
-- **Summoner's Rift** (and classic ARAM builds): OP.GG's public endpoint
+- **Summoner's Rift** (and the skill order and starting items of Hextech ARAM builds, from classic ARAM): OP.GG's public endpoint
   (`https://mcp-api.op.gg/mcp`, [opgginc/opgg-mcp](https://github.com/opgginc/opgg-mcp)): lane
   tier lists and per-champion builds. Tier lists are refreshed every 12 hours, builds daily.
 - **Hextech ARAM**: 海克斯大乱斗统计数据 ([czgreat/aramhex-data](https://github.com/czgreat/aramhex-data)),
   licensed [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/): champion win rates
   and the win rate of every champion × augment pair, from millions of games on the CN servers,
-  updated about weekly, plus finished-item statistics (the item win rates on the Meta page).
+  updated about weekly, plus item statistics from 16.22 on: finished items, boots, summoner
+  spells and three-item builds (the Hextech ARAM builds, the champion page, the item win rates).
+  Earlier patches come from its `index.json` (patch picker, win rate by patch).
   Downloads are checked against the published SHA-256 sums. The app shows this credit wherever
   these numbers appear, and Mattofessor stays free (non-commercial).
 - **Hand-written content**: the admin's Hextech ARAM builds and the item and champion tier lists,

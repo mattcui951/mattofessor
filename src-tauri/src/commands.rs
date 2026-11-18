@@ -332,6 +332,12 @@ pub fn content_status() -> crate::content::Status {
     crate::content::status()
 }
 
+/// Champion search keywords (nicknames, initials, pinyin) by champion id.
+#[tauri::command]
+pub async fn champion_keywords() -> Res<crate::keywords::Keywords> {
+    crate::keywords::all().await.map_err(err)
+}
+
 /// The refreshed game data: Hextech ARAM modifiers and rules, patch notes.
 #[tauri::command]
 pub fn game_data() -> crate::data::Data {
@@ -356,8 +362,32 @@ pub fn publish_content() {
 
 /// Hextech ARAM item win rates over all champions.
 #[tauri::command]
-pub async fn aram_items(bracket: String) -> Res<crate::aramhex::ItemOverview> {
-    crate::aramhex::item_overview(&bracket).await.map_err(err)
+pub async fn aram_items(bracket: String, patch: Option<String>) -> Res<crate::aramhex::ItemOverview> {
+    crate::aramhex::item_overview(patch.as_deref().unwrap_or(""), &bracket).await.map_err(err)
+}
+
+/// The Hextech ARAM champion board for a patch ("": the current one) and skill bracket.
+#[tauri::command]
+pub async fn aram_board(patch: String, bracket: String) -> Res<crate::hexstats::Board> {
+    crate::hexstats::board(&patch, &bracket).await.map_err(err)
+}
+
+/// The Hextech ARAM augment board, with the augments removed since the patch before.
+#[tauri::command]
+pub async fn aram_augment_board(patch: String, bracket: String) -> Res<crate::hexstats::AugBoard> {
+    crate::hexstats::augment_board(&patch, &bracket).await.map_err(err)
+}
+
+/// Champion x augment pairs with at least `min_games` games, best by `sort` first.
+#[tauri::command]
+pub async fn aram_combos(patch: String, bracket: String, min_games: u64, sort: String, champions: Vec<i32>, augments: Vec<i32>) -> Res<crate::hexstats::Combos> {
+    crate::hexstats::combos(&patch, &bracket, min_games, &sort, &champions, &augments).await.map_err(err)
+}
+
+/// One champion's Hextech ARAM page: augments, items, boots, spells, builds, brackets, patches.
+#[tauri::command]
+pub async fn aram_champion_page(champion_id: i32, patch: String, bracket: String) -> Res<crate::hexstats::ChampionPage> {
+    crate::hexstats::champion(champion_id, &patch, &bracket).await.map_err(err)
 }
 
 /// Save the Riot API key (empty removes it); returns how Riot answered.

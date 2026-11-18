@@ -1,10 +1,11 @@
 //! Champion builds from OP.GG (see `opgg`), and importing them into the client.
 //!
-//! Summoner's Rift builds are OP.GG's ranked builds for the chosen lane; ARAM builds are its
-//! ARAM builds (classic ARAM: Hextech ARAM has no public item data from OP.GG, so they are
-//! labelled as such). A build has the rune page with stat shards, summoner spells, starting
-//! items, boots, the three core items and the most picked options after them, and the skill
-//! order.
+//! Summoner's Rift builds are OP.GG's ranked builds for the chosen lane. Hextech ARAM builds take
+//! their summoner spells, boots and items from AramHex (Hextech ARAM's own games, see `hexstats`)
+//! and the starting items and skill order from OP.GG's ARAM builds (classic ARAM; `item_source`
+//! says "opgg" when AramHex has no item data). A build has the rune page with stat shards,
+//! summoner spells, starting items, boots, the three core items and the most picked options
+//! after them, and the skill order.
 
 use crate::lcu;
 use crate::opgg;
@@ -58,8 +59,10 @@ pub struct Build {
     /// A lane OP.GG lists for neither the champion nor the lane (an off-meta pick): its few games
     /// are all there is, so the numbers are a rough guide.
     pub rare: bool,
-    /// Hextech ARAM: the hand-written build (`content`), used instead of OP.GG's items.
+    /// Hextech ARAM: the hand-written build (`content`), used instead of the statistics' items.
     pub mine: Option<crate::content::MayhemBuild>,
+    /// Where the spells, boots and items are from: "opgg" or "aramhex".
+    pub item_source: String,
 }
 
 fn u(v: &Value, k: &str) -> u32 {
@@ -162,7 +165,22 @@ pub fn from_analysis(champion_id: i32, mode: &str, role: &str, a: &Value) -> Opt
         skill_order: d.get("skills").map(|s| strings(s, "order")).unwrap_or_default(),
         rare: false,
         mine: None,
+        item_source: "opgg".into(),
     })
+}
+
+/// Hextech ARAM's own spells, boots and items in place of classic ARAM's.
+pub fn apply_aram(b: &mut Build, a: &crate::hexstats::AramBuild) {
+    let pick = |(value, games, wins): (i32, u64, u64)| Pick { value, games: games.min(u32::MAX as u64) as u32, wins: wins.min(u32::MAX as u64) as u32 };
+    b.games = a.games.min(u32::MAX as u64) as u32;
+    b.wins = a.wins.min(u32::MAX as u64) as u32;
+    if !a.spells.is_empty() {
+        b.spells = a.spells.iter().map(|(ids, g, w)| Pick { value: *ids, games: (*g).min(u32::MAX as u64) as u32, wins: (*w).min(u32::MAX as u64) as u32 }).collect();
+    }
+    b.boots = a.boots.iter().copied().map(pick).collect();
+    b.items = a.items.iter().copied().map(pick).collect();
+    b.core = a.core.len().min(b.items.len()) as u32;
+    b.item_source = "aramhex".into();
 }
 
 /// The lane to show when none was asked for: the champion's most played lane on OP.GG.
@@ -193,12 +211,22 @@ pub async fn build(champion_id: i32, role: &str, mode: &str) -> Result<Option<Bu
     let mine = if mode == "aram" { crate::content::build(champion_id) } else { None };
     let mut b = match opgg::analysis(&champ.key, &role, game_mode).await {
         Ok(a) => from_analysis(champion_id, if mode == "aram" { "aram" } else { "rift" }, &role, &a),
-        // A hand-written build shows without OP.GG.
-        Err(_) if mine.is_some() => None,
+        // A hand-written build, or Hextech ARAM's statistics, show without OP.GG.
+        Err(e) if mine.is_some() || mode == "aram" => {
+            log::warn!("OP.GG ARAM build for {champion_id}: {e:#}");
+            None
+        }
         Err(e) => return Err(e),
     };
+    if mode == "aram" {
+        match crate::hexstats::aram_build(champion_id).await {
+            Ok(Some(a)) => apply_aram(b.get_or_insert_with(|| Build { champion_id, mode: "aram".into(), item_source: "opgg".into(), ..Default::default() }), &a),
+            Ok(None) => {}
+            Err(e) => log::warn!("AramHex build for {champion_id}: {e:#}"),
+        }
+    }
     if let Some(m) = mine {
-        let b = b.get_or_insert_with(|| Build { champion_id, mode: "aram".into(), ..Default::default() });
+        let b = b.get_or_insert_with(|| Build { champion_id, mode: "aram".into(), item_source: "opgg".into(), ..Default::default() });
         b.mine = Some(m);
     }
     if let Some(b) = b.as_mut().filter(|b| b.mode == "rift" && !b.roles.iter().any(|r| r.value == role)) {

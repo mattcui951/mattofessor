@@ -14,7 +14,9 @@ mod dev;
 pub mod dd;
 pub mod display;
 pub mod game;
+pub mod hexstats;
 pub mod hotkeys;
+pub mod keywords;
 pub mod lcu;
 pub mod live;
 pub mod net;
@@ -182,9 +184,14 @@ pub fn run() {
             commands::content,
             commands::content_status,
             commands::game_data,
+            commands::champion_keywords,
             commands::edit_content,
             commands::publish_content,
             commands::aram_items,
+            commands::aram_board,
+            commands::aram_augment_board,
+            commands::aram_combos,
+            commands::aram_champion_page,
             commands::toggle_overlay,
             commands::hide_overlay,
             commands::fit_overlay,

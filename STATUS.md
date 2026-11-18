@@ -81,6 +81,45 @@ Version: 1.0.13
 
 ## Recently done
 
+- Not released yet (after 1.0.13):
+  - Hextech ARAM redesign from the design review (`.lavish/ui-redesign/`, crawled haidoubang.com
+    and arammeta.com; data stays AramHex, CN, ~10x their samples). The user picked 17 of 22
+    features; skipped the five that need arammeta (TW) data: the companion-item comparison, early
+    or late game, augment pools, early data of a new patch, team win estimate in champ select.
+    - `hexstats.rs`: champion board, augment board (lift over each champion, augments removed
+      since the patch before), champion x augment pairs, one champion's page (augments, items with
+      the rate without them, boots incl. none, spells, three-item routes, brackets, patches).
+      `aramhex.rs` reads `index.json` for 16.19-16.21 (kept in aramhex/h-<patch>) and caches
+      parsed files (40).
+    - Hextech ARAM builds (and the item set import) take spells, boots and items from AramHex;
+      skill order and starters stay OP.GG classic ARAM (`item_source`).
+    - Builds page, Hextech mode: sortable stat card rows (win / Δ / pick), 12 augments per rarity,
+      build styles and routes, boots and spells, items plus "common but worse" (4%+ pick, 2.5+
+      points under), hover cards (`HoverLayer`), recent changes with the champion's numbers,
+      bracket bars, patch line, augment picks by bracket.
+    - Meta page, Hextech: 英雄榜 (class x tier board, ▲▼ vs the patch before, by best build,
+      list), 海克斯榜 (rarity x lift board, removed list), 组合榜, 装备榜; shared patch and bracket
+      filter (`HexFilter`). Champion tiers moved there (user's pick); the tier page keeps items.
+    - Search box: augments (open their pairs), Ctrl K. Tier lines 53.5/51.5/50/48 everywhere.
+    - Fixed on the way: a data set replaced on GitHub since the app last checked made every file
+      not downloaded yet fail its checksum (seen live with `hero_spells.json`); `aramhex::fresh`
+      switches to the new set and tries once more.
+    - Verified in the browser preview against the debug app (zh and en, 1440 and 1280 wide, 16.22
+      and 16.21). Not verified: the Tauri window itself, importing the new item set into a client
+      (mock), Ctrl K inside the app window.
+  - Lost per-bracket champion tiers: the 1.0.12 app re-published content without the key it did
+    not know. Republished (all three brackets, same cut-offs); `Content` now passes unknown
+    fields on (`other`, serde flatten), so an older copy can no longer drop newer data.
+  - Rail: icon plus a short label per page (rail.* strings), settings labelled at the bottom.
+  - Back and forward: title bar buttons, mouse side buttons, Alt + Left / Right
+    (`state.svelte.ts` history and future). Picking a champion or mode on the builds page is a
+    step. Guide, tier lists, patch notes and Meta keep their tabs and filters across visits
+    (module state); the guide also its search, open row and scroll.
+  - Champion search everywhere through one index (`champFind.svelte.ts`): both languages,
+    pinyin, Tencent's hero list keywords (`keywords.rs`, nicknames like 大嘴, cached a day) and a
+    typo fallback for 4+ letters ("cogmo"). Tier pool and guide table now use it too.
+  - Guide champion table: class filter, the ability changes split into Hextech ARAM-only and ARAM
+    columns that expand to the lines.
 - 1.0.13: Hextech ARAM guide, champion adjustments and patch notes, kept
   current by a scheduled job (design reviewed in `.lavish/mayhem-guide-design.html`; the user
   picked the recommended options: two rail pages, ability change lines in English with Chinese

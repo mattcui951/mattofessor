@@ -9,7 +9,7 @@ export type Route =
   | { name: 'profile'; puuid?: string }
   | { name: 'live' }
   | { name: 'builds'; championId?: number; role?: string; mode?: BuildMode }
-  | { name: 'meta'; mode?: BuildMode }
+  | { name: 'meta'; mode?: BuildMode; view?: 'champions' | 'augments' | 'combos' | 'items'; augment?: number }
   | { name: 'tiers' }
   | { name: 'guide' }
   | { name: 'patches' }
@@ -41,7 +41,9 @@ export const app = $state({
   riotKeyDismissed: null as RiotStatus | null,
   ingame: null as InGame | null,
   route: { name: 'profile' } as Route,
+  /** Pages before this one (back), and after it once you went back (forward). */
   history: [] as Route[],
+  future: [] as Route[],
   toasts: [] as Toast[],
   /** Bumped when the signed-in player's profile should refetch (a game ended). */
   profileEpoch: 0,
@@ -63,14 +65,53 @@ export function errorText(e: unknown): string {
   return hasKey(key) ? t(key, m[2] ?? '') : m[3];
 }
 
+const same = (a: Route, b: Route) => JSON.stringify(a) === JSON.stringify(b);
+
+/** Opens a page (every link and the navigation go through here), remembering the one left. */
 export function go(route: Route) {
+  if (same(route, app.route)) return;
   app.history.push(app.route);
-  if (app.history.length > 30) app.history.shift();
+  if (app.history.length > 50) app.history.shift();
+  app.future = [];
   app.route = route;
 }
 
+/** The page before, as it was left (pages keep their tabs and filters). */
 export function back() {
-  app.route = app.history.pop() ?? { name: 'profile' };
+  const prev = app.history.pop();
+  if (!prev) return;
+  app.future.push(app.route);
+  app.route = prev;
+}
+
+/** The page went back from. */
+export function forward() {
+  const next = app.future.pop();
+  if (!next) return;
+  app.history.push(app.route);
+  app.route = next;
+}
+
+/** Mouse side buttons and Alt + Left / Right go back and forward, as in a browser. */
+export function navKeys(): () => void {
+  const mouse = (e: MouseEvent) => {
+    if (e.button !== 3 && e.button !== 4) return;
+    e.preventDefault();
+    if (e.type === 'mouseup') (e.button === 3 ? back : forward)();
+  };
+  const key = (e: KeyboardEvent) => {
+    if (!e.altKey || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight')) return;
+    e.preventDefault();
+    (e.key === 'ArrowLeft' ? back : forward)();
+  };
+  window.addEventListener('mousedown', mouse);
+  window.addEventListener('mouseup', mouse);
+  window.addEventListener('keydown', key);
+  return () => {
+    window.removeEventListener('mousedown', mouse);
+    window.removeEventListener('mouseup', mouse);
+    window.removeEventListener('keydown', key);
+  };
 }
 
 /** "live", "profile/<puuid>", "builds", "settings" (from the backend). */

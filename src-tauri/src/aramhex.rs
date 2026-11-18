@@ -6,12 +6,17 @@
 //! `latest.json` names the current data set (`seq`, `path`) and every file's SHA-256. Files are
 //! downloaded on first use of a bracket, checked, and kept under %APPDATA%/Mattofessor/aramhex/<seq>;
 //! the previous set stays in use until a new one is complete. Checked for updates every 6 hours.
+//! `index.json` lists the earlier patches' sets (kept under aramhex/h-<patch>), for the patch
+//! picker and a champion's win rate patch by patch. Parsed files are kept in memory a while
+//! (`table`).
 
 use anyhow::{anyhow, bail, Context as _, Result};
 use parking_lot::Mutex;
+use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use sha2::{Digest, Sha256};
+use std::any::Any;
 use std::collections::{BTreeMap, HashMap};
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -22,6 +27,8 @@ const CHECK_EVERY: Duration = Duration::from_secs(6 * 3600);
 /// Smoothing weight for a champion × augment win rate, as AramHex's notes suggest.
 const SMOOTH_GAMES: f64 = 300.0;
 pub const BRACKETS: [&str; 4] = ["all", "casual", "mid", "high"];
+/// The error of a file that no longer matches the current set (see `fresh`).
+pub const STALE: &str = "AramHex has a newer data set";
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -34,6 +41,28 @@ pub struct Info {
     pub bands: bool,
     /// Relative path -> SHA-256.
     pub files: HashMap<String, String>,
+}
+
+impl Info {
+    /// The folder its files are kept in: the current set by its number, an earlier patch's by
+    /// the patch (an update never removes those).
+    pub fn dir_key(&self) -> String {
+        if self.seq > 0 {
+            self.seq.to_string()
+        } else {
+            format!("h-{}", self.patch)
+        }
+    }
+
+    /// A bracket's copy of a file: the bracket's own, else all players' one. Gives the bracket
+    /// used and the path, or None when the set does not have the file.
+    pub fn locate(&self, bracket: &str, file: &str) -> Option<(String, String)> {
+        let own = rel(bracket, file);
+        if bracket != "all" && self.files.contains_key(&own) {
+            return Some((bracket.to_string(), own));
+        }
+        self.files.contains_key(file).then(|| ("all".to_string(), file.to_string()))
+    }
 }
 
 /// One row of AramHex's files (their field names are snake_case).
@@ -87,7 +116,36 @@ pub fn parse_info(v: &Value) -> Result<Info> {
     Ok(info)
 }
 
-fn ids<T>(m: HashMap<String, T>) -> HashMap<i32, T> {
+/// The earlier patches' sets in `index.json`: regular rules only (no events), one per patch,
+/// without provisional or pre-hotfix copies. Newest first.
+pub fn parse_index(v: &Value) -> Vec<Info> {
+    let mut out: Vec<Info> = Vec::new();
+    for d in v.get("datasets").and_then(Value::as_array).cloned().unwrap_or_default() {
+        let patch = d.get("patch").and_then(Value::as_str).unwrap_or_default();
+        let path = d.get("path").and_then(Value::as_str).unwrap_or_default();
+        let provisional = d.get("provisional").is_some_and(|p| p.as_bool() != Some(false));
+        if provisional || d.get("mode").and_then(Value::as_str) != Some("normal") || path != format!("patches/{patch}/normal") {
+            continue;
+        }
+        let mut d = d.clone();
+        // Kept by patch, not by number (`Info::dir_key`).
+        d["seq"] = Value::from(0);
+        if let Ok(i) = parse_info(&d) {
+            if !out.iter().any(|o| o.patch == i.patch) {
+                out.push(i);
+            }
+        }
+    }
+    out.sort_by_key(|i| std::cmp::Reverse(patch_order(&i.patch)));
+    out
+}
+
+/// "16.9" before "16.10".
+pub fn patch_order(p: &str) -> Vec<u32> {
+    p.split('.').map(|x| x.parse().unwrap_or(0)).collect()
+}
+
+pub fn ids<T>(m: HashMap<String, T>) -> HashMap<i32, T> {
     m.into_iter().filter_map(|(k, v)| Some((k.parse().ok()?, v))).collect()
 }
 
@@ -101,7 +159,7 @@ fn dir() -> PathBuf {
     crate::paths::config_dir().join("aramhex")
 }
 
-fn rel(bracket: &str, file: &str) -> String {
+pub fn rel(bracket: &str, file: &str) -> String {
     if bracket == "all" {
         file.to_string()
     } else {
@@ -121,12 +179,20 @@ fn sha256(bytes: &[u8]) -> String {
     Sha256::digest(bytes).iter().map(|b| format!("{b:02x}")).collect()
 }
 
+type Parsed = Arc<dyn Any + Send + Sync>;
+
 struct State {
     info: Option<Arc<Info>>,
     brackets: BTreeMap<String, Arc<Bracket>>,
+    /// The earlier patches' sets (`index.json`), newest first.
+    history: Option<Arc<Vec<Arc<Info>>>>,
+    /// Parsed files by folder and path, the most recently used last.
+    tables: Vec<(String, Parsed)>,
 }
 
-static STATE: Mutex<State> = Mutex::new(State { info: None, brackets: BTreeMap::new() });
+static STATE: Mutex<State> = Mutex::new(State { info: None, brackets: BTreeMap::new(), history: None, tables: Vec::new() });
+/// Parsed files kept in memory (a champion's page reads about a dozen).
+const KEEP_TABLES: usize = 40;
 static FETCH: tokio::sync::Mutex<()> = tokio::sync::Mutex::const_new(());
 
 fn saved_info() -> Option<Info> {
@@ -153,9 +219,67 @@ async fn latest() -> Result<Info> {
     parse_info(&serde_json::from_slice(&bytes)?)
 }
 
+/// The current set and the earlier patches' ones, newest first. Without `index.json` (not
+/// reachable yet), the current one only.
+pub async fn datasets() -> Result<Vec<Arc<Info>>> {
+    let current = info().await?;
+    let cached = STATE.lock().history.clone();
+    let history = match cached {
+        Some(h) => h,
+        None => {
+            let h = match fetch(&format!("{BASE}index.json")).await.and_then(|b| Ok(serde_json::from_slice::<Value>(&b)?)) {
+                Ok(v) => Arc::new(parse_index(&v).into_iter().map(Arc::new).collect::<Vec<_>>()),
+                Err(e) => {
+                    log::warn!("AramHex index: {e:#}");
+                    return Ok(vec![current]);
+                }
+            };
+            STATE.lock().history = Some(h.clone());
+            h
+        }
+    };
+    let mut out = vec![current.clone()];
+    out.extend(history.iter().filter(|h| patch_order(&h.patch) < patch_order(&current.patch)).cloned());
+    Ok(out)
+}
+
+/// The set for a patch ("" or the current patch: the current set).
+pub async fn dataset(patch: &str) -> Result<Arc<Info>> {
+    let current = info().await?;
+    if patch.is_empty() || patch == current.patch {
+        return Ok(current);
+    }
+    datasets().await?.into_iter().find(|i| i.patch == patch).ok_or_else(|| anyhow!("AramHex has no patch {patch}"))
+}
+
+/// A file of a set, parsed, kept in memory while in use.
+pub async fn table<T: DeserializeOwned + Send + Sync + 'static>(info: &Info, rel_path: &str) -> Result<Arc<T>> {
+    let key = format!("{}/{rel_path}", info.dir_key());
+    let hit = {
+        let mut s = STATE.lock();
+        s.tables.iter().position(|(k, _)| *k == key).map(|i| {
+            let e = s.tables.remove(i);
+            s.tables.push(e.clone());
+            e.1
+        })
+    };
+    if let Some(t) = hit.and_then(|t| t.downcast::<T>().ok()) {
+        return Ok(t);
+    }
+    let bytes = file(info, rel_path).await?;
+    let parsed: Arc<T> = Arc::new(tokio::task::spawn_blocking(move || serde_json::from_slice::<T>(&bytes)).await?.with_context(|| rel_path.to_string())?);
+    let mut s = STATE.lock();
+    s.tables.retain(|(k, _)| *k != key);
+    s.tables.push((key, parsed.clone()));
+    if s.tables.len() > KEEP_TABLES {
+        s.tables.remove(0);
+    }
+    Ok(parsed)
+}
+
 /// One file of a data set, from disk or downloaded and checked.
-async fn file(info: &Info, rel_path: &str) -> Result<Vec<u8>> {
-    let local = dir().join(info.seq.to_string()).join(rel_path);
+pub async fn file(info: &Info, rel_path: &str) -> Result<Vec<u8>> {
+    let local = dir().join(info.dir_key()).join(rel_path);
     let want = info.files.get(rel_path).ok_or_else(|| anyhow!("AramHex has no {rel_path}"))?;
     if let Ok(b) = std::fs::read(&local) {
         if &sha256(&b) == want {
@@ -164,6 +288,11 @@ async fn file(info: &Info, rel_path: &str) -> Result<Vec<u8>> {
     }
     let b = fetch(&format!("{BASE}{}/{rel_path}", info.path)).await?;
     if &sha256(&b) != want {
+        // The current set was replaced on GitHub since the app last looked (a file not
+        // downloaded yet is the new set's): `fresh` switches to the new set and tries again.
+        if info.seq > 0 {
+            bail!("{STALE}: {rel_path}");
+        }
         bail!("AramHex {rel_path} failed its checksum");
     }
     if let Some(parent) = local.parent() {
@@ -182,6 +311,10 @@ async fn load(info: &Info, bracket: &str) -> Result<Bracket> {
 
 /// Statistics for a skill bracket ("all", "casual", "mid", "high"), with the data set they are from.
 pub async fn bracket(name: &str) -> Result<(Arc<Info>, Arc<Bracket>)> {
+    fresh(|| bracket_once(name)).await
+}
+
+async fn bracket_once(name: &str) -> Result<(Arc<Info>, Arc<Bracket>)> {
     let name = if BRACKETS.contains(&name) { name } else { "all" };
     let info = info().await?;
     if let Some(b) = STATE.lock().brackets.get(name).cloned() {
@@ -227,15 +360,37 @@ async fn update() -> Result<()> {
         let mut s = STATE.lock();
         s.info = Some(Arc::new(newest));
         s.brackets = loaded;
+        // The new set may be a new patch, which makes the old current set an earlier one.
+        s.history = None;
+        let old = format!("{}/", current.as_ref().map(|c| c.dir_key()).unwrap_or_default());
+        s.tables.retain(|(k, _)| !k.starts_with(&old));
     }
     if let Ok(entries) = std::fs::read_dir(dir()) {
         for e in entries.flatten() {
-            if e.path().is_dir() && e.file_name().to_string_lossy() != keep {
+            let name = e.file_name().to_string_lossy().to_string();
+            if e.path().is_dir() && name != keep && !name.starts_with("h-") {
                 let _ = std::fs::remove_dir_all(e.path());
             }
         }
     }
     Ok(())
+}
+
+/// Runs `f`, and once more after switching to the newest set when the current one turned out
+/// to be replaced (`STALE`).
+pub async fn fresh<T, F, Fut>(f: F) -> Result<T>
+where
+    F: Fn() -> Fut,
+    Fut: std::future::Future<Output = Result<T>>,
+{
+    match f().await {
+        Err(e) if format!("{e:#}").contains(STALE) => {
+            log::info!("{e:#}; switching");
+            update().await?;
+            f().await
+        }
+        r => r,
+    }
 }
 
 pub fn spawn() {
@@ -414,12 +569,20 @@ pub fn items(source: Source, heroes: &[u8], hero_items: &[u8], meta: &[u8]) -> R
     Ok(ItemOverview { source, items })
 }
 
-/// Item win rates for a bracket; only "all" and "high" have item data, the others use "all".
-pub async fn item_overview(bracket_name: &str) -> Result<ItemOverview> {
-    let info = info().await?;
-    let b = if bracket_name == "high" && info.bands { "high" } else { "all" };
+/// Item win rates for a patch ("": the current one) and bracket; only all players and the top 5%
+/// have item data (others use all players), and only from 16.22 on (earlier: no items).
+pub async fn item_overview(patch: &str, bracket_name: &str) -> Result<ItemOverview> {
+    fresh(|| item_overview_once(patch, bracket_name)).await
+}
+
+async fn item_overview_once(patch: &str, bracket_name: &str) -> Result<ItemOverview> {
+    let info = dataset(patch).await?;
+    let Some((b, pairs_path)) = info.locate(if bracket_name == "high" { "high" } else { "all" }, "hero_items.json") else {
+        return Ok(ItemOverview { source: source(&info, "all"), items: Vec::new() });
+    };
+    let b = b.as_str();
     let heroes = file(&info, &rel(b, "equipment_recommendation_heroes.json")).await?;
-    let pairs = file(&info, &rel(b, "hero_items.json")).await?;
+    let pairs = file(&info, &pairs_path).await?;
     let meta = file(&info, "item_metadata.json").await.unwrap_or_default();
     items(source(&info, b), &heroes, &pairs, &meta)
 }

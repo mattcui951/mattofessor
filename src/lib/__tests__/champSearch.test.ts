@@ -9,6 +9,8 @@ const en: Record<string, Champ> = {
   '36': { key: 'DrMundo', name: 'Dr. Mundo', alias: 'The Madman of Zaun', tags: [] },
   '64': { key: 'LeeSin', name: 'Lee Sin', alias: 'The Blind Monk', tags: [] },
   '62': { key: 'MonkeyKing', name: 'Wukong', alias: 'The Monkey King', tags: [] },
+  '96': { key: 'KogMaw', name: "Kog'Maw", alias: 'The Mouth of the Abyss', tags: [] },
+  '266': { key: 'Aatrox', name: 'Aatrox', alias: 'the Darkin Blade', tags: [] },
 };
 const zh: Record<string, Champ> = {
   '24': { key: 'Jax', name: '贾克斯', alias: '武器大师', tags: [] },
@@ -17,7 +19,8 @@ const zh: Record<string, Champ> = {
   '64': { key: 'LeeSin', name: '李青', alias: '盲僧', tags: [] },
   '62': { key: 'MonkeyKing', name: '孙悟空', alias: '齐天大圣', tags: [] },
 };
-const index = buildIndex([en, zh]);
+// Tencent's hero list keywords.
+const index = buildIndex([en, zh], { '96': ['大嘴', 'dz', 'dazui'], '266': ['剑魔', 'jianmo'] });
 const first = (q: string) => searchChamps(index, q)[0]?.id;
 
 describe('champion search', () => {
@@ -34,6 +37,19 @@ describe('champion search', () => {
     expect(first("KAI'SA")).toBe(145);
     expect(first('dr mundo')).toBe(36);
     expect(first('drmundo')).toBe(36);
+  });
+
+  it('finds nicknames', () => {
+    expect(first('大嘴')).toBe(96);
+    expect(first('dazui')).toBe(96);
+    expect(first('剑魔')).toBe(266);
+  });
+
+  it('narrows as you type and forgives a typo', () => {
+    expect(searchChamps(index, 'aa', Infinity).map((h) => h.id)).toEqual([266]);
+    expect(first('atrox')).toBe(266);
+    expect(first('cogmo')).toBe(96);
+    expect(searchChamps(index, 'qqqq')).toEqual([]);
   });
 
   it('matches the Data Dragon key', () => {

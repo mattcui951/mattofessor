@@ -1,5 +1,6 @@
 import { invoke } from '@tauri-apps/api/core';
 import type { GameData } from './gamedata.svelte';
+import type { AugBoard, Board, ChampionPage, Combos } from './types';
 import type { AramBracket, AramChampion, AramOverview, AramPicks, Augment, Build, BuildMode, Content, ContentEdit, ContentStatus, FullGame, ImportResult, InGame, ItemOverview, LiveState, MyScore, PlayerScore, Profile, RiftTiers, RiotStatus, Settings, StaticData, Summoner, UpdateState } from './types';
 
 export type Boot = {
@@ -53,9 +54,16 @@ export const api = {
   content: () => invoke<Content>('content'),
   contentStatus: () => invoke<ContentStatus>('content_status'),
   gameData: () => invoke<GameData>('game_data'),
+  championKeywords: () => invoke<Record<string, string[]>>('champion_keywords'),
   editContent: (edit: ContentEdit) => invoke<Content>('edit_content', { edit }),
   publishContent: () => invoke<void>('publish_content'),
-  aramItems: (bracket: AramBracket) => invoke<ItemOverview>('aram_items', { bracket }),
+  aramItems: (bracket: AramBracket, patch = '') => invoke<ItemOverview>('aram_items', { bracket, patch }),
+  /** Hextech ARAM pages; `patch` "" is the current patch. */
+  aramBoard: (patch: string, bracket: AramBracket) => invoke<Board>('aram_board', { patch, bracket }),
+  aramAugmentBoard: (patch: string, bracket: AramBracket) => invoke<AugBoard>('aram_augment_board', { patch, bracket }),
+  aramCombos: (patch: string, bracket: AramBracket, minGames: number, sort: 'win' | 'delta' | 'games', champions: number[], augments: number[]) =>
+    invoke<Combos>('aram_combos', { patch, bracket, minGames, sort, champions, augments }),
+  aramChampionPage: (championId: number, patch: string, bracket: AramBracket) => invoke<ChampionPage>('aram_champion_page', { championId, patch, bracket }),
   cardReaderStatus: () => invoke<{ ocrEn: boolean; ocrZh: boolean; gameLang: 'en' | 'zh' | null; missing: boolean }>('card_reader_status'),
   setRiotKey: (key: string) => invoke<RiotStatus>('set_riot_key', { key }),
   checkUpdate: () => invoke<UpdateState>('check_update'),

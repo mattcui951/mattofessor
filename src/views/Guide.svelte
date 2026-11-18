@@ -1,3 +1,23 @@
+<script lang="ts" module>
+  import type { ChampClass } from '../lib/types';
+  import type { ModKey } from '../lib/gamedata.svelte';
+
+  /**
+   * What the page shows, kept while the app runs: going back to it (after opening a champion)
+   * lands on the same tab, filters, open row and scroll position.
+   */
+  const ui = $state({
+    view: 'rules' as 'rules' | 'bands' | 'champions',
+    filter: 'all' as 'all' | 'buffed' | 'nerfed',
+    cls: 'all' as 'all' | ChampClass,
+    query: '',
+    sortKey: 'dealt' as ModKey | 'name',
+    sortDesc: false,
+    open: 0,
+    scroll: { rules: 0, bands: 0, champions: 0 } as Record<string, number>,
+  });
+</script>
+
 <script lang="ts">
   /**
    * Hextech ARAM at a glance: the mode's rules, this season's headliner bands, and every
@@ -7,18 +27,17 @@
   import Img from '../components/Img.svelte';
   import Segmented from '../components/Segmented.svelte';
   import { openUrl } from '@tauri-apps/plugin-opener';
-  import { champIcon, champName } from '../lib/dd.svelte';
+  import { findChamps, loadChampSearch } from '../lib/champFind.svelte';
+  import { champIcon, champName, dd } from '../lib/dd.svelte';
   import { ago } from '../lib/format';
-  import { bi, gameData, loadGameData, MOD_KEYS, modGood, modText, type ModKey } from '../lib/gamedata.svelte';
+  import { bi, gameData, loadGameData, MOD_KEYS, modGood, modText, type AbilityMods } from '../lib/gamedata.svelte';
   import { i18n, t } from '../lib/i18n.svelte';
   import { go } from '../lib/state.svelte';
+  import { tick } from 'svelte';
 
   loadGameData();
-  let view = $state<'rules' | 'bands' | 'champions'>('rules');
-  let filter = $state<'all' | 'buffed' | 'nerfed'>('all');
-  let query = $state('');
-  let sortKey = $state<ModKey | 'name'>('dealt');
-  let sortDesc = $state(false);
+  loadChampSearch();
+  const CLASSES: ChampClass[] = ['Fighter', 'Assassin', 'Mage', 'Tank', 'Support', 'Marksman'];
 
   const m = $derived(gameData.data?.mayhem);
   const checked = $derived(gameData.data?.checkedAt ? ago(Date.parse(gameData.data.checkedAt)) : '');
@@ -26,70 +45,115 @@
   /** Other modifiers than damage dealt and taken, shown together. */
   const OTHER: ModKey[] = MOD_KEYS.filter((k) => k !== 'dealt' && k !== 'received');
 
+  /** An ability's lines of one kind (Hextech ARAM only, or regular ARAM's) in the UI language. */
+  function linesOf(a: AbilityMods, mode: 'aram' | 'mayhem') {
+    return a.lines.filter((l) => l.mode === mode).map((l) => (i18n.lang === 'zh' ? l.zh : l.text)).filter((x): x is string => Boolean(x));
+  }
+  function changes(abilities: AbilityMods[], mode: 'aram' | 'mayhem') {
+    return abilities.map((a) => ({ a, lines: linesOf(a, mode) })).filter((x) => x.lines.length);
+  }
+
   const rows = $derived.by(() => {
-    const q = query.trim().toLowerCase();
+    const found = findChamps(ui.query);
+    const rank = found ? new Map(found.map((id, i) => [id, i])) : null;
     const list = Object.entries(m?.champions ?? {}).map(([id, c]) => {
       const vals = MOD_KEYS.filter((k) => (c.stats[k] ?? 0) !== 0).map((k) => modGood(k, c.stats[k]!));
       return {
         id: Number(id),
         name: champName(Number(id)),
         c,
+        tags: dd.data?.champions[id]?.tags ?? [],
         buffed: vals.length > 0 && vals.every(Boolean),
         nerfed: vals.length > 0 && vals.every((g) => !g),
-        abilityLines: c.abilities.reduce((n, a) => n + a.lines.length, 0),
+        mayhem: changes(c.abilities, 'mayhem'),
+        aram: changes(c.abilities, 'aram'),
       };
     });
-    const shown = list.filter((r) => (!q || r.name.toLowerCase().includes(q) || r.c.name.toLowerCase().includes(q)) && (filter === 'all' || (filter === 'buffed' ? r.buffed : r.nerfed)));
-    const val = (r: (typeof list)[number]) => (sortKey === 'name' ? 0 : (r.c.stats[sortKey] ?? 0));
-    return shown.sort((a, b) => (sortKey === 'name' ? a.name.localeCompare(b.name) : (val(a) - val(b)) * (sortDesc ? -1 : 1) || a.name.localeCompare(b.name)));
+    const shown = list.filter(
+      (r) => (!rank || rank.has(r.id)) && (ui.cls === 'all' || r.tags.includes(ui.cls)) && (ui.filter === 'all' || (ui.filter === 'buffed' ? r.buffed : r.nerfed)),
+    );
+    if (rank && !ui.sortKey) return shown.sort((a, b) => rank.get(a.id)! - rank.get(b.id)!);
+    const val = (r: (typeof list)[number]) => (ui.sortKey === 'name' ? 0 : (r.c.stats[ui.sortKey] ?? 0));
+    return shown.sort((a, b) => (ui.sortKey === 'name' ? a.name.localeCompare(b.name) : (val(a) - val(b)) * (ui.sortDesc ? -1 : 1) || a.name.localeCompare(b.name)));
   });
 
   function sortBy(k: ModKey | 'name') {
-    if (sortKey === k) sortDesc = !sortDesc;
+    if (ui.sortKey === k) ui.sortDesc = !ui.sortDesc;
     else {
-      sortKey = k;
-      sortDesc = false;
+      ui.sortKey = k;
+      ui.sortDesc = false;
     }
   }
   const tone = (k: ModKey, v: number | undefined) => (v === undefined || v === 0 ? '' : modGood(k, v) ? 'good' : 'bad');
+  const count = (list: { lines: string[] }[]) => list.reduce((n, x) => n + x.lines.length, 0);
+
+  // Scroll position per tab, back where it was when the page comes back.
+  let scroller = $state<HTMLElement>();
+  $effect(() => {
+    const view = ui.view;
+    const el = scroller;
+    if (!el || !m) return;
+    tick().then(() => (el.scrollTop = ui.scroll[view] ?? 0));
+  });
 </script>
+
+{#snippet changeList(list: { a: AbilityMods; lines: string[] }[])}
+  {#each list as x (x.a.name.en)}
+    <div class="ab">
+      <span class="key num">{x.a.key || '·'}</span>
+      <div>
+        <div class="ab-name">{bi(x.a.name)}</div>
+        <ul>
+          {#each x.lines as l, i (i)}<li>{l}</li>{/each}
+        </ul>
+      </div>
+    </div>
+  {/each}
+{/snippet}
 
 <div class="page">
   <header class="head">
     <h2>{t('mguide.title')}</h2>
     <Segmented
       label={t('meta.view')}
-      value={view}
+      value={ui.view}
       options={[
         { value: 'rules', label: t('mguide.rules') },
         { value: 'bands', label: t('mguide.bands') },
         { value: 'champions', label: t('mguide.champions') },
       ]}
-      onchange={(v) => (view = v as typeof view)}
+      onchange={(v) => (ui.view = v as typeof ui.view)}
     />
-    {#if view === 'champions'}
+    <span class="grow"></span>
+    {#if m}<span class="dim">{t('mods.source', m.patch, checked)}</span>{/if}
+  </header>
+  {#if ui.view === 'champions'}
+    <div class="filters">
+      <Segmented
+        label={t('meta.class')}
+        value={ui.cls}
+        options={(['all', ...CLASSES] as const).map((c) => ({ value: c, label: c === 'all' ? t('meta.allClasses') : t(`class.${c}`) }))}
+        onchange={(v) => (ui.cls = v as typeof ui.cls)}
+      />
       <Segmented
         label={t('mguide.filter')}
-        value={filter}
+        value={ui.filter}
         options={[
           { value: 'all', label: t('mguide.all') },
           { value: 'buffed', label: t('mguide.buffed') },
           { value: 'nerfed', label: t('mguide.nerfed') },
         ]}
-        onchange={(v) => (filter = v as typeof filter)}
+        onchange={(v) => (ui.filter = v as typeof ui.filter)}
       />
-    {/if}
-    <span class="grow"></span>
-    {#if view === 'champions'}
-      <label class="search"><Icon name="search" size={15} /><input class="field" bind:value={query} placeholder={t('builds.search')} spellcheck="false" /></label>
-    {/if}
-    {#if m}<span class="dim">{t('mods.source', m.patch, checked)}</span>{/if}
-  </header>
+      <span class="grow"></span>
+      <label class="search"><Icon name="search" size={15} /><input class="field" bind:value={ui.query} placeholder={t('builds.search')} spellcheck="false" /></label>
+    </div>
+  {/if}
 
-  <div class="scroll">
+  <div class="scroll" bind:this={scroller} onscroll={(e) => (ui.scroll[ui.view] = (e.currentTarget as HTMLElement).scrollTop)}>
     {#if !m}
       <p class="dim">{t('common.loading')}</p>
-    {:else if view === 'rules'}
+    {:else if ui.view === 'rules'}
       <div class="sections">
         {#each m.sections as s (s.id)}
           <section class="box">
@@ -106,7 +170,7 @@
           </section>
         {/each}
       </div>
-    {:else if view === 'bands'}
+    {:else if ui.view === 'bands'}
       <p class="lead">{t('mguide.bandsLead')}</p>
       <div class="bands">
         {#each m.headliners as h (h.id)}
@@ -121,17 +185,22 @@
         <table>
           <thead>
             <tr>
-              <th><button onclick={() => sortBy('name')}>{t('mguide.champion')}</button></th>
-              <th><button class:on={sortKey === 'dealt'} onclick={() => sortBy('dealt')}>{t('mods.dealt')}</button></th>
-              <th><button class:on={sortKey === 'received'} onclick={() => sortBy('received')}>{t('mods.received')}</button></th>
+              <th><button class:on={ui.sortKey === 'name'} onclick={() => sortBy('name')}>{t('mguide.champion')}</button></th>
+              <th><button class:on={ui.sortKey === 'dealt'} onclick={() => sortBy('dealt')}>{t('mods.dealt')}</button></th>
+              <th><button class:on={ui.sortKey === 'received'} onclick={() => sortBy('received')}>{t('mods.received')}</button></th>
               <th>{t('mguide.other')}</th>
-              <th class="r">{t('mguide.abilities')}</th>
+              <th title={t('mguide.mayhemAbilitiesHint')}>{t('mguide.mayhemAbilities')}</th>
+              <th title={t('mguide.aramAbilitiesHint')}>{t('mguide.aramAbilities')}</th>
             </tr>
           </thead>
           <tbody>
             {#each rows as r (r.id)}
-              <tr onclick={() => go({ name: 'builds', championId: r.id, mode: 'aram' })}>
-                <td><span class="who"><Img src={champIcon(r.id)} size={28} />{r.name}</span></td>
+              <tr class:open={ui.open === r.id}>
+                <td>
+                  <button class="who" title={t('mguide.openChampion')} onclick={() => go({ name: 'builds', championId: r.id, mode: 'aram' })}>
+                    <Img src={champIcon(r.id)} size={28} />{r.name}
+                  </button>
+                </td>
                 <td class="num {tone('dealt', r.c.stats.dealt)}">{r.c.stats.dealt !== undefined ? modText('dealt', r.c.stats.dealt) : '100%'}</td>
                 <td class="num {tone('received', r.c.stats.received)}">{r.c.stats.received !== undefined ? modText('received', r.c.stats.received) : '100%'}</td>
                 <td>
@@ -139,10 +208,36 @@
                     <span class="mini {tone(k, r.c.stats[k])}">{t(`mods.${k}`)} {modText(k, r.c.stats[k]!)}</span>
                   {/each}
                 </td>
-                <td class="r num dim">{r.abilityLines || ''}</td>
+                {#each [r.mayhem, r.aram] as list, i (i)}
+                  <td>
+                    {#if list.length}
+                      <button class="more" aria-expanded={ui.open === r.id} onclick={() => (ui.open = ui.open === r.id ? 0 : r.id)}>
+                        {t('mguide.changes', count(list))}
+                        {list.map((x) => x.a.key || bi(x.a.name)).join(' ')}
+                        <Icon name="chevron-down" size={13} />
+                      </button>
+                    {:else}<span class="dim">-</span>{/if}
+                  </td>
+                {/each}
               </tr>
+              {#if ui.open === r.id}
+                <tr class="detail">
+                  <td colspan="6">
+                    <div class="split">
+                      <section>
+                        <h4>{t('mguide.mayhemAbilities')}</h4>
+                        {#if r.mayhem.length}{@render changeList(r.mayhem)}{:else}<p class="dim">{t('mguide.none')}</p>{/if}
+                      </section>
+                      <section>
+                        <h4>{t('mguide.aramAbilities')}</h4>
+                        {#if r.aram.length}{@render changeList(r.aram)}{:else}<p class="dim">{t('mguide.none')}</p>{/if}
+                      </section>
+                    </div>
+                  </td>
+                </tr>
+              {/if}
             {:else}
-              <tr><td colspan="5" class="dim">{t('mguide.noMatch')}</td></tr>
+              <tr><td colspan="6" class="dim">{t('mguide.noMatch')}</td></tr>
             {/each}
           </tbody>
         </table>
@@ -167,7 +262,8 @@
     padding: 16px 20px 14px;
     min-height: 0;
   }
-  .head {
+  .head,
+  .filters {
     display: flex;
     align-items: center;
     gap: 14px;
@@ -194,7 +290,7 @@
     color: var(--text-3);
   }
   .search .field {
-    width: 200px;
+    width: 220px;
   }
   .scroll {
     flex: 1;
@@ -289,6 +385,7 @@
     border-bottom: 1px solid var(--seam);
     position: sticky;
     top: 0;
+    z-index: 1;
     background: var(--panel);
   }
   th button {
@@ -303,10 +400,8 @@
     border-bottom: 1px solid var(--seam);
     color: var(--text-2);
   }
-  tbody tr {
-    cursor: pointer;
-  }
-  tbody tr:hover td {
+  tbody tr:not(.detail):hover td,
+  tr.open td {
     background: var(--panel-2);
   }
   .who {
@@ -314,10 +409,29 @@
     align-items: center;
     gap: 10px;
     color: var(--text);
+    font: inherit;
     font-weight: 600;
+    padding: 0;
   }
-  .r {
-    text-align: right;
+  .who:hover {
+    color: var(--you);
+  }
+  .more {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 8px;
+    border-radius: var(--r-sm);
+    background: var(--panel-3);
+    color: var(--text);
+    font: inherit;
+    font-size: 12px;
+  }
+  .more:hover {
+    color: var(--you);
+  }
+  .more[aria-expanded='true'] :global(svg) {
+    transform: rotate(180deg);
   }
   .good {
     color: var(--win);
@@ -333,9 +447,48 @@
     background: var(--panel-2);
     font-size: 12px;
   }
-  .mini.good,
-  .mini.bad {
-    background: var(--panel-2);
+  tr.detail td {
+    background: var(--bg-sunk);
+    padding: 12px 16px;
+  }
+  .split {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+  .split h4 {
+    margin: 0 0 8px;
+    font-size: 12.5px;
+    color: var(--text-3);
+  }
+  .ab {
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr);
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .key {
+    width: 24px;
+    height: 24px;
+    display: grid;
+    place-items: center;
+    border-radius: var(--r-sm);
+    background: var(--panel-3);
+    color: var(--text-2);
+    font: 700 12px var(--font-score);
+  }
+  .ab-name {
+    color: var(--text);
+    font-weight: 600;
+    line-height: 24px;
+  }
+  .ab ul {
+    margin: 0;
+    padding-left: 16px;
+    font-size: 12.5px;
+  }
+  .ab li {
+    margin: 2px 0;
   }
   .credit {
     margin: 14px 0 0;

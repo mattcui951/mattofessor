@@ -57,6 +57,20 @@ mockIPC(
         return call(cmd, { championId: a.championId, bracket: a.bracket });
       case 'augment_names':
         return call(cmd, { lang: a.lang });
+      case 'aram_items':
+        return call(cmd, { bracket: a.bracket, patch: a.patch });
+      case 'game_data':
+      case 'content':
+      case 'content_status':
+      case 'champion_keywords':
+        return call(cmd);
+      case 'aram_board':
+      case 'aram_augment_board':
+        return call(cmd, { patch: a.patch, bracket: a.bracket });
+      case 'aram_combos':
+        return call(cmd, { patch: a.patch, bracket: a.bracket, minGames: a.minGames, sort: a.sort, champions: (a.champions as number[]).join(','), augments: (a.augments as number[]).join(',') });
+      case 'aram_champion_page':
+        return call(cmd, { championId: a.championId, patch: a.patch, bracket: a.bracket });
       case 'import_build':
         return call(cmd, { championId: a.championId, role: a.role, mode: a.mode, runes: a.runes, items: a.items });
       case 'check_update':

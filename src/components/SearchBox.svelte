@@ -1,14 +1,23 @@
 <script lang="ts">
-  /** One box for champions (any language, pinyin too) and players (Name#TAG). */
+  /**
+   * One box for champions (any language, pinyin too), Hextech ARAM augments and players
+   * (Name#TAG). Ctrl K jumps to it from anywhere in the window.
+   */
   import Icon from './Icon.svelte';
   import Img from './Img.svelte';
   import { api } from '../lib/api';
-  import { buildIndex, riotIdOf, searchChamps } from '../lib/champSearch';
+  import { riotIdOf, searchChamps } from '../lib/champSearch';
+  import { champIndex, loadChampSearch } from '../lib/champFind.svelte';
   import { champIcon, dd, loadOtherNames, otherNames } from '../lib/dd.svelte';
   import { t } from '../lib/i18n.svelte';
+  import { augs, loadAugments } from '../lib/meta.svelte';
   import { errorText, go } from '../lib/state.svelte';
 
-  type Row = { kind: 'player'; name: string; tag: string } | { kind: 'champ'; id: number };
+  type Row = { kind: 'player'; name: string; tag: string } | { kind: 'champ'; id: number } | { kind: 'aug'; id: number };
+
+  /** Augments shown at most (after the champions). */
+  const AUGS = 4;
+  let input = $state<HTMLInputElement>();
 
   let query = $state('');
   let open = $state(false);
@@ -16,11 +25,21 @@
   let busy = $state(false);
   let error = $state<string | null>(null);
 
-  const index = $derived(buildIndex([dd.data?.champions, otherNames.champions]));
+  loadChampSearch();
+  const index = $derived(champIndex());
   const riotId = $derived(riotIdOf(query));
   const rows = $derived.by((): Row[] => {
-    const champs: Row[] = riotId ? [] : searchChamps(index, query, 6).map((h) => ({ kind: 'champ', id: h.id }));
-    return riotId ? [{ kind: 'player', ...riotId }] : champs;
+    if (riotId) return [{ kind: 'player', ...riotId }];
+    const champs: Row[] = searchChamps(index, query, 6).map((h) => ({ kind: 'champ', id: h.id }));
+    const q = query.trim().toLowerCase();
+    const found: Row[] = q
+      ? Object.entries(augs.byId)
+          .filter(([, a]) => a.rarity && a.name.toLowerCase().includes(q))
+          .sort(([, a], [, b]) => Number(!a.name.toLowerCase().startsWith(q)) - Number(!b.name.toLowerCase().startsWith(q)) || a.name.length - b.name.length)
+          .slice(0, AUGS)
+          .map(([id]) => ({ kind: 'aug', id: Number(id) }))
+      : [];
+    return [...champs, ...found];
   });
   const showList = $derived(open && query.trim().length > 0);
 
@@ -44,6 +63,11 @@
       go({ name: 'builds', championId: row.id });
       return;
     }
+    if (row.kind === 'aug') {
+      reset();
+      go({ name: 'meta', mode: 'aram', view: 'combos', augment: row.id });
+      return;
+    }
     busy = true;
     try {
       const puuid = await api.search(`${row.name}#${row.tag}`);
@@ -60,6 +84,15 @@
   function reset() {
     query = '';
     open = false;
+    input?.blur();
+  }
+
+  /** Ctrl K focuses the box. */
+  function shortcut(e: KeyboardEvent) {
+    if (!e.ctrlKey || e.altKey || e.shiftKey || e.key.toLowerCase() !== 'k') return;
+    e.preventDefault();
+    input?.focus();
+    input?.select();
   }
 
   function onkeydown(e: KeyboardEvent) {
@@ -77,10 +110,13 @@
   }
 </script>
 
+<svelte:window onkeydown={shortcut} />
+
 <div class="box">
   <div class="input">
     <Icon name="search" size={16} />
     <input
+      bind:this={input}
       class="field"
       bind:value={query}
       placeholder={t('search.placeholder')}
@@ -93,14 +129,16 @@
       onfocus={() => {
         open = true;
         loadOtherNames();
+        loadAugments();
       }}
       oninput={() => (open = true)}
       onblur={() => setTimeout(() => (open = false), 120)}
       {onkeydown}
     />
+    {#if !query}<kbd class="kbd" aria-hidden="true">Ctrl K</kbd>{/if}
     {#if showList}
       <div class="list" id="search-list" role="listbox">
-        {#each rows as row, i (row.kind === 'champ' ? row.id : 'player')}
+        {#each rows as row, i (row.kind === 'player' ? 'player' : `${row.kind}${row.id}`)}
           <button
             type="button"
             class="row"
@@ -116,6 +154,11 @@
               <Img src={champIcon(row.id)} size={30} alt={n.name} />
               <span class="text"><b>{n.name}</b>{#if n.sub}<small>{n.sub}</small>{/if}</span>
               <span class="go">{t('search.builds')}</span>
+            {:else if row.kind === 'aug'}
+              {@const a = augs.byId[String(row.id)]}
+              <Img src={a?.icon ?? null} size={30} round alt={a?.name} />
+              <span class="text"><b>{a?.name}</b><small>{a?.rarity ? `${t('meta.augment')} · ${t(`aug.${a.rarity}`)}` : t('meta.augment')}</small></span>
+              <span class="go">{t('search.combos')}</span>
             {:else}
               <span class="avatar"><Icon name="user" size={16} /></span>
               <span class="text"><b>{row.name}<em>#{row.tag}</em></b><small>{busy ? t('common.loading') : t('search.player')}</small></span>
@@ -148,6 +191,19 @@
   .input .field {
     flex: 1;
     min-width: 0;
+    padding-right: 54px;
+  }
+  .kbd {
+    position: absolute;
+    right: 7px;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 1px 5px;
+    border-radius: var(--r-sm);
+    border: 1px solid var(--seam-strong);
+    color: var(--text-3);
+    font: 600 10.5px var(--font-ui);
+    pointer-events: none;
   }
   .list {
     position: absolute;

@@ -1,54 +1,49 @@
 <script lang="ts">
+  /** The main navigation: an icon and a short label per page; the full name is the tooltip. */
   import Icon from './Icon.svelte';
   import UpdateNotice from './UpdateNotice.svelte';
-  import { app, go } from '../lib/state.svelte';
+  import { app, go, type Route } from '../lib/state.svelte';
   import { t } from '../lib/i18n.svelte';
 
   /** A new version waits (until installed, even after its card is closed). */
   const update = $derived(app.update.phase === 'available' && Boolean(app.update.version));
   const live = $derived(['ChampSelect', 'InProgress', 'GameStart', 'Reconnect'].includes(app.live.phase));
+
+  const PAGES: { route: Route['name']; icon: string; also?: Route['name'][] }[] = [
+    { route: 'profile', icon: 'profile' },
+    { route: 'live', icon: 'live' },
+    { route: 'meta', icon: 'trophy' },
+    { route: 'tiers', icon: 'rows' },
+    { route: 'builds', icon: 'builds' },
+    { route: 'guide', icon: 'book' },
+    { route: 'patches', icon: 'news' },
+  ];
 </script>
 
+{#snippet item(route: Route['name'], icon: string, also: Route['name'][] = [])}
+  <button class="item" class:on={app.route.name === route || also.includes(app.route.name)} title={t(`nav.${route}`)} onclick={() => go({ name: route } as Route)}>
+    <Icon name={icon} size={19} />
+    <span class="label">{t(`rail.${route}`)}</span>
+    {#if route === 'live' && live}<span class="dot"></span>{/if}
+    {#if route === 'settings' && update}<span class="dot update" title={t('update.available', app.update.version ?? '')}></span>{/if}
+  </button>
+{/snippet}
+
 <nav class="rail" aria-label={t('common.mainNav')}>
-  <button class="item" class:on={app.route.name === 'profile'} aria-label={t('nav.profile')} title={t('nav.profile')} onclick={() => go({ name: 'profile' })}>
-    <Icon name="profile" size={21} />
-  </button>
-  <button class="item" class:on={app.route.name === 'live'} aria-label={t('nav.live')} title={t('nav.live')} onclick={() => go({ name: 'live' })}>
-    <Icon name="live" size={21} />
-    {#if live}<span class="dot"></span>{/if}
-  </button>
-  <button class="item" class:on={app.route.name === 'meta'} aria-label={t('nav.meta')} title={t('nav.meta')} onclick={() => go({ name: 'meta' })}>
-    <Icon name="trophy" size={21} />
-  </button>
-  <button class="item" class:on={app.route.name === 'tiers'} aria-label={t('nav.tiers')} title={t('nav.tiers')} onclick={() => go({ name: 'tiers' })}>
-    <Icon name="rows" size={21} />
-  </button>
-  <button class="item" class:on={app.route.name === 'builds'} aria-label={t('nav.builds')} title={t('nav.builds')} onclick={() => go({ name: 'builds' })}>
-    <Icon name="builds" size={21} />
-  </button>
-  <button class="item" class:on={app.route.name === 'guide'} aria-label={t('nav.guide')} title={t('nav.guide')} onclick={() => go({ name: 'guide' })}>
-    <Icon name="book" size={21} />
-  </button>
-  <button class="item" class:on={app.route.name === 'patches'} aria-label={t('nav.patches')} title={t('nav.patches')} onclick={() => go({ name: 'patches' })}>
-    <Icon name="news" size={21} />
-  </button>
+  {#each PAGES as p (p.route)}{@render item(p.route, p.icon)}{/each}
   <div class="grow"></div>
-  <button class="item" class:on={['settings', 'appearance', 'riotGuide'].includes(app.route.name)} aria-label={t('nav.settings')} title={t('nav.settings')} onclick={() => go({ name: 'settings' })}>
-    <Icon name="settings" size={21} />
-    {#if update}<span class="dot update" title={t('update.available', app.update.version ?? '')}></span>{/if}
-  </button>
+  {@render item('settings', 'settings', ['appearance', 'riotGuide'])}
 </nav>
 <UpdateNotice />
 
 <style>
   .rail {
-    width: 56px;
+    width: 148px;
     flex: none;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    padding: 10px 0;
+    gap: 2px;
+    padding: 10px 8px;
     background: var(--bg-sunk);
     border-right: 1px solid var(--seam);
   }
@@ -57,13 +52,26 @@
   }
   .item {
     position: relative;
-    width: 40px;
-    height: 40px;
-    display: grid;
-    place-items: center;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 10px;
     border-radius: var(--r-md);
     color: var(--text-3);
+    font-size: 13.5px;
+    font-weight: 600;
+    text-align: left;
     transition: color 120ms, background 120ms;
+  }
+  .item :global(svg) {
+    flex: none;
+  }
+  .label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .item:hover {
     color: var(--text);
@@ -85,7 +93,7 @@
   .dot {
     position: absolute;
     top: 8px;
-    right: 8px;
+    left: 24px;
     width: 7px;
     height: 7px;
     border-radius: 50%;

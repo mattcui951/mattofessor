@@ -1,7 +1,7 @@
 <script lang="ts">
   import { getCurrentWindow } from '@tauri-apps/api/window';
   import Icon from './Icon.svelte';
-  import { app } from '../lib/state.svelte';
+  import { app, back, forward } from '../lib/state.svelte';
   import { t } from '../lib/i18n.svelte';
 
   const win = getCurrentWindow();
@@ -24,6 +24,10 @@
       <path d="M15 15l5 5" stroke="var(--objective)" stroke-width="2.8" stroke-linecap="round" />
     </svg>
     <span class="name" data-tauri-drag-region>Mattofessor</span>
+    <span class="nav">
+      <button class="nav-btn" aria-label={t('common.back')} title={t('common.backHint')} disabled={!app.history.length} onclick={back}><Icon name="chevron-left" size={17} /></button>
+      <button class="nav-btn" aria-label={t('common.forward')} title={t('common.forwardHint')} disabled={!app.future.length} onclick={forward}><Icon name="chevron-right" size={17} /></button>
+    </span>
     <span class="status" data-tauri-drag-region><i style="background:{status.color}"></i>{status.text}</span>
   </div>
   <div class="tools">
@@ -49,6 +53,27 @@
     align-items: center;
     gap: 9px;
     min-width: 0;
+  }
+  .nav {
+    display: flex;
+    gap: 2px;
+    margin: 0 6px 0 10px;
+  }
+  .nav-btn {
+    width: 28px;
+    height: 26px;
+    display: grid;
+    place-items: center;
+    border-radius: var(--r-sm);
+    color: var(--text-2);
+  }
+  .nav-btn:hover:not(:disabled) {
+    color: var(--text);
+    background: var(--panel-2);
+  }
+  .nav-btn:disabled {
+    color: var(--text-3);
+    opacity: 0.45;
   }
   .name {
     font-family: var(--font-score);

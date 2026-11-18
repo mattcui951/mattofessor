@@ -67,6 +67,18 @@ async fn route(core: &Core, path: &str, p: &HashMap<String, String>) -> Result<V
             let (info, data) = crate::aramhex::bracket(&b).await.map_err(e)?;
             Ok(json!(crate::aramhex::champion(&info, &b, &data, num("championId") as i32)))
         }
+        "/aram_items" => crate::aramhex::item_overview(&arg("patch"), &arg("bracket")).await.map(|v| json!(v)).map_err(e),
+        "/game_data" => Ok(json!(*crate::data::current())),
+        "/content" => Ok(json!(crate::content::current())),
+        "/content_status" => Ok(json!(crate::content::status())),
+        "/champion_keywords" => crate::keywords::all().await.map(|v| json!(v)).map_err(e),
+        "/aram_board" => crate::hexstats::board(&arg("patch"), &arg("bracket")).await.map(|v| json!(v)).map_err(e),
+        "/aram_augment_board" => crate::hexstats::augment_board(&arg("patch"), &arg("bracket")).await.map(|v| json!(v)).map_err(e),
+        "/aram_combos" => {
+            let list = |k: &str| arg(k).split(',').filter_map(|s| s.parse().ok()).collect::<Vec<i32>>();
+            crate::hexstats::combos(&arg("patch"), &arg("bracket"), num("minGames") as u64, &arg("sort"), &list("champions"), &list("augments")).await.map(|v| json!(v)).map_err(e)
+        }
+        "/aram_champion_page" => crate::hexstats::champion(num("championId") as i32, &arg("patch"), &arg("bracket")).await.map(|v| json!(v)).map_err(e),
         "/aram_picks" => crate::aramhex::champion_picks(num("championId") as i32, &arg("bracket")).await.map(|v| json!(v)).map_err(e),
         "/card_offer" => Ok(json!(crate::cards::current())),
         "/augment_names" => crate::augments::all(&arg("lang")).await.map(|v| json!(*v)).map_err(e),

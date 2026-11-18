@@ -1,3 +1,9 @@
+<script lang="ts" module>
+  // What the page shows, kept while the app runs: back to this page lands on the same tabs.
+  let part = $state<'rift' | 'mayhem'>('rift');
+  let picked = $state('');
+</script>
+
 <script lang="ts">
   /**
    * The latest patches' changes, Summoner's Rift and Hextech ARAM apart (refreshed data): Riot's
@@ -9,15 +15,13 @@
   import Segmented from '../components/Segmented.svelte';
   import { openUrl } from '@tauri-apps/plugin-opener';
   import { champIcon, champName, itemIcon, itemName } from '../lib/dd.svelte';
-  import { gameData, loadGameData, modGood, noteMod, plain, bi, type NoteEntry, type NoteLine } from '../lib/gamedata.svelte';
+  import { gameData, loadGameData, noteBetter, noteMod, noteVerdict, plain, bi, type NoteEntry } from '../lib/gamedata.svelte';
   import { hasKey, i18n, t } from '../lib/i18n.svelte';
   import { augment, loadAugments } from '../lib/meta.svelte';
   import { go } from '../lib/state.svelte';
 
   loadGameData();
   loadAugments();
-  let part = $state<'rift' | 'mayhem'>('rift');
-  let picked = $state('');
 
   const notes = $derived(i18n.lang === 'zh' ? gameData.data?.patchNotes.zh : gameData.data?.patchNotes);
   const patches = $derived(notes?.patches ?? []);
@@ -41,21 +45,8 @@
     if (e.augmentId) return augment(e.augmentId)?.icon ?? null;
     return null;
   }
-  const num = (s: string | undefined) => (s ? parseFloat(s.replace(/[^\d.-]/g, '')) : NaN);
-  /** For a Hextech ARAM modifier line: whether the change helps the champion. */
-  function better(l: NoteLine): boolean | undefined {
-    const k = noteMod(l.attr);
-    const a = num(l.before);
-    const b = num(l.after);
-    if (!k || Number.isNaN(a) || Number.isNaN(b) || a === b) return undefined;
-    return modGood(k, b - a);
-  }
-  /** The entry's direction when every modifier line agrees. */
-  function verdict(e: NoteEntry): 'buff' | 'nerf' | '' {
-    const v = e.parts.flatMap((p) => p.lines.map(better)).filter((x) => x !== undefined);
-    if (!v.length) return '';
-    return v.every(Boolean) ? 'buff' : v.every((x) => !x) ? 'nerf' : '';
-  }
+  const better = noteBetter;
+  const verdict = noteVerdict;
   const colon = $derived(i18n.lang === 'zh' ? '：' : ': ');
   /** An ability heading ("R - Summon: Tibbers") with the ability's name in the UI language. */
   function partTitle(e: NoteEntry, title: string): string {

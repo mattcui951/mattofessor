@@ -111,3 +111,21 @@ export const noteMod = (attr: string | undefined): ModKey | undefined => (attr ?
 
 /** Comparable text: lowercase letters and digits only (accents dropped). */
 export const plain = (s: string) => s.normalize('NFKD').toLowerCase().replace(/[^a-z0-9]/g, '');
+
+const noteNum = (s: string | undefined) => (s ? parseFloat(s.replace(/[^\d.-]/g, '')) : NaN);
+
+/** For a Hextech ARAM modifier line: whether the change helps the champion. */
+export function noteBetter(l: NoteLine): boolean | undefined {
+  const k = noteMod(l.attr);
+  const a = noteNum(l.before);
+  const b = noteNum(l.after);
+  if (!k || Number.isNaN(a) || Number.isNaN(b) || a === b) return undefined;
+  return modGood(k, b - a);
+}
+
+/** A patch note entry's direction when every modifier line agrees. */
+export function noteVerdict(e: NoteEntry): 'buff' | 'nerf' | '' {
+  const v = e.parts.flatMap((p) => p.lines.map(noteBetter)).filter((x) => x !== undefined);
+  if (!v.length) return '';
+  return v.every(Boolean) ? 'buff' : v.every((x) => !x) ? 'nerf' : '';
+}
