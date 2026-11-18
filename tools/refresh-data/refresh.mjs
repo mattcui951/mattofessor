@@ -597,25 +597,37 @@ async function patchNotesZh(browser, dd) {
     .map((r) => ({ patch: /^(\d+\.\d+)版本更新公告/.exec(r.sTitle ?? '')?.[1], url: r.sRedirectURL, date: r.sIdxTime }))
     .filter((a) => a.patch && a.url)
     .slice(0, PATCHES);
-  const page = await browser.newPage({ userAgent: UA });
+  const before = Object.fromEntries(previousZh().map((p) => [p.patch, p]));
   const patches = [];
   for (const a of articles) {
     let raw = null;
     for (let attempt = 1; attempt <= 3 && !raw; attempt++) {
+      // A fresh page each time: the article can redirect to itself while loading.
+      const page = await browser.newPage({ userAgent: UA });
       try {
-        await page.goto(a.url, { waitUntil: 'domcontentloaded', timeout: 60000 });
+        await page.goto(a.url, { waitUntil: 'commit', timeout: 60000 });
+        await page.waitForLoadState('domcontentloaded', { timeout: 60000 });
+        await page.waitForTimeout(1500);
         raw = await page.evaluate(readTencentNotes);
       } catch (e) {
         log(`patch ${a.patch} (Tencent): attempt ${attempt} failed: ${String(e).split('\n')[0]}`);
+      } finally {
+        await page.close();
       }
     }
-    if (!raw) continue;
+    if (!raw) {
+      // Out of reach this time (lol.qq.com from GitHub's runners): the last copy stays.
+      if (before[a.patch]) {
+        log(`patch ${a.patch} (Tencent): keeping the last copy`);
+        patches.push(before[a.patch]);
+      }
+      continue;
+    }
     const shaped = shapeZh(raw, dd);
     log(`patch ${a.patch} (Tencent): rift ${shaped.rift.length} sections, mayhem ${shaped.mayhem.length} sections`);
     if (!shaped.rift.length && !shaped.mayhem.length) fail(`Tencent ${a.patch}: nothing read from ${a.url}`);
     patches.push({ patch: a.patch, url: a.url.replace(/^http:/, 'https:'), date: a.date.replace(' ', 'T') + '+08:00', ...shaped });
   }
-  await page.close();
   return patches;
 }
 
