@@ -1,5 +1,6 @@
 <script lang="ts">
   /** A hand-written Hextech ARAM build: a card (Builds page) or one line (`compact`, in game). */
+  import ItemIcon from './ItemIcon.svelte';
   import Img from './Img.svelte';
   import { itemIcon, itemName } from '../lib/dd.svelte';
   import { t } from '../lib/i18n.svelte';
@@ -11,14 +12,14 @@
 {#if compact}
   <div class="line">
     <b class="lbl">{t('mayhem.short')}</b>
-    {#each build.starters as id, i (i)}<Img src={itemIcon(id)} size={22} title={itemName(id)} />{/each}
+    {#each build.starters as id, i (i)}<ItemIcon id={id} size={22} />{/each}
     {#if build.starters.length && build.order.length}<span class="sep"></span>{/if}
     {#each build.order as id, i (i)}
-      {#if i}<span class="arrow">›</span>{/if}<Img src={itemIcon(id)} size={26} title={itemName(id)} />
+      {#if i}<span class="arrow">›</span>{/if}<ItemIcon id={id} size={26} />
     {/each}
     {#if build.situational.length}
       <span class="sep"></span><span class="dim">{t('mayhem.situational')}</span>
-      {#each build.situational as id, i (i)}<span class="alt"><Img src={itemIcon(id)} size={22} title={itemName(id)} /></span>{/each}
+      {#each build.situational as id, i (i)}<span class="alt"><ItemIcon id={id} size={22} /></span>{/each}
     {/if}
   </div>
 {:else}
@@ -29,7 +30,7 @@
     </div>
     {#if build.starters.length}
       <div class="sub">{t('mayhem.starters')}</div>
-      <div class="row">{#each build.starters as id, i (i)}<Img src={itemIcon(id)} size={36} title={itemName(id)} />{/each}</div>
+      <div class="row">{#each build.starters as id, i (i)}<ItemIcon id={id} size={36} />{/each}</div>
     {/if}
     {#if build.order.length}
       <div class="sub">{t('mayhem.order')}</div>
@@ -37,7 +38,7 @@
         {#each build.order as id, i (i)}
           <div class="it">
             <span class="step num">{i + 1}</span>
-            <Img src={itemIcon(id)} size={44} title={itemName(id)} />
+            <ItemIcon id={id} size={44} />
             <span class="iname">{itemName(id)}</span>
           </div>
         {/each}
@@ -46,7 +47,7 @@
     {#if build.situational.length}
       <div class="sub">{t('mayhem.situational')}</div>
       <div class="row">
-        {#each build.situational as id, i (i)}<span class="opt"><Img src={itemIcon(id)} size={30} title={itemName(id)} /><span>{itemName(id)}</span></span>{/each}
+        {#each build.situational as id, i (i)}<span class="opt"><ItemIcon id={id} size={30} /><span>{itemName(id)}</span></span>{/each}
       </div>
     {/if}
     {#if build.note.trim()}<p class="note">{build.note}</p>{/if}

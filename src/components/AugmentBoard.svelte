@@ -6,6 +6,8 @@
    */
   import Img from './Img.svelte';
   import { tip, type HoverInfo } from '../lib/hover.svelte';
+  import { loadGameData } from '../lib/gamedata.svelte';
+  import { augmentTip } from '../lib/tips.svelte';
   import { t } from '../lib/i18n.svelte';
   import { augment, delta, pct1, share } from '../lib/meta.svelte';
   import type { AugBoard, AugStat } from '../lib/types';
@@ -30,22 +32,17 @@
   const pts = (v: number) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(Math.round(v * 100));
   const range = (min: number, max: number) => (max === Infinity ? `≥${pts(min)}` : min === -Infinity ? `<${pts(max)}` : `${pts(min)} ~ ${pts(max)}`);
 
+  loadGameData();
+
   function hoverOf(a: AugStat, removed = false): HoverInfo {
-    const info = augment(a.id);
-    return {
-      icon: info?.icon ?? null,
-      round: true,
-      title: info?.name ?? `#${a.id}`,
-      sub: info?.rarity ? t(`aug.${info.rarity}`) : '',
-      subTone: info?.rarity || '',
-      stats: [
+    return augmentTip(a.id, [
         { label: t('hex.win'), value: `${pct1(a.winRate)}%` },
         { label: t('hex.lift'), value: delta(a.delta), tone: a.delta > 0.005 ? 'up' : a.delta < -0.005 ? 'down' : '' },
         { label: t('hex.held'), value: `${share(a.pickRate)}%` },
         { label: t('hex.games'), value: a.games.toLocaleString() },
       ],
-      note: removed ? t('hex.removedNote', board.previousPatch ?? '') : a.lowSample ? t('meta.lowSample') : t('hex.augClick'),
-    };
+      { note: removed ? t('hex.removedNote', board.previousPatch ?? '') : a.lowSample ? t('meta.lowSample') : t('hex.augClick') },
+    );
   }
 </script>
 

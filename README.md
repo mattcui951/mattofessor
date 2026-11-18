@@ -110,7 +110,9 @@ Meta and builds come from two public sources, cached locally so the app keeps wo
     scripts with a challenge page, hence the browser. Plus the mode's rules and headliner bands,
     written by hand in both languages (`tools/refresh-data/rules.json`); when the wiki's text of
     those sections changes, the run opens an issue labelled `data-rules`. Melee or ranged comes
-    from CommunityDragon's per-champion `attackType`.
+    from CommunityDragon's per-champion `attackType`. And every augment's description with its
+    numbers, in both languages (`tools/refresh-data/augments.mjs`): the text from the game's string
+    tables, the values and formulas from the mode's spell data (CommunityDragon's `kiwi.bin.json`).
   - `patch-notes.json`: the latest 5 patches, Summoner's Rift sections (champions, items, ...)
     and ARAM: Mayhem apart, with champion, item and augment ids: Riot's notes for English and
     Tencent's official Chinese notes (lol.qq.com) for Chinese.
@@ -124,6 +126,7 @@ Meta and builds come from two public sources, cached locally so the app keeps wo
   start from the copy they shipped with (`src-tauri/data/`), whichever was built later. To try
   it: `cd tools/refresh-data && npm ci && npx playwright install chromium && node refresh.mjs`.
 - Augment names and icons: Riot's game data via [CommunityDragon](https://communitydragon.org).
+- Item stats and effects (hover cards): Data Dragon's item descriptions, in the UI language.
 - Item roles (the shop's Fighter, Marksman, ... filter, `mItemAttributes`): CommunityDragon's
   `items.cdtb.bin.json` for the patch (about 16 MB, read once per patch; only the roles are kept).
 

@@ -11,6 +11,8 @@ export type HoverInfo = {
   /** A short line under the title (rarity, kind). */
   sub?: string;
   subTone?: 'prismatic' | 'gold' | 'silver' | '';
+  /** What it does: the game's tooltip markup (`RichText`). */
+  body?: string;
   stats: HoverStat[];
   note?: string;
 };

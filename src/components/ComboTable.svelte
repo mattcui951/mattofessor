@@ -1,6 +1,9 @@
 <script lang="ts">
   /** Champion × augment pairs, ranked (AramHex: every pair with enough games). */
   import Img from './Img.svelte';
+  import { tip } from '../lib/hover.svelte';
+  import { augmentTip } from '../lib/tips.svelte';
+  import { loadGameData } from '../lib/gamedata.svelte';
   import { champIcon, champName } from '../lib/dd.svelte';
   import { t } from '../lib/i18n.svelte';
   import { augment, delta, pct1 } from '../lib/meta.svelte';
@@ -9,6 +12,7 @@
 
   type Sort = 'win' | 'delta' | 'games';
   let { combos, sort, onsort }: { combos: Combos; sort: Sort; onsort: (s: Sort) => void } = $props();
+  loadGameData();
 </script>
 
 {#snippet th(key: Sort, label: string)}
@@ -34,7 +38,7 @@
           <span class="pair">
             <span class="who"><Img src={champIcon(c.championId)} size={28} />{champName(c.championId)}</span>
             <span class="x">×</span>
-            <span class="who"><Img src={a?.icon ?? null} size={28} round /><span>{a?.name ?? `#${c.augmentId}`}</span></span>
+            <span class="who" use:tip={() => augmentTip(c.augmentId, [{ label: t('hex.win'), value: `${pct1(c.winRate)}%` }, { label: t('hex.deltaLong'), value: delta(c.delta) }, { label: t('hex.games'), value: c.games.toLocaleString() }])}><Img src={a?.icon ?? null} size={28} round /><span>{a?.name ?? `#${c.augmentId}`}</span></span>
           </span>
         </td>
         <td class="num r">{pct1(c.winRate)}%</td>

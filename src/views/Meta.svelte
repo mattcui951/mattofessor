@@ -27,6 +27,9 @@
   import Img from '../components/Img.svelte';
   import Segmented from '../components/Segmented.svelte';
   import { api } from '../lib/api';
+  import { tip } from '../lib/hover.svelte';
+  import { loadGameData } from '../lib/gamedata.svelte';
+  import { augmentTip, itemTip } from '../lib/tips.svelte';
   import { findChamps, loadChampSearch } from '../lib/champFind.svelte';
   import { champIcon, champName, dd, ITEM_CLASSES, itemClasses, itemIcon, itemName, loadOtherNames } from '../lib/dd.svelte';
   import { roleName } from '../lib/format';
@@ -84,6 +87,7 @@
   });
 
   loadChampSearch();
+  loadGameData();
   /** Champions the search finds (any language, nicknames), null without a search. */
   const champHits = $derived(findChamps(query));
   const champSet = $derived(champHits ? new Set(champHits) : null);
@@ -372,7 +376,7 @@
               {@const info = augment(a.id)}
               <tr onclick={() => { comboAug = a.id; aramView = 'combos'; query = ''; }}>
                 <td class="n num">{i + 1}</td>
-                <td><span class="champ"><Img src={info?.icon ?? null} size={28} round />{info?.name}</span></td>
+                <td><span class="champ" use:tip={() => augmentTip(a.id)}><Img src={info?.icon ?? null} size={28} round />{info?.name}</span></td>
                 <td><span class="rar {info?.rarity}">{info?.rarity ? t(`aug.${info.rarity}`) : ''}</span></td>
                 <td class="num">{pct1(a.winRate)}%</td>
                 <td class="num" class:hi={a.delta > 0.01} class:lo={a.delta < -0.01}>{delta(a.delta)}</td>
@@ -404,7 +408,7 @@
             {#each itemRows as r, i (r.id)}
               <tr class="static">
                 <td class="n num">{i + 1}</td>
-                <td><span class="champ"><Img src={itemPic(r)} size={28} />{itemLabel(r)}</span></td>
+                <td><span class="champ" use:tip={() => (known(r) ? itemTip(r.id) : null)}><Img src={itemPic(r)} size={28} />{itemLabel(r)}</span></td>
                 <td class="num" class:hi={r.winRate >= 0.52} class:lo={r.winRate < 0.48}>{pct1(r.winRate)}%</td>
                 <td class="num" class:hi={r.delta > 0.01} class:lo={r.delta < -0.01}>{delta(r.delta)}</td>
                 <td class="num">{share(r.pickRate)}%</td>

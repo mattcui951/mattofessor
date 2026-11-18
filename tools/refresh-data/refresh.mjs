@@ -1,5 +1,6 @@
 // Builds the app's `data` branch files:
-//   mayhem.json       Hextech ARAM (ARAM: Mayhem) champion modifiers, rules and headliners
+//   mayhem.json       Hextech ARAM (ARAM: Mayhem) champion modifiers, rules and headliners, and
+//                     every augment's description with its numbers (augments.mjs)
 //   patch-notes.json  The latest patches' Summoner's Rift and ARAM: Mayhem changes: Riot's
 //                     notes in English, Tencent's official Chinese notes in Chinese
 //   translations-zh.json  Chinese for the wiki lines (see translate.mjs)
@@ -19,6 +20,7 @@
 
 import { chromium } from 'playwright';
 import { memory, translateMissing } from './translate.mjs';
+import { KIWI, augmentTexts } from './augments.mjs';
 import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -155,7 +157,7 @@ async function stringTables() {
     return { name: { en: plainText(t), zh: plainText(Z[`kiwi_goh_${id}_title`]) }, effect: { en: plainText(d), zh: plainText(Z[`kiwi_goh_${id}_long_desc`]) } };
   };
   if (spellZh.size < 500) fail(`string tables: only ${spellZh.size} spell names`);
-  return { spellZh, goh };
+  return { spellZh, goh, en: E, zh: Z };
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -678,6 +680,11 @@ async function main() {
     const patchesZh = await patchNotesZh(browser, dd);
     if (!patchesZh.length) fail('no Tencent patch notes found');
     const { known, untranslated } = await translateLines(champions);
+    // Augment descriptions with their numbers (the game's text and the mode's spell data).
+    const { texts: augments, problems } = augmentTexts(await json(KIWI), st.en, st.zh);
+    if (Object.keys(augments).length < 150) fail(`only ${Object.keys(augments).length} augment descriptions`);
+    for (const p of problems) log(`augment text: ${p}`);
+    log(`augment descriptions: ${Object.keys(augments).length}`);
 
     mkdirSync(OUT, { recursive: true });
     const { sourceHash, ...shownRules } = rules;
@@ -690,6 +697,7 @@ async function main() {
         attackTypes: attack,
         abilityNames: abilityNames(dd),
         champions,
+        augments,
       }),
     );
     writeFileSync(

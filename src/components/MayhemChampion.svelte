@@ -22,6 +22,8 @@
   import { api } from '../lib/api';
   import { dd, itemIcon, itemName, spell, spellIcon } from '../lib/dd.svelte';
   import { tip, type HoverInfo } from '../lib/hover.svelte';
+  import { augmentTip, itemText } from '../lib/tips.svelte';
+  import { loadGameData } from '../lib/gamedata.svelte';
   import { i18n, t } from '../lib/i18n.svelte';
   import { ARAM_CREDIT, augment, bracket, delta, hex, loadAugments, notePatches, pct1, share } from '../lib/meta.svelte';
   import { errorText } from '../lib/state.svelte';
@@ -30,6 +32,7 @@
 
   let { championId, page = $bindable(null) }: { championId: number; page?: ChampionPage | null } = $props();
 
+  loadGameData();
   let error = $state<string | null>(null);
   let run = 0;
   $effect(() => {
@@ -80,7 +83,7 @@
       winRate: a.winRate,
       delta: a.delta,
       pickRate: a.pickRate,
-      hover: { icon: info?.icon ?? null, round: true, title: name, sub: info?.rarity ? t(`aug.${info.rarity}`) : '', subTone: info?.rarity || '', stats: stats(a, t('hex.held')), note: small(a.lowSample) },
+      hover: augmentTip(a.id, stats(a, t('hex.held')), { title: name, note: small(a.lowSample) }),
     };
   }
 
@@ -94,7 +97,7 @@
     const name = iname(i);
     const s = stats(i);
     if (i.id !== 0) s.push({ label: t('hex.without'), value: `${pct1(i.without)}%`, tone: i.without > base + 0.005 ? 'up' : i.without < base - 0.005 ? 'down' : '' });
-    return { key: i.id, icon: iicon(i), glyph: i.id === 0 ? '∅' : undefined, name, winRate: i.winRate, delta: i.delta, pickRate: i.pickRate, on, onclick, hover: { icon: i.id === 0 ? undefined : iicon(i), title: name, sub: i.id === 0 ? '' : t('hex.itemKind'), stats: s, note: i.id === 0 ? t('hex.noBootsNote') : small(i.lowSample) } };
+    return { key: i.id, icon: iicon(i), glyph: i.id === 0 ? '∅' : undefined, name, winRate: i.winRate, delta: i.delta, pickRate: i.pickRate, on, onclick, hover: { icon: i.id === 0 ? undefined : iicon(i), title: name, sub: i.id === 0 ? '' : t('hex.itemKind'), body: i.id === 0 ? undefined : itemText(i.id), stats: s, note: i.id === 0 ? t('hex.noBootsNote') : small(i.lowSample) } };
   }
   function spellCard(s: SpellStat): StatCard {
     const name = s.ids.map((id) => spell(id)?.name ?? `#${id}`).join(' + ');
@@ -204,7 +207,7 @@
                   {#each c.items as id, i (i)}
                     {@const it = itemOf(id)}
                     {#if i}<span class="arrow">›</span>{/if}
-                    <span class="step" use:tip={() => ({ icon: iicon(it), title: iname(it), sub: t('hex.nth', i + 1), stats: byId.get(id) ? stats(byId.get(id)!) : [] })}><Img src={iicon(it)} size={36} /></span>
+                    <span class="step" use:tip={() => ({ icon: iicon(it), title: iname(it), sub: t('hex.nth', i + 1), body: itemText(id), stats: byId.get(id) ? stats(byId.get(id)!) : [] })}><Img src={iicon(it)} size={36} /></span>
                   {/each}
                 </span>
                 <span class="rname">{c.items.map((id) => iname(itemOf(id))).join(' › ')}</span>

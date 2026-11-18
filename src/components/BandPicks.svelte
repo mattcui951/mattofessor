@@ -5,6 +5,7 @@
    */
   import Img from './Img.svelte';
   import { tip } from '../lib/hover.svelte';
+  import { augmentTip } from '../lib/tips.svelte';
   import { t } from '../lib/i18n.svelte';
   import { augment, pct1 } from '../lib/meta.svelte';
   import type { AramBracket } from '../lib/types';
@@ -38,7 +39,7 @@
             style="left:{at(v)}"
             role="img"
             aria-label="{info?.name} · {t(`bracket.${b.bracket}`)} {pct1(v)}%"
-            use:tip={() => ({ icon: info?.icon ?? null, round: true, title: info?.name ?? `#${id}`, sub: t(`bracket.${b.bracket}`), stats: [{ label: t('hex.pick'), value: `${pct1(v)}%` }] })}
+            use:tip={() => augmentTip(id, [{ label: `${t(`bracket.${b.bracket}`)} · ${t('hex.pick')}`, value: `${pct1(v)}%` }])}
           ></span>
         {/each}
       </span>

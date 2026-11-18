@@ -1,6 +1,7 @@
 <script lang="ts">
   /** The floating card of `hover.svelte.ts`: below its anchor, or above when there is no room. */
   import Img from './Img.svelte';
+  import RichText from './RichText.svelte';
   import { hover } from '../lib/hover.svelte';
 
   let w = $state(0);
@@ -20,7 +21,7 @@
 
 {#if hover.info && pos}
   {@const i = hover.info}
-  <div class="hc" role="tooltip" bind:offsetWidth={w} bind:offsetHeight={h} style="left:{pos.left}px;top:{pos.top}px">
+  <div class="hc" class:wide={Boolean(i.body)} role="tooltip" bind:offsetWidth={w} bind:offsetHeight={h} style="left:{pos.left}px;top:{pos.top}px">
     <div class="top">
       {#if i.icon !== undefined}<Img src={i.icon} size={34} round={i.round} />{/if}
       <div class="ttl">
@@ -28,6 +29,7 @@
         {#if i.sub}<small class={i.subTone}>{i.sub}</small>{/if}
       </div>
     </div>
+    {#if i.body}<div class="body"><RichText text={i.body} /></div>{/if}
     {#if i.stats.length}
       <dl>
         {#each i.stats as s (s.label)}
@@ -54,6 +56,15 @@
     box-shadow: var(--shadow-pop);
     pointer-events: none;
     font-size: 12.5px;
+  }
+  .hc.wide {
+    width: 330px;
+    max-width: calc(100vw - 16px);
+  }
+  .body {
+    margin-top: 9px;
+    padding-top: 8px;
+    border-top: 1px solid var(--seam);
   }
   .top {
     display: flex;

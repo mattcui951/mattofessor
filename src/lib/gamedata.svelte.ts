@@ -23,6 +23,8 @@ export type Mayhem = {
   /** Champion id to ability key (P, Q, W, E, R) to its name. */
   abilityNames: Record<string, Record<string, Bi>>;
   champions: Record<string, ChampMods>;
+  /** Augment id to its description with numbers (the game's tooltip markup). */
+  augments?: Record<string, Bi>;
 };
 
 export type NoteLine = { text: string; attr?: string; before?: string; after?: string };

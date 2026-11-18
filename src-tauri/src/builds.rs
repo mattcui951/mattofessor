@@ -65,6 +65,36 @@ pub struct Build {
     pub item_source: String,
 }
 
+/// Never part of a recommended build (the user's rule): potions, wards, elixirs, trinkets and
+/// other consumables, and the plain Boots (unfinished).
+pub const JUNK: [i32; 21] = [
+    1001, // Boots
+    2003, // Health Potion
+    2010, // Total Biscuit of Everlasting Will
+    2031, // Refillable Potion
+    2033, // Corrupting Potion
+    2052, // Poro-Snax
+    2055, // Control Ward
+    2138, // Elixir of Iron
+    2139, // Elixir of Sorcery
+    2140, // Elixir of Wrath
+    2150, // Elixir of Skill
+    2151, // Elixir of Avarice
+    2152, // Elixir of Force
+    2419, // Commencing Stopwatch
+    2420, // Stopwatch
+    2421, // Broken Stopwatch
+    3330, // Scarecrow Effigy
+    3340, // Stealth Ward
+    3363, // Farsight Alteration
+    3364, // Oracle Lens
+    3400, // Your Cut
+];
+
+pub fn junk(id: i32) -> bool {
+    JUNK.contains(&id)
+}
+
 fn u(v: &Value, k: &str) -> u32 {
     v.get(k).and_then(Value::as_f64).unwrap_or(0.0).max(0.0) as u32
 }
@@ -124,19 +154,24 @@ pub fn from_analysis(champion_id: i32, mode: &str, role: &str, a: &Value) -> Opt
         })
         .into_iter()
         .collect();
-    let starters = d.get("starter_items").map(|s| pick(s, ids(s, "ids"))).filter(|p| !p.value.is_empty()).into_iter().collect();
-    let boots = d.get("boots").and_then(|b| ids(b, "ids").first().map(|id| pick(b, *id))).into_iter().collect();
+    let starters = d
+        .get("starter_items")
+        .map(|s| pick(s, ids(s, "ids").into_iter().filter(|id| !junk(*id)).collect::<Vec<_>>()))
+        .filter(|p| !p.value.is_empty())
+        .into_iter()
+        .collect();
+    let boots = d.get("boots").and_then(|b| ids(b, "ids").into_iter().find(|id| !junk(*id)).map(|id| pick(b, id))).into_iter().collect();
 
     let mut items: Vec<Pick<i32>> = Vec::new();
     if let Some(c) = d.get("core_items") {
-        items.extend(ids(c, "ids").into_iter().map(|id| pick(c, id)));
+        items.extend(ids(c, "ids").into_iter().filter(|id| !junk(*id)).map(|id| pick(c, id)));
     }
     let core = items.len() as u32;
     let mut later: Vec<Pick<i32>> = Vec::new();
     for slot in ["fourth_items", "fifth_items", "sixth_items"] {
         for opt in d.get(slot).and_then(Value::as_array).cloned().unwrap_or_default() {
             for id in ids(&opt, "ids") {
-                if !items.iter().chain(&later).any(|p| p.value == id) {
+                if !junk(id) && !items.iter().chain(&later).any(|p| p.value == id) {
                     later.push(pick(&opt, id));
                 }
             }
@@ -208,7 +243,12 @@ pub async fn build(champion_id: i32, role: &str, mode: &str) -> Result<Option<Bu
         let role = if opgg::POSITIONS.contains(&role) { role.to_string() } else { main_lane(champion_id).await };
         ("ranked", role)
     };
-    let mine = if mode == "aram" { crate::content::build(champion_id) } else { None };
+    let mine = if mode == "aram" { crate::content::build(champion_id) } else { None }.map(|mut m| {
+        for list in [&mut m.starters, &mut m.order, &mut m.situational] {
+            list.retain(|id| !junk(*id));
+        }
+        m
+    });
     let mut b = match opgg::analysis(&champ.key, &role, game_mode).await {
         Ok(a) => from_analysis(champion_id, if mode == "aram" { "aram" } else { "rift" }, &role, &a),
         // A hand-written build, or Hextech ARAM's statistics, show without OP.GG.
@@ -332,7 +372,7 @@ pub async fn import(champion_id: i32, role: &str, mode: &str, runes: bool, items
             json!({ "type": name, "hideIfSummonerSpell": "", "showIfSummonerSpell": "",
                     "items": ids.iter().map(|i| json!({"id": i.to_string(), "count": 1})).collect::<Vec<_>>() })
         };
-        let valid = |id: &i32| dd.items.contains_key(id);
+        let valid = |id: &i32| dd.items.contains_key(id) && !junk(*id);
         let mut blocks = Vec::new();
         if let Some(m) = &b.mine {
             blocks.push(block("Starting items".into(), m.starters.iter().copied().filter(valid).collect()));
@@ -353,7 +393,6 @@ pub async fn import(champion_id: i32, role: &str, mode: &str, runes: bool, items
         if b.mine.is_none() && b.items.len() > b.core as usize {
             blocks.push(block("More options".into(), b.items.iter().skip(b.core as usize).map(|p| p.value).filter(valid).collect()));
         }
-        blocks.push(block("Consumables".into(), vec![2003, 2055]));
         let map = if b.mode == "aram" { 12 } else { 11 };
         let new_set = json!({
             "uid": uid, "title": title, "type": "custom", "map": "any", "mode": "any", "sortrank": 0, "startedFrom": "blank",
@@ -384,7 +423,7 @@ mod tests {
         let page = &b.runes[0].value;
         assert_eq!((page.primary, page.sub, page.perks.len(), page.shards.clone()), (8000, 8400, 6, vec![5008, 5008, 5011]));
         assert_eq!(b.spells[0].value, [4, 12]);
-        assert_eq!(b.starters[0].value, vec![1055, 2003]);
+        assert_eq!(b.starters[0].value, vec![1055], "the potion is left out");
         assert_eq!(b.boots[0].value, 3047);
         assert_eq!(b.core, 3);
         let item_ids: Vec<i32> = b.items.iter().map(|p| p.value).collect();

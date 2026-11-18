@@ -22,6 +22,8 @@
   import { t } from '../lib/i18n.svelte';
   import { pct1 } from '../lib/meta.svelte';
   import { errorText, go, toast } from '../lib/state.svelte';
+  import { tip } from '../lib/hover.svelte';
+  import { itemTip } from '../lib/tips.svelte';
   import type { Tier, Tiers } from '../lib/types';
 
   const TIERS: Tier[] = ['S', 'A', 'B', 'C', 'D'];
@@ -67,9 +69,10 @@
   function icon(id: number) {
     return itemIcon(id);
   }
-  function tip(id: number) {
+  /** The hover card: stats and effects, and Hextech ARAM's win rate (all champions). */
+  function card(id: number) {
     const w = itemWin[id];
-    return w ? `${label(id)} · ${t('meta.winRate')} ${pct1(w)}%` : label(id);
+    return itemTip(id, w ? [{ label: t('meta.winRate'), value: `${pct1(w)}%` }] : []);
   }
 
   async function save(next: Tiers) {
@@ -186,7 +189,8 @@
     class:ghosted={drag?.moving && drag.id === id}
     class:gap
     data-id={id}
-    title={tip(id)}
+    aria-label={label(id)}
+    use:tip={() => (drag?.moving ? null : card(id))}
     onpointerdown={(e) => down(e, id)}
   >
     <Img src={icon(id)} size={52} />

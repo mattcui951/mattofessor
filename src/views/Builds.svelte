@@ -1,3 +1,11 @@
+<script lang="ts" module>
+  import type { ChampClass } from '../lib/types';
+
+  // The picker's filters, kept while the app runs: each pick opens the page anew.
+  let lane = $state<'all' | 'top' | 'jungle' | 'mid' | 'adc' | 'support' | 'off'>('all');
+  let cls = $state<'all' | ChampClass>('all');
+</script>
+
 <script lang="ts">
   import { tick } from 'svelte';
   import HexFilter from '../components/HexFilter.svelte';
@@ -7,6 +15,7 @@
   import { adminMode, content, loadContent } from '../lib/content.svelte';
   import Icon from '../components/Icon.svelte';
   import PublishState from '../components/PublishState.svelte';
+  import ItemIcon from '../components/ItemIcon.svelte';
   import Img from '../components/Img.svelte';
   import Segmented from '../components/Segmented.svelte';
   import { api } from '../lib/api';
@@ -49,8 +58,9 @@
   let grid = $state<HTMLElement>();
 
   // Lane tabs (Summoner's Rift): from OP.GG's lane tier lists, which hold every champion played
-  // in a lane in at least ~10,000 games. "off" groups the ones rarely played there.
-  let lane = $state<'all' | Lane | 'off'>('all');
+  // in a lane in at least ~10,000 games. "off" groups the ones rarely played there. Hextech ARAM
+  // has no lanes: class tabs instead (Data Dragon's classes; a champion can have two).
+  const CLASSES: ChampClass[] = ['Fighter', 'Mage', 'Assassin', 'Marksman', 'Tank', 'Support'];
   let tierRows = $state<TierRow[]>([]);
   $effect(() => {
     api.riftTiers().then(
@@ -86,9 +96,10 @@
     const all = Object.entries(dd.data?.champions ?? {})
       .map(([id, c]) => ({ id: Number(id), ...c }))
       .sort((a, b) => a.name.localeCompare(b.name, i18n.lang === 'zh' ? 'zh-CN' : 'en'));
-    if (!query.trim()) return all;
+    const inClass = mode === 'aram' && cls !== 'all' ? all.filter((c) => c.tags.includes(cls)) : all;
+    if (!query.trim()) return inClass;
     const rank = new Map(searchChamps(index, query, Infinity).map((h, i) => [h.id, i]));
-    return all.filter((c) => rank.has(c.id)).sort((a, b) => rank.get(a.id)! - rank.get(b.id)!);
+    return inClass.filter((c) => rank.has(c.id)).sort((a, b) => rank.get(a.id)! - rank.get(b.id)!);
   });
 
   /** What the grid shows: one list, or the off-meta picks grouped by lane. */
@@ -168,6 +179,14 @@
         {#each ['all', ...LANES, 'off'] as const as l (l)}
           <button role="tab" aria-selected={lane === l} class:on={lane === l} onclick={() => (lane = l)}>
             {l === 'all' ? t('builds.allLanes') : l === 'off' ? t('builds.offMeta') : roleName(l)}
+          </button>
+        {/each}
+      </div>
+    {:else if mode === 'aram'}
+      <div class="lanes" role="tablist" aria-label={t('meta.class')}>
+        {#each ['all', ...CLASSES] as const as c (c)}
+          <button role="tab" aria-selected={cls === c} class:on={cls === c} onclick={() => (cls = c)}>
+            {c === 'all' ? t('meta.allClasses') : t(`class.${c}`)}
           </button>
         {/each}
       </div>
@@ -278,7 +297,7 @@
             {#if build.starters.length && !build.mine}
               <div>
                 <div class="label">{t('builds.starters')}</div>
-                <div class="opt">{#each build.starters[0].value as id, i (i)}<Img src={itemIcon(id)} size={32} title={itemName(id)} />{/each}</div>
+                <div class="opt">{#each build.starters[0].value as id, i (i)}<ItemIcon id={id} size={32} />{/each}</div>
               </div>
             {/if}
             <p class="note src-note">{t('hex.opggNote')}</p>
@@ -348,7 +367,7 @@
           {#if build.starters.length}
             <div class="label">{t('builds.starters')}</div>
             <div class="opt">
-              {#each build.starters[0].value as id, i (i)}<Img src={itemIcon(id)} size={32} title={itemName(id)} />{/each}
+              {#each build.starters[0].value as id, i (i)}<ItemIcon id={id} size={32} />{/each}
               <span class="num">{t('builds.pick', p(build.starters[0].games))}</span>
               <span class="num dim">{t('builds.wr', pct(build.starters[0].wins, build.starters[0].games))}</span>
             </div>
@@ -356,7 +375,7 @@
           <div class="label" class:gap={build.starters.length}>{t('builds.boots')}</div>
           {#each build.boots as b, i (i)}
             <div class="opt">
-              <Img src={itemIcon(b.value)} size={32} title={itemName(b.value)} />
+              <ItemIcon id={b.value} size={32} />
               <span class="iname">{itemName(b.value)}</span>
               <span class="num">{t('builds.pick', p(b.games))}</span>
               <span class="num dim">{t('builds.wr', pct(b.wins, b.games))}</span>
@@ -372,7 +391,7 @@
             {#if i === build.core && i > 0}<div class="sep"><span>{t('builds.more')}</span></div>{/if}
             <div class="it" class:core={i < build.core}>
               {#if i < build.core}<span class="step num">{i + 1}</span>{/if}
-              <Img src={itemIcon(it.value)} size={i < build.core ? 46 : 36} title={itemName(it.value)} />
+              <ItemIcon id={it.value} size={i < build.core ? 46 : 36} />
               <span class="iname">{itemName(it.value)}</span>
               {#if i >= build.core}
                 <span class="num">{t('builds.pick', p(it.games))}</span>

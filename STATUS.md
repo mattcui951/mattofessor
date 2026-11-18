@@ -81,6 +81,20 @@ Version: 1.0.14
 
 ## Recently done
 
+- Not released yet (after 1.0.14):
+  - No junk in any build (user's rule): `builds::JUNK` (potions incl. Refillable, wards,
+    elixirs, trinkets, other consumables, plain Boots) is left out of starters, core and later
+    items, boots, hand-written builds, the item set import (no Consumables block any more) and
+    the Hextech ARAM item and boots rows (plain Boots still count as boots for "no boots").
+  - Hover cards say what things do: every augment's description with its numbers (refresh job,
+    `augments.mjs`: string tables + `kiwi.bin.json` spell values and formulas, written as the game
+    does, "50 - 175 (based on level) (+40% bonus AD)"; 233 augments, 6 with a piece left out, mostly
+    live counters), and items' stats and effects (Data Dragon `description`, kept in the static data;
+    cache file renamed -6). Markup is parsed (`richtext.ts`), never put in the page as HTML.
+    `ItemIcon` replaces the plain title tooltips on the builds page. Needs the data branch refreshed
+    (the workflow) before the augment texts reach installed apps.
+  - Builds picker: class tabs in Hextech ARAM (lane tabs stay on the Rift); both filters now
+    stay put across picks (module state; the page is rebuilt on every pick).
 - 1.0.14:
   - Hextech ARAM redesign from the design review (`.lavish/ui-redesign/`, crawled haidoubang.com
     and arammeta.com; data stays AramHex, CN, ~10x their samples). The user picked 17 of 22

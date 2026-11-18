@@ -40,6 +40,10 @@ pub struct Item {
     /// The shop's roles for it (`ROLES`), none for many components and consumables.
     #[serde(default)]
     pub classes: Vec<String>,
+    /// Data Dragon's description in the language: its stats and effects, with the game's markup
+    /// (`<stats>`, `<passive>`...).
+    #[serde(default)]
+    pub desc: String,
 }
 
 /// The shop's item roles: bits of the game data's `mItemAttributes`.
@@ -228,7 +232,7 @@ fn parse(version: &str, locale: &str, champs: &Value, items: &Value, spells: &Va
                 a.iter().filter_map(Value::as_str).all(|i| m.get(i).and_then(|x| x.pointer("/gold/purchasable")).and_then(Value::as_bool) != Some(true))
             });
             let aram_legendary = aram && upgrades_only && gold >= 2200 && !consumable && !boots;
-            item_map.insert(id, Item { name: s(it, "name"), gold, boots, legendary, aram, aram_legendary, classes: Vec::new() });
+            item_map.insert(id, Item { name: s(it, "name"), gold, boots, legendary, aram, aram_legendary, classes: Vec::new(), desc: s(it, "description") });
         }
     }
     let mut spell_map = BTreeMap::new();
@@ -292,7 +296,7 @@ pub async fn get(lang: &str) -> Result<Arc<StaticData>> {
         return Ok(d);
     }
     let dir = crate::paths::config_dir().join("dd");
-    let file = dir.join(format!("{version}-{locale}-5.json"));
+    let file = dir.join(format!("{version}-{locale}-6.json"));
     let data = match std::fs::read_to_string(&file).ok().and_then(|t| serde_json::from_str::<StaticData>(&t).ok()) {
         Some(d) => d,
         None => {

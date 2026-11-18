@@ -473,12 +473,14 @@ fn item_stat(id: i32, s: &Stat, base: &Stat, meta: &HashMap<i32, ItemMeta>) -> I
 
 pub fn items_of(champion: i32, finished: &Pairs, finished_base: &Heroes, meta: &HashMap<i32, ItemMeta>) -> Vec<ItemStat> {
     let Some(base) = finished_base.get(&champion) else { return Vec::new() };
-    let mut v: Vec<ItemStat> = finished.get(&champion).map(|m| m.iter().filter(|(_, s)| s.games > 0).map(|(id, s)| item_stat(*id, s, base, meta)).collect()).unwrap_or_default();
+    let mut v: Vec<ItemStat> =
+        finished.get(&champion).map(|m| m.iter().filter(|(id, s)| s.games > 0 && !crate::builds::junk(**id)).map(|(id, s)| item_stat(*id, s, base, meta)).collect()).unwrap_or_default();
     v.sort_by_key(|x| std::cmp::Reverse(x.games));
     v
 }
 
-/// Boots from all items held: each kind, and no boots at all.
+/// Boots from all items held: each kind, and no boots at all. The plain Boots count as boots
+/// but are not listed (`builds::JUNK`).
 pub fn boots_of(champion: i32, holdings: &Pairs, base: &Heroes, meta: &HashMap<i32, ItemMeta>) -> Vec<ItemStat> {
     let Some(base) = base.get(&champion) else { return Vec::new() };
     let mut v: Vec<ItemStat> = holdings
@@ -487,6 +489,7 @@ pub fn boots_of(champion: i32, holdings: &Pairs, base: &Heroes, meta: &HashMap<i
         .unwrap_or_default();
     let (g, w) = v.iter().fold((0u64, 0u64), |(g, w), b| (g + b.games, w + (b.win_rate * b.games as f64).round() as u64));
     let none = Stat { games: base.games.saturating_sub(g), wins: base.wins.saturating_sub(w), low_sample: base.games.saturating_sub(g) < 3000, ..Default::default() };
+    v.retain(|b| !crate::builds::junk(b.id));
     if none.games > 0 {
         v.push(ItemStat { name: String::new(), icon: String::new(), ..item_stat(0, &none, base, &HashMap::new()) });
     }
@@ -686,10 +689,10 @@ mod tests {
 
     #[test]
     fn items_have_the_rate_without_them() {
-        let finished: Pairs = serde_json::from_str(r#"{"24": {"3031": {"games": 400, "wins": 300}, "3089": {"games": 100, "wins": 40}}}"#).unwrap();
+        let finished: Pairs = serde_json::from_str(r#"{"24": {"3031": {"games": 400, "wins": 300}, "3089": {"games": 100, "wins": 40}, "2031": {"games": 900, "wins": 500}}}"#).unwrap();
         let meta: HashMap<i32, ItemMeta> = serde_json::from_str(r#"{"3031": {"name": "无尽之刃", "icon": "x", "types": ["CriticalStrike"]}}"#).unwrap();
         let v = items_of(24, &finished, &heroes(), &meta);
-        assert_eq!(v.iter().map(|i| i.id).collect::<Vec<_>>(), [3031, 3089], "most made first");
+        assert_eq!(v.iter().map(|i| i.id).collect::<Vec<_>>(), [3031, 3089], "most made first, no potion");
         let ie = &v[0];
         assert!((ie.win_rate - 0.75).abs() < 1e-9 && (ie.delta - 0.15).abs() < 1e-9 && (ie.pick_rate - 0.4).abs() < 1e-9);
         // 600 wins of 1000; without it 300 of 600.
@@ -699,12 +702,12 @@ mod tests {
 
     #[test]
     fn boots_include_none() {
-        let held: Pairs = serde_json::from_str(r#"{"24": {"3006": {"games": 700, "wins": 450}, "3031": {"games": 400, "wins": 300}, "3047": {"games": 200, "wins": 100}}}"#).unwrap();
-        let meta: HashMap<i32, ItemMeta> = serde_json::from_str(r#"{"3006": {"types": ["Boots"]}, "3047": {"types": ["Boots"]}, "3031": {"types": []}}"#).unwrap();
+        let held: Pairs = serde_json::from_str(r#"{"24": {"3006": {"games": 600, "wins": 380}, "1001": {"games": 100, "wins": 70}, "3031": {"games": 400, "wins": 300}, "3047": {"games": 200, "wins": 100}}}"#).unwrap();
+        let meta: HashMap<i32, ItemMeta> = serde_json::from_str(r#"{"3006": {"types": ["Boots"]}, "1001": {"types": ["Boots"]}, "3047": {"types": ["Boots"]}, "3031": {"types": []}}"#).unwrap();
         let v = boots_of(24, &held, &heroes(), &meta);
-        assert_eq!(v.iter().map(|i| i.id).collect::<Vec<_>>(), [3006, 3047, 0]);
+        assert_eq!(v.iter().map(|i| i.id).collect::<Vec<_>>(), [3006, 3047, 0], "plain Boots not listed");
         let none = &v[2];
-        assert_eq!(none.games, 100);
+        assert_eq!(none.games, 100, "plain Boots still count as boots");
         assert!((none.win_rate - 0.5).abs() < 1e-9, "1000 - 900 games, 600 - 550 wins");
     }
 
