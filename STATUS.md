@@ -1,7 +1,7 @@
 # Status
 
 Updated: 2026-11-18
-Version: 1.0.14
+Version: 1.0.15
 
 ## In progress
 
@@ -81,7 +81,12 @@ Version: 1.0.14
 
 ## Recently done
 
-- Not released yet (after 1.0.14):
+- 1.0.15:
+  - Refresh job: lol.qq.com articles redirect to themselves while loading, which broke the
+    Tencent notes on GitHub's runners (the data branch had dropped to 2 of 5 Chinese patches).
+    Now a fresh page per attempt waits for the load; a patch still out of reach keeps its last copy.
+  - The job logs "the wiki's rule text changed" (rules hash c40bcbde -> 31615d22): rules.json
+    needs a look (no data-rules issue was opened).
   - No junk in any build (user's rule): `builds::JUNK` (potions incl. Refillable, wards,
     elixirs, trinkets, other consumables, plain Boots) is left out of starters, core and later
     items, boots, hand-written builds, the item set import (no Consumables block any more) and
