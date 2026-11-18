@@ -3,6 +3,8 @@
   import AramPicks from '../components/AramPicks.svelte';
   import AugmentPicks from '../components/AugmentPicks.svelte';
   import FullscreenNotice from '../components/FullscreenNotice.svelte';
+  import MayhemBuild from '../components/MayhemBuild.svelte';
+  import { content, loadContent } from '../lib/content.svelte';
   import Teams from '../components/Teams.svelte';
   import { api } from '../lib/api';
   import { champName } from '../lib/dd.svelte';
@@ -19,6 +21,7 @@
   const hasTeams = $derived(app.live.teams.some((tm) => tm.players.length > 0));
   let importing = $state(false);
   const hextech = $derived(app.live.mode === 'KIWI');
+  loadContent();
   const buildMode = $derived(isAramMode(app.live.mode) ? 'aram' : 'rift');
 
   async function importBuild() {
@@ -66,7 +69,10 @@
   {:else if hasTeams}
     <div class="body" class:past={!active}>
       {#if champSelect && isAramMode(app.live.mode)}<AramPicks />{/if}
-      {#if active && hextech && me && me.championId > 0}<AugmentPicks championId={me.championId} />{/if}
+      {#if active && hextech && me && me.championId > 0}
+        <AugmentPicks championId={me.championId} />
+        {#if content.data.builds[me.championId]}<div class="mine"><MayhemBuild build={content.data.builds[me.championId]} /></div>{/if}
+      {/if}
       <Teams live={app.live} onprofile={(puuid) => go({ name: 'profile', puuid })} />
       {#if champSelect && app.live.teams.some((tm) => !tm.ally && tm.players.every((p) => p.status === 'hidden'))}
         <p class="note">{t('live.hiddenHint')}</p>
@@ -126,6 +132,9 @@
   }
   .fsn:empty {
     display: none;
+  }
+  .mine {
+    margin-bottom: 12px;
   }
   .body {
     overflow-y: auto;

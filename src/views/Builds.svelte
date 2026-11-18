@@ -1,7 +1,11 @@
 <script lang="ts">
   import { tick } from 'svelte';
   import AugmentList from '../components/AugmentList.svelte';
+  import MayhemBuild from '../components/MayhemBuild.svelte';
+  import MayhemEditor from '../components/MayhemEditor.svelte';
+  import { content, loadContent } from '../lib/content.svelte';
   import Icon from '../components/Icon.svelte';
+  import PublishState from '../components/PublishState.svelte';
   import Img from '../components/Img.svelte';
   import Segmented from '../components/Segmented.svelte';
   import { api } from '../lib/api';
@@ -25,6 +29,11 @@
   let mode = $state<BuildMode>('rift');
   let build = $state<Build | null>(null);
   let loading = $state(false);
+  /** Admin: writing the selected champion's Hextech ARAM build. */
+  let editing = $state(false);
+  const admin = $derived(Boolean(app.settings?.admin) && mode === 'aram');
+  loadContent();
+  const written = $derived(Object.keys(content.data.builds).length);
   let error = $state<string | null>(null);
   let query = $state('');
   let importing = $state(false);
@@ -112,8 +121,14 @@
     selected;
     selRole;
     mode;
+    editing = false;
     load();
   });
+
+  function doneEditing() {
+    editing = false;
+    load();
+  }
 
   async function doImport() {
     if (!build) return;
@@ -150,11 +165,12 @@
         {/each}
       </div>
     {/if}
+    {#if admin}<p class="written"><span>{t('mayhem.done', written, champs.length)}</span><PublishState /></p>{/if}
     <div class="grid" bind:this={grid}>
       {#each groups as g (g.lane ?? 'all')}
         {#if lane === 'off' && g.lane}<h4 class="glabel">{t('builds.offMetaLane', roleName(g.lane))}</h4>{/if}
         {#each g.list as c (c.id)}
-          <button class="c" class:on={selected === c.id && (!g.lane || selRole === g.lane)} title={c.name} onclick={() => pickChamp(c.id, g.lane)}>
+          <button class="c" class:on={selected === c.id && (!g.lane || selRole === g.lane)} class:has={admin && content.data.builds[c.id]} title={c.name} onclick={() => pickChamp(c.id, g.lane)}>
             <Img src={champIcon(c.id)} size={42} alt={c.name} />
             <span>{c.name}</span>
           </button>
@@ -179,7 +195,13 @@
       <span class="src">{mode === 'rift' ? t('builds.srcRift') : t('builds.srcAram')}</span>
     </div>
 
-    {#if !selected}
+    {#if editing && selected}
+      <header class="head">
+        <Img src={champIcon(selected)} size={56} />
+        <h2>{dd.data?.champions[String(selected)]?.name}</h2>
+      </header>
+      <MayhemEditor championId={selected} build={content.data.builds[selected] ?? null} onclose={doneEditing} />
+    {:else if !selected}
       <div class="empty"><Icon name="builds" size={30} /><p>{t('builds.pickChamp')}</p></div>
     {:else if loading && !showBuild}
       <div class="empty"><p>{t('common.loading')}</p></div>
@@ -188,13 +210,14 @@
         <Img src={champIcon(selected)} size={56} />
         <h3>{t('builds.none')}</h3>
         <p>{error ?? t('builds.noneHint')}</p>
+        {#if admin}<button class="btn primary" onclick={() => (editing = true)}>{t('mayhem.write')}</button>{/if}
       </div>
     {:else}
       <header class="head">
         <Img src={champIcon(build.championId)} size={56} />
         <div>
           <h2>{dd.data?.champions[String(build.championId)]?.name}</h2>
-          <div class="sub num">{t('builds.sample', build.games.toLocaleString())} · {t('builds.wr', pct(build.wins, build.games))}</div>
+          {#if build.games > 0}<div class="sub num">{t('builds.sample', build.games.toLocaleString())} · {t('builds.wr', pct(build.wins, build.games))}</div>{/if}
           {#if build.mode === 'rift'}
             <div class="roles">
               {#each build.roles as r (r.value)}
@@ -209,6 +232,7 @@
           {/if}
         </div>
         <div class="imp">
+          {#if admin}<button class="btn" onclick={() => (editing = true)}><Icon name="edit" size={15} />{build.mine ? t('mayhem.edit') : t('mayhem.write')}</button>{/if}
           {#if build.mode === 'rift'}<label><input type="checkbox" bind:checked={doRunes} /> {t('builds.importRunes')}</label>{/if}
           <label><input type="checkbox" bind:checked={doItems} /> {t('builds.importItems')}</label>
           <button class="btn primary" onclick={doImport} disabled={importing || !app.connected || (!(doRunes && build.mode === 'rift') && !doItems)}><Icon name="download" size={16} />{t('builds.import')}</button>
@@ -271,7 +295,9 @@
         </section>
       {/if}
 
-      <div class="two">
+      {#if build.mine}<MayhemBuild build={build.mine} />{/if}
+
+      <div class="two" class:one={build.mine}>
         <section class="card">
           <div class="label">{t('builds.spells')}</div>
           {#each build.spells as sp, i (i)}
@@ -292,6 +318,7 @@
             {/if}
           {/if}
         </section>
+        {#if !build.mine}
         <section class="card">
           {#if build.starters.length}
             <div class="label">{t('builds.starters')}</div>
@@ -311,8 +338,10 @@
             </div>
           {/each}
         </section>
+        {/if}
       </div>
 
+      {#if !build.mine}
       <section class="card">
         <div class="label">{t('builds.core')} <span class="num">· {t('builds.pick', p(build.items[0]?.games ?? 0))} · {t('builds.wr', pct(build.items[0]?.wins ?? 0, build.items[0]?.games ?? 0))}</span></div>
         <div class="items">
@@ -331,6 +360,7 @@
         </div>
         <p class="note">{build.mode === 'aram' ? t('builds.aramItemsNote') : t('builds.order')}</p>
       </section>
+      {/if}
     {/if}
   </main>
 </div>
@@ -654,6 +684,24 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 14px;
+  }
+  .two.one {
+    grid-template-columns: 1fr;
+  }
+  .written {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 4px 10px;
+    margin: 0;
+    padding: 6px 14px;
+    font-size: 12px;
+    color: var(--text-3);
+    border-bottom: 1px solid var(--seam);
+  }
+  /* Admin: champions that already have a hand-written build. */
+  .c.has :global(.img) {
+    box-shadow: 0 0 0 2px var(--win);
   }
   .opt {
     display: flex;

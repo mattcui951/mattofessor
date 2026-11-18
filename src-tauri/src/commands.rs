@@ -320,6 +320,39 @@ pub fn open_build(core: State<'_, Arc<Core>>, champion_id: i32, mode: String) {
     core.show_main(Some(&format!("builds/{champion_id}/{mode}")));
 }
 
+/// The admin's builds and tier lists in use.
+#[tauri::command]
+pub fn content() -> crate::content::Content {
+    crate::content::current()
+}
+
+/// Whether the admin's last edits are published.
+#[tauri::command]
+pub fn content_status() -> crate::content::Status {
+    crate::content::status()
+}
+
+/// Apply an admin edit (a build or a tier list) and publish it shortly. Admin only.
+#[tauri::command]
+pub fn edit_content(core: State<'_, Arc<Core>>, edit: crate::content::Edit) -> Res<crate::content::Content> {
+    if !core.settings().admin {
+        return Err("Admin mode is off".into());
+    }
+    crate::content::edit(edit).map_err(err)
+}
+
+/// Try publishing the admin's edits again now.
+#[tauri::command]
+pub fn publish_content() {
+    crate::content::schedule_publish();
+}
+
+/// Hextech ARAM item win rates over all champions.
+#[tauri::command]
+pub async fn aram_items(bracket: String) -> Res<crate::aramhex::ItemOverview> {
+    crate::aramhex::item_overview(&bracket).await.map_err(err)
+}
+
 /// Save the Riot API key (empty removes it); returns how Riot answered.
 #[tauri::command]
 pub async fn set_riot_key(core: State<'_, Arc<Core>>, key: String) -> Res<crate::riot::KeyStatus> {

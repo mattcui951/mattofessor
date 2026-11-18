@@ -18,6 +18,7 @@ export type Settings = {
   cardReader: boolean;
   matchView: 'overview' | 'combat';
   overlaySize: OverlaySize;
+  admin: boolean;
 };
 
 export type OverlaySize = 'small' | 'medium' | 'regular' | 'large' | 'xlarge';
@@ -148,7 +149,19 @@ export type LivePlayer = {
 export type InGame = { gameTime: number; mode: string; myTeam: string; players: LivePlayer[] };
 
 export type Champ = { key: string; name: string; alias: string; tags: string[] };
-export type Item = { name: string; gold: number; boots: boolean; legendary: boolean };
+export type Item = { name: string; gold: number; boots: boolean; legendary: boolean; aram: boolean };
+export type MayhemBuild = { starters: number[]; order: number[]; situational: number[]; note: string; updated: string };
+export type Tier = 'S' | 'A' | 'B' | 'C' | 'D';
+/** Tier to ids, best first. */
+export type Tiers = Partial<Record<Tier, number[]>>;
+/** Champion classes: Data Dragon's champion tags. */
+export type ChampClass = 'Fighter' | 'Assassin' | 'Mage' | 'Tank' | 'Support' | 'Marksman';
+export type Content = { updated: string; builds: Record<string, MayhemBuild>; itemTiers: Tiers; championTiers: Partial<Record<ChampClass, Tiers>> };
+export type ContentEdit =
+  | { kind: 'build'; championId: number; build: MayhemBuild | null }
+  | { kind: 'itemTiers'; tiers: Tiers }
+  | { kind: 'championTiers'; class: ChampClass; tiers: Tiers };
+export type ContentStatus = { publish: 'done' | 'waiting' | 'publishing' | 'failed'; error: string };
 export type Spell = { key: string; name: string; cooldown: number };
 export type Rune = { id: number; name: string; icon: string };
 export type Tree = { id: number; name: string; icon: string; slots: Rune[][] };
@@ -182,6 +195,8 @@ export type Build = {
   skillOrder: string[];
   /** An off-meta lane with only a handful of games on OP.GG. */
   rare: boolean;
+  /** Hextech ARAM: the hand-written build, shown instead of OP.GG's items. */
+  mine: MayhemBuild | null;
 };
 export type TierRow = {
   championId: number;
@@ -200,6 +215,8 @@ export type AramSource = { patch: string; snapshotAt: string; matches: number; b
 export type AramChampRow = { championId: number; games: number; winRate: number; pickRate: number; rank: number };
 export type AugRow = { id: number; games: number; winRate: number; smoothed: number; delta: number; lowSample: boolean };
 export type AramOverview = { source: AramSource; champions: AramChampRow[]; augments: AugRow[] };
+export type ItemRow = { id: number; name: string; icon: string; games: number; winRate: number; pickRate: number; delta: number };
+export type ItemOverview = { source: AramSource; items: ItemRow[] };
 export type AramChampion = { source: AramSource; champion: AramChampRow | null; augments: AugRow[] };
 export type RarityPicks = { rarity: 'silver' | 'gold' | 'prismatic'; take: AugRow[]; avoid: AugRow[] };
 export type AramPicks = { source: AramSource; champion: AramChampRow | null; rarities: RarityPicks[] };

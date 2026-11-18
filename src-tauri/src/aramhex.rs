@@ -345,6 +345,85 @@ pub fn champion(info: &Info, bracket_name: &str, b: &Bracket, champion_id: i32) 
     }
 }
 
+#[derive(Clone, Debug, Serialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct ItemRow {
+    pub id: i32,
+    /// From AramHex (Chinese), for items Data Dragon does not have.
+    pub name: String,
+    pub icon: String,
+    pub games: u64,
+    pub win_rate: f64,
+    /// Share of players who finished the item.
+    pub pick_rate: f64,
+    /// The item's win rate minus each champion's own, weighted by games: how much better the
+    /// players who built it did than their champion usually does.
+    pub delta: f64,
+}
+
+#[derive(Clone, Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ItemOverview {
+    pub source: Source,
+    pub items: Vec<ItemRow>,
+}
+
+#[derive(Deserialize)]
+struct ItemMeta {
+    #[serde(default)]
+    name: String,
+    #[serde(default)]
+    icon: String,
+}
+
+/// Finished items over all champions (`hero_items.json`: games where no augment hands out or
+/// upgrades items), against their population (`equipment_recommendation_heroes.json`).
+pub fn items(source: Source, heroes: &[u8], hero_items: &[u8], meta: &[u8]) -> Result<ItemOverview> {
+    let heroes: HashMap<i32, Stat> = ids(serde_json::from_slice(heroes).context("equipment heroes")?);
+    let pairs: HashMap<i32, HashMap<i32, Stat>> =
+        ids::<HashMap<String, Stat>>(serde_json::from_slice(hero_items).context("hero_items.json")?).into_iter().map(|(h, m)| (h, ids(m))).collect();
+    let meta: HashMap<i32, ItemMeta> = ids(serde_json::from_slice(meta).unwrap_or_default());
+    let players: u64 = heroes.values().map(|s| s.games).sum();
+    let mut totals: HashMap<i32, (Stat, f64)> = HashMap::new();
+    for (hero, items) in &pairs {
+        let base = heroes.get(hero).map(Stat::win_rate).unwrap_or(0.5);
+        for (item, s) in items {
+            let t = totals.entry(*item).or_default();
+            t.0.games += s.games;
+            t.0.wins += s.wins;
+            t.1 += s.games as f64 * (s.win_rate() - base);
+        }
+    }
+    let mut items: Vec<ItemRow> = totals
+        .into_iter()
+        .filter(|(_, (s, _))| s.games > 0)
+        .map(|(id, (s, d))| {
+            let m = meta.get(&id);
+            ItemRow {
+                id,
+                name: m.map(|m| m.name.clone()).unwrap_or_default(),
+                icon: m.map(|m| m.icon.clone()).unwrap_or_default(),
+                games: s.games,
+                win_rate: s.win_rate(),
+                pick_rate: if players > 0 { s.games as f64 / players as f64 } else { 0.0 },
+                delta: d / s.games as f64,
+            }
+        })
+        .collect();
+    items.sort_by(|a, b| b.win_rate.total_cmp(&a.win_rate));
+    Ok(ItemOverview { source, items })
+}
+
+/// Item win rates for a bracket; only "all" and "high" have item data, the others use "all".
+pub async fn item_overview(bracket_name: &str) -> Result<ItemOverview> {
+    let info = info().await?;
+    let b = if bracket_name == "high" && info.bands { "high" } else { "all" };
+    let heroes = file(&info, &rel(b, "equipment_recommendation_heroes.json")).await?;
+    let pairs = file(&info, &rel(b, "hero_items.json")).await?;
+    let meta = file(&info, "item_metadata.json").await.unwrap_or_default();
+    items(source(&info, b), &heroes, &pairs, &meta)
+}
+
 /// Below this difference from the champion's win rate an augment is not worth avoiding.
 const AVOID_BELOW: f64 = -0.01;
 
@@ -453,6 +532,21 @@ mod tests {
         assert!(silver.take.is_empty() && silver.avoid.is_empty());
         let prismatic = p.rarities.iter().find(|r| r.rarity == "prismatic").unwrap();
         assert!(prismatic.take.is_empty() && prismatic.avoid.is_empty(), "55% on a 56% champion: neither");
+    }
+
+    #[test]
+    fn items_sum_over_champions_against_their_baseline() {
+        let heroes = br#"{"24": {"games": 1000, "wins": 600}, "1": {"games": 1000, "wins": 400}}"#;
+        let pairs = br#"{"24": {"3031": {"games": 100, "wins": 70}}, "1": {"3031": {"games": 100, "wins": 50}, "3089": {"games": 10, "wins": 5}}}"#;
+        let meta = r#"{"3031": {"name": "无尽之刃", "icon": "https://x/3031.png", "category": "complete_equipment"}}"#.as_bytes();
+        let src = Source { patch: "16.22".into(), snapshot_at: String::new(), matches: 1, bracket: "all".into() };
+        let o = items(src, heroes, pairs, meta).unwrap();
+        let ie = &o.items[0];
+        assert_eq!((ie.id, ie.games, ie.name.as_str()), (3031, 200, "无尽之刃"));
+        assert!((ie.win_rate - 0.6).abs() < 1e-9 && (ie.pick_rate - 0.1).abs() < 1e-9);
+        // +10 points on Jax (70% vs 60%) and +10 on Annie (50% vs 40%).
+        assert!((ie.delta - 0.1).abs() < 1e-9);
+        assert_eq!(o.items[1].name, "", "no AramHex name");
     }
 
     #[test]

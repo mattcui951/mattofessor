@@ -81,6 +81,30 @@ Version: 1.0.9
 
 ## Recently done
 
+- Not released yet (after 1.0.9): the admin's hand-written content, published to every user.
+  - Content (`content.rs`): Hextech ARAM builds plus item and champion tier lists in one
+    `content.json` on the repo's `content` branch. Apps check every 3 minutes (latest commit via
+    the GitHub API, 60 calls an hour per address, else the raw branch file, cached up to 5 min).
+    In use: the admin's draft (`content-draft.json`), else the newer of the shipped copy
+    (`src-tauri/data/content.json`) and the last fetched one (`%APPDATA%\Mattofessor\content.json`).
+    Admin edits publish 4 s after the last one with `gh api` (contents API); a failed publish shows
+    "发布失败" with Retry and is retried on the next check. `MATTOFESSOR_CONTENT_BRANCH` points a
+    dev build at another branch.
+  - Settings > Admin turns on the editors. Builds page (ARAM): starting items, order,
+    situational, note; green ring and a count for champions with a build. The build replaces
+    OP.GG's items there, shows under the augments in the in-game panel and on Live, and is what
+    the item set import writes.
+  - Tier lists page (new rail icon): items, and champions by Data Dragon class (战士, 刺客, 法师,
+    坦克, 辅助, ADC), tiers S to D. The admin drags icons (pointer events) or clicks one and presses
+    S/A/B/C/D; the unranked pool is sorted by win rate. Everyone else sees the ranked rows.
+  - Meta page, Hextech ARAM: new Items view (AramHex `hero_items.json` summed over champions: win
+    rate, difference from each champion's own win rate, built-by share; "all" and "top 5%" only)
+    and a class filter on Champions.
+  - Items: Hextech ARAM games record the normal ids; Data Dragon's 77xxxx ARAM twins belong to
+    regular ARAM and are left out of the editor. Tier-2 boots count as boots again (they build
+    into tier 3 now); Data Dragon cache files are `<patch>-<locale>-3.json`.
+  - Tested in a dev build against a `content-dev` branch (deleted after): drags, keys, publish,
+    a fresh install receiving it. Not tested: the installed app publishing (needs this release).
 - 1.0.9, cleanup: one HTTP client for public data (`net::http`, timeout
   per request; dd, opgg, aramhex, augments and riot each built their own, three per request); one
   cache-with-fallback (`store::cached`, was copied in opgg and augments); window helpers in core

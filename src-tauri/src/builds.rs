@@ -31,7 +31,7 @@ pub struct RunePage {
     pub shards: Vec<i32>,
 }
 
-#[derive(Clone, Debug, Serialize, PartialEq)]
+#[derive(Clone, Debug, Default, Serialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct Build {
     pub champion_id: i32,
@@ -58,6 +58,8 @@ pub struct Build {
     /// A lane OP.GG lists for neither the champion nor the lane (an off-meta pick): its few games
     /// are all there is, so the numbers are a rough guide.
     pub rare: bool,
+    /// Hextech ARAM: the hand-written build (`content`), used instead of OP.GG's items.
+    pub mine: Option<crate::content::MayhemBuild>,
 }
 
 fn u(v: &Value, k: &str) -> u32 {
@@ -159,6 +161,7 @@ pub fn from_analysis(champion_id: i32, mode: &str, role: &str, a: &Value) -> Opt
         skill_max: d.get("skill_masteries").map(|s| strings(s, "ids")).unwrap_or_default(),
         skill_order: d.get("skills").map(|s| strings(s, "order")).unwrap_or_default(),
         rare: false,
+        mine: None,
     })
 }
 
@@ -187,8 +190,17 @@ pub async fn build(champion_id: i32, role: &str, mode: &str) -> Result<Option<Bu
         let role = if opgg::POSITIONS.contains(&role) { role.to_string() } else { main_lane(champion_id).await };
         ("ranked", role)
     };
-    let a = opgg::analysis(&champ.key, &role, game_mode).await?;
-    let mut b = from_analysis(champion_id, if mode == "aram" { "aram" } else { "rift" }, &role, &a);
+    let mine = if mode == "aram" { crate::content::build(champion_id) } else { None };
+    let mut b = match opgg::analysis(&champ.key, &role, game_mode).await {
+        Ok(a) => from_analysis(champion_id, if mode == "aram" { "aram" } else { "rift" }, &role, &a),
+        // A hand-written build shows without OP.GG.
+        Err(_) if mine.is_some() => None,
+        Err(e) => return Err(e),
+    };
+    if let Some(m) = mine {
+        let b = b.get_or_insert_with(|| Build { champion_id, mode: "aram".into(), ..Default::default() });
+        b.mine = Some(m);
+    }
     if let Some(b) = b.as_mut().filter(|b| b.mode == "rift" && !b.roles.iter().any(|r| r.value == role)) {
         let lane = opgg::tiers().await.ok().and_then(|t| t.rows.iter().find(|r| r.champion_id == champion_id && r.position == role).cloned());
         off_lane(b, &role, lane.as_ref());
@@ -294,17 +306,23 @@ pub async fn import(champion_id: i32, role: &str, mode: &str, runes: bool, items
         };
         let valid = |id: &i32| dd.items.contains_key(id);
         let mut blocks = Vec::new();
-        if let Some(s) = b.starters.first() {
+        if let Some(m) = &b.mine {
+            blocks.push(block("Starting items".into(), m.starters.iter().copied().filter(valid).collect()));
+            blocks.push(block("Build order".into(), m.order.iter().copied().filter(valid).collect()));
+            if !m.situational.is_empty() {
+                blocks.push(block("Situational".into(), m.situational.iter().copied().filter(valid).collect()));
+            }
+        } else if let Some(s) = b.starters.first() {
             blocks.push(block("Starting items".into(), s.value.iter().copied().filter(valid).collect()));
         }
-        let core: Vec<&Pick<i32>> = b.items.iter().take(b.core as usize).collect();
+        let core: Vec<&Pick<i32>> = if b.mine.is_some() { Vec::new() } else { b.items.iter().take(b.core as usize).collect() };
         if let Some(first) = core.first() {
             blocks.push(block(format!("Core items ({:.0}% of games)", pct(first)), core.iter().map(|p| p.value).filter(valid).collect()));
         }
-        if !b.boots.is_empty() {
+        if b.mine.is_none() && !b.boots.is_empty() {
             blocks.push(block("Boots".into(), b.boots.iter().map(|p| p.value).filter(valid).collect()));
         }
-        if b.items.len() > b.core as usize {
+        if b.mine.is_none() && b.items.len() > b.core as usize {
             blocks.push(block("More options".into(), b.items.iter().skip(b.core as usize).map(|p| p.value).filter(valid).collect()));
         }
         blocks.push(block("Consumables".into(), vec![2003, 2055]));

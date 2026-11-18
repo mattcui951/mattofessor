@@ -29,6 +29,9 @@ pub struct Item {
     pub boots: bool,
     /// A finished, full-price item (what a build is made of).
     pub legendary: bool,
+    /// Sold in ARAM (Howling Abyss).
+    #[serde(default)]
+    pub aram: bool,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -133,9 +136,11 @@ fn parse(version: &str, locale: &str, champs: &Value, items: &Value, spells: &Va
             let into_empty = it.get("into").and_then(Value::as_array).is_none_or(|a| a.is_empty());
             let tags: Vec<&str> = it.get("tags").and_then(Value::as_array).map(|a| a.iter().filter_map(Value::as_str).collect()).unwrap_or_default();
             let consumable = tags.contains(&"Consumable") || tags.contains(&"Trinket");
-            let boots = tags.contains(&"Boots") && into_empty && gold >= 900 && id < 10000;
+            // Upgraded boots: tier 2, which now build into tier 3, and tier 3 itself.
+            let boots = tags.contains(&"Boots") && gold >= 900 && purchasable && id < 10000;
             let legendary = into_empty && gold >= 2200 && purchasable && on_rift && !consumable && !boots && id < 10000;
-            item_map.insert(id, Item { name: s(it, "name"), gold, boots, legendary });
+            let aram = purchasable && it.pointer("/maps/12").and_then(Value::as_bool).unwrap_or(false);
+            item_map.insert(id, Item { name: s(it, "name"), gold, boots, legendary, aram });
         }
     }
     let mut spell_map = BTreeMap::new();
@@ -199,7 +204,7 @@ pub async fn get(lang: &str) -> Result<Arc<StaticData>> {
         return Ok(d);
     }
     let dir = crate::paths::config_dir().join("dd");
-    let file = dir.join(format!("{version}-{locale}.json"));
+    let file = dir.join(format!("{version}-{locale}-3.json"));
     let data = match std::fs::read_to_string(&file).ok().and_then(|t| serde_json::from_str::<StaticData>(&t).ok()) {
         Some(d) => d,
         None => {
@@ -230,7 +235,7 @@ mod tests {
     fn classifies_items() {
         let items = json!({"data": {
             "3071": {"name": "Black Cleaver", "gold": {"total": 3000, "purchasable": true}, "maps": {"11": true}, "tags": ["Damage"]},
-            "3047": {"name": "Plated Steelcaps", "gold": {"total": 1200, "purchasable": true}, "maps": {"11": true}, "tags": ["Boots"]},
+            "3047": {"name": "Plated Steelcaps", "gold": {"total": 1200, "purchasable": true}, "maps": {"11": true}, "tags": ["Boots"], "into": ["3174"]},
             "1001": {"name": "Boots", "gold": {"total": 300, "purchasable": true}, "maps": {"11": true}, "tags": ["Boots"], "into": ["3047"]},
             "3044": {"name": "Phage", "gold": {"total": 1100, "purchasable": true}, "maps": {"11": true}, "into": ["3071"]},
             "2003": {"name": "Health Potion", "gold": {"total": 50, "purchasable": true}, "maps": {"11": true}, "tags": ["Consumable"]},

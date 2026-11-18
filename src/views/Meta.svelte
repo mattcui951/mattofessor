@@ -4,12 +4,12 @@
   import Segmented from '../components/Segmented.svelte';
   import { api } from '../lib/api';
   import { buildIndex, searchChamps } from '../lib/champSearch';
-  import { champIcon, champName, dd, loadOtherNames, otherNames } from '../lib/dd.svelte';
+  import { champIcon, champName, dd, itemIcon, itemName, loadOtherNames, otherNames } from '../lib/dd.svelte';
   import { roleName } from '../lib/format';
   import { t } from '../lib/i18n.svelte';
   import { ARAM_CREDIT, BRACKETS, aramTier, augment, bracket, delta, loadAugments, pct1, riftTier, setBracket } from '../lib/meta.svelte';
   import { errorText, go } from '../lib/state.svelte';
-  import type { AramOverview, BuildMode, RiftTiers } from '../lib/types';
+  import type { AramOverview, BuildMode, ChampClass, ItemOverview, ItemRow, RiftTiers } from '../lib/types';
 
   let { mode: startMode }: { mode?: BuildMode } = $props();
 
@@ -18,7 +18,8 @@
     if (startMode) mode = startMode;
   });
   let lane = $state('all');
-  let aramView = $state<'champions' | 'augments'>('champions');
+  let aramView = $state<'champions' | 'augments' | 'items'>('champions');
+  let cls = $state<'all' | ChampClass>('all');
   let rarity = $state<'all' | 'silver' | 'gold' | 'prismatic'>('all');
   let query = $state('');
   let sortKey = $state('');
@@ -26,6 +27,7 @@
 
   let rift = $state<RiftTiers | null>(null);
   let aram = $state<AramOverview | null>(null);
+  let items = $state<ItemOverview | null>(null);
   let error = $state<string | null>(null);
 
   $effect(() => {
@@ -38,6 +40,11 @@
     loadAugments();
     error = null;
     api.aramOverview(b).then((r) => (aram = r), (e) => (error = errorText(e)));
+  });
+  $effect(() => {
+    if (mode !== 'aram' || aramView !== 'items') return;
+    const b = bracket();
+    api.aramItems(b).then((r) => (items = r), (e) => (error = errorText(e)));
   });
   $effect(() => {
     // A new table starts with its own default order.
@@ -68,7 +75,7 @@
   });
 
   const aramChamps = $derived.by(() => {
-    const rows = (aram?.champions ?? []).filter((r) => !matches || matches.has(r.championId));
+    const rows = (aram?.champions ?? []).filter((r) => (!matches || matches.has(r.championId)) && (cls === 'all' || dd.data?.champions[String(r.championId)]?.tags.includes(cls)));
     const k: Record<string, (r: (typeof rows)[number]) => number> = { win: (r) => r.winRate, pick: (r) => r.pickRate, games: (r) => r.games };
     return sorted(rows, k[sortKey] ?? k.win, (a, b) => b.winRate - a.winRate);
   });
@@ -83,6 +90,20 @@
     const k: Record<string, (r: (typeof rows)[number]) => number> = { win: (r) => r.winRate, games: (r) => r.games };
     return sorted(rows, k[sortKey] ?? k.win, (a, b) => b.smoothed - a.smoothed);
   });
+
+  /** Data Dragon's name and icon, or AramHex's for items it does not have. */
+  const known = (r: ItemRow) => Boolean(dd.data?.items[String(r.id)]);
+  const itemLabel = (r: ItemRow) => (known(r) ? itemName(r.id) : r.name || String(r.id));
+  const itemPic = (r: ItemRow) => (known(r) ? itemIcon(r.id) : r.icon || null);
+
+  const itemRows = $derived.by(() => {
+    const q = query.trim().toLowerCase();
+    const rows = (items?.items ?? []).filter((r) => !q || itemLabel(r).toLowerCase().includes(q));
+    const k: Record<string, (r: ItemRow) => number> = { win: (r) => r.winRate, delta: (r) => r.delta, pick: (r) => r.pickRate, games: (r) => r.games };
+    return sorted(rows, k[sortKey] ?? k.win, (a, b) => b.winRate - a.winRate);
+  });
+
+  const CLASSES: ('all' | ChampClass)[] = ['all', 'Fighter', 'Assassin', 'Mage', 'Tank', 'Support', 'Marksman'];
 
   function sortBy(key: string) {
     if (sortKey === key) sortDesc = !sortDesc;
@@ -113,7 +134,7 @@
     />
     <div class="search">
       <Icon name="search" size={15} />
-      <input class="field" bind:value={query} placeholder={mode === 'aram' && aramView === 'augments' ? t('meta.findAugment') : t('builds.search')} spellcheck="false" onfocus={loadOtherNames} />
+      <input class="field" bind:value={query} placeholder={mode === 'aram' && aramView === 'augments' ? t('meta.findAugment') : mode === 'aram' && aramView === 'items' ? t('mayhem.search') : t('builds.search')} spellcheck="false" onfocus={loadOtherNames} />
     </div>
   </header>
 
@@ -127,10 +148,14 @@
         options={[
           { value: 'champions', label: t('meta.champions') },
           { value: 'augments', label: t('meta.augments') },
+          { value: 'items', label: t('meta.items') },
         ]}
         onchange={(v) => (aramView = v as typeof aramView)}
       />
       <Segmented label={t('meta.bracket')} value={bracket()} options={BRACKETS.map((b) => ({ value: b, label: t(`bracket.${b}`) }))} onchange={(v) => setBracket(v as typeof BRACKETS[number])} />
+      {#if aramView === 'champions'}
+        <Segmented label={t('meta.class')} value={cls} options={CLASSES.map((c) => ({ value: c, label: c === 'all' ? t('meta.allClasses') : t(`class.${c}`) }))} onchange={(v) => (cls = v as typeof cls)} />
+      {/if}
       {#if aramView === 'augments'}
         <Segmented
           label={t('meta.rarity')}
@@ -141,7 +166,7 @@
       {/if}
     {/if}
     <span class="source">
-      {#if mode === 'rift'}{t('meta.srcRift')}{:else if aram}{t('meta.srcAram', aram.source.patch, (aram.source.matches / 1e6).toFixed(1))}{/if}
+      {#if mode === 'rift'}{t('meta.srcRift')}{:else if aramView === 'items' && items}{items.source.bracket !== bracket() ? `${t('meta.itemsAllPlayers')} · ` : ''}{t('meta.srcAram', items.source.patch, (items.source.matches / 1e6).toFixed(1))}{:else if aram}{t('meta.srcAram', aram.source.patch, (aram.source.matches / 1e6).toFixed(1))}{/if}
     </span>
   </div>
 
@@ -175,6 +200,35 @@
                 <td class="num" class:hi={r.winRate >= 0.52} class:lo={r.winRate < 0.48}>{pct1(r.winRate)}%</td>
                 <td class="num">{Math.round(r.pickRate * 100)}%</td>
                 <td class="num">{Math.round(r.banRate * 100)}%</td>
+                <td class="num dim">{r.games.toLocaleString()}</td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+      {/if}
+    {:else if aramView === 'items'}
+      {#if !items}
+        <p class="empty-row">{error ?? t('common.loading')}</p>
+      {:else}
+        <table>
+          <thead>
+            <tr>
+              <th class="n">#</th>
+              <th>{t('meta.item')}</th>
+              {@render th('win', t('meta.winRate'))}
+              {@render th('delta', t('meta.vsChampion'))}
+              {@render th('pick', t('meta.builtBy'))}
+              {@render th('games', t('meta.games'))}
+            </tr>
+          </thead>
+          <tbody>
+            {#each itemRows as r, i (r.id)}
+              <tr class="static">
+                <td class="n num">{i + 1}</td>
+                <td><span class="champ"><Img src={itemPic(r)} size={28} />{itemLabel(r)}</span></td>
+                <td class="num" class:hi={r.winRate >= 0.52} class:lo={r.winRate < 0.48}>{pct1(r.winRate)}%</td>
+                <td class="num" class:hi={r.delta > 0.01} class:lo={r.delta < -0.01}>{delta(r.delta)}</td>
+                <td class="num">{r.pickRate > 0 && r.pickRate < 0.0005 ? "<0.1" : pct1(r.pickRate)}%</td>
                 <td class="num dim">{r.games.toLocaleString()}</td>
               </tr>
             {/each}
@@ -236,7 +290,7 @@
       </table>
     {/if}
   </div>
-  <p class="credit">{mode === 'rift' ? t('meta.creditRift') : `${aramView === 'champions' ? t('meta.creditAram') : t('meta.data')} ${ARAM_CREDIT}`}</p>
+  <p class="credit">{mode === 'rift' ? t('meta.creditRift') : `${aramView === 'champions' ? t('meta.creditAram') : aramView === 'items' ? t('meta.itemsHint') : t('meta.data')} ${ARAM_CREDIT}`}</p>
 </div>
 
 <style>

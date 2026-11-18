@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import type { AramBracket, AramChampion, AramOverview, AramPicks, Augment, Build, BuildMode, FullGame, ImportResult, InGame, LiveState, MyScore, PlayerScore, Profile, RiftTiers, RiotStatus, Settings, StaticData, Summoner, UpdateState } from './types';
+import type { AramBracket, AramChampion, AramOverview, AramPicks, Augment, Build, BuildMode, Content, ContentEdit, ContentStatus, FullGame, ImportResult, InGame, ItemOverview, LiveState, MyScore, PlayerScore, Profile, RiftTiers, RiotStatus, Settings, StaticData, Summoner, UpdateState } from './types';
 
 export type Boot = {
   settings: Settings;
@@ -49,6 +49,11 @@ export const api = {
   fullscreenTried: () => invoke<boolean>('fullscreen_tried'),
   dismissFullscreenTried: () => invoke<void>('dismiss_fullscreen_tried'),
   openBuild: (championId: number, mode: BuildMode) => invoke<void>('open_build', { championId, mode }),
+  content: () => invoke<Content>('content'),
+  contentStatus: () => invoke<ContentStatus>('content_status'),
+  editContent: (edit: ContentEdit) => invoke<Content>('edit_content', { edit }),
+  publishContent: () => invoke<void>('publish_content'),
+  aramItems: (bracket: AramBracket) => invoke<ItemOverview>('aram_items', { bracket }),
   cardReaderStatus: () => invoke<{ ocrEn: boolean; ocrZh: boolean; gameLang: 'en' | 'zh' | null; missing: boolean }>('card_reader_status'),
   setRiotKey: (key: string) => invoke<RiotStatus>('set_riot_key', { key }),
   checkUpdate: () => invoke<UpdateState>('check_update'),

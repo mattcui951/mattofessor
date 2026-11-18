@@ -150,6 +150,12 @@
       </section>
 
       <section>
+        <h3>{t('settings.adminTitle')}</h3>
+        {@render toggleRow(t('settings.admin'), 'admin')}
+        <p class="note">{t('settings.adminNote')}</p>
+      </section>
+
+      <section>
         <h3>{t('settings.imports')}</h3>
         {@render toggleRow(t('settings.autoRunes'), 'autoImportRunes')}
         {@render toggleRow(t('settings.autoItems'), 'autoImportItems')}

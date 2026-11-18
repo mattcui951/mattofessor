@@ -20,6 +20,9 @@
   <button class="item" class:on={app.route.name === 'meta'} aria-label={t('nav.meta')} title={t('nav.meta')} onclick={() => go({ name: 'meta' })}>
     <Icon name="trophy" size={21} />
   </button>
+  <button class="item" class:on={app.route.name === 'tiers'} aria-label={t('nav.tiers')} title={t('nav.tiers')} onclick={() => go({ name: 'tiers' })}>
+    <Icon name="rows" size={21} />
+  </button>
   <button class="item" class:on={app.route.name === 'builds'} aria-label={t('nav.builds')} title={t('nav.builds')} onclick={() => go({ name: 'builds' })}>
     <Icon name="builds" size={21} />
   </button>

@@ -42,6 +42,8 @@ pub struct Settings {
     /// The in-game panel's size: "small", "medium", "regular", "large" or "xlarge" (as wide as
     /// the game). Text and everything else scale together.
     pub overlay_size: String,
+    /// Shows the Hextech ARAM build editor on the Builds page.
+    pub admin: bool,
 }
 
 impl Default for Settings {
@@ -66,6 +68,7 @@ impl Default for Settings {
             card_reader: true,
             match_view: "overview".into(),
             overlay_size: "regular".into(),
+            admin: false,
         }
     }
 }

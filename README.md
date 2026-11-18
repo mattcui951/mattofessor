@@ -90,8 +90,14 @@ Meta and builds come from two public sources, cached locally so the app keeps wo
 - **Hextech ARAM**: 海克斯大乱斗统计数据 ([czgreat/aramhex-data](https://github.com/czgreat/aramhex-data)),
   licensed [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/): champion win rates
   and the win rate of every champion × augment pair, from millions of games on the CN servers,
-  updated about weekly. Downloads are checked against the published SHA-256 sums. The app shows
-  this credit wherever these numbers appear, and Mattofessor stays free (non-commercial).
+  updated about weekly, plus finished-item statistics (the item win rates on the Meta page).
+  Downloads are checked against the published SHA-256 sums. The app shows this credit wherever
+  these numbers appear, and Mattofessor stays free (non-commercial).
+- **Hand-written content**: the admin's Hextech ARAM builds and the item and champion tier lists,
+  in `content.json` on this repository's `content` branch. Every app checks it every 3 minutes
+  (the branch's latest commit through GitHub's API, then the file at that commit) and starts from
+  the copy it shipped with (`src-tauri/data/content.json`). The admin edits it in the app
+  (Settings > Admin), which publishes through the GitHub CLI (`gh`, signed in with push access).
 - Augment names and icons: Riot's game data via [CommunityDragon](https://communitydragon.org).
 
 Porofessor itself shows a page from its own servers (`porofessor.gg/overwolf/live...`) built on
@@ -146,7 +152,8 @@ ranked entries), throttled under those limits. The key is stored with Windows DP
 | `src-tauri/src/positions.rs` | Role inference |
 | `src-tauri/src/builds.rs` | Builds from OP.GG, rune page and item set import |
 | `src-tauri/src/opgg.rs` | OP.GG public endpoint client, its text format parser, tier lists |
-| `src-tauri/src/aramhex.rs` | Hextech ARAM statistics (AramHex open data): download, checks, views, augment picks |
+| `src-tauri/src/aramhex.rs` | Hextech ARAM statistics (AramHex open data): download, checks, views, augment picks, item win rates |
+| `src-tauri/src/content.rs` | The admin's builds and tier lists: following the `content` branch, editing, publishing with `gh` |
 | `src-tauri/src/cards.rs` | Augment card reader: finds the offered cards on screen, places the win rates above them |
 | `src-tauri/src/ocr.rs` | Windows OCR (Windows.Media.Ocr) wrapper |
 | `src-tauri/src/augments.rs` | Augment names, rarity and icons |

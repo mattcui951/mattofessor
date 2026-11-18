@@ -5,6 +5,7 @@ pub mod builds;
 pub mod capture;
 pub mod cards;
 mod commands;
+pub mod content;
 pub mod core;
 #[cfg(debug_assertions)]
 mod dev;
@@ -140,6 +141,7 @@ pub fn run() {
             });
             game::spawn(core.clone());
             aramhex::spawn();
+            content::spawn();
             cards::spawn(core.clone());
             update::spawn(core.clone());
             if !started_minimized {
@@ -174,6 +176,11 @@ pub fn run() {
             commands::dismiss_fullscreen_tried,
             commands::card_reader_status,
             commands::open_build,
+            commands::content,
+            commands::content_status,
+            commands::edit_content,
+            commands::publish_content,
+            commands::aram_items,
             commands::toggle_overlay,
             commands::hide_overlay,
             commands::fit_overlay,
