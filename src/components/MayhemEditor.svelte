@@ -23,23 +23,18 @@
   let query = $state('');
   let saving = $state(false);
 
-  /**
-   * Items sold in Hextech ARAM: finished items and boots first, then by price. Data Dragon's ARAM
-   * items (map 12) include twins for regular ARAM (ids 77xxxx, other prices and stats) that
-   * Hextech ARAM does not sell: its games only ever record the normal ids.
-   */
-  const ARAM_TWINS = 770000;
+  /** Items sold in Hextech ARAM (`aram`, its own ids only): finished items and boots first, then by price. */
   const items = $derived.by(() => {
     const q = query.trim().toLowerCase();
     const byName = new Map<string, { id: number } & Item>();
     for (const [id, it] of Object.entries(dd.data?.items ?? {})) {
-      if (!it.aram || it.gold <= 0 || Number(id) >= ARAM_TWINS) continue;
+      if (!it.aram || it.gold <= 0) continue;
       const seen = byName.get(it.name);
       if (!seen || Number(id) < seen.id) byName.set(it.name, { id: Number(id), ...it });
     }
     return [...byName.values()]
       .filter((it) => !q || it.name.toLowerCase().includes(q) || String(it.id) === q)
-      .sort((a, b) => Number(b.legendary || b.boots) - Number(a.legendary || a.boots) || b.gold - a.gold);
+      .sort((a, b) => Number(b.aramLegendary || b.boots) - Number(a.aramLegendary || a.boots) || b.gold - a.gold);
   });
 
   function add(id: number) {

@@ -332,7 +332,8 @@ pub fn content_status() -> crate::content::Status {
     crate::content::status()
 }
 
-/// Apply an admin edit (a build or a tier list) and publish it shortly. Admin only.
+/// Apply an admin edit (a build or a tier list) and publish it shortly. Admin only: admin mode on,
+/// in the copy whose GitHub account can push to the repository.
 #[tauri::command]
 pub fn edit_content(core: State<'_, Arc<Core>>, edit: crate::content::Edit) -> Res<crate::content::Content> {
     if !core.settings().admin {

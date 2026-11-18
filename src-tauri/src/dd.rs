@@ -29,9 +29,19 @@ pub struct Item {
     pub boots: bool,
     /// A finished, full-price item (what a build is made of).
     pub legendary: bool,
-    /// Sold in ARAM (Howling Abyss).
+    /// Sold in Hextech ARAM under this id (see `hextech_id`).
     #[serde(default)]
     pub aram: bool,
+    /// A finished item in Hextech ARAM: exactly what its players finish (AramHex's item data).
+    #[serde(default)]
+    pub aram_legendary: bool,
+}
+
+/// Ids Hextech ARAM games record: normal ids, and its own items (12xxxx, such as Rite of Ruin and
+/// its Hubris). Data Dragon's other map-12 ids are twins for other modes (77xxxx regular ARAM,
+/// 22xxxx Arena) that its games never record.
+fn hextech_id(id: i32) -> bool {
+    id < 10000 || (120000..130000).contains(&id)
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -139,8 +149,13 @@ fn parse(version: &str, locale: &str, champs: &Value, items: &Value, spells: &Va
             // Upgraded boots: tier 2, which now build into tier 3, and tier 3 itself.
             let boots = tags.contains(&"Boots") && gold >= 900 && purchasable && id < 10000;
             let legendary = into_empty && gold >= 2200 && purchasable && on_rift && !consumable && !boots && id < 10000;
-            let aram = purchasable && it.pointer("/maps/12").and_then(Value::as_bool).unwrap_or(false);
-            item_map.insert(id, Item { name: s(it, "name"), gold, boots, legendary, aram });
+            let aram = purchasable && hextech_id(id) && it.pointer("/maps/12").and_then(Value::as_bool).unwrap_or(false);
+            // Finished: nothing to buy after it (an item it only upgrades into is not sold).
+            let upgrades_only = it.get("into").and_then(Value::as_array).is_none_or(|a| {
+                a.iter().filter_map(Value::as_str).all(|i| m.get(i).and_then(|x| x.pointer("/gold/purchasable")).and_then(Value::as_bool) != Some(true))
+            });
+            let aram_legendary = aram && upgrades_only && gold >= 2200 && !consumable && !boots;
+            item_map.insert(id, Item { name: s(it, "name"), gold, boots, legendary, aram, aram_legendary });
         }
     }
     let mut spell_map = BTreeMap::new();
@@ -204,7 +219,7 @@ pub async fn get(lang: &str) -> Result<Arc<StaticData>> {
         return Ok(d);
     }
     let dir = crate::paths::config_dir().join("dd");
-    let file = dir.join(format!("{version}-{locale}-3.json"));
+    let file = dir.join(format!("{version}-{locale}-4.json"));
     let data = match std::fs::read_to_string(&file).ok().and_then(|t| serde_json::from_str::<StaticData>(&t).ok()) {
         Some(d) => d,
         None => {
@@ -239,7 +254,13 @@ mod tests {
             "1001": {"name": "Boots", "gold": {"total": 300, "purchasable": true}, "maps": {"11": true}, "tags": ["Boots"], "into": ["3047"]},
             "3044": {"name": "Phage", "gold": {"total": 1100, "purchasable": true}, "maps": {"11": true}, "into": ["3071"]},
             "2003": {"name": "Health Potion", "gold": {"total": 50, "purchasable": true}, "maps": {"11": true}, "tags": ["Consumable"]},
-            "223071": {"name": "Black Cleaver", "gold": {"total": 3000, "purchasable": true}, "maps": {"11": false, "30": true}}
+            "223071": {"name": "Black Cleaver", "gold": {"total": 3000, "purchasable": true}, "maps": {"11": false, "30": true}},
+            "123430": {"name": "Rite of Ruin", "gold": {"total": 3000, "purchasable": true}, "maps": {"12": true}},
+            "773123": {"name": "Executioner's Calling", "gold": {"total": 1900, "purchasable": true}, "maps": {"12": true}},
+            "2526": {"name": "Whispering Circlet", "gold": {"total": 2250, "purchasable": true}, "maps": {"11": true, "12": true}, "into": ["2530"]},
+            "2530": {"name": "Diadem of Songs", "gold": {"total": 2250, "purchasable": false}, "maps": {"11": true, "12": true}},
+            "3004": {"name": "Manamune", "gold": {"total": 2900, "purchasable": true}, "maps": {"12": true}, "into": ["3003"]},
+            "3003": {"name": "Archangel's Staff", "gold": {"total": 2900, "purchasable": true}, "maps": {"12": true}}
         }});
         let champs = json!({"data": {"Ezreal": {"key": "81", "id": "Ezreal", "name": "探险家", "title": "伊泽瑞尔", "tags": ["Marksman"]}}});
         let zh = parse("1", "zh_CN", &champs, &json!({}), &json!({}), &json!([]));
@@ -252,5 +273,12 @@ mod tests {
         assert!(!d.items[&3044].legendary);
         assert!(!d.items[&2003].legendary);
         assert!(!d.items[&223071].legendary);
+        // Hextech ARAM: its own items count, other modes' twins and upgrades do not.
+        assert!(d.items[&123430].aram_legendary, "an ARAM-only item");
+        assert!(!d.items[&773123].aram, "a regular ARAM twin");
+        assert!(d.items[&2526].aram_legendary, "builds only into an upgrade nobody buys");
+        assert!(!d.items[&2530].aram, "an upgrade is not sold");
+        assert!(!d.items[&3004].aram_legendary, "builds into an item that is sold");
+        assert!(!d.items[&3071].aram && !d.items[&3047].aram);
     }
 }

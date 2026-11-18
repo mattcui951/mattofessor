@@ -5,7 +5,8 @@
 //!
 //! The admin's edits are kept as a draft (`content-draft.json`) and published a few seconds after
 //! the last one, through the GitHub CLI (`gh`) the admin is signed in to. A failed publish keeps
-//! the draft until the next try.
+//! the draft until the next try. Only a copy whose GitHub CLI account can push to this repository
+//! is the admin's; everyone else never sees the editing tools.
 
 use anyhow::{anyhow, bail, Context as _, Result};
 use base64::Engine as _;
@@ -146,7 +147,15 @@ static CURRENT: Mutex<Option<Content>> = Mutex::new(None);
 
 /// The content in use: the admin's draft, else the newest published copy.
 pub fn current() -> Content {
-    CURRENT.lock().get_or_insert_with(|| read(&draft_path()).unwrap_or_else(published)).clone()
+    CURRENT.lock().get_or_insert_with(|| draft().unwrap_or_else(published)).clone()
+}
+
+/// The admin's unpublished edits (none once this copy is known not to be the admin's).
+fn draft() -> Option<Content> {
+    if *ACCESS.lock() == Access::No {
+        return None;
+    }
+    read(&draft_path())
 }
 
 pub fn build(champion_id: i32) -> Option<MayhemBuild> {
@@ -217,13 +226,23 @@ fn receive(remote: Content) -> Result<()> {
     }
     write(&published_path(), &remote)?;
     log::info!("content updated ({})", remote.updated);
-    if !draft_path().exists() {
+    if draft().is_none() {
         changed(remote);
     }
     Ok(())
 }
 
 pub fn spawn() {
+    tauri::async_runtime::spawn(async {
+        loop {
+            let a = tauri::async_runtime::spawn_blocking(check_access).await.unwrap_or(Access::Unknown);
+            set_access(a);
+            if a != Access::Unknown {
+                break;
+            }
+            tokio::time::sleep(CHECK_EVERY).await;
+        }
+    });
     tauri::async_runtime::spawn(async {
         tokio::time::sleep(Duration::from_secs(3)).await;
         let mut seen: Option<String> = None;
@@ -237,12 +256,59 @@ pub fn spawn() {
                 Ok(None) => {}
                 Err(e) => log::info!("content check: {e:#}"),
             }
-            if draft_path().exists() && *PUBLISH.lock() == Publish::Failed {
+            if can_edit() && draft_path().exists() && *PUBLISH.lock() == Publish::Failed {
                 schedule_publish();
             }
             tokio::time::sleep(CHECK_EVERY).await;
         }
     });
+}
+
+// ---------------------------------------------------------------------------------------------
+// Admin: who it is
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+enum Access {
+    /// Not asked yet, or GitHub could not answer.
+    Unknown,
+    Yes,
+    No,
+}
+
+static ACCESS: Mutex<Access> = Mutex::new(Access::Unknown);
+
+/// Whether this copy is the admin's: its GitHub CLI account can push to the repository.
+pub fn can_edit() -> bool {
+    *ACCESS.lock() == Access::Yes
+}
+
+/// Asks GitHub whether the GitHub CLI's account can push here. Without the CLI or signed in to
+/// no account the answer is no; when GitHub cannot be reached it stays open for the next try.
+fn check_access() -> Access {
+    match gh_api(&[&format!("repos/{REPO}"), "--jq", ".permissions.push"], None) {
+        Ok(push) if push == "true" => Access::Yes,
+        Ok(_) => Access::No,
+        Err(e) if e.is::<GhUnusable>() => {
+            log::info!("admin check: {e}");
+            Access::No
+        }
+        Err(e) => {
+            log::info!("admin check: {e:#}");
+            Access::Unknown
+        }
+    }
+}
+
+fn set_access(a: Access) {
+    let was = std::mem::replace(&mut *ACCESS.lock(), a);
+    log::info!("admin: {a:?}");
+    if a == Access::No && was != Access::No && draft_path().exists() {
+        // Edits left from when this copy could publish no longer apply.
+        changed(published());
+    }
+    if let Some(core) = crate::core::get() {
+        let _ = core.app.emit("content-status", status());
+    }
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -270,6 +336,8 @@ static PUBLISHING: tokio::sync::Mutex<()> = tokio::sync::Mutex::const_new(());
 pub struct Status {
     pub publish: Publish,
     pub error: String,
+    /// Whether this copy is the admin's (see `can_edit`).
+    pub can_edit: bool,
 }
 
 pub fn status() -> Status {
@@ -277,7 +345,7 @@ pub fn status() -> Status {
     if publish == Publish::Done && draft_path().exists() {
         publish = Publish::Waiting;
     }
-    Status { publish, error: LAST_ERROR.lock().clone() }
+    Status { publish, error: LAST_ERROR.lock().clone(), can_edit: can_edit() }
 }
 
 fn set_publish(p: Publish, error: String) {
@@ -290,6 +358,9 @@ fn set_publish(p: Publish, error: String) {
 
 /// Applies an admin edit to the draft and publishes it shortly; returns the content now in use.
 pub fn edit(e: Edit) -> Result<Content> {
+    if !can_edit() {
+        bail!("Only the admin can edit");
+    }
     let mut c = current();
     c.apply(e)?;
     write(&draft_path(), &c)?;
@@ -299,6 +370,9 @@ pub fn edit(e: Edit) -> Result<Content> {
 }
 
 pub fn schedule_publish() {
+    if !can_edit() {
+        return;
+    }
     let n = EDITS.fetch_add(1, Ordering::SeqCst) + 1;
     set_publish(Publish::Waiting, String::new());
     tauri::async_runtime::spawn(async move {
@@ -340,10 +414,11 @@ async fn publish() {
     }
 }
 
+const GH_INSTALLED: &str = r"C:\Program Files\GitHub CLI\gh.exe";
+
 /// The GitHub CLI, from PATH or where its installer puts it.
 fn gh() -> std::process::Command {
-    let installed = PathBuf::from(r"C:\Program Files\GitHub CLI\gh.exe");
-    let exe = if which_gh() { PathBuf::from("gh") } else { installed };
+    let exe = if which_gh() { PathBuf::from("gh") } else { PathBuf::from(GH_INSTALLED) };
     let mut cmd = std::process::Command::new(exe);
     #[cfg(windows)]
     {
@@ -358,6 +433,18 @@ fn which_gh() -> bool {
     std::env::var_os("PATH").is_some_and(|p| std::env::split_paths(&p).any(|d| d.join("gh.exe").is_file()))
 }
 
+/// The GitHub CLI cannot act for anyone here: not installed, or signed in to no account.
+#[derive(Debug)]
+struct GhUnusable(&'static str);
+
+impl std::fmt::Display for GhUnusable {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.0)
+    }
+}
+
+impl std::error::Error for GhUnusable {}
+
 /// Runs `gh api` and returns its output; `input` goes to its standard input.
 fn gh_api(args: &[&str], input: Option<&str>) -> Result<String> {
     use std::io::Write as _;
@@ -369,15 +456,16 @@ fn gh_api(args: &[&str], input: Option<&str>) -> Result<String> {
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()
-        .map_err(|_| anyhow!("GitHub CLI (gh) is not installed"))?;
+        .map_err(|_| GhUnusable("GitHub CLI (gh) is not installed"))?;
     if let (Some(text), Some(mut stdin)) = (input, child.stdin.take()) {
         stdin.write_all(text.as_bytes())?;
     }
     let out = child.wait_with_output()?;
     if !out.status.success() {
         let err = String::from_utf8_lossy(&out.stderr);
-        if err.contains("auth login") {
-            bail!("GitHub CLI is not signed in (run gh auth login)");
+        // Signed out, or a token GitHub no longer takes.
+        if err.contains("auth login") || err.contains("HTTP 401") {
+            return Err(GhUnusable("GitHub CLI is not signed in (run gh auth login)").into());
         }
         bail!("{}", err.trim());
     }

@@ -14,6 +14,9 @@
   import FullscreenNotice from '../components/FullscreenNotice.svelte';
   import type { OverlaySize, Settings } from '../lib/types';
   import { OVERLAY_SIZES } from '../lib/appearance.svelte';
+  import { content, loadContent } from '../lib/content.svelte';
+
+  loadContent();
 
   const s = $derived(app.settings);
 
@@ -149,11 +152,13 @@
         {@render toggleRow(t('settings.startWithWindows'), 'startWithWindows')}
       </section>
 
-      <section>
-        <h3>{t('settings.adminTitle')}</h3>
-        {@render toggleRow(t('settings.admin'), 'admin')}
-        <p class="note">{t('settings.adminNote')}</p>
-      </section>
+      {#if content.status.canEdit}
+        <section>
+          <h3>{t('settings.adminTitle')}</h3>
+          {@render toggleRow(t('settings.admin'), 'admin')}
+          <p class="note">{t('settings.adminNote')}</p>
+        </section>
+      {/if}
 
       <section>
         <h3>{t('settings.imports')}</h3>

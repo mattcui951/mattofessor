@@ -97,7 +97,9 @@ Meta and builds come from two public sources, cached locally so the app keeps wo
   in `content.json` on this repository's `content` branch. Every app checks it every 3 minutes
   (the branch's latest commit through GitHub's API, then the file at that commit) and starts from
   the copy it shipped with (`src-tauri/data/content.json`). The admin edits it in the app
-  (Settings > Admin), which publishes through the GitHub CLI (`gh`, signed in with push access).
+  (Settings > Admin), which publishes through the GitHub CLI (`gh`). Only a copy whose `gh`
+  account can push to this repository shows that section or accepts edits; at start it asks
+  GitHub (`repos/<repo>` `.permissions.push`).
 - Augment names and icons: Riot's game data via [CommunityDragon](https://communitydragon.org).
 
 Porofessor itself shows a page from its own servers (`porofessor.gg/overwolf/live...`) built on

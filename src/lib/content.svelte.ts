@@ -1,5 +1,6 @@
 import { listen } from '@tauri-apps/api/event';
 import { api } from './api';
+import { app } from './state.svelte';
 import type { Content, ContentEdit, ContentStatus } from './types';
 
 /**
@@ -8,7 +9,7 @@ import type { Content, ContentEdit, ContentStatus } from './types';
  */
 export const content = $state({
   data: { updated: '', builds: {}, itemTiers: {}, championTiers: {} } as Content,
-  status: { publish: 'done', error: '' } as ContentStatus,
+  status: { publish: 'done', error: '', canEdit: false } as ContentStatus,
   loaded: false,
 });
 
@@ -22,6 +23,11 @@ export function loadContent() {
     () => (content.loaded = false),
   );
   api.contentStatus().then((s) => (content.status = s));
+}
+
+/** Editing is on: admin mode, in the admin's copy (anyone else never sees the switch). */
+export function adminMode() {
+  return content.status.canEdit && Boolean(app.settings?.admin);
 }
 
 /** Admin: applies an edit now; it is published a few seconds later. */

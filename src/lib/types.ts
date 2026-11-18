@@ -149,7 +149,8 @@ export type LivePlayer = {
 export type InGame = { gameTime: number; mode: string; myTeam: string; players: LivePlayer[] };
 
 export type Champ = { key: string; name: string; alias: string; tags: string[] };
-export type Item = { name: string; gold: number; boots: boolean; legendary: boolean; aram: boolean };
+/** `aram`: sold in Hextech ARAM under this id; `aramLegendary`: one of its finished items. */
+export type Item = { name: string; gold: number; boots: boolean; legendary: boolean; aram: boolean; aramLegendary: boolean };
 export type MayhemBuild = { starters: number[]; order: number[]; situational: number[]; note: string; updated: string };
 export type Tier = 'S' | 'A' | 'B' | 'C' | 'D';
 /** Tier to ids, best first. */
@@ -161,7 +162,8 @@ export type ContentEdit =
   | { kind: 'build'; championId: number; build: MayhemBuild | null }
   | { kind: 'itemTiers'; tiers: Tiers }
   | { kind: 'championTiers'; class: ChampClass; tiers: Tiers };
-export type ContentStatus = { publish: 'done' | 'waiting' | 'publishing' | 'failed'; error: string };
+/** `canEdit`: this copy is the admin's (its GitHub CLI account can push to the repository). */
+export type ContentStatus = { publish: 'done' | 'waiting' | 'publishing' | 'failed'; error: string; canEdit: boolean };
 export type Spell = { key: string; name: string; cooldown: number };
 export type Rune = { id: number; name: string; icon: string };
 export type Tree = { id: number; name: string; icon: string; slots: Rune[][] };

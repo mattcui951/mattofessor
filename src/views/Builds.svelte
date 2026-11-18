@@ -3,7 +3,7 @@
   import AugmentList from '../components/AugmentList.svelte';
   import MayhemBuild from '../components/MayhemBuild.svelte';
   import MayhemEditor from '../components/MayhemEditor.svelte';
-  import { content, loadContent } from '../lib/content.svelte';
+  import { adminMode, content, loadContent } from '../lib/content.svelte';
   import Icon from '../components/Icon.svelte';
   import PublishState from '../components/PublishState.svelte';
   import Img from '../components/Img.svelte';
@@ -31,7 +31,7 @@
   let loading = $state(false);
   /** Admin: writing the selected champion's Hextech ARAM build. */
   let editing = $state(false);
-  const admin = $derived(Boolean(app.settings?.admin) && mode === 'aram');
+  const admin = $derived(adminMode() && mode === 'aram');
   loadContent();
   const written = $derived(Object.keys(content.data.builds).length);
   let error = $state<string | null>(null);

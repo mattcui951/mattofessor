@@ -1,6 +1,16 @@
 {
-  "updated": "",
+  "updated": "2026-11-18T00:15:46Z",
   "builds": {},
-  "itemTiers": {},
+  "itemTiers": {
+    "A": [
+      3036,
+      6653
+    ],
+    "S": [
+      6333,
+      6616,
+      2517
+    ]
+  },
   "championTiers": {}
 }

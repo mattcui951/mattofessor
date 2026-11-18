@@ -1,7 +1,7 @@
 # Status
 
-Updated: 2026-11-15
-Version: 1.0.9
+Updated: 2026-11-17
+Version: 1.0.10
 
 ## In progress
 
@@ -81,6 +81,24 @@ Version: 1.0.9
 
 ## Recently done
 
+- Not released yet (after 1.0.10): only the admin sees the Admin setting and the editing tools.
+  At start the app asks GitHub, through the GitHub CLI, whether its signed-in account can push to
+  the repository (`.permissions.push`). No `gh`, signed out (or a token GitHub refuses) or no
+  push access: no Admin section in Settings, tier lists and builds are view-only and
+  `edit_content` is refused, even with `admin: true` in settings.json. GitHub unreachable: asks
+  again every 3 minutes. Verified in the dev app as the admin and with `gh` signed out
+  (`GH_CONFIG_DIR` pointing at an empty folder). Not tested: a signed-in account without push
+  access (needs a second GitHub account; the same `false` answer path).
+- Not released yet: tier lists in Chinese use the usual Chinese names (夯, 顶级, 人上人, NPC, 拉完了; keys
+  1-5 as well as S-D); English keeps S-D. The item pool now matches what Hextech ARAM players
+  finish: Data Dragon's `aramLegendary` (sold on map 12 under a base or 12xxxx id, 2200+ gold,
+  nothing sold after it) gives exactly AramHex's 108 items, including the ARAM-only ones the old
+  Rift-based rule dropped (Rite of Ruin, Sword of Blossoming Dawn, Atma's Reckoning, its Hubris,
+  Spectral Cutlass, Whispering Circlet). Also in the pool: the four Guardian items and the small
+  anti-heal items (Bramble Vest, Oblivion Orb, Executioner's Calling); a search finds any item
+  Hextech ARAM sells. `aram` now excludes other modes' twins (22xxxx, 77xxxx), so the build
+  editor needs no id cut-off. The board no longer shrinks its last row when the pool is long.
+  Data Dragon cache renamed `-4.json`.
 - 1.0.10: the admin's hand-written content, published to every user.
   - Content (`content.rs`): Hextech ARAM builds plus item and champion tier lists in one
     `content.json` on the repo's `content` branch. Apps check every 3 minutes (latest commit via

@@ -1,28 +1,30 @@
 <script lang="ts">
   /**
    * The admin's Hextech ARAM tier lists: items, and champions by class. Everyone sees them; in
-   * admin mode icons are dragged between tiers (or clicked, then S/A/B/C/D pressed).
+   * admin mode icons are dragged between tiers (or clicked, then S/A/B/C/D or 1-5 pressed).
    */
   import Icon from '../components/Icon.svelte';
   import Img from '../components/Img.svelte';
   import PublishState from '../components/PublishState.svelte';
   import Segmented from '../components/Segmented.svelte';
   import { api } from '../lib/api';
-  import { content, editContent, loadContent } from '../lib/content.svelte';
+  import { adminMode, content, editContent, loadContent } from '../lib/content.svelte';
   import { champIcon, champName, dd, itemIcon, itemName } from '../lib/dd.svelte';
   import { t } from '../lib/i18n.svelte';
   import { bracket, pct1 } from '../lib/meta.svelte';
-  import { app, errorText, go, toast } from '../lib/state.svelte';
+  import { errorText, go, toast } from '../lib/state.svelte';
   import type { ChampClass, Tier, Tiers } from '../lib/types';
 
   const TIERS: Tier[] = ['S', 'A', 'B', 'C', 'D'];
   const CLASSES: ChampClass[] = ['Fighter', 'Assassin', 'Mage', 'Tank', 'Support', 'Marksman'];
+  /** Cheaper items worth ranking too: the Guardian starters and the small anti-heal items. */
+  const EXTRA_ITEMS = [2051, 3112, 3177, 3184, 3076, 3916, 3123];
 
   let view = $state<'items' | 'champions'>('items');
   let cls = $state<ChampClass>('Fighter');
   let names = $state(false);
   let query = $state('');
-  const admin = $derived(Boolean(app.settings?.admin));
+  const admin = $derived(adminMode());
   loadContent();
 
   // Win rates for the tooltips.
@@ -35,11 +37,15 @@
   const placed = $derived(new Set(TIERS.flatMap((tier) => board[tier] ?? [])));
   const empty = $derived(placed.size === 0);
 
-  /** What can be ranked (finished items and boots sold in ARAM, or the class's champions), highest win rate first. */
+  /**
+   * What can be ranked, highest win rate first: Hextech ARAM's finished items, boots and
+   * `EXTRA_ITEMS` (a search finds any item it sells), or the class's champions.
+   */
   const pool = $derived.by(() => {
+    const searching = query.trim() !== '';
     const ids =
       view === 'items'
-        ? Object.entries(dd.data?.items ?? {}).filter(([, it]) => it.aram && (it.legendary || it.boots))
+        ? Object.entries(dd.data?.items ?? {}).filter(([id, it]) => it.aram && (searching || it.aramLegendary || it.boots || EXTRA_ITEMS.includes(Number(id))))
         : Object.entries(dd.data?.champions ?? {}).filter(([, c]) => c.tags.includes(cls));
     const win = view === 'items' ? itemWin : champWin;
     return ids.map(([id]) => Number(id)).sort((a, b) => (win[b] ?? 0) - (win[a] ?? 0) || label(a).localeCompare(label(b)));
@@ -48,6 +54,8 @@
     const q = query.trim().toLowerCase();
     return pool.filter((id) => !placed.has(id) && (!q || label(id).toLowerCase().includes(q)));
   });
+  /** A tier's name: S to D, or the Chinese tier list's own names. */
+  const tierName = (tier: Tier) => t(`tiers.${tier}`);
 
   function label(id: number) {
     return view === 'items' ? itemName(id) : champName(id);
@@ -134,7 +142,8 @@
       return;
     }
     if (!admin || selected === null || (e.target as HTMLElement).closest('input')) return;
-    const tier = e.key.toUpperCase() as Tier;
+    // S to D, or 1 to 5 (best first).
+    const tier = (TIERS[Number(e.key) - 1] ?? e.key.toUpperCase()) as Tier;
     if (TIERS.includes(tier)) place(selected, tier);
     else if (e.key === 'Delete' || e.key === 'Backspace') place(selected, 'pool');
     else if (e.key !== 'Escape') return;
@@ -212,7 +221,7 @@
           {@const before = drop?.to === tier ? ids.filter((x) => !(drag?.moving && x === drag.id))[drop.index] : undefined}
           {#if admin || ids.length}
             <div class="row" class:target={drop?.to === tier} data-to={tier} role="presentation" onclick={(e) => rowClick(e, tier)}>
-              <div class="label t{tier}">{tier}</div>
+              <div class="label t{tier}" class:word={tierName(tier).length > 1}>{tierName(tier)}</div>
               <div class="tiles" class:names>
                 {#each ids as id (id)}{@render tile(id, before === id)}{/each}
                 {#if drop?.to === tier && before === undefined}<span class="end"></span>{/if}
@@ -229,7 +238,7 @@
             <span class="hint">{t('tiers.hint')}</span>
             <span class="grow"></span>
             <Icon name="search" size={15} />
-            <input class="field" bind:value={query} placeholder={t('tiers.find')} spellcheck="false" />
+            <input class="field" bind:value={query} placeholder={t(view === 'items' ? 'tiers.findItems' : 'tiers.find')} spellcheck="false" />
           </div>
           <div class="tiles" class:names>
             {#each unranked as id (id)}{@render tile(id)}{/each}
@@ -281,6 +290,8 @@
     gap: 14px;
   }
   .board {
+    /* Full height: the page scrolls rather than squeezing the rows. */
+    flex-shrink: 0;
     display: grid;
     border: 1px solid var(--seam);
     border-radius: var(--r-lg);
@@ -304,6 +315,13 @@
     place-items: center;
     font: 700 26px var(--font-score);
     color: #15171c;
+    text-align: center;
+  }
+  /* A name rather than a letter (the Chinese tiers): the interface font, wrapping in two lines. */
+  .label.word {
+    padding: 0 8px;
+    font: 800 19px/1.15 var(--font-ui);
+    word-break: keep-all;
   }
   /* The usual tier list colors, the same in every theme. */
   .tS {
