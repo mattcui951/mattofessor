@@ -81,7 +81,7 @@ Version: 1.0.9
 
 ## Recently done
 
-- Not released yet (after 1.0.9): the admin's hand-written content, published to every user.
+- 1.0.10: the admin's hand-written content, published to every user.
   - Content (`content.rs`): Hextech ARAM builds plus item and champion tier lists in one
     `content.json` on the repo's `content` branch. Apps check every 3 minutes (latest commit via
     the GitHub API, 60 calls an hour per address, else the raw branch file, cached up to 5 min).
