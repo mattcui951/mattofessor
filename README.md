@@ -274,6 +274,12 @@ npm run tauri build
 
 Produces an NSIS installer that installs for all users under `C:\Program Files\Mattofessor`.
 
+## License
+
+The code is under the [MIT license](LICENSE). The data it shows keeps its own license (see
+"Where the data comes from"): the AramHex numbers CC BY-NC 4.0, the League of Legends Wiki lines
+CC BY-SA 3.0, Riot's game data and patch notes Riot's.
+
 ## Legal
 
 Mattofessor isn't endorsed by Riot Games and doesn't reflect the views or opinions of Riot Games
