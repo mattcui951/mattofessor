@@ -9,19 +9,19 @@
   import Segmented from '../components/Segmented.svelte';
   import { api } from '../lib/api';
   import { adminMode, content, editContent, loadContent } from '../lib/content.svelte';
-  import { champIcon, champName, dd, itemIcon, itemName } from '../lib/dd.svelte';
+  import { champIcon, champName, dd, ITEM_CLASSES, itemClasses, itemIcon, itemName, OTHER_ITEMS } from '../lib/dd.svelte';
   import { t } from '../lib/i18n.svelte';
   import { bracket, pct1 } from '../lib/meta.svelte';
   import { errorText, go, toast } from '../lib/state.svelte';
-  import type { ChampClass, Tier, Tiers } from '../lib/types';
+  import type { ChampClass, ItemClass, Tier, Tiers } from '../lib/types';
 
   const TIERS: Tier[] = ['S', 'A', 'B', 'C', 'D'];
   const CLASSES: ChampClass[] = ['Fighter', 'Assassin', 'Mage', 'Tank', 'Support', 'Marksman'];
-  /** Cheaper items worth ranking too: the Guardian starters and the small anti-heal items. */
-  const EXTRA_ITEMS = [2051, 3112, 3177, 3184, 3076, 3916, 3123];
 
   let view = $state<'items' | 'champions'>('items');
   let cls = $state<ChampClass>('Fighter');
+  /** Items: the one ranking, all of it or one shop role's items in it. */
+  let itemCls = $state<'all' | ItemClass>('all');
   let names = $state(false);
   let query = $state('');
   const admin = $derived(adminMode());
@@ -35,20 +35,25 @@
 
   const board = $derived<Tiers>((view === 'items' ? content.data.itemTiers : content.data.championTiers[cls]) ?? {});
   const placed = $derived(new Set(TIERS.flatMap((tier) => board[tier] ?? [])));
-  const empty = $derived(placed.size === 0);
+  /** Whether an id shows in the item role picked (champions: always). */
+  const shown = (id: number) => view === 'champions' || itemCls === 'all' || itemClasses(id).includes(itemCls);
+  const empty = $derived(![...placed].some(shown));
 
   /**
    * What can be ranked, highest win rate first: Hextech ARAM's finished items, boots and
-   * `EXTRA_ITEMS` (a search finds any item it sells), or the class's champions.
+   * `OTHER_ITEMS` (a search finds any item it sells), or the class's champions.
    */
   const pool = $derived.by(() => {
     const searching = query.trim() !== '';
     const ids =
       view === 'items'
-        ? Object.entries(dd.data?.items ?? {}).filter(([id, it]) => it.aram && (searching || it.aramLegendary || it.boots || EXTRA_ITEMS.includes(Number(id))))
+        ? Object.entries(dd.data?.items ?? {}).filter(([id, it]) => (it.aram && (searching || it.aramLegendary || it.boots)) || OTHER_ITEMS.includes(Number(id)))
         : Object.entries(dd.data?.champions ?? {}).filter(([, c]) => c.tags.includes(cls));
     const win = view === 'items' ? itemWin : champWin;
-    return ids.map(([id]) => Number(id)).sort((a, b) => (win[b] ?? 0) - (win[a] ?? 0) || label(a).localeCompare(label(b)));
+    return ids
+      .map(([id]) => Number(id))
+      .filter(shown)
+      .sort((a, b) => (win[b] ?? 0) - (win[a] ?? 0) || label(a).localeCompare(label(b)));
   });
   const unranked = $derived.by(() => {
     const q = query.trim().toLowerCase();
@@ -80,11 +85,19 @@
     }
   }
 
-  /** Moves an id into a tier at an index (`pool` takes it out of the list). */
+  /**
+   * Moves an id into a tier (`pool` takes it out of the list), before the `index`th icon shown
+   * there: with one item role picked, its place among the others is kept in the whole ranking.
+   */
   function place(id: number, to: Tier | 'pool', index = Infinity) {
     const next: Tiers = {};
     for (const tier of TIERS) next[tier] = (board[tier] ?? []).filter((x) => x !== id);
-    if (to !== 'pool') next[to]!.splice(Math.min(index, next[to]!.length), 0, id);
+    if (to !== 'pool') {
+      const list = next[to]!;
+      const visible = list.filter(shown);
+      const at = index < visible.length ? list.indexOf(visible[index]!) : visible.length ? list.indexOf(visible[visible.length - 1]!) + 1 : list.length;
+      list.splice(at, 0, id);
+    }
     save(next);
   }
 
@@ -165,6 +178,7 @@
   $effect(() => {
     view;
     cls;
+    itemCls;
     selected = null;
     query = '';
   });
@@ -204,6 +218,13 @@
     />
     {#if view === 'champions'}
       <Segmented label={t('meta.class')} value={cls} options={CLASSES.map((c) => ({ value: c, label: t(`class.${c}`) }))} onchange={(v) => (cls = v as ChampClass)} />
+    {:else}
+      <Segmented
+        label={t('meta.class')}
+        value={itemCls}
+        options={(['all', ...ITEM_CLASSES] as const).map((c) => ({ value: c, label: c === 'all' ? t('meta.allClasses') : t(`itemClass.${c}`) }))}
+        onchange={(v) => (itemCls = v as typeof itemCls)}
+      />
     {/if}
     <span class="grow"></span>
     {#if admin}<PublishState />{:else if updated}<span class="dim">{t('tiers.updated', updated)}</span>{/if}
@@ -216,7 +237,7 @@
     {:else}
       <div class="board" class:editing={admin}>
         {#each TIERS as tier (tier)}
-          {@const ids = board[tier] ?? []}
+          {@const ids = (board[tier] ?? []).filter(shown)}
           <!-- The icon a dragged one would land before (none: after the last). -->
           {@const before = drop?.to === tier ? ids.filter((x) => !(drag?.moving && x === drag.id))[drop.index] : undefined}
           {#if admin || ids.length}

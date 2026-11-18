@@ -150,7 +150,9 @@ export type InGame = { gameTime: number; mode: string; myTeam: string; players: 
 
 export type Champ = { key: string; name: string; alias: string; tags: string[] };
 /** `aram`: sold in Hextech ARAM under this id; `aramLegendary`: one of its finished items. */
-export type Item = { name: string; gold: number; boots: boolean; legendary: boolean; aram: boolean; aramLegendary: boolean };
+export type Item = { name: string; gold: number; boots: boolean; legendary: boolean; aram: boolean; aramLegendary: boolean; classes: string[] };
+/** The shop's item roles, and Other for everything else ranked. */
+export type ItemClass = 'Fighter' | 'Assassin' | 'Mage' | 'Tank' | 'Support' | 'Marksman' | 'Other';
 export type MayhemBuild = { starters: number[]; order: number[]; situational: number[]; note: string; updated: string };
 export type Tier = 'S' | 'A' | 'B' | 'C' | 'D';
 /** Tier to ids, best first. */

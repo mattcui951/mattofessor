@@ -1,5 +1,7 @@
 //! Data Dragon: Riot's public CDN of champion, item, summoner spell and rune data.
 //! A slim combined copy per patch and language is cached in %APPDATA%\Mattofessor\dd.
+//! Item roles (the shop's Fighter, Marksman, ... filter) come from CommunityDragon's copy of the
+//! game data, which Data Dragon leaves out.
 
 use anyhow::{anyhow, Context as _, Result};
 use parking_lot::Mutex;
@@ -35,6 +37,77 @@ pub struct Item {
     /// A finished item in Hextech ARAM: exactly what its players finish (AramHex's item data).
     #[serde(default)]
     pub aram_legendary: bool,
+    /// The shop's roles for it (`ROLES`), none for many components and consumables.
+    #[serde(default)]
+    pub classes: Vec<String>,
+}
+
+/// The shop's item roles: bits of the game data's `mItemAttributes`.
+const ROLES: [(u64, &str); 6] = [(1, "Fighter"), (2, "Marksman"), (4, "Assassin"), (8, "Tank"), (16, "Mage"), (32, "Support")];
+
+/// Item id to its roles, from CommunityDragon's `items.cdtb.bin.json`.
+fn item_roles(bin: &Value) -> Roles {
+    let Some(m) = bin.as_object() else { return HashMap::new() };
+    m.values()
+        .filter_map(|v| {
+            let id = v.get("itemID")?.as_i64()? as i32;
+            let bits: u64 = v.get("mItemAttributes")?.as_array()?.iter().filter_map(Value::as_u64).fold(0, |a, b| a | b);
+            let roles: Vec<String> = ROLES.iter().filter(|(bit, _)| bits & bit != 0).map(|(_, r)| r.to_string()).collect();
+            (!roles.is_empty()).then_some((id, roles))
+        })
+        .collect()
+}
+
+/// Item id to its roles.
+type Roles = HashMap<i32, Vec<String>>;
+
+static ROLES_CACHE: tokio::sync::Mutex<Option<(String, Arc<Roles>)>> = tokio::sync::Mutex::const_new(None);
+
+/// The patch's item roles, from memory, disk or CommunityDragon (its patch folder, else
+/// "latest" while a new patch is not up yet). The game data is about 16 MB, so only the roles
+/// are kept, once per patch for both languages.
+async fn roles(version: &str) -> Result<Arc<Roles>> {
+    let mut cache = ROLES_CACHE.lock().await;
+    if let Some((v, r)) = cache.as_ref().filter(|(v, _)| v == version) {
+        log::debug!("item roles for {v} from memory");
+        return Ok(r.clone());
+    }
+    let file = crate::paths::config_dir().join("dd").join(format!("{version}-roles.json"));
+    let roles = match std::fs::read_to_string(&file).ok().and_then(|t| serde_json::from_str::<Roles>(&t).ok()) {
+        Some(r) => r,
+        None => {
+            let patch = version.split('.').take(2).collect::<Vec<_>>().join(".");
+            let mut last = anyhow!("no game data");
+            let mut found = None;
+            for folder in [patch.as_str(), "latest"] {
+                let url = format!("https://raw.communitydragon.org/{folder}/game/items.cdtb.bin.json");
+                let got = async {
+                    let r = crate::net::http().get(&url).timeout(Duration::from_secs(120)).send().await.with_context(|| format!("GET {url}"))?;
+                    if !r.status().is_success() {
+                        return Err(anyhow!("{url}: {}", r.status()));
+                    }
+                    Ok::<_, anyhow::Error>(item_roles(&r.json::<Value>().await?))
+                }
+                .await;
+                match got {
+                    Ok(r) if !r.is_empty() => {
+                        found = Some(r);
+                        break;
+                    }
+                    Ok(_) => last = anyhow!("{url}: no item roles"),
+                    Err(e) => last = e,
+                }
+            }
+            let r = found.ok_or(last)?;
+            if let Ok(t) = serde_json::to_string(&r) {
+                let _ = std::fs::write(&file, t);
+            }
+            r
+        }
+    };
+    let roles = Arc::new(roles);
+    *cache = Some((version.to_string(), roles.clone()));
+    Ok(roles)
 }
 
 /// Ids Hextech ARAM games record: normal ids, and its own items (12xxxx, such as Rite of Ruin and
@@ -155,7 +228,7 @@ fn parse(version: &str, locale: &str, champs: &Value, items: &Value, spells: &Va
                 a.iter().filter_map(Value::as_str).all(|i| m.get(i).and_then(|x| x.pointer("/gold/purchasable")).and_then(Value::as_bool) != Some(true))
             });
             let aram_legendary = aram && upgrades_only && gold >= 2200 && !consumable && !boots;
-            item_map.insert(id, Item { name: s(it, "name"), gold, boots, legendary, aram, aram_legendary });
+            item_map.insert(id, Item { name: s(it, "name"), gold, boots, legendary, aram, aram_legendary, classes: Vec::new() });
         }
     }
     let mut spell_map = BTreeMap::new();
@@ -219,17 +292,26 @@ pub async fn get(lang: &str) -> Result<Arc<StaticData>> {
         return Ok(d);
     }
     let dir = crate::paths::config_dir().join("dd");
-    let file = dir.join(format!("{version}-{locale}-4.json"));
+    let file = dir.join(format!("{version}-{locale}-5.json"));
     let data = match std::fs::read_to_string(&file).ok().and_then(|t| serde_json::from_str::<StaticData>(&t).ok()) {
         Some(d) => d,
         None => {
             let base = format!("{CDN}/cdn/{version}/data/{locale}");
             let urls = ["champion", "item", "summoner", "runesReforged"].map(|f| format!("{base}/{f}.json"));
-            let (c, i, s, r) = tokio::try_join!(fetch_json(&urls[0]), fetch_json(&urls[1]), fetch_json(&urls[2]), fetch_json(&urls[3]))?;
-            let d = parse(&version, locale, &c, &i, &s, &r);
             let _ = std::fs::create_dir_all(&dir);
-            if let Ok(t) = serde_json::to_string(&d) {
-                let _ = std::fs::write(&file, t);
+            let (c, i, s, r) = tokio::try_join!(fetch_json(&urls[0]), fetch_json(&urls[1]), fetch_json(&urls[2]), fetch_json(&urls[3]))?;
+            let mut d = parse(&version, locale, &c, &i, &s, &r);
+            match roles(&version).await {
+                Ok(roles) => {
+                    for (id, item) in d.items.iter_mut() {
+                        item.classes = roles.get(id).cloned().unwrap_or_default();
+                    }
+                    if let Ok(t) = serde_json::to_string(&d) {
+                        let _ = std::fs::write(&file, t);
+                    }
+                }
+                // Used without roles this time and not kept, so the next start tries again.
+                Err(e) => log::warn!("item roles: {e:#}"),
             }
             d
         }
@@ -245,6 +327,20 @@ pub async fn get(lang: &str) -> Result<Arc<StaticData>> {
 mod tests {
     use super::*;
     use serde_json::json;
+
+    #[test]
+    fn reads_item_roles() {
+        let bin = json!({
+            "Items/3075": {"itemID": 3075, "mItemAttributes": [8, 32]},
+            "Items/3031": {"itemID": 3031, "mItemAttributes": [2]},
+            "Items/1001": {"itemID": 1001},
+            "Items/Spells/X": {"__type": "SpellObject"}
+        });
+        let r = item_roles(&bin);
+        assert_eq!(r[&3075], ["Tank", "Support"]);
+        assert_eq!(r[&3031], ["Marksman"]);
+        assert!(!r.contains_key(&1001));
+    }
 
     #[test]
     fn classifies_items() {

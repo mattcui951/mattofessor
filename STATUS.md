@@ -81,6 +81,18 @@ Version: 1.0.11
 
 ## Recently done
 
+- Not released yet (after 1.0.11): items by class. Every item gets the shop's roles from
+  CommunityDragon's game data (`dd.rs` `roles`, cached as `dd/<patch>-roles.json`; Data Dragon
+  cache renamed `-5.json`, not written when the roles fail so the next start retries). Tier list
+  items have a class bar (all, Fighter, Assassin, Mage, Tank, Support, Marksman, Other) over the
+  one ranking; editing in a class keeps the item's place among the hidden ones (verified: drag
+  and key 1 in Fighter). Other: `OTHER_ITEMS` (Guardian items, small anti-heal items, the
+  augment-only Void Immolation, Ultra Hydra, Wooglet's Witchcap, Golden Spatula), components and
+  roleless items. The Meta item win rates have the same filter (no Other: all finished items have
+  a role). The page and its rail button say "Hextech ARAM tier lists" (海克斯大乱斗梯队榜).
+  Published content: champion tiers for every class ranked by Hextech ARAM win rate (all players,
+  16.22): 53.5%+ S, 51.5%+ A, 50%+ B, 48%+ C, below D. The user's "2 Sunfire" item was taken to be
+  Void Immolation (223069); unconfirmed.
 - 1.0.11: only the admin sees the Admin setting and the editing tools.
   At start the app asks GitHub, through the GitHub CLI, whether its signed-in account can push to
   the repository (`.permissions.push`). No `gh`, signed out (or a token GitHub refuses) or no

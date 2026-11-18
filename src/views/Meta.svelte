@@ -4,12 +4,12 @@
   import Segmented from '../components/Segmented.svelte';
   import { api } from '../lib/api';
   import { buildIndex, searchChamps } from '../lib/champSearch';
-  import { champIcon, champName, dd, itemIcon, itemName, loadOtherNames, otherNames } from '../lib/dd.svelte';
+  import { champIcon, champName, dd, ITEM_CLASSES, itemClasses, itemIcon, itemName, loadOtherNames, otherNames } from '../lib/dd.svelte';
   import { roleName } from '../lib/format';
   import { t } from '../lib/i18n.svelte';
   import { ARAM_CREDIT, BRACKETS, aramTier, augment, bracket, delta, loadAugments, pct1, riftTier, setBracket } from '../lib/meta.svelte';
   import { errorText, go } from '../lib/state.svelte';
-  import type { AramOverview, BuildMode, ChampClass, ItemOverview, ItemRow, RiftTiers } from '../lib/types';
+  import type { AramOverview, BuildMode, ChampClass, ItemClass, ItemOverview, ItemRow, RiftTiers } from '../lib/types';
 
   let { mode: startMode }: { mode?: BuildMode } = $props();
 
@@ -20,6 +20,7 @@
   let lane = $state('all');
   let aramView = $state<'champions' | 'augments' | 'items'>('champions');
   let cls = $state<'all' | ChampClass>('all');
+  let itemCls = $state<'all' | ItemClass>('all');
   let rarity = $state<'all' | 'silver' | 'gold' | 'prismatic'>('all');
   let query = $state('');
   let sortKey = $state('');
@@ -98,7 +99,7 @@
 
   const itemRows = $derived.by(() => {
     const q = query.trim().toLowerCase();
-    const rows = (items?.items ?? []).filter((r) => !q || itemLabel(r).toLowerCase().includes(q));
+    const rows = (items?.items ?? []).filter((r) => (!q || itemLabel(r).toLowerCase().includes(q)) && (itemCls === 'all' || itemClasses(r.id).includes(itemCls)));
     const k: Record<string, (r: ItemRow) => number> = { win: (r) => r.winRate, delta: (r) => r.delta, pick: (r) => r.pickRate, games: (r) => r.games };
     return sorted(rows, k[sortKey] ?? k.win, (a, b) => b.winRate - a.winRate);
   });
@@ -155,6 +156,14 @@
       <Segmented label={t('meta.bracket')} value={bracket()} options={BRACKETS.map((b) => ({ value: b, label: t(`bracket.${b}`) }))} onchange={(v) => setBracket(v as typeof BRACKETS[number])} />
       {#if aramView === 'champions'}
         <Segmented label={t('meta.class')} value={cls} options={CLASSES.map((c) => ({ value: c, label: c === 'all' ? t('meta.allClasses') : t(`class.${c}`) }))} onchange={(v) => (cls = v as typeof cls)} />
+      {/if}
+      {#if aramView === 'items'}
+        <Segmented
+          label={t('meta.class')}
+          value={itemCls}
+          options={(['all', ...ITEM_CLASSES.filter((c) => c !== 'Other')] as const).map((c) => ({ value: c, label: c === 'all' ? t('meta.allClasses') : t(`itemClass.${c}`) }))}
+          onchange={(v) => (itemCls = v as typeof itemCls)}
+        />
       {/if}
       {#if aramView === 'augments'}
         <Segmented

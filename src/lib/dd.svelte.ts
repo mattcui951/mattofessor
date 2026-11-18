@@ -3,7 +3,7 @@ import { api } from './api';
 import { appearance } from './appearance.svelte';
 import { i18n, t } from './i18n.svelte';
 import { readableOn } from './themes';
-import type { Champ, Rank, StaticData, TierDiv } from './types';
+import type { Champ, ItemClass, Rank, StaticData, TierDiv } from './types';
 
 const CDN = 'https://ddragon.leagueoflegends.com/cdn';
 
@@ -49,6 +49,21 @@ export function champIcon(id: number): string | null {
 
 export function champIconByKey(key: string): string | null {
   return dd.data && key ? `${CDN}/${dd.data.version}/img/champion/${key}.png` : null;
+}
+
+export const ITEM_CLASSES: ItemClass[] = ['Fighter', 'Assassin', 'Mage', 'Tank', 'Support', 'Marksman', 'Other'];
+/**
+ * Items ranked under Other whatever their shop roles: the Guardian starters, the small anti-heal
+ * items, and the items only Hextech ARAM augments give (Void Immolation, Ultra Hydra, Wooglet's
+ * Witchcap, Golden Spatula).
+ */
+export const OTHER_ITEMS = [2051, 3112, 3177, 3184, 3076, 3916, 3123, 223069, 226668, 228002, 994403];
+
+/** An item's shop roles; Other for `OTHER_ITEMS`, components and items without a role. */
+export function itemClasses(id: number): ItemClass[] {
+  const it = dd.data?.items[String(id)];
+  if (!it || OTHER_ITEMS.includes(id) || !(it.aramLegendary || it.boots) || !it.classes?.length) return ['Other'];
+  return it.classes as ItemClass[];
 }
 
 export function itemIcon(id: number): string | null {

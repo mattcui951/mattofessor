@@ -101,6 +101,8 @@ Meta and builds come from two public sources, cached locally so the app keeps wo
   account can push to this repository shows that section or accepts edits; at start it asks
   GitHub (`repos/<repo>` `.permissions.push`).
 - Augment names and icons: Riot's game data via [CommunityDragon](https://communitydragon.org).
+- Item roles (the shop's Fighter, Marksman, ... filter, `mItemAttributes`): CommunityDragon's
+  `items.cdtb.bin.json` for the patch (about 16 MB, read once per patch; only the roles are kept).
 
 Porofessor itself shows a page from its own servers (`porofessor.gg/overwolf/live...`) built on
 a Riot production key; those endpoints are private, so this app does not use them.
