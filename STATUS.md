@@ -1,7 +1,7 @@
 # Status
 
 Updated: 2026-11-17
-Version: 1.0.11
+Version: 1.0.12
 
 ## In progress
 
@@ -81,7 +81,7 @@ Version: 1.0.11
 
 ## Recently done
 
-- Not released yet (after 1.0.11): items by class. Every item gets the shop's roles from
+- 1.0.12: items by class. Every item gets the shop's roles from
   CommunityDragon's game data (`dd.rs` `roles`, cached as `dd/<patch>-roles.json`; Data Dragon
   cache renamed `-5.json`, not written when the roles fail so the next start retries). Tier list
   items have a class bar (all, Fighter, Assassin, Mage, Tank, Support, Marksman, Other) over the
