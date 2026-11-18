@@ -1,7 +1,7 @@
 # Status
 
-Updated: 2026-11-17
-Version: 1.0.12
+Updated: 2026-11-18
+Version: 1.0.13
 
 ## In progress
 
@@ -81,7 +81,7 @@ Version: 1.0.12
 
 ## Recently done
 
-- Not released yet (after 1.0.12): Hextech ARAM guide, champion adjustments and patch notes, kept
+- 1.0.13: Hextech ARAM guide, champion adjustments and patch notes, kept
   current by a scheduled job (design reviewed in `.lavish/mayhem-guide-design.html`; the user
   picked the recommended options: two rail pages, ability change lines in English with Chinese
   names, structured patch notes plus a link).
@@ -108,7 +108,7 @@ Version: 1.0.12
     ANTHROPIC_API_KEY secret (Claude Opus 5.5, structured output, refusal fallback; untested,
     no key here) or a hand translation. Verified in the dev app: no English words in Chinese
     pages and no Chinese in English pages (DOM scan).
-- Not released yet (after 1.0.12): champion tiers per skill bracket (娱乐, 中分, 前 5%; AramHex
+- 1.0.13: champion tiers per skill bracket (娱乐, 中分, 前 5%; AramHex
   bands, no all-players list). Content key `championTiersByBracket` (bracket to class to tiers);
   the old `championTiers` (all players) is passed on untouched for apps before 1.0.13 and can be
   dropped once they are gone. The tier page's champion view has a bracket picker shared with the
