@@ -1,12 +1,14 @@
 pub mod analysis;
 pub mod aramhex;
 pub mod augments;
+pub mod branch;
 pub mod builds;
 pub mod capture;
 pub mod cards;
 mod commands;
 pub mod content;
 pub mod core;
+pub mod data;
 #[cfg(debug_assertions)]
 mod dev;
 pub mod dd;
@@ -142,6 +144,7 @@ pub fn run() {
             game::spawn(core.clone());
             aramhex::spawn();
             content::spawn();
+            data::spawn();
             cards::spawn(core.clone());
             update::spawn(core.clone());
             if !started_minimized {
@@ -178,6 +181,7 @@ pub fn run() {
             commands::open_build,
             commands::content,
             commands::content_status,
+            commands::game_data,
             commands::edit_content,
             commands::publish_content,
             commands::aram_items,

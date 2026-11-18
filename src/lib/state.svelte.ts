@@ -11,6 +11,8 @@ export type Route =
   | { name: 'builds'; championId?: number; role?: string; mode?: BuildMode }
   | { name: 'meta'; mode?: BuildMode }
   | { name: 'tiers' }
+  | { name: 'guide' }
+  | { name: 'patches' }
   | { name: 'settings' }
   | { name: 'appearance' }
   | { name: 'riotGuide' };
@@ -83,6 +85,8 @@ export function routeFrom(path: string): Route {
   }
   if (name === 'meta') return { name: 'meta' };
   if (name === 'tiers') return { name: 'tiers' };
+  if (name === 'guide') return { name: 'guide' };
+  if (name === 'patches') return { name: 'patches' };
   if (name === 'settings') return { name: 'settings' };
   if (name === 'appearance') return { name: 'appearance' };
   if (name === 'riot-guide') return { name: 'riotGuide' };

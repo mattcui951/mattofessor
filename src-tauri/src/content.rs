@@ -18,7 +18,7 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::Duration;
 use tauri::Emitter;
 
-const REPO: &str = "mattcui951/mattofessor";
+use crate::branch::REPO;
 const FILE: &str = "content.json";
 const CHECK_EVERY: Duration = Duration::from_secs(3 * 60);
 /// Edits close together go out as one publish.
@@ -26,6 +26,8 @@ const PUBLISH_AFTER: Duration = Duration::from_secs(4);
 pub const TIERS: [&str; 5] = ["S", "A", "B", "C", "D"];
 /// Champion classes: Data Dragon's champion tags.
 pub const CLASSES: [&str; 6] = ["Fighter", "Assassin", "Mage", "Tank", "Support", "Marksman"];
+/// Skill brackets with their own champion tiers: AramHex's 娱乐, 中分 and 前 5%.
+pub const BRACKETS: [&str; 3] = ["casual", "mid", "high"];
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase", default)]
@@ -51,8 +53,12 @@ pub struct Content {
     /// Hextech ARAM builds by champion id.
     pub builds: BTreeMap<i32, MayhemBuild>,
     pub item_tiers: Tiers,
-    /// Class (one of `CLASSES`) to its tiers.
-    pub champion_tiers: BTreeMap<String, Tiers>,
+    /// Bracket (one of `BRACKETS`) to class (one of `CLASSES`) to its tiers.
+    #[serde(rename = "championTiersByBracket")]
+    pub champion_tiers: BTreeMap<String, BTreeMap<String, Tiers>>,
+    /// What apps before 1.0.13 read: class to tiers for all players. Passed on unchanged.
+    #[serde(rename = "championTiers", skip_serializing_if = "serde_json::Value::is_null")]
+    pub old_champion_tiers: serde_json::Value,
 }
 
 /// One admin edit.
@@ -62,7 +68,7 @@ pub enum Edit {
     /// `build: None` removes the champion's build.
     Build { champion_id: i32, build: Option<MayhemBuild> },
     ItemTiers { tiers: Tiers },
-    ChampionTiers { class: String, tiers: Tiers },
+    ChampionTiers { bracket: String, class: String, tiers: Tiers },
 }
 
 /// Keeps known tiers only, each id once (the first place wins), and drops empty tiers.
@@ -90,15 +96,22 @@ impl Content {
                 }
             },
             Edit::ItemTiers { tiers } => self.item_tiers = clean(tiers),
-            Edit::ChampionTiers { class, tiers } => {
+            Edit::ChampionTiers { bracket, class, tiers } => {
+                if !BRACKETS.contains(&bracket.as_str()) {
+                    bail!("unknown bracket {bracket}");
+                }
                 if !CLASSES.contains(&class.as_str()) {
                     bail!("unknown class {class}");
                 }
                 let tiers = clean(tiers);
+                let classes = self.champion_tiers.entry(bracket.clone()).or_default();
                 if tiers.is_empty() {
-                    self.champion_tiers.remove(&class);
+                    classes.remove(&class);
                 } else {
-                    self.champion_tiers.insert(class, tiers);
+                    classes.insert(class, tiers);
+                }
+                if classes.is_empty() {
+                    self.champion_tiers.remove(&bracket);
                 }
             }
         }
@@ -172,51 +185,12 @@ fn changed(c: Content) {
 // ---------------------------------------------------------------------------------------------
 // Following the published copy
 
-/// The branch's latest commit, from GitHub's API (cached up to a minute, the raw file up to 5).
-async fn latest_commit() -> Result<String> {
-    let url = format!("https://api.github.com/repos/{REPO}/commits/{}", branch());
-    let r = crate::net::http()
-        .get(&url)
-        .timeout(Duration::from_secs(30))
-        .header("Accept", "application/vnd.github.sha")
-        .header("User-Agent", "Mattofessor")
-        .send()
-        .await
-        .context("GitHub not reachable")?;
-    if !r.status().is_success() {
-        bail!("GitHub API answered {}", r.status());
-    }
-    let sha = r.text().await?.trim().to_string();
-    if sha.len() != 40 {
-        bail!("GitHub gave no commit");
-    }
-    Ok(sha)
-}
-
-async fn download(url: &str) -> Result<Content> {
-    let r = crate::net::http().get(url).timeout(Duration::from_secs(30)).send().await.context("GitHub not reachable")?;
-    if !r.status().is_success() {
-        bail!("GitHub answered {}", r.status());
-    }
-    serde_json::from_slice(&r.bytes().await?).context("unreadable content.json")
-}
-
-/// The published copy, unless its commit is the one seen last time. The file is read at the
-/// commit, so its cached copy is never older than the commit; when the API cannot answer (it allows 60 calls an
-/// hour per address), the branch's file is read instead, which GitHub may serve up to 5 minutes old.
+/// The published copy, unless its commit is the one read last time (`crate::branch`).
 async fn fetch(seen: &mut Option<String>) -> Result<Option<Content>> {
-    match latest_commit().await {
-        Ok(sha) if seen.as_ref() == Some(&sha) => Ok(None),
-        Ok(sha) => {
-            let c = download(&format!("https://raw.githubusercontent.com/{REPO}/{sha}/{FILE}")).await?;
-            *seen = Some(sha);
-            Ok(Some(c))
-        }
-        Err(e) => {
-            log::info!("content commit: {e:#}");
-            Ok(Some(download(&format!("https://raw.githubusercontent.com/{REPO}/{}/{FILE}", branch())).await?))
-        }
-    }
+    let Some(rev) = crate::branch::next(&branch(), seen).await else { return Ok(None) };
+    let c = serde_json::from_slice(&crate::branch::file(&rev, FILE).await?).context("unreadable content.json")?;
+    crate::branch::read_done(seen, &rev);
+    Ok(Some(c))
 }
 
 /// Takes a newer published copy; the admin's draft stays in use until it is published.
@@ -509,17 +483,21 @@ mod tests {
         assert!(!c.updated.is_empty() && !c.builds[&222].updated.is_empty());
         c.apply(Edit::Build { champion_id: 222, build: Some(MayhemBuild::default()) }).unwrap();
         assert!(c.builds.is_empty(), "an empty build removes it");
-        c.apply(Edit::ChampionTiers { class: "Mage".into(), tiers: tiers(&[("S", &[1])]) }).unwrap();
-        assert_eq!(c.champion_tiers["Mage"]["S"], [1]);
-        c.apply(Edit::ChampionTiers { class: "Mage".into(), tiers: Tiers::new() }).unwrap();
-        assert!(c.champion_tiers.is_empty());
-        assert!(c.apply(Edit::ChampionTiers { class: "Jungler".into(), tiers: Tiers::new() }).is_err());
+        let mage = |bracket: &str, t: Tiers| Edit::ChampionTiers { bracket: bracket.into(), class: "Mage".into(), tiers: t };
+        c.apply(mage("high", tiers(&[("S", &[1])]))).unwrap();
+        c.apply(mage("casual", tiers(&[("D", &[1])]))).unwrap();
+        assert_eq!(c.champion_tiers["high"]["Mage"]["S"], [1]);
+        assert_eq!(c.champion_tiers["casual"]["Mage"]["D"], [1], "each bracket has its own");
+        c.apply(mage("high", Tiers::new())).unwrap();
+        assert!(!c.champion_tiers.contains_key("high"), "an empty bracket goes");
+        assert!(c.apply(mage("all", Tiers::new())).is_err());
+        assert!(c.apply(Edit::ChampionTiers { bracket: "mid".into(), class: "Jungler".into(), tiers: Tiers::new() }).is_err());
     }
 
     #[test]
     fn edits_read_from_the_page() {
-        let e: Edit = serde_json::from_str(r#"{"kind": "championTiers", "class": "Tank", "tiers": {"S": [1]}}"#).unwrap();
-        assert!(matches!(e, Edit::ChampionTiers { class, .. } if class == "Tank"));
+        let e: Edit = serde_json::from_str(r#"{"kind": "championTiers", "bracket": "mid", "class": "Tank", "tiers": {"S": [1]}}"#).unwrap();
+        assert!(matches!(e, Edit::ChampionTiers { bracket, class, .. } if bracket == "mid" && class == "Tank"));
         let e: Edit = serde_json::from_str(r#"{"kind": "build", "championId": 7, "build": null}"#).unwrap();
         assert!(matches!(e, Edit::Build { champion_id: 7, build: None }));
     }
@@ -531,5 +509,10 @@ mod tests {
         assert_eq!(serde_json::from_str::<Content>(&text).unwrap(), shipped);
         let c: Content = serde_json::from_str(r#"{"builds": {"1": {"order": [3089]}}}"#).unwrap();
         assert_eq!(c.builds[&1].order, [3089]);
+        assert!(!serde_json::to_string(&c).unwrap().contains(r#""championTiers""#), "no old key when there was none");
+        // Older apps' all-players champion tiers are passed on as they are.
+        let c: Content = serde_json::from_str(r#"{"championTiers": {"Mage": {"S": [1]}}, "championTiersByBracket": {"mid": {"Tank": {"A": [2]}}}}"#).unwrap();
+        assert_eq!(c.champion_tiers["mid"]["Tank"]["A"], [2]);
+        assert!(serde_json::to_string(&c).unwrap().contains(r#""championTiers":{"Mage":{"S":[1]}}"#));
     }
 }

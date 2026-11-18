@@ -1,0 +1,7934 @@
+{
+ "patch": "26.23",
+ "source": {
+  "name": "League of Legends Wiki",
+  "url": "https://wiki.leagueoflegends.com/en-us/ARAM:_Mayhem",
+  "license": "CC BY-SA 3.0"
+ },
+ "sections": [
+  {
+   "id": "champions",
+   "title": {
+    "en": "All champions",
+    "zh": "所有英雄"
+   },
+   "items": [
+    {
+     "label": {
+      "en": "Melee",
+      "zh": "近战"
+     },
+     "text": {
+      "en": "+20 to 600 base health (by level), +15 armor and magic resist",
+      "zh": "+20 到 600 基础生命值（随等级提升），+15 护甲和魔法抗性"
+     }
+    },
+    {
+     "label": {
+      "en": "Ranged",
+      "zh": "远程"
+     },
+     "text": {
+      "en": "+20 to 400 base health (by level), +2 to 25 armor and magic resist (by level)",
+      "zh": "+20 到 400 基础生命值（随等级提升），+2 到 25 护甲和魔法抗性（随等级提升）"
+     },
+     "note": {
+      "en": "The wiki notes ranged champions currently get no bonus armor or magic resist (a bug).",
+      "zh": "英雄联盟维基注：远程英雄的护甲和魔法抗性加成目前存在程序错误，实际没有生效。"
+     }
+    },
+    {
+     "label": {
+      "en": "Regen",
+      "zh": "回复"
+     },
+     "text": {
+      "en": "+10% mana or energy regeneration",
+      "zh": "+10% 法力回复或能量回复"
+     }
+    },
+    {
+     "label": {
+      "en": "Rune",
+      "zh": "符文"
+     },
+     "text": {
+      "en": "Everyone has Presence of Mind",
+      "zh": "所有英雄自带【气定神闲】"
+     }
+    },
+    {
+     "label": {
+      "en": "Crit overflow",
+      "zh": "暴击溢出"
+     },
+     "text": {
+      "en": "Each 1% crit chance over 100% gives 0.45 attack damage or 0.75 ability power (adaptive)",
+      "zh": "暴击几率超过 100% 的部分，每 1% 转化为 0.45 攻击力或 0.75 法术强度（自适应）"
+     }
+    },
+    {
+     "label": {
+      "en": "Attack speed cap",
+      "zh": "攻击速度上限"
+     },
+     "text": {
+      "en": "5.0",
+      "zh": "5.0"
+     }
+    },
+    {
+     "label": {
+      "en": "Combo Breaker",
+      "zh": "连招破坏者"
+     },
+     "text": {
+      "en": "Each new immobilize gives tenacity for 3.25 seconds. Immobilized for 5 of the last 7 seconds: cleansed and immune to crowd control for 3 seconds.",
+      "zh": "每次受到新的定身效果时获得韧性，持续 3.25 秒；最近 7 秒内被定身满 5 秒时，立即净化所有控制效果并免疫控制效果 3 秒。"
+     }
+    }
+   ]
+  },
+  {
+   "id": "map",
+   "title": {
+    "en": "Map",
+    "zh": "地图资源"
+   },
+   "items": [
+    {
+     "label": {
+      "en": "Health relic",
+      "zh": "治疗圣物"
+     },
+     "text": {
+      "en": "Heals 22% of missing health and restores 22% of missing mana in an area",
+      "zh": "范围治疗 22% 已损失生命值，并回复 22% 已损失法力值"
+     }
+    },
+    {
+     "label": {
+      "en": "Siege minions",
+      "zh": "炮车小兵"
+     },
+     "text": {
+      "en": "Give nearby allied minions 20% attack speed and 20% movement speed",
+      "zh": "为附近的友方小兵提供 20% 攻击速度和 20% 移动速度"
+     }
+    },
+    {
+     "label": {
+      "en": "Super minions",
+      "zh": "超级兵"
+     },
+     "text": {
+      "en": "Only 1 per wave while the enemy inhibitor is down",
+      "zh": "敌方召唤水晶被摧毁时，每波只出 1 个超级兵"
+     }
+    }
+   ]
+  },
+  {
+   "id": "turrets",
+   "title": {
+    "en": "Turrets and Nexus",
+    "zh": "防御塔与枢纽"
+   },
+   "items": [
+    {
+     "label": {
+      "en": "Outer turret falls",
+      "zh": "外防御塔被摧毁后"
+     },
+     "text": {
+      "en": "The inhibitor turret takes 40% less damage for 70 seconds",
+      "zh": "水晶防御塔在 70 秒内受到的伤害降低 40%"
+     },
+     "highlight": true
+    },
+    {
+     "label": {
+      "en": "Resistances",
+      "zh": "护甲和魔抗"
+     },
+     "text": {
+      "en": "Outer, inhibitor and Nexus turrets: 120 to 144 armor and magic resist (by minute). Outer turrets no longer drop to 40 after 12 minutes.",
+      "zh": "外防御塔、水晶防御塔、枢纽防御塔：120 到 144 护甲和魔法抗性（随时间提升）；外防御塔不再在 12 分钟后降至 40。"
+     }
+    },
+    {
+     "label": {
+      "en": "Plating",
+      "zh": "防御塔镀层"
+     },
+     "text": {
+      "en": "Outer and inhibitor turrets have 3 plates worth 100 gold each (split). Each plate lost gives a Bulwark stack for 20 seconds: 60 to 80 armor and magic resist (more with more enemy champions within 850 range), up to 120 to 160 at 2 stacks.",
+      "zh": "外防御塔和水晶防御塔各有 3 层镀层，每层 100 金币（由参与者平分）。每失去一层，防御塔获得一层【坚强壁垒】，持续 20 秒：60 到 80 护甲和魔法抗性（防御塔 850 码内存活的敌方英雄越多越高），2 层时最多 120 到 160。"
+     }
+    },
+    {
+     "label": {
+      "en": "Nexus",
+      "zh": "枢纽"
+     },
+     "text": {
+      "en": "Nexus turrets 3000 health (from 1800); Nexus 3000 health (from 5500)",
+      "zh": "枢纽防御塔 3000 生命值（原 1800）；枢纽 3000 生命值（原 5500）"
+     }
+    }
+   ]
+  },
+  {
+   "id": "augments",
+   "title": {
+    "en": "Augments",
+    "zh": "强化符文"
+   },
+   "items": [
+    {
+     "label": {
+      "en": "When",
+      "zh": "时机"
+     },
+     "text": {
+      "en": "At the start (level 3), then levels 7, 11 and 15; only while you can shop (dead, or at your spawn)",
+      "zh": "开局（3 级）一次，之后 7、11、15 级各一次；只在可以购买装备时出现（阵亡或在泉水）"
+     }
+    },
+    {
+     "label": {
+      "en": "Rarity",
+      "zh": "品质"
+     },
+     "text": {
+      "en": "Silver, Gold or Prismatic, the same for every player each time and random; the first two can't both be Silver",
+      "zh": "白银阶、黄金阶或棱彩阶，每次全场相同且随机；前两次不会都是白银阶"
+     }
+    },
+    {
+     "label": {
+      "en": "Rerolls",
+      "zh": "刷新"
+     },
+     "text": {
+      "en": "Each offer can be rerolled once, for up to 6 choices; an augment never shows up twice in a game",
+      "zh": "每个选项可以刷新一次，最多 6 选 1；同一个强化符文在一局中不会出现两次"
+     }
+    }
+   ]
+  }
+ ],
+ "headliners": [
+  {
+   "id": "pentakill",
+   "name": {
+    "en": "Pentakill",
+    "zh": "五杀乐队"
+   },
+   "official": true,
+   "effect": {
+    "en": "Empower one of your basic Abilities, granting it 20 Ability Haste, 10% increased damage, and 10% increased Healing and Shielding.At Level 18, Empower another Ability-- even your Ultimate!",
+    "zh": "强化你的一个基础技能，为它提供20技能急速、10%额外伤害、以及10%治疗和护盾效果。在18级时，强化另一个技能——甚至可以是你的终极技能！"
+   }
+  },
+  {
+   "id": "kda",
+   "name": {
+    "en": "K/DA",
+    "zh": "K/DA"
+   },
+   "official": true,
+   "effect": {
+    "en": "K/DA will occasionally throw Photocards to their loyal fans! Collect them all to gain an additional Augment and prove your devotion!",
+    "zh": "K/DA会时不时地投掷明星卡给她们的忠实粉丝们！集齐它们就会获得一个额外的强化符文并证明你的忠诚！"
+   }
+  },
+  {
+   "id": "true-damage",
+   "name": {
+    "en": "True Damage",
+    "zh": "真实伤害"
+   },
+   "official": true,
+   "effect": {
+    "en": "Multi-kills, shutdowns, and destroying towers excite Minions, causing them to drop Anvils for the team that generated the hype!",
+    "zh": "多杀、终结连杀、以及摧毁防御塔都会激起小兵的干劲，使它们为提供干劲的队伍掉落锻造器！"
+   }
+  },
+  {
+   "id": "heartsteel",
+   "name": {
+    "en": "HEARTSTEEL",
+    "zh": "心之钢"
+   },
+   "official": true,
+   "effect": {
+    "en": "HEARTSTEEL members have a chance to put Stickers on your Augments, granting you a bonus if you pick the Augment with a Sticker. Each member provides a unique bonus.",
+    "zh": "【心之钢】成员们有一定几率给你的强化符文贴上贴纸，从而在你选择一个带贴纸的强化符文时为你提供一个加成。每个成员会提供一个独特加成。"
+   }
+  },
+  {
+   "id": "cafe-cuties",
+   "name": {
+    "en": "Cafe Cuties",
+    "zh": "咖啡甜心"
+   },
+   "official": true,
+   "effect": {
+    "en": "The Health Relic Aura restores an additional 20% missing Health and grants 25% bonus Move Speed that decays over 6 seconds.",
+    "zh": "治疗圣物光环会额外回复20%已损失生命值，并提供在6秒里持续衰减的25%移动速度加成。"
+   }
+  },
+  {
+   "id": "space-groove",
+   "name": {
+    "en": "Space Groove",
+    "zh": "太空律动"
+   },
+   "official": true,
+   "effect": {
+    "en": "Boogie down on the Dance Floor until the Disco Ball drops, granting everyone 1000 gold!",
+    "zh": "跳起舞步跃入舞池直到迪斯科灯球落下，从而为每个人提供1000金币！"
+   }
+  },
+  {
+   "id": "bee-band",
+   "name": {
+    "en": "The Bee Band",
+    "zh": "小蜜蜂乐队"
+   },
+   "official": true,
+   "effect": {
+    "en": "Honey and Bees periodically fly across the map. Collecting Small Honey grants you and your team 25 gold and heals you for 15% of your maximum health. Big Honey grants 100 gold and heals you for 30% of your maximum health. Being struck by a Small Bee damages you for 10% of your maximum health. Big Bees damage you for 20% of your maximum health",
+    "zh": "蜂蜜和蜜蜂会周期性地飞越地图。收集小块蜂蜜可为你和你的队伍提供25金币，并为你治疗15%最大生命值。收集大块蜂蜜可提供100金币，并为你治疗30%最大生命值。被小蜜蜂蜇到会对你造成10%最大生命值的伤害。大蜜蜂会对你造成20%最大生命值的伤害。"
+   }
+  },
+  {
+   "id": "command-line",
+   "name": {
+    "en": "Command Line",
+    "zh": "命令行"
+   },
+   "official": true,
+   "effect": {
+    "en": "Your first reroll each Augment Selection also increases the rarity of the rerolled Augment.",
+    "zh": "你在每轮符文选择中的第一次刷新还会提升被刷新强化符文的稀有度。"
+   }
+  },
+  {
+   "id": "superfans",
+   "name": {
+    "en": "Superfans",
+    "zh": "超级粉丝"
+   },
+   "official": true,
+   "effect": {
+    "en": "All players have their level cap increased to 21 and gain additiona experience. Gain an extra Augment at level 21!",
+    "zh": "所有玩家的等级上限提升至21并获得额外经验值。在21级时获得一个额外的强化符文！"
+   }
+  },
+  {
+   "id": "arcade",
+   "name": {
+    "en": "Bit Rush",
+    "zh": "比特狂飙"
+   },
+   "official": true,
+   "effect": {
+    "en": "Takedowns give Tokens; spend 4 while dead to revive at your spawn.",
+    "zh": "参与击杀获得代币；阵亡时用 4 枚代币在泉水复活。"
+   }
+  },
+  {
+   "id": "debonair",
+   "name": {
+    "en": "Debonair",
+    "zh": "执事乐队"
+   },
+   "official": true,
+   "effect": {
+    "en": "Each augment offer also gives 200, 350, 500 or 700 gold (random) and hats.",
+    "zh": "每次强化符文选择额外提供 200、350、500 或 700 金币（随机）以及帽子。"
+   }
+  },
+  {
+   "id": "la-ilusion",
+   "name": {
+    "en": "La Ilusión",
+    "zh": "魂蔷薇乐队"
+   },
+   "official": false,
+   "effect": {
+    "en": "Allies drop a candle where they die (10 seconds); picking it up shields you and allies within 1500 range for 4 seconds.",
+    "zh": "友方英雄阵亡处掉落一根蜡烛（持续 10 秒）；友方拾取后为自己和 1500 码内的友方英雄提供护盾，持续 4 秒。"
+   }
+  },
+  {
+   "id": "maestro",
+   "name": {
+    "en": "Maestro",
+    "zh": "大师乐队"
+   },
+   "official": false,
+   "effect": {
+    "en": "Augment offers show 4 choices instead of 3.",
+    "zh": "强化符文选择从 3 个选项变为 4 个。"
+   }
+  }
+ ],
+ "attackTypes": {
+  "1": "ranged",
+  "2": "melee",
+  "3": "melee",
+  "4": "ranged",
+  "5": "melee",
+  "6": "ranged",
+  "7": "ranged",
+  "8": "ranged",
+  "9": "ranged",
+  "10": "melee",
+  "11": "melee",
+  "12": "melee",
+  "13": "ranged",
+  "14": "melee",
+  "15": "ranged",
+  "16": "ranged",
+  "17": "ranged",
+  "18": "ranged",
+  "19": "melee",
+  "20": "melee",
+  "21": "ranged",
+  "22": "ranged",
+  "23": "melee",
+  "24": "melee",
+  "25": "ranged",
+  "26": "ranged",
+  "27": "melee",
+  "28": "melee",
+  "29": "ranged",
+  "30": "ranged",
+  "31": "melee",
+  "32": "melee",
+  "33": "melee",
+  "34": "ranged",
+  "35": "melee",
+  "36": "melee",
+  "37": "ranged",
+  "38": "melee",
+  "39": "melee",
+  "40": "ranged",
+  "41": "melee",
+  "42": "ranged",
+  "43": "ranged",
+  "44": "melee",
+  "45": "ranged",
+  "48": "melee",
+  "50": "ranged",
+  "51": "ranged",
+  "53": "melee",
+  "54": "melee",
+  "55": "melee",
+  "56": "melee",
+  "57": "melee",
+  "58": "melee",
+  "59": "melee",
+  "60": "ranged",
+  "61": "ranged",
+  "62": "melee",
+  "63": "ranged",
+  "64": "melee",
+  "67": "ranged",
+  "68": "melee",
+  "69": "ranged",
+  "72": "melee",
+  "74": "ranged",
+  "75": "melee",
+  "76": "ranged",
+  "77": "melee",
+  "78": "melee",
+  "79": "melee",
+  "80": "melee",
+  "81": "ranged",
+  "82": "melee",
+  "83": "melee",
+  "84": "melee",
+  "85": "ranged",
+  "86": "melee",
+  "89": "melee",
+  "90": "ranged",
+  "91": "melee",
+  "92": "melee",
+  "96": "ranged",
+  "98": "melee",
+  "99": "ranged",
+  "101": "ranged",
+  "102": "melee",
+  "103": "ranged",
+  "104": "ranged",
+  "105": "melee",
+  "106": "melee",
+  "107": "melee",
+  "110": "ranged",
+  "111": "melee",
+  "112": "ranged",
+  "113": "melee",
+  "114": "melee",
+  "115": "ranged",
+  "117": "ranged",
+  "119": "ranged",
+  "120": "melee",
+  "121": "melee",
+  "122": "melee",
+  "126": "ranged",
+  "127": "ranged",
+  "131": "melee",
+  "133": "ranged",
+  "134": "ranged",
+  "136": "ranged",
+  "141": "melee",
+  "142": "ranged",
+  "143": "ranged",
+  "145": "ranged",
+  "147": "ranged",
+  "150": "ranged",
+  "154": "melee",
+  "157": "melee",
+  "161": "ranged",
+  "163": "ranged",
+  "164": "melee",
+  "166": "ranged",
+  "200": "melee",
+  "201": "melee",
+  "202": "ranged",
+  "203": "ranged",
+  "221": "ranged",
+  "222": "ranged",
+  "223": "melee",
+  "233": "melee",
+  "234": "melee",
+  "235": "ranged",
+  "236": "ranged",
+  "238": "melee",
+  "240": "melee",
+  "245": "melee",
+  "246": "melee",
+  "254": "melee",
+  "266": "melee",
+  "267": "ranged",
+  "268": "ranged",
+  "350": "ranged",
+  "360": "ranged",
+  "412": "ranged",
+  "420": "melee",
+  "421": "melee",
+  "427": "ranged",
+  "429": "ranged",
+  "432": "ranged",
+  "497": "melee",
+  "498": "ranged",
+  "516": "melee",
+  "517": "melee",
+  "518": "ranged",
+  "523": "ranged",
+  "526": "melee",
+  "555": "melee",
+  "711": "ranged",
+  "777": "melee",
+  "799": "melee",
+  "800": "ranged",
+  "804": "ranged",
+  "805": "melee",
+  "875": "melee",
+  "876": "melee",
+  "887": "melee",
+  "888": "ranged",
+  "893": "ranged",
+  "895": "melee",
+  "897": "melee",
+  "901": "ranged",
+  "902": "ranged",
+  "904": "melee",
+  "910": "ranged",
+  "950": "melee"
+ },
+ "abilityNames": {
+  "1": {
+   "P": {
+    "en": "Pyromania",
+    "zh": "嗜火"
+   },
+   "Q": {
+    "en": "Disintegrate",
+    "zh": "碎裂之火"
+   },
+   "W": {
+    "en": "Incinerate",
+    "zh": "焚烧"
+   },
+   "E": {
+    "en": "Molten Shield",
+    "zh": "熔岩护盾"
+   },
+   "R": {
+    "en": "Summon: Tibbers",
+    "zh": "提伯斯之怒"
+   }
+  },
+  "2": {
+   "P": {
+    "en": "Berserker Rage",
+    "zh": "狂战之怒"
+   },
+   "Q": {
+    "en": "Undertow",
+    "zh": "逆流投掷"
+   },
+   "W": {
+    "en": "Tough It Out",
+    "zh": "挺过去"
+   },
+   "E": {
+    "en": "Reckless Swing",
+    "zh": "鲁莽挥击"
+   },
+   "R": {
+    "en": "Ragnarok",
+    "zh": "诸神黄昏"
+   }
+  },
+  "3": {
+   "P": {
+    "en": "Colossal Smash",
+    "zh": "巨像重击"
+   },
+   "Q": {
+    "en": "Winds of War",
+    "zh": "战争罡风"
+   },
+   "W": {
+    "en": "Shield of Durand",
+    "zh": "杜朗护盾"
+   },
+   "E": {
+    "en": "Justice Punch",
+    "zh": "正义冲拳"
+   },
+   "R": {
+    "en": "Hero's Entrance",
+    "zh": "英雄登场"
+   }
+  },
+  "4": {
+   "P": {
+    "en": "Loaded Dice",
+    "zh": "灌铅骰子"
+   },
+   "Q": {
+    "en": "Wild Cards",
+    "zh": "万能牌"
+   },
+   "W": {
+    "en": "Pick a Card",
+    "zh": "选牌"
+   },
+   "E": {
+    "en": "Stacked Deck",
+    "zh": "卡牌骗术"
+   },
+   "R": {
+    "en": "Destiny",
+    "zh": "命运"
+   }
+  },
+  "5": {
+   "P": {
+    "en": "Determination",
+    "zh": "果决"
+   },
+   "Q": {
+    "en": "Three Talon Strike",
+    "zh": "三重爪击"
+   },
+   "W": {
+    "en": "Wind Becomes Lightning",
+    "zh": "风斩电刺"
+   },
+   "E": {
+    "en": "Audacious Charge",
+    "zh": "无畏冲锋"
+   },
+   "R": {
+    "en": "Crescent Guard",
+    "zh": "新月护卫"
+   }
+  },
+  "6": {
+   "P": {
+    "en": "Echoing Flames",
+    "zh": "回响烈焰"
+   },
+   "Q": {
+    "en": "Corrosive Charge",
+    "zh": "腐蚀电荷"
+   },
+   "W": {
+    "en": "Purge",
+    "zh": "净除"
+   },
+   "E": {
+    "en": "Disdain",
+    "zh": "鄙弃"
+   },
+   "R": {
+    "en": "Fear Beyond Death",
+    "zh": "超越死亡的恐惧"
+   }
+  },
+  "7": {
+   "P": {
+    "en": "Mirror Image",
+    "zh": "镜花水月"
+   },
+   "Q": {
+    "en": "Sigil of Malice",
+    "zh": "恶意魔印"
+   },
+   "W": {
+    "en": "Distortion",
+    "zh": "魔影迷踪"
+   },
+   "E": {
+    "en": "Ethereal Chains",
+    "zh": "幻影锁链"
+   },
+   "R": {
+    "en": "Mimic",
+    "zh": "故技重施"
+   }
+  },
+  "8": {
+   "P": {
+    "en": "Crimson Pact",
+    "zh": "血色契约"
+   },
+   "Q": {
+    "en": "Transfusion",
+    "zh": "鲜血转换"
+   },
+   "W": {
+    "en": "Sanguine Pool",
+    "zh": "血红之池"
+   },
+   "E": {
+    "en": "Tides of Blood",
+    "zh": "血之潮汐"
+   },
+   "R": {
+    "en": "Hemoplague",
+    "zh": "血之瘟疫"
+   }
+  },
+  "9": {
+   "P": {
+    "en": "A Harmless Scarecrow",
+    "zh": "巫骇草人"
+   },
+   "Q": {
+    "en": "Terrify",
+    "zh": "恐惧"
+   },
+   "W": {
+    "en": "Bountiful Harvest",
+    "zh": "五骨丰登"
+   },
+   "E": {
+    "en": "Reap",
+    "zh": "夜割"
+   },
+   "R": {
+    "en": "Crowstorm",
+    "zh": "群鸦风暴"
+   }
+  },
+  "10": {
+   "P": {
+    "en": "Divine Ascent",
+    "zh": "登神长阶"
+   },
+   "Q": {
+    "en": "Radiant Blast",
+    "zh": "耀焰冲击"
+   },
+   "W": {
+    "en": "Celestial Blessing",
+    "zh": "星界恩典"
+   },
+   "E": {
+    "en": "Starfire Spellblade",
+    "zh": "星火符刃"
+   },
+   "R": {
+    "en": "Divine Judgment",
+    "zh": "圣裁之刻"
+   }
+  },
+  "11": {
+   "P": {
+    "en": "Double Strike",
+    "zh": "双重打击"
+   },
+   "Q": {
+    "en": "Alpha Strike",
+    "zh": "阿尔法突袭"
+   },
+   "W": {
+    "en": "Meditate",
+    "zh": "冥想"
+   },
+   "E": {
+    "en": "Wuju Style",
+    "zh": "无极剑道"
+   },
+   "R": {
+    "en": "Highlander",
+    "zh": "高原血统"
+   }
+  },
+  "12": {
+   "P": {
+    "en": "Triumphant Roar",
+    "zh": "凯旋怒吼"
+   },
+   "Q": {
+    "en": "Pulverize",
+    "zh": "大地粉碎"
+   },
+   "W": {
+    "en": "Headbutt",
+    "zh": "野蛮冲撞"
+   },
+   "E": {
+    "en": "Trample",
+    "zh": "践踏"
+   },
+   "R": {
+    "en": "Unbreakable Will",
+    "zh": "坚定意志"
+   }
+  },
+  "13": {
+   "P": {
+    "en": "Arcane Mastery",
+    "zh": "奥术专精"
+   },
+   "Q": {
+    "en": "Overload",
+    "zh": "超负荷"
+   },
+   "W": {
+    "en": "Rune Prison",
+    "zh": "符文禁锢"
+   },
+   "E": {
+    "en": "Spell Flux",
+    "zh": "法术涌动"
+   },
+   "R": {
+    "en": "Realm Warp",
+    "zh": "曲境折跃"
+   }
+  },
+  "14": {
+   "P": {
+    "en": "Glory in Death",
+    "zh": "死亡荣耀"
+   },
+   "Q": {
+    "en": "Decimating Smash",
+    "zh": "残虐猛击"
+   },
+   "W": {
+    "en": "Soul Furnace",
+    "zh": "灵魂熔炉"
+   },
+   "E": {
+    "en": "Roar of the Slayer",
+    "zh": "杀手怒吼"
+   },
+   "R": {
+    "en": "Unstoppable Onslaught",
+    "zh": "蛮横冲撞"
+   }
+  },
+  "15": {
+   "P": {
+    "en": "Fleet of Foot",
+    "zh": "敏锐疾行"
+   },
+   "Q": {
+    "en": "Boomerang Blade",
+    "zh": "回旋之刃"
+   },
+   "W": {
+    "en": "Ricochet",
+    "zh": "弹射"
+   },
+   "E": {
+    "en": "Spell Shield",
+    "zh": "法术护盾"
+   },
+   "R": {
+    "en": "On The Hunt",
+    "zh": "狩猎"
+   }
+  },
+  "16": {
+   "P": {
+    "en": "Salvation",
+    "zh": "拯救"
+   },
+   "Q": {
+    "en": "Starcall",
+    "zh": "流星坠落"
+   },
+   "W": {
+    "en": "Astral Infusion",
+    "zh": "星之灌注"
+   },
+   "E": {
+    "en": "Equinox",
+    "zh": "星体结界"
+   },
+   "R": {
+    "en": "Wish",
+    "zh": "祈愿"
+   }
+  },
+  "17": {
+   "P": {
+    "en": "Guerrilla Warfare",
+    "zh": "游击队军备"
+   },
+   "Q": {
+    "en": "Blinding Dart",
+    "zh": "致盲吹箭"
+   },
+   "W": {
+    "en": "Move Quick",
+    "zh": "小莫快跑"
+   },
+   "E": {
+    "en": "Toxic Shot",
+    "zh": "毒性射击"
+   },
+   "R": {
+    "en": "Noxious Trap",
+    "zh": "种蘑菇"
+   }
+  },
+  "18": {
+   "P": {
+    "en": "Draw a Bead",
+    "zh": "瞄准"
+   },
+   "Q": {
+    "en": "Rapid Fire",
+    "zh": "急速射击"
+   },
+   "W": {
+    "en": "Rocket Jump",
+    "zh": "火箭跳跃"
+   },
+   "E": {
+    "en": "Explosive Charge",
+    "zh": "爆炸火花"
+   },
+   "R": {
+    "en": "Buster Shot",
+    "zh": "毁灭射击"
+   }
+  },
+  "19": {
+   "P": {
+    "en": "Eternal Hunger",
+    "zh": "血之饥渴"
+   },
+   "Q": {
+    "en": "Jaws of the Beast",
+    "zh": "野兽之口"
+   },
+   "W": {
+    "en": "Blood Hunt",
+    "zh": "鲜血追猎"
+   },
+   "E": {
+    "en": "Primal Howl",
+    "zh": "远祖嗥叫"
+   },
+   "R": {
+    "en": "Infinite Duress",
+    "zh": "无尽束缚"
+   }
+  },
+  "20": {
+   "P": {
+    "en": "Call of the Freljord",
+    "zh": "弗雷尔卓德的召唤"
+   },
+   "Q": {
+    "en": "Consume",
+    "zh": "吞噬"
+   },
+   "W": {
+    "en": "Biggest Snowball Ever!",
+    "zh": "史上最大雪球！"
+   },
+   "E": {
+    "en": "Snowball Barrage",
+    "zh": "雪球飞射"
+   },
+   "R": {
+    "en": "Absolute Zero",
+    "zh": "绝对零度"
+   }
+  },
+  "21": {
+   "P": {
+    "en": "Love Tap",
+    "zh": "厄运的眷顾"
+   },
+   "Q": {
+    "en": "Double Up",
+    "zh": "一箭双雕"
+   },
+   "W": {
+    "en": "Strut",
+    "zh": "大步流星"
+   },
+   "E": {
+    "en": "Make It Rain",
+    "zh": "枪林弹雨"
+   },
+   "R": {
+    "en": "Bullet Time",
+    "zh": "弹幕时间"
+   }
+  },
+  "22": {
+   "P": {
+    "en": "Frost Shot",
+    "zh": "冰霜射击"
+   },
+   "Q": {
+    "en": "Ranger's Focus",
+    "zh": "射手的专注"
+   },
+   "W": {
+    "en": "Volley",
+    "zh": "万箭齐发"
+   },
+   "E": {
+    "en": "Hawkshot",
+    "zh": "鹰击长空"
+   },
+   "R": {
+    "en": "Enchanted Crystal Arrow",
+    "zh": "魔法水晶箭"
+   }
+  },
+  "23": {
+   "P": {
+    "en": "Battle Fury",
+    "zh": "战斗狂怒"
+   },
+   "Q": {
+    "en": "Bloodlust",
+    "zh": "嗜血杀戮"
+   },
+   "W": {
+    "en": "Mocking Shout",
+    "zh": "蔑视"
+   },
+   "E": {
+    "en": "Spinning Slash",
+    "zh": "旋风斩"
+   },
+   "R": {
+    "en": "Undying Rage",
+    "zh": "无尽怒火"
+   }
+  },
+  "24": {
+   "P": {
+    "en": "Relentless Assault",
+    "zh": "无情连打"
+   },
+   "Q": {
+    "en": "Leap Strike",
+    "zh": "跳斩"
+   },
+   "W": {
+    "en": "Empower",
+    "zh": "蓄力一击"
+   },
+   "E": {
+    "en": "Counter Strike",
+    "zh": "反击风暴"
+   },
+   "R": {
+    "en": "Grandmaster-at-Arms",
+    "zh": "武器大师"
+   }
+  },
+  "25": {
+   "P": {
+    "en": "Soul Siphon",
+    "zh": "灵魂吸取"
+   },
+   "Q": {
+    "en": "Dark Binding",
+    "zh": "暗之禁锢"
+   },
+   "W": {
+    "en": "Tormented Shadow",
+    "zh": "折磨之影"
+   },
+   "E": {
+    "en": "Black Shield",
+    "zh": "黑暗之盾"
+   },
+   "R": {
+    "en": "Soul Shackles",
+    "zh": "灵魂镣铐"
+   }
+  },
+  "26": {
+   "P": {
+    "en": "Time In A Bottle",
+    "zh": "瓶中时光"
+   },
+   "Q": {
+    "en": "Time Bomb",
+    "zh": "定时炸弹"
+   },
+   "W": {
+    "en": "Rewind",
+    "zh": "穿梭未来"
+   },
+   "E": {
+    "en": "Time Warp",
+    "zh": "时光发条"
+   },
+   "R": {
+    "en": "Chronoshift",
+    "zh": "时光倒流"
+   }
+  },
+  "27": {
+   "P": {
+    "en": "Noxious Slipstream",
+    "zh": "剧毒冲流"
+   },
+   "Q": {
+    "en": "Poison Trail",
+    "zh": "剧毒踪迹"
+   },
+   "W": {
+    "en": "Mega Adhesive",
+    "zh": "强力粘胶"
+   },
+   "E": {
+    "en": "Fling",
+    "zh": "过肩摔"
+   },
+   "R": {
+    "en": "Insanity Potion",
+    "zh": "疯狂药剂"
+   }
+  },
+  "28": {
+   "P": {
+    "en": "Demon Shade",
+    "zh": "恶魔魅影"
+   },
+   "Q": {
+    "en": "Hate Spike",
+    "zh": "憎恨之刺"
+   },
+   "W": {
+    "en": "Allure",
+    "zh": "引诱"
+   },
+   "E": {
+    "en": "Whiplash",
+    "zh": "鞭笞"
+   },
+   "R": {
+    "en": "Last Caress",
+    "zh": "最终抚慰"
+   }
+  },
+  "29": {
+   "P": {
+    "en": "Deadly Venom",
+    "zh": "死亡毒液"
+   },
+   "Q": {
+    "en": "Ambush",
+    "zh": "埋伏"
+   },
+   "W": {
+    "en": "Venom Cask",
+    "zh": "剧毒之桶"
+   },
+   "E": {
+    "en": "Contaminate",
+    "zh": "毒性爆发"
+   },
+   "R": {
+    "en": "Spray and Pray",
+    "zh": "火力全开"
+   }
+  },
+  "30": {
+   "P": {
+    "en": "Death Defied",
+    "zh": "死亡契约"
+   },
+   "Q": {
+    "en": "Lay Waste",
+    "zh": "荒芜"
+   },
+   "W": {
+    "en": "Wall of Pain",
+    "zh": "痛苦之墙"
+   },
+   "E": {
+    "en": "Defile",
+    "zh": "亵渎"
+   },
+   "R": {
+    "en": "Requiem",
+    "zh": "安魂曲"
+   }
+  },
+  "31": {
+   "P": {
+    "en": "Carnivore",
+    "zh": "肉食者"
+   },
+   "Q": {
+    "en": "Rupture",
+    "zh": "破裂"
+   },
+   "W": {
+    "en": "Feral Scream",
+    "zh": "野性尖叫"
+   },
+   "E": {
+    "en": "Vorpal Spikes",
+    "zh": "恐惧之刺"
+   },
+   "R": {
+    "en": "Feast",
+    "zh": "盛宴"
+   }
+  },
+  "32": {
+   "P": {
+    "en": "Cursed Touch",
+    "zh": "诅咒之触"
+   },
+   "Q": {
+    "en": "Bandage Toss",
+    "zh": "绷带牵引"
+   },
+   "W": {
+    "en": "Despair",
+    "zh": "绝望光环"
+   },
+   "E": {
+    "en": "Tantrum",
+    "zh": "阿木木的愤怒"
+   },
+   "R": {
+    "en": "Curse of the Sad Mummy",
+    "zh": "木乃伊之咒"
+   }
+  },
+  "33": {
+   "P": {
+    "en": "Spiked Shell",
+    "zh": "锥刺甲壳"
+   },
+   "Q": {
+    "en": "Powerball",
+    "zh": "动力冲刺"
+   },
+   "W": {
+    "en": "Defensive Ball Curl",
+    "zh": "尖刺防御"
+   },
+   "E": {
+    "en": "Frenzying Taunt",
+    "zh": "狂乱嘲讽"
+   },
+   "R": {
+    "en": "Soaring Slam",
+    "zh": "冲天猛撞"
+   }
+  },
+  "34": {
+   "P": {
+    "en": "Rebirth",
+    "zh": "寒霜涅槃"
+   },
+   "Q": {
+    "en": "Flash Frost",
+    "zh": "寒冰闪耀"
+   },
+   "W": {
+    "en": "Crystallize",
+    "zh": "寒冰屏障"
+   },
+   "E": {
+    "en": "Frostbite",
+    "zh": "霜寒刺骨"
+   },
+   "R": {
+    "en": "Glacial Storm",
+    "zh": "冰川风暴"
+   }
+  },
+  "35": {
+   "P": {
+    "en": "Backstab",
+    "zh": "背刺"
+   },
+   "Q": {
+    "en": "Deceive",
+    "zh": "欺诈魔术"
+   },
+   "W": {
+    "en": "Jack In The Box",
+    "zh": "惊吓魔盒"
+   },
+   "E": {
+    "en": "Two-Shiv Poison",
+    "zh": "双面毒刃"
+   },
+   "R": {
+    "en": "Hallucinate",
+    "zh": "幻像"
+   }
+  },
+  "36": {
+   "P": {
+    "en": "Goes Where He Pleases",
+    "zh": "想去哪就去哪"
+   },
+   "Q": {
+    "en": "Infected Bonesaw",
+    "zh": "病毒屠刀"
+   },
+   "W": {
+    "en": "Heart Zapper",
+    "zh": "电击疗法"
+   },
+   "E": {
+    "en": "Blunt Force Trauma",
+    "zh": "大力行医"
+   },
+   "R": {
+    "en": "Maximum Dosage",
+    "zh": "极限剂量"
+   }
+  },
+  "37": {
+   "P": {
+    "en": "Power Chord",
+    "zh": "能量和弦"
+   },
+   "Q": {
+    "en": "Hymn of Valor",
+    "zh": "英勇赞美诗"
+   },
+   "W": {
+    "en": "Aria of Perseverance",
+    "zh": "坚毅咏叹调"
+   },
+   "E": {
+    "en": "Song of Celerity",
+    "zh": "迅捷奏鸣曲"
+   },
+   "R": {
+    "en": "Crescendo",
+    "zh": "狂舞终乐章"
+   }
+  },
+  "38": {
+   "P": {
+    "en": "Void Stone",
+    "zh": "虚空之石"
+   },
+   "Q": {
+    "en": "Null Sphere",
+    "zh": "虚无法球"
+   },
+   "W": {
+    "en": "Nether Blade",
+    "zh": "虚空之刃"
+   },
+   "E": {
+    "en": "Force Pulse",
+    "zh": "能量脉冲"
+   },
+   "R": {
+    "en": "Riftwalk",
+    "zh": "虚空行走"
+   }
+  },
+  "39": {
+   "P": {
+    "en": "Ionian Fervor",
+    "zh": "艾欧尼亚热诚"
+   },
+   "Q": {
+    "en": "Bladesurge",
+    "zh": "利刃冲击"
+   },
+   "W": {
+    "en": "Defiant Dance",
+    "zh": "距破之舞"
+   },
+   "E": {
+    "en": "Flawless Duet",
+    "zh": "比翼双刃"
+   },
+   "R": {
+    "en": "Vanguard's Edge",
+    "zh": "先锋之刃"
+   }
+  },
+  "40": {
+   "P": {
+    "en": "Tailwind",
+    "zh": "顺风而行"
+   },
+   "Q": {
+    "en": "Howling Gale",
+    "zh": "飓风呼啸"
+   },
+   "W": {
+    "en": "Zephyr",
+    "zh": "和风守护"
+   },
+   "E": {
+    "en": "Eye Of The Storm",
+    "zh": "风暴之眼"
+   },
+   "R": {
+    "en": "Monsoon",
+    "zh": "复苏季风"
+   }
+  },
+  "41": {
+   "P": {
+    "en": "Trial by Fire",
+    "zh": "烈火审讯"
+   },
+   "Q": {
+    "en": "Parrrley",
+    "zh": "枪火谈判"
+   },
+   "W": {
+    "en": "Remove Scurvy",
+    "zh": "坏血病疗法"
+   },
+   "E": {
+    "en": "Powder Keg",
+    "zh": "火药桶"
+   },
+   "R": {
+    "en": "Cannon Barrage",
+    "zh": "加农炮幕"
+   }
+  },
+  "42": {
+   "P": {
+    "en": "Hextech Munitions",
+    "zh": "海克斯科技军备"
+   },
+   "Q": {
+    "en": "Phosphorus Bomb",
+    "zh": "磷光炸弹"
+   },
+   "W": {
+    "en": "Valkyrie",
+    "zh": "瓦尔基里俯冲"
+   },
+   "E": {
+    "en": "Gatling Gun",
+    "zh": "格林机枪"
+   },
+   "R": {
+    "en": "Missile Barrage",
+    "zh": "火箭轰击"
+   }
+  },
+  "43": {
+   "P": {
+    "en": "Gathering Fire",
+    "zh": "聚能之炎"
+   },
+   "Q": {
+    "en": "Inner Flame",
+    "zh": "心灵烈焰"
+   },
+   "W": {
+    "en": "Focused Resolve",
+    "zh": "坚定不移"
+   },
+   "E": {
+    "en": "Inspire",
+    "zh": "鼓舞"
+   },
+   "R": {
+    "en": "Mantra",
+    "zh": "梵咒"
+   }
+  },
+  "44": {
+   "P": {
+    "en": "Bravado",
+    "zh": "正气凌人"
+   },
+   "Q": {
+    "en": "Starlight's Touch",
+    "zh": "星光之触"
+   },
+   "W": {
+    "en": "Bastion",
+    "zh": "坚毅壁垒"
+   },
+   "E": {
+    "en": "Dazzle",
+    "zh": "炫光"
+   },
+   "R": {
+    "en": "Cosmic Radiance",
+    "zh": "宇宙之辉"
+   }
+  },
+  "45": {
+   "P": {
+    "en": "Phenomenal Evil Power",
+    "zh": "超凡邪力"
+   },
+   "Q": {
+    "en": "Baleful Strike",
+    "zh": "黑暗祭祀"
+   },
+   "W": {
+    "en": "Dark Matter",
+    "zh": "黑暗物质"
+   },
+   "E": {
+    "en": "Event Horizon",
+    "zh": "扭曲空间"
+   },
+   "R": {
+    "en": "Primordial Burst",
+    "zh": "能量爆裂"
+   }
+  },
+  "48": {
+   "P": {
+    "en": "King's Tribute",
+    "zh": "国王的贡品"
+   },
+   "Q": {
+    "en": "Chomp",
+    "zh": "利齿撕咬"
+   },
+   "W": {
+    "en": "Frozen Domain",
+    "zh": "冰封领域"
+   },
+   "E": {
+    "en": "Pillar of Ice",
+    "zh": "寒冰之柱"
+   },
+   "R": {
+    "en": "Subjugate",
+    "zh": "强权至上"
+   }
+  },
+  "50": {
+   "P": {
+    "en": "Ravenous Flock",
+    "zh": "狂食鸦群"
+   },
+   "Q": {
+    "en": "Death's Hand",
+    "zh": "解脱之触"
+   },
+   "W": {
+    "en": "Vision of Empire",
+    "zh": "帝国视界"
+   },
+   "E": {
+    "en": "Nevermove",
+    "zh": "永不复行"
+   },
+   "R": {
+    "en": "Demonic Ascension",
+    "zh": "恶魔升华"
+   }
+  },
+  "51": {
+   "P": {
+    "en": "Headshot",
+    "zh": "爆头"
+   },
+   "Q": {
+    "en": "Piltover Peacemaker",
+    "zh": "和平使者"
+   },
+   "W": {
+    "en": "Yordle Snap Trap",
+    "zh": "约德尔诱捕器"
+   },
+   "E": {
+    "en": "90 Caliber Net",
+    "zh": "90口径绳网"
+   },
+   "R": {
+    "en": "Ace in the Hole",
+    "zh": "让子弹飞"
+   }
+  },
+  "53": {
+   "P": {
+    "en": "Mana Barrier",
+    "zh": "法力屏障"
+   },
+   "Q": {
+    "en": "Rocket Grab",
+    "zh": "机械飞爪"
+   },
+   "W": {
+    "en": "Overdrive",
+    "zh": "过载运转"
+   },
+   "E": {
+    "en": "Power Fist",
+    "zh": "能量铁拳"
+   },
+   "R": {
+    "en": "Static Field",
+    "zh": "静电力场"
+   }
+  },
+  "54": {
+   "P": {
+    "en": "Granite Shield",
+    "zh": "花岗岩护盾"
+   },
+   "Q": {
+    "en": "Seismic Shard",
+    "zh": "地震碎片"
+   },
+   "W": {
+    "en": "Thunderclap",
+    "zh": "雷霆拍击"
+   },
+   "E": {
+    "en": "Ground Slam",
+    "zh": "大地震颤"
+   },
+   "R": {
+    "en": "Unstoppable Force",
+    "zh": "势不可挡"
+   }
+  },
+  "55": {
+   "P": {
+    "en": "Voracity",
+    "zh": "贪婪"
+   },
+   "Q": {
+    "en": "Bouncing Blade",
+    "zh": "弹射之刃"
+   },
+   "W": {
+    "en": "Preparation",
+    "zh": "伺机待发"
+   },
+   "E": {
+    "en": "Shunpo",
+    "zh": "瞬步"
+   },
+   "R": {
+    "en": "Death Lotus",
+    "zh": "死亡莲华"
+   }
+  },
+  "56": {
+   "P": {
+    "en": "Umbra Blades",
+    "zh": "暗影之刃"
+   },
+   "Q": {
+    "en": "Duskbringer",
+    "zh": "梦魇之径"
+   },
+   "W": {
+    "en": "Shroud of Darkness",
+    "zh": "黑暗庇护"
+   },
+   "E": {
+    "en": "Unspeakable Horror",
+    "zh": "无言恐惧"
+   },
+   "R": {
+    "en": "Paranoia",
+    "zh": "鬼影重重"
+   }
+  },
+  "57": {
+   "P": {
+    "en": "Sap Magic",
+    "zh": "吸元秘术"
+   },
+   "Q": {
+    "en": "Bramble Smash",
+    "zh": "荆棘重击"
+   },
+   "W": {
+    "en": "Twisted Advance",
+    "zh": "扭曲突刺"
+   },
+   "E": {
+    "en": "Sapling Toss",
+    "zh": "树苗投掷"
+   },
+   "R": {
+    "en": "Nature's Grasp",
+    "zh": "自然之握"
+   }
+  },
+  "58": {
+   "P": {
+    "en": "Reign of Anger",
+    "zh": "怒之领域"
+   },
+   "Q": {
+    "en": "Cull the Meek",
+    "zh": "巨鳄狂袭"
+   },
+   "W": {
+    "en": "Ruthless Predator",
+    "zh": "冷酷捕猎"
+   },
+   "E": {
+    "en": "Slice and Dice",
+    "zh": "横冲直撞"
+   },
+   "R": {
+    "en": "Dominus",
+    "zh": "终极统治"
+   }
+  },
+  "59": {
+   "P": {
+    "en": "Martial Cadence",
+    "zh": "战争律动"
+   },
+   "Q": {
+    "en": "Dragon Strike",
+    "zh": "巨龙撞击"
+   },
+   "W": {
+    "en": "Golden Aegis",
+    "zh": "黄金圣盾"
+   },
+   "E": {
+    "en": "Demacian Standard",
+    "zh": "德邦军旗"
+   },
+   "R": {
+    "en": "Cataclysm",
+    "zh": "天崩地裂"
+   }
+  },
+  "60": {
+   "P": {
+    "en": "Spider Queen",
+    "zh": "蜘蛛女皇"
+   },
+   "Q": {
+    "en": "Neurotoxin / Venomous Bite",
+    "zh": "神经毒素 / 剧毒之蜇"
+   },
+   "W": {
+    "en": "Volatile Spiderling / Skittering Frenzy",
+    "zh": "自爆蜘蛛 / 掠行狂暴"
+   },
+   "E": {
+    "en": "Cocoon / Rappel",
+    "zh": "结茧 / 盘丝"
+   },
+   "R": {
+    "en": "Spider Form",
+    "zh": "蜘蛛形态"
+   }
+  },
+  "61": {
+   "P": {
+    "en": "Clockwork Windup",
+    "zh": "发条协奏"
+   },
+   "Q": {
+    "en": "Command: Attack",
+    "zh": "指令：攻击"
+   },
+   "W": {
+    "en": "Command: Dissonance",
+    "zh": "指令：杂音"
+   },
+   "E": {
+    "en": "Command: Protect",
+    "zh": "指令：防卫"
+   },
+   "R": {
+    "en": "Command: Shockwave",
+    "zh": "指令：冲击波"
+   }
+  },
+  "62": {
+   "P": {
+    "en": "Stone Skin",
+    "zh": "金刚不坏"
+   },
+   "Q": {
+    "en": "Crushing Blow",
+    "zh": "粉碎打击"
+   },
+   "W": {
+    "en": "Warrior Trickster",
+    "zh": "真假猴王"
+   },
+   "E": {
+    "en": "Nimbus Strike",
+    "zh": "腾云突击"
+   },
+   "R": {
+    "en": "Cyclone",
+    "zh": "大闹天宫"
+   }
+  },
+  "63": {
+   "P": {
+    "en": "Blaze",
+    "zh": "炽热之焰"
+   },
+   "Q": {
+    "en": "Sear",
+    "zh": "火焰烙印"
+   },
+   "W": {
+    "en": "Pillar of Flame",
+    "zh": "烈焰之柱"
+   },
+   "E": {
+    "en": "Conflagration",
+    "zh": "烈火燃烧"
+   },
+   "R": {
+    "en": "Pyroclasm",
+    "zh": "烈焰风暴"
+   }
+  },
+  "64": {
+   "P": {
+    "en": "Flurry",
+    "zh": "疾风骤雨"
+   },
+   "Q": {
+    "en": "Sonic Wave / Resonating Strike",
+    "zh": "天音波/回音击"
+   },
+   "W": {
+    "en": "Safeguard / Iron Will",
+    "zh": "金钟罩/铁布衫"
+   },
+   "E": {
+    "en": "Tempest / Cripple",
+    "zh": "天雷破/摧筋断骨"
+   },
+   "R": {
+    "en": "Dragon's Rage",
+    "zh": "猛龙摆尾"
+   }
+  },
+  "67": {
+   "P": {
+    "en": "Night Hunter",
+    "zh": "暗夜猎手"
+   },
+   "Q": {
+    "en": "Tumble",
+    "zh": "闪避突袭"
+   },
+   "W": {
+    "en": "Silver Bolts",
+    "zh": "圣银弩箭"
+   },
+   "E": {
+    "en": "Condemn",
+    "zh": "恶魔审判"
+   },
+   "R": {
+    "en": "Final Hour",
+    "zh": "终极时刻"
+   }
+  },
+  "68": {
+   "P": {
+    "en": "Junkyard Titan",
+    "zh": "机械重组"
+   },
+   "Q": {
+    "en": "Flamespitter",
+    "zh": "纵火盛宴"
+   },
+   "W": {
+    "en": "Scrap Shield",
+    "zh": "破碎护盾"
+   },
+   "E": {
+    "en": "Electro Harpoon",
+    "zh": "电子鱼叉"
+   },
+   "R": {
+    "en": "The Equalizer",
+    "zh": "恒温灼烧"
+   }
+  },
+  "69": {
+   "P": {
+    "en": "Serpentine Grace",
+    "zh": "优雅蛇行"
+   },
+   "Q": {
+    "en": "Noxious Blast",
+    "zh": "瘟毒爆炸"
+   },
+   "W": {
+    "en": "Miasma",
+    "zh": "剧毒迷雾"
+   },
+   "E": {
+    "en": "Twin Fang",
+    "zh": "双生毒牙"
+   },
+   "R": {
+    "en": "Petrifying Gaze",
+    "zh": "石化凝视"
+   }
+  },
+  "72": {
+   "P": {
+    "en": "Threads of Vibration",
+    "zh": "战栗"
+   },
+   "Q": {
+    "en": "Shattered Earth / Upheaval",
+    "zh": "撼地 / 擎天"
+   },
+   "W": {
+    "en": "Seismic Bastion",
+    "zh": "震地壁垒"
+   },
+   "E": {
+    "en": "Ixtal's Impact",
+    "zh": "以绪塔尔冲击"
+   },
+   "R": {
+    "en": "Impale",
+    "zh": "毒刺贯体"
+   }
+  },
+  "74": {
+   "P": {
+    "en": "Hextech Affinity",
+    "zh": "海克斯科技亲和"
+   },
+   "Q": {
+    "en": "H-28 G Evolution Turret",
+    "zh": "H-28 G 进化炮台"
+   },
+   "W": {
+    "en": "Hextech Micro-Rockets",
+    "zh": "海克斯科技微型导弹"
+   },
+   "E": {
+    "en": "CH-2 Electron Storm Grenade",
+    "zh": "CH-2电子风暴手雷"
+   },
+   "R": {
+    "en": "UPGRADE!!!",
+    "zh": "升级！！！"
+   }
+  },
+  "75": {
+   "P": {
+    "en": "Soul Eater",
+    "zh": "吞噬灵魂"
+   },
+   "Q": {
+    "en": "Siphoning Strike",
+    "zh": "汲魂痛击"
+   },
+   "W": {
+    "en": "Wither",
+    "zh": "枯萎"
+   },
+   "E": {
+    "en": "Spirit Fire",
+    "zh": "灵魂烈焰"
+   },
+   "R": {
+    "en": "Fury of the Sands",
+    "zh": "死神降临"
+   }
+  },
+  "76": {
+   "P": {
+    "en": "Prowl",
+    "zh": "寻觅"
+   },
+   "Q": {
+    "en": "Javelin Toss / Takedown",
+    "zh": "标枪投掷 / 推倒"
+   },
+   "W": {
+    "en": "Bushwhack / Pounce",
+    "zh": "丛林伏击 / 猛扑"
+   },
+   "E": {
+    "en": "Primal Surge / Swipe",
+    "zh": "野性奔腾 / 挥击"
+   },
+   "R": {
+    "en": "Aspect Of The Cougar",
+    "zh": "美洲狮形态"
+   }
+  },
+  "77": {
+   "P": {
+    "en": "Bridge Between",
+    "zh": "众灵纽带"
+   },
+   "Q": {
+    "en": "Wilding Claw",
+    "zh": "狂暴爪击"
+   },
+   "W": {
+    "en": "Iron Mantle",
+    "zh": "坚铁甲胄"
+   },
+   "E": {
+    "en": "Blazing Stampede",
+    "zh": "踏火蛮冲"
+   },
+   "R": {
+    "en": "Wingborne Storm",
+    "zh": "极凌飓风"
+   }
+  },
+  "78": {
+   "P": {
+    "en": "Iron Ambassador",
+    "zh": "钢铁大使"
+   },
+   "Q": {
+    "en": "Hammer Shock",
+    "zh": "圣锤猛击"
+   },
+   "W": {
+    "en": "Steadfast Presence",
+    "zh": "坚定风采"
+   },
+   "E": {
+    "en": "Heroic Charge",
+    "zh": "英勇冲锋"
+   },
+   "R": {
+    "en": "Keeper's Verdict",
+    "zh": "持卫的裁决"
+   }
+  },
+  "79": {
+   "P": {
+    "en": "Happy Hour",
+    "zh": "欢乐时光"
+   },
+   "Q": {
+    "en": "Barrel Roll",
+    "zh": "滚动酒桶"
+   },
+   "W": {
+    "en": "Drunken Rage",
+    "zh": "醉酒狂暴"
+   },
+   "E": {
+    "en": "Body Slam",
+    "zh": "肉弹冲击"
+   },
+   "R": {
+    "en": "Explosive Cask",
+    "zh": "爆破酒桶"
+   }
+  },
+  "80": {
+   "P": {
+    "en": "Mortal Will",
+    "zh": "矢志不退"
+   },
+   "Q": {
+    "en": "Comet Spear",
+    "zh": "贯星长枪"
+   },
+   "W": {
+    "en": "Shield Vault",
+    "zh": "斗盾跃击"
+   },
+   "E": {
+    "en": "Aegis Assault",
+    "zh": "神佑枪阵"
+   },
+   "R": {
+    "en": "Grand Starfall",
+    "zh": "大荒星陨"
+   }
+  },
+  "81": {
+   "P": {
+    "en": "Rising Spell Force",
+    "zh": "咒能高涨"
+   },
+   "Q": {
+    "en": "Mystic Shot",
+    "zh": "秘术射击"
+   },
+   "W": {
+    "en": "Essence Flux",
+    "zh": "精华跃动"
+   },
+   "E": {
+    "en": "Arcane Shift",
+    "zh": "奥术跃迁"
+   },
+   "R": {
+    "en": "Trueshot Barrage",
+    "zh": "精准弹幕"
+   }
+  },
+  "82": {
+   "P": {
+    "en": "Darkness Rise",
+    "zh": "黑暗起兮"
+   },
+   "Q": {
+    "en": "Obliterate",
+    "zh": "破灭之锤"
+   },
+   "W": {
+    "en": "Indestructible",
+    "zh": "不坏之身"
+   },
+   "E": {
+    "en": "Death's Grasp",
+    "zh": "断魂一扼"
+   },
+   "R": {
+    "en": "Realm of Death",
+    "zh": "轮回绝境"
+   }
+  },
+  "83": {
+   "P": {
+    "en": "Shepherd of Souls",
+    "zh": "牧魂人"
+   },
+   "Q": {
+    "en": "Last Rites",
+    "zh": "临终仪式"
+   },
+   "W": {
+    "en": "Dark Procession",
+    "zh": "暗灵缠身"
+   },
+   "E": {
+    "en": "Mourning Mist",
+    "zh": "哀伤之雾"
+   },
+   "R": {
+    "en": "Eulogy of the Isles",
+    "zh": "海屿悼词"
+   }
+  },
+  "84": {
+   "P": {
+    "en": "Assassin's Mark",
+    "zh": "我流忍法！潜龙印"
+   },
+   "Q": {
+    "en": "Five Point Strike",
+    "zh": "我流奥义！寒影"
+   },
+   "W": {
+    "en": "Twilight Shroud",
+    "zh": "我流奥义！霞阵"
+   },
+   "E": {
+    "en": "Shuriken Flip",
+    "zh": "我流奥义！隼舞"
+   },
+   "R": {
+    "en": "Perfect Execution",
+    "zh": "我流秘奥义！表里杀缭乱"
+   }
+  },
+  "85": {
+   "P": {
+    "en": "Mark of the Storm",
+    "zh": "【忍法！雷缚印】"
+   },
+   "Q": {
+    "en": "Thundering Shuriken",
+    "zh": "奥义！千鸟"
+   },
+   "W": {
+    "en": "Electrical Surge",
+    "zh": "奥义！电刃"
+   },
+   "E": {
+    "en": "Lightning Rush",
+    "zh": "奥义！雷铠"
+   },
+   "R": {
+    "en": "Slicing Maelstrom",
+    "zh": "秘奥义！万雷天牢引"
+   }
+  },
+  "86": {
+   "P": {
+    "en": "Perseverance",
+    "zh": "坚韧"
+   },
+   "Q": {
+    "en": "Decisive Strike",
+    "zh": "致命打击"
+   },
+   "W": {
+    "en": "Courage",
+    "zh": "勇气"
+   },
+   "E": {
+    "en": "Judgment",
+    "zh": "审判"
+   },
+   "R": {
+    "en": "Demacian Justice",
+    "zh": "德玛西亚正义"
+   }
+  },
+  "89": {
+   "P": {
+    "en": "Sunlight",
+    "zh": "日光"
+   },
+   "Q": {
+    "en": "Shield of Daybreak",
+    "zh": "破晓之盾"
+   },
+   "W": {
+    "en": "Eclipse",
+    "zh": "日蚀"
+   },
+   "E": {
+    "en": "Zenith Blade",
+    "zh": "天顶之刃"
+   },
+   "R": {
+    "en": "Solar Flare",
+    "zh": "日炎耀斑"
+   }
+  },
+  "90": {
+   "P": {
+    "en": "Void Shift",
+    "zh": "虚空穿越"
+   },
+   "Q": {
+    "en": "Call of the Void",
+    "zh": "虚空召唤"
+   },
+   "W": {
+    "en": "Void Swarm",
+    "zh": "虚空虫群"
+   },
+   "E": {
+    "en": "Malefic Visions",
+    "zh": "煞星幻象"
+   },
+   "R": {
+    "en": "Nether Grasp",
+    "zh": "冥府之握"
+   }
+  },
+  "91": {
+   "P": {
+    "en": "Blade's End",
+    "zh": "刀锋之末"
+   },
+   "Q": {
+    "en": "Noxian Diplomacy",
+    "zh": "诺克萨斯式外交"
+   },
+   "W": {
+    "en": "Rake",
+    "zh": "斩草除根"
+   },
+   "E": {
+    "en": "Assassin's Path",
+    "zh": "刺客之道"
+   },
+   "R": {
+    "en": "Shadow Assault",
+    "zh": "暗影突袭"
+   }
+  },
+  "92": {
+   "P": {
+    "en": "Runic Blade",
+    "zh": "符文之刃"
+   },
+   "Q": {
+    "en": "Broken Wings",
+    "zh": "折翼之舞"
+   },
+   "W": {
+    "en": "Ki Burst",
+    "zh": "震魂怒吼"
+   },
+   "E": {
+    "en": "Valor",
+    "zh": "勇往直前"
+   },
+   "R": {
+    "en": "Blade of the Exile",
+    "zh": "放逐之锋"
+   }
+  },
+  "96": {
+   "P": {
+    "en": "Icathian Surprise",
+    "zh": "来自艾卡西亚的惊喜"
+   },
+   "Q": {
+    "en": "Caustic Spittle",
+    "zh": "腐蚀唾液"
+   },
+   "W": {
+    "en": "Bio-Arcane Barrage",
+    "zh": "生化弹幕"
+   },
+   "E": {
+    "en": "Void Ooze",
+    "zh": "虚空淤泥"
+   },
+   "R": {
+    "en": "Living Artillery",
+    "zh": "活体大炮"
+   }
+  },
+  "98": {
+   "P": {
+    "en": "Ki Barrier",
+    "zh": "忍法！气合盾"
+   },
+   "Q": {
+    "en": "Twilight Assault",
+    "zh": "奥义！暮临"
+   },
+   "W": {
+    "en": "Spirit's Refuge",
+    "zh": "奥义！魂佑"
+   },
+   "E": {
+    "en": "Shadow Dash",
+    "zh": "奥义！影缚"
+   },
+   "R": {
+    "en": "Stand United",
+    "zh": "秘奥义！慈悲度魂落"
+   }
+  },
+  "99": {
+   "P": {
+    "en": "Illumination",
+    "zh": "光芒四射"
+   },
+   "Q": {
+    "en": "Light Binding",
+    "zh": "光之束缚"
+   },
+   "W": {
+    "en": "Prismatic Barrier",
+    "zh": "曲光屏障"
+   },
+   "E": {
+    "en": "Lucent Singularity",
+    "zh": "透光奇点"
+   },
+   "R": {
+    "en": "Final Spark",
+    "zh": "终极闪光"
+   }
+  },
+  "101": {
+   "P": {
+    "en": "Mana Surge",
+    "zh": "法力澎湃"
+   },
+   "Q": {
+    "en": "Arcanopulse",
+    "zh": "奥能脉冲"
+   },
+   "W": {
+    "en": "Eye of Destruction",
+    "zh": "毁灭之眼"
+   },
+   "E": {
+    "en": "Shocking Orb",
+    "zh": "冲击法球"
+   },
+   "R": {
+    "en": "Rite of the Arcane",
+    "zh": "奥术仪式"
+   }
+  },
+  "102": {
+   "P": {
+    "en": "Scalemail",
+    "zh": "龙鳞铁衣"
+   },
+   "Q": {
+    "en": "Emberstrike",
+    "zh": "焚焰打击"
+   },
+   "W": {
+    "en": "Inferno Aegis",
+    "zh": "烈火圣盾"
+   },
+   "E": {
+    "en": "Molten Burst",
+    "zh": "爆炎吐息"
+   },
+   "R": {
+    "en": "Dragon's Descent",
+    "zh": "魔龙降世"
+   }
+  },
+  "103": {
+   "P": {
+    "en": "Essence Theft",
+    "zh": "摄魂夺魄"
+   },
+   "Q": {
+    "en": "Orb of Deception",
+    "zh": "欺诈宝珠"
+   },
+   "W": {
+    "en": "Fox-Fire",
+    "zh": "妖异狐火"
+   },
+   "E": {
+    "en": "Charm",
+    "zh": "魅惑妖术"
+   },
+   "R": {
+    "en": "Spirit Rush",
+    "zh": "灵魄突袭"
+   }
+  },
+  "104": {
+   "P": {
+    "en": "New Destiny",
+    "zh": "新命运"
+   },
+   "Q": {
+    "en": "End of the Line",
+    "zh": "穷途末路"
+   },
+   "W": {
+    "en": "Smoke Screen",
+    "zh": "烟幕弹"
+   },
+   "E": {
+    "en": "Quickdraw",
+    "zh": "快速拔枪"
+   },
+   "R": {
+    "en": "Collateral Damage",
+    "zh": "终极爆弹"
+   }
+  },
+  "105": {
+   "P": {
+    "en": "Nimble Fighter",
+    "zh": "伶俐斗士"
+   },
+   "Q": {
+    "en": "Urchin Strike",
+    "zh": "淘气打击"
+   },
+   "W": {
+    "en": "Seastone Trident",
+    "zh": "海石三叉戟"
+   },
+   "E": {
+    "en": "Playful / Trickster",
+    "zh": "古灵/精怪"
+   },
+   "R": {
+    "en": "Chum the Waters",
+    "zh": "巨鲨强袭"
+   }
+  },
+  "106": {
+   "P": {
+    "en": "The Relentless Storm",
+    "zh": "狂雷渐起"
+   },
+   "Q": {
+    "en": "Thundering Smash",
+    "zh": "擂首一击"
+   },
+   "W": {
+    "en": "Frenzied Maul",
+    "zh": "暴怒撕咬"
+   },
+   "E": {
+    "en": "Sky Splitter",
+    "zh": "霹天雳地"
+   },
+   "R": {
+    "en": "Stormbringer",
+    "zh": "天声震落"
+   }
+  },
+  "107": {
+   "P": {
+    "en": "Unseen Predator",
+    "zh": "无形掠食者"
+   },
+   "Q": {
+    "en": "Savagery",
+    "zh": "残忍无情"
+   },
+   "W": {
+    "en": "Battle Roar",
+    "zh": "战争咆哮"
+   },
+   "E": {
+    "en": "Bola Strike",
+    "zh": "套索打击"
+   },
+   "R": {
+    "en": "Thrill of the Hunt",
+    "zh": "狩猎律动"
+   }
+  },
+  "110": {
+   "P": {
+    "en": "Living Vengeance",
+    "zh": "复仇之欲"
+   },
+   "Q": {
+    "en": "Piercing Arrow",
+    "zh": "穿刺之箭"
+   },
+   "W": {
+    "en": "Blighted Quiver",
+    "zh": "枯萎箭袋"
+   },
+   "E": {
+    "en": "Hail of Arrows",
+    "zh": "恶灵箭雨"
+   },
+   "R": {
+    "en": "Chain of Corruption",
+    "zh": "腐败锁链"
+   }
+  },
+  "111": {
+   "P": {
+    "en": "Staggering Blow",
+    "zh": "排山倒海"
+   },
+   "Q": {
+    "en": "Dredge Line",
+    "zh": "疏通航道"
+   },
+   "W": {
+    "en": "Titan's Wrath",
+    "zh": "泰坦之怒"
+   },
+   "E": {
+    "en": "Riptide",
+    "zh": "暗流涌动"
+   },
+   "R": {
+    "en": "Depth Charge",
+    "zh": "深海冲击"
+   }
+  },
+  "112": {
+   "P": {
+    "en": "Glorious Evolution",
+    "zh": "光荣进化"
+   },
+   "Q": {
+    "en": "Siphon Power",
+    "zh": "虹吸能量"
+   },
+   "W": {
+    "en": "Gravity Field",
+    "zh": "重力场"
+   },
+   "E": {
+    "en": "Hextech Ray",
+    "zh": "海克斯射线"
+   },
+   "R": {
+    "en": "Arcane Storm",
+    "zh": "奥术风暴"
+   }
+  },
+  "113": {
+   "P": {
+    "en": "Fury of the North",
+    "zh": "北地之怒"
+   },
+   "Q": {
+    "en": "Arctic Assault",
+    "zh": "极寒突袭"
+   },
+   "W": {
+    "en": "Winter's Wrath",
+    "zh": "凛冬之怒"
+   },
+   "E": {
+    "en": "Permafrost",
+    "zh": "永冻领域"
+   },
+   "R": {
+    "en": "Glacial Prison",
+    "zh": "极冰寒狱"
+   }
+  },
+  "114": {
+   "P": {
+    "en": "Duelist's Dance",
+    "zh": "决斗之舞"
+   },
+   "Q": {
+    "en": "Lunge",
+    "zh": "破空斩"
+   },
+   "W": {
+    "en": "Riposte",
+    "zh": "劳伦特心眼刀"
+   },
+   "E": {
+    "en": "Bladework",
+    "zh": "夺命连刺"
+   },
+   "R": {
+    "en": "Grand Challenge",
+    "zh": "无双挑战"
+   }
+  },
+  "115": {
+   "P": {
+    "en": "Short Fuse",
+    "zh": "一触即发"
+   },
+   "Q": {
+    "en": "Bouncing Bomb",
+    "zh": "弹跳炸弹"
+   },
+   "W": {
+    "en": "Satchel Charge",
+    "zh": "定点爆破"
+   },
+   "E": {
+    "en": "Hexplosive Minefield",
+    "zh": "海克斯爆破雷区"
+   },
+   "R": {
+    "en": "Mega Inferno Bomb",
+    "zh": "科学的地狱火炮"
+   }
+  },
+  "117": {
+   "P": {
+    "en": "Pix, Faerie Companion",
+    "zh": "皮克斯，仙灵伙伴"
+   },
+   "Q": {
+    "en": "Glitterlance",
+    "zh": "闪耀长枪"
+   },
+   "W": {
+    "en": "Whimsy",
+    "zh": "奇思妙想"
+   },
+   "E": {
+    "en": "Help, Pix!",
+    "zh": "帮忙，皮克斯！"
+   },
+   "R": {
+    "en": "Wild Growth",
+    "zh": "狂野生长"
+   }
+  },
+  "119": {
+   "P": {
+    "en": "League of Draven",
+    "zh": "德莱文联盟"
+   },
+   "Q": {
+    "en": "Spinning Axe",
+    "zh": "旋转飞斧"
+   },
+   "W": {
+    "en": "Blood Rush",
+    "zh": "血性冲刺"
+   },
+   "E": {
+    "en": "Stand Aside",
+    "zh": "开道利斧"
+   },
+   "R": {
+    "en": "Whirling Death",
+    "zh": "冷血追命"
+   }
+  },
+  "120": {
+   "P": {
+    "en": "Warpath",
+    "zh": "征战之路"
+   },
+   "Q": {
+    "en": "Rampage",
+    "zh": "暴走"
+   },
+   "W": {
+    "en": "Spirit of Dread",
+    "zh": "恐惧之灵"
+   },
+   "E": {
+    "en": "Devastating Charge",
+    "zh": "毁灭冲锋"
+   },
+   "R": {
+    "en": "Onslaught of Shadows",
+    "zh": "暗影冲击"
+   }
+  },
+  "121": {
+   "P": {
+    "en": "Unseen Threat",
+    "zh": "无形威胁"
+   },
+   "Q": {
+    "en": "Taste Their Fear",
+    "zh": "品尝恐惧"
+   },
+   "W": {
+    "en": "Void Spike",
+    "zh": "虚空突刺"
+   },
+   "E": {
+    "en": "Leap",
+    "zh": "跃击"
+   },
+   "R": {
+    "en": "Void Assault",
+    "zh": "虚空来袭"
+   }
+  },
+  "122": {
+   "P": {
+    "en": "Hemorrhage",
+    "zh": "出血"
+   },
+   "Q": {
+    "en": "Decimate",
+    "zh": "大杀四方"
+   },
+   "W": {
+    "en": "Crippling Strike",
+    "zh": "致残打击"
+   },
+   "E": {
+    "en": "Apprehend",
+    "zh": "无情铁手"
+   },
+   "R": {
+    "en": "Noxian Guillotine",
+    "zh": "诺克萨斯断头台"
+   }
+  },
+  "126": {
+   "P": {
+    "en": "Hextech Capacitor",
+    "zh": "海克斯科技电容"
+   },
+   "Q": {
+    "en": "To the Skies! / Shock Blast",
+    "zh": "苍穹之跃 / 电能震荡"
+   },
+   "W": {
+    "en": "Lightning Field / Hyper Charge",
+    "zh": "闪电领域 / 超能电荷"
+   },
+   "E": {
+    "en": "Thundering Blow / Acceleration Gate",
+    "zh": "雷霆一击 / 加速之门"
+   },
+   "R": {
+    "en": "Mercury Cannon / Mercury Hammer",
+    "zh": "墨丘利之炮 / 墨丘利之锤"
+   }
+  },
+  "127": {
+   "P": {
+    "en": "Iceborn Subjugation",
+    "zh": "冰脉驱役"
+   },
+   "Q": {
+    "en": "Ice Shard",
+    "zh": "寒冰碎片"
+   },
+   "W": {
+    "en": "Ring of Frost",
+    "zh": "冰霜之环"
+   },
+   "E": {
+    "en": "Glacial Path",
+    "zh": "冰川之径"
+   },
+   "R": {
+    "en": "Frozen Tomb",
+    "zh": "冰封陵墓"
+   }
+  },
+  "131": {
+   "P": {
+    "en": "Moonsilver Blade",
+    "zh": "月银之刃"
+   },
+   "Q": {
+    "en": "Crescent Strike",
+    "zh": "新月打击"
+   },
+   "W": {
+    "en": "Pale Cascade",
+    "zh": "苍白之瀑"
+   },
+   "E": {
+    "en": "Lunar Rush",
+    "zh": "月神冲刺"
+   },
+   "R": {
+    "en": "Moonfall",
+    "zh": "月之降临"
+   }
+  },
+  "133": {
+   "P": {
+    "en": "Harrier",
+    "zh": "侵扰"
+   },
+   "Q": {
+    "en": "Blinding Assault",
+    "zh": "炫目攻势"
+   },
+   "W": {
+    "en": "Heightened Senses",
+    "zh": "敏锐感知"
+   },
+   "E": {
+    "en": "Vault",
+    "zh": "旋翔掠杀"
+   },
+   "R": {
+    "en": "Behind Enemy Lines",
+    "zh": "深入敌后"
+   }
+  },
+  "134": {
+   "P": {
+    "en": "Transcendent",
+    "zh": "卓尔不凡"
+   },
+   "Q": {
+    "en": "Dark Sphere",
+    "zh": "暗黑法球"
+   },
+   "W": {
+    "en": "Force of Will",
+    "zh": "驱使念力"
+   },
+   "E": {
+    "en": "Scatter the Weak",
+    "zh": "弱者退散"
+   },
+   "R": {
+    "en": "Unleashed Power",
+    "zh": "能量倾泻"
+   }
+  },
+  "136": {
+   "P": {
+    "en": "Cosmic Creator",
+    "zh": "星海焕然"
+   },
+   "Q": {
+    "en": "Breath of Light",
+    "zh": "星河冲荡"
+   },
+   "W": {
+    "en": "Astral Flight",
+    "zh": "星穹流丽"
+   },
+   "E": {
+    "en": "Singularity",
+    "zh": "星芒凝汇"
+   },
+   "R": {
+    "en": "Falling Star / The Skies Descend",
+    "zh": "星天落瀑"
+   }
+  },
+  "141": {
+   "P": {
+    "en": "The Darkin Scythe",
+    "zh": "暗裔魔镰"
+   },
+   "Q": {
+    "en": "Reaping Slash",
+    "zh": "巨镰横扫"
+   },
+   "W": {
+    "en": "Blade's Reach",
+    "zh": "利刃纵贯"
+   },
+   "E": {
+    "en": "Shadow Step",
+    "zh": "掠影步"
+   },
+   "R": {
+    "en": "Umbral Trespass",
+    "zh": "裂舍影"
+   }
+  },
+  "142": {
+   "P": {
+    "en": "More Sparkles!",
+    "zh": "烟火四射！"
+   },
+   "Q": {
+    "en": "Paddle Star!",
+    "zh": "飞星乱入！"
+   },
+   "W": {
+    "en": "Spell Thief",
+    "zh": "窃法巧手"
+   },
+   "E": {
+    "en": "Sleepy Trouble Bubble",
+    "zh": "催眠气泡"
+   },
+   "R": {
+    "en": "Portal Jump",
+    "zh": "折返跃迁"
+   }
+  },
+  "143": {
+   "P": {
+    "en": "Garden of Thorns",
+    "zh": "荆棘花园"
+   },
+   "Q": {
+    "en": "Deadly Spines",
+    "zh": "致命棘刺"
+   },
+   "W": {
+    "en": "Rampant Growth",
+    "zh": "狂野生长"
+   },
+   "E": {
+    "en": "Grasping Roots",
+    "zh": "缠绕之根"
+   },
+   "R": {
+    "en": "Stranglethorns",
+    "zh": "绞杀之藤"
+   }
+  },
+  "145": {
+   "P": {
+    "en": "Second Skin",
+    "zh": "体表活肤"
+   },
+   "Q": {
+    "en": "Icathian Rain",
+    "zh": "艾卡西亚暴雨"
+   },
+   "W": {
+    "en": "Void Seeker",
+    "zh": "虚空索敌"
+   },
+   "E": {
+    "en": "Supercharge",
+    "zh": "极限超载"
+   },
+   "R": {
+    "en": "Killer Instinct",
+    "zh": "猎手本能"
+   }
+  },
+  "147": {
+   "P": {
+    "en": "Stage Presence",
+    "zh": "星光漫射"
+   },
+   "Q": {
+    "en": "High Note",
+    "zh": "清籁穿云"
+   },
+   "W": {
+    "en": "Surround Sound",
+    "zh": "聚和心声"
+   },
+   "E": {
+    "en": "Beat Drop",
+    "zh": "增幅节拍"
+   },
+   "R": {
+    "en": "Encore",
+    "zh": "炫音返场"
+   }
+  },
+  "150": {
+   "P": {
+    "en": "Rage Gene",
+    "zh": "狂怒基因"
+   },
+   "Q": {
+    "en": "Boomerang Throw / Boulder Toss",
+    "zh": "投掷回力标 / 投掷顽石"
+   },
+   "W": {
+    "en": "Hyper / Wallop",
+    "zh": "亢奋 /  痛殴"
+   },
+   "E": {
+    "en": "Hop / Crunch",
+    "zh": "轻跳 / 猛踏"
+   },
+   "R": {
+    "en": "GNAR!",
+    "zh": "呐啊！"
+   }
+  },
+  "154": {
+   "P": {
+    "en": "Cell Division",
+    "zh": "细胞分裂"
+   },
+   "Q": {
+    "en": "Stretching Strikes",
+    "zh": "延伸打击"
+   },
+   "W": {
+    "en": "Unstable Matter",
+    "zh": "不稳定物质"
+   },
+   "E": {
+    "en": "Elastic Slingshot",
+    "zh": "橡筋弹弓"
+   },
+   "R": {
+    "en": "Let's Bounce!",
+    "zh": "动感弹球"
+   }
+  },
+  "157": {
+   "P": {
+    "en": "Way of the Wanderer",
+    "zh": "浪客之道"
+   },
+   "Q": {
+    "en": "Steel Tempest",
+    "zh": "斩钢闪"
+   },
+   "W": {
+    "en": "Wind Wall",
+    "zh": "风之障壁"
+   },
+   "E": {
+    "en": "Sweeping Blade",
+    "zh": "踏前斩"
+   },
+   "R": {
+    "en": "Last Breath",
+    "zh": "狂风绝息斩"
+   }
+  },
+  "161": {
+   "P": {
+    "en": "Organic Deconstruction",
+    "zh": "有机体解构"
+   },
+   "Q": {
+    "en": "Plasma Fission",
+    "zh": "等离子裂变"
+   },
+   "W": {
+    "en": "Void Rift",
+    "zh": "虚空裂隙"
+   },
+   "E": {
+    "en": "Tectonic Disruption",
+    "zh": "构造分解"
+   },
+   "R": {
+    "en": "Life Form Disintegration Ray",
+    "zh": "生命形态瓦解射线"
+   }
+  },
+  "163": {
+   "P": {
+    "en": "Rock Surfing",
+    "zh": "浮石冲"
+   },
+   "Q": {
+    "en": "Threaded Volley",
+    "zh": "石穿"
+   },
+   "W": {
+    "en": "Seismic Shove",
+    "zh": "岩突"
+   },
+   "E": {
+    "en": "Unraveled Earth",
+    "zh": "撒石阵"
+   },
+   "R": {
+    "en": "Weaver's Wall",
+    "zh": "墙幔"
+   }
+  },
+  "164": {
+   "P": {
+    "en": "Adaptive Defenses",
+    "zh": "适应性防御"
+   },
+   "Q": {
+    "en": "Precision Protocol",
+    "zh": "精准礼仪"
+   },
+   "W": {
+    "en": "Tactical Sweep",
+    "zh": "战术横扫"
+   },
+   "E": {
+    "en": "Hookshot",
+    "zh": "钩索"
+   },
+   "R": {
+    "en": "The Hextech Ultimatum",
+    "zh": "海克斯最后通牒"
+   }
+  },
+  "166": {
+   "P": {
+    "en": "Dirty Fighting",
+    "zh": "无所不用"
+   },
+   "Q": {
+    "en": "Avengerang",
+    "zh": "去而复还"
+   },
+   "W": {
+    "en": "Going Rogue",
+    "zh": "赴险夺人"
+   },
+   "E": {
+    "en": "Heroic Swing",
+    "zh": "骄行荡寇"
+   },
+   "R": {
+    "en": "Comeuppance",
+    "zh": "恩怨相抵"
+   }
+  },
+  "200": {
+   "P": {
+    "en": "Death in Lavender ",
+    "zh": "溶烛化紫 "
+   },
+   "Q": {
+    "en": "Void Surge",
+    "zh": "虚空激流"
+   },
+   "W": {
+    "en": "Above and Below",
+    "zh": "上觐沉渊"
+   },
+   "E": {
+    "en": "Royal Maelstrom",
+    "zh": "搠面皇锋"
+   },
+   "R": {
+    "en": "Endless Banquet",
+    "zh": "万载豪筵"
+   }
+  },
+  "201": {
+   "P": {
+    "en": "Concussive Blows",
+    "zh": "震荡猛击"
+   },
+   "Q": {
+    "en": "Winter's Bite",
+    "zh": "寒冬之咬"
+   },
+   "W": {
+    "en": "Stand Behind Me",
+    "zh": "挺身而出"
+   },
+   "E": {
+    "en": "Unbreakable",
+    "zh": "坚不可摧"
+   },
+   "R": {
+    "en": "Glacial Fissure",
+    "zh": "冰川裂隙"
+   }
+  },
+  "202": {
+   "P": {
+    "en": "Whisper",
+    "zh": "低语"
+   },
+   "Q": {
+    "en": "Dancing Grenade",
+    "zh": "曼舞手雷"
+   },
+   "W": {
+    "en": "Deadly Flourish",
+    "zh": "致命华彩"
+   },
+   "E": {
+    "en": "Captive Audience",
+    "zh": "万众倾倒"
+   },
+   "R": {
+    "en": "Curtain Call",
+    "zh": "完美谢幕"
+   }
+  },
+  "203": {
+   "P": {
+    "en": "Mark of the Kindred",
+    "zh": "千珏之印"
+   },
+   "Q": {
+    "en": "Dance of Arrows",
+    "zh": "乱箭之舞"
+   },
+   "W": {
+    "en": "Wolf's Frenzy",
+    "zh": "狼灵狂热"
+   },
+   "E": {
+    "en": "Mounting Dread",
+    "zh": "横生惧意"
+   },
+   "R": {
+    "en": "Lamb's Respite",
+    "zh": "羊灵生息"
+   }
+  },
+  "221": {
+   "P": {
+    "en": "Living Battery",
+    "zh": "内能迁转"
+   },
+   "Q": {
+    "en": "Burst Fire",
+    "zh": "电火迸射"
+   },
+   "W": {
+    "en": "Ultrashock Laser",
+    "zh": "强穿激光"
+   },
+   "E": {
+    "en": "Spark Surge",
+    "zh": "灿丽花火"
+   },
+   "R": {
+    "en": "Lightning Crash",
+    "zh": "超限爆闪"
+   }
+  },
+  "222": {
+   "P": {
+    "en": "Get Excited!",
+    "zh": "罪恶快感"
+   },
+   "Q": {
+    "en": "Switcheroo!",
+    "zh": "枪炮交响曲！"
+   },
+   "W": {
+    "en": "Zap!",
+    "zh": "震荡电磁波！"
+   },
+   "E": {
+    "en": "Flame Chompers!",
+    "zh": "嚼火者手雷！"
+   },
+   "R": {
+    "en": "Super Mega Death Rocket!",
+    "zh": "超究极死神飞弹！"
+   }
+  },
+  "223": {
+   "P": {
+    "en": "An Acquired Taste",
+    "zh": "培养品味"
+   },
+   "Q": {
+    "en": "Tongue Lash",
+    "zh": "巨舌鞭笞"
+   },
+   "W": {
+    "en": "Abyssal Dive",
+    "zh": "深渊潜航"
+   },
+   "E": {
+    "en": "Thick Skin",
+    "zh": "厚实表皮"
+   },
+   "R": {
+    "en": "Devour",
+    "zh": "大快朵颐"
+   }
+  },
+  "233": {
+   "P": {
+    "en": "Crimson Curse",
+    "zh": "猩红诅咒"
+   },
+   "Q": {
+    "en": "Head Rush",
+    "zh": "冲头"
+   },
+   "W": {
+    "en": "Blood Frenzy / Snack Attack",
+    "zh": "血莽 / 噬击"
+   },
+   "E": {
+    "en": "Chilling Scream",
+    "zh": "惊吼"
+   },
+   "R": {
+    "en": "Certain Death",
+    "zh": "毙除"
+   }
+  },
+  "234": {
+   "P": {
+    "en": "Sovereign's Domination",
+    "zh": "君命已决"
+   },
+   "Q": {
+    "en": "Blade of the Ruined King",
+    "zh": "破败王剑"
+   },
+   "W": {
+    "en": "Spectral Maw",
+    "zh": "千载幽咽"
+   },
+   "E": {
+    "en": "Harrowed Path",
+    "zh": "茫茫焦土"
+   },
+   "R": {
+    "en": "Heartbreaker",
+    "zh": "痛贯天灵"
+   }
+  },
+  "235": {
+   "P": {
+    "en": "Absolution",
+    "zh": "赦除"
+   },
+   "Q": {
+    "en": "Piercing Darkness",
+    "zh": "黑暗洞灭"
+   },
+   "W": {
+    "en": "Last Embrace",
+    "zh": "无尽厮守"
+   },
+   "E": {
+    "en": "Curse of the Black Mist",
+    "zh": "黑雾咒附"
+   },
+   "R": {
+    "en": "Dawning Shadow",
+    "zh": "暗影燎原"
+   }
+  },
+  "236": {
+   "P": {
+    "en": "Lightslinger",
+    "zh": "圣光银弹"
+   },
+   "Q": {
+    "en": "Piercing Light",
+    "zh": "透体圣光"
+   },
+   "W": {
+    "en": "Ardent Blaze",
+    "zh": "热诚烈弹"
+   },
+   "E": {
+    "en": "Relentless Pursuit",
+    "zh": "冷酷追击"
+   },
+   "R": {
+    "en": "The Culling",
+    "zh": "圣枪洗礼"
+   }
+  },
+  "238": {
+   "P": {
+    "en": "Contempt for the Weak",
+    "zh": "影忍法！灭魂劫"
+   },
+   "Q": {
+    "en": "Razor Shuriken",
+    "zh": "影奥义！诸刃"
+   },
+   "W": {
+    "en": "Living Shadow",
+    "zh": "影奥义！分身"
+   },
+   "E": {
+    "en": "Shadow Slash",
+    "zh": "影奥义！鬼斩"
+   },
+   "R": {
+    "en": "Death Mark",
+    "zh": "禁奥义！瞬狱影杀阵"
+   }
+  },
+  "240": {
+   "P": {
+    "en": "Skaarl, the Cowardly Lizard",
+    "zh": "怯战蜥蜴斯嘎尔"
+   },
+   "Q": {
+    "en": "Bear Trap on a Rope",
+    "zh": "飞索捕熊器"
+   },
+   "W": {
+    "en": "Violent Tendencies",
+    "zh": "暴烈秉性"
+   },
+   "E": {
+    "en": "Jousting",
+    "zh": "比武"
+   },
+   "R": {
+    "en": "Chaaaaaaaarge!!!",
+    "zh": "冲啊——！！"
+   }
+  },
+  "245": {
+   "P": {
+    "en": "Z-Drive Resonance",
+    "zh": "Z型驱动共振"
+   },
+   "Q": {
+    "en": "Timewinder",
+    "zh": "时间卷曲器"
+   },
+   "W": {
+    "en": "Parallel Convergence",
+    "zh": "时光交错"
+   },
+   "E": {
+    "en": "Phase Dive",
+    "zh": "相位俯冲"
+   },
+   "R": {
+    "en": "Chronobreak",
+    "zh": "时空断裂"
+   }
+  },
+  "246": {
+   "P": {
+    "en": "Royal Privilege",
+    "zh": "凌人贵气"
+   },
+   "Q": {
+    "en": "Elemental Wrath / Edge of Ixtal",
+    "zh": "元素之怒 / 以绪塔尔之锋"
+   },
+   "W": {
+    "en": "Terrashape",
+    "zh": "方圆塑令"
+   },
+   "E": {
+    "en": "Audacity",
+    "zh": "天纵之勇"
+   },
+   "R": {
+    "en": "Supreme Display of Talent",
+    "zh": "惊才绝景"
+   }
+  },
+  "254": {
+   "P": {
+    "en": "Blast Shield",
+    "zh": "爆裂护盾"
+   },
+   "Q": {
+    "en": "Vault Breaker",
+    "zh": "强能冲拳"
+   },
+   "W": {
+    "en": "Denting Blows",
+    "zh": "爆弹重拳"
+   },
+   "E": {
+    "en": "Relentless Force",
+    "zh": "透体之劲"
+   },
+   "R": {
+    "en": "Cease and Desist",
+    "zh": "天霸横空烈轰"
+   }
+  },
+  "266": {
+   "P": {
+    "en": "Deathbringer Stance",
+    "zh": "赐死剑气"
+   },
+   "Q": {
+    "en": "The Darkin Blade",
+    "zh": "暗裔利刃"
+   },
+   "W": {
+    "en": "Infernal Chains",
+    "zh": "恶火束链"
+   },
+   "E": {
+    "en": "Umbral Dash",
+    "zh": "暗影冲决"
+   },
+   "R": {
+    "en": "World Ender",
+    "zh": "大灭"
+   }
+  },
+  "267": {
+   "P": {
+    "en": "Surging Tides",
+    "zh": "踏浪之行"
+   },
+   "Q": {
+    "en": "Aqua Prison",
+    "zh": "碧波之牢"
+   },
+   "W": {
+    "en": "Ebb and Flow",
+    "zh": "冲击之潮"
+   },
+   "E": {
+    "en": "Tidecaller's Blessing",
+    "zh": "唤潮之佑"
+   },
+   "R": {
+    "en": "Tidal Wave",
+    "zh": "怒涛之啸"
+   }
+  },
+  "268": {
+   "P": {
+    "en": "Shurima's Legacy",
+    "zh": "恕瑞玛的传承"
+   },
+   "Q": {
+    "en": "Conquering Sands",
+    "zh": "狂沙猛攻"
+   },
+   "W": {
+    "en": "Arise!",
+    "zh": "沙兵现身"
+   },
+   "E": {
+    "en": "Shifting Sands",
+    "zh": "流沙移形"
+   },
+   "R": {
+    "en": "Emperor's Divide",
+    "zh": "禁军之墙"
+   }
+  },
+  "350": {
+   "P": {
+    "en": "Feline Friendship",
+    "zh": "猫的博爱"
+   },
+   "Q": {
+    "en": "Prowling Projectile",
+    "zh": "摸鱼飞弹"
+   },
+   "W": {
+    "en": "You and Me!",
+    "zh": "悠米出动！"
+   },
+   "E": {
+    "en": "Zoomies",
+    "zh": "旺盛精力"
+   },
+   "R": {
+    "en": "Final Chapter",
+    "zh": "魔典终章"
+   }
+  },
+  "360": {
+   "P": {
+    "en": "Daredevil Impulse",
+    "zh": "悍勇本色"
+   },
+   "Q": {
+    "en": "Flair",
+    "zh": "交火"
+   },
+   "W": {
+    "en": "Blade Whirl",
+    "zh": "锋旋"
+   },
+   "E": {
+    "en": "Wild Rush",
+    "zh": "狂飙"
+   },
+   "R": {
+    "en": "Inferno Trigger",
+    "zh": "炼狱扳机"
+   }
+  },
+  "412": {
+   "P": {
+    "en": "Damnation",
+    "zh": "地狱诅咒"
+   },
+   "Q": {
+    "en": "Death Sentence",
+    "zh": "死亡判决"
+   },
+   "W": {
+    "en": "Dark Passage",
+    "zh": "魂引之灯"
+   },
+   "E": {
+    "en": "Flay",
+    "zh": "厄运钟摆"
+   },
+   "R": {
+    "en": "The Box",
+    "zh": "幽冥监牢"
+   }
+  },
+  "420": {
+   "P": {
+    "en": "Prophet of an Elder God",
+    "zh": "古神先知"
+   },
+   "Q": {
+    "en": "Tentacle Smash",
+    "zh": "触手猛击"
+   },
+   "W": {
+    "en": "Harsh Lesson",
+    "zh": "严酷训诫"
+   },
+   "E": {
+    "en": "Test of Spirit",
+    "zh": "灵魂试炼"
+   },
+   "R": {
+    "en": "Leap of Faith",
+    "zh": "过界信仰"
+   }
+  },
+  "421": {
+   "P": {
+    "en": "Fury of the Xer'Sai",
+    "zh": "艾克塞之怒"
+   },
+   "Q": {
+    "en": "Queen's Wrath / Prey Seeker",
+    "zh": "女王之怒 / 猎物搜寻"
+   },
+   "W": {
+    "en": "Burrow / Un-burrow",
+    "zh": "遁地 / 破土而出"
+   },
+   "E": {
+    "en": "Furious Bite / Tunnel",
+    "zh": "狂野之噬 / 挖掘隧道"
+   },
+   "R": {
+    "en": "Void Rush",
+    "zh": "虚空猛冲"
+   }
+  },
+  "427": {
+   "P": {
+    "en": "Friend of the Forest",
+    "zh": "森林之友"
+   },
+   "Q": {
+    "en": "Rootcaller",
+    "zh": "根深敌固"
+   },
+   "W": {
+    "en": "Brushmaker",
+    "zh": "揠苗助攻"
+   },
+   "E": {
+    "en": "Triggerseed",
+    "zh": "种豆得瓜"
+   },
+   "R": {
+    "en": "Daisy!",
+    "zh": "小菊！"
+   }
+  },
+  "429": {
+   "P": {
+    "en": "Martial Poise",
+    "zh": "武术姿态"
+   },
+   "Q": {
+    "en": "Pierce",
+    "zh": "穿刺"
+   },
+   "W": {
+    "en": "Sentinel",
+    "zh": "哨兵"
+   },
+   "E": {
+    "en": "Rend",
+    "zh": "撕裂"
+   },
+   "R": {
+    "en": "Fate's Call",
+    "zh": "命运的召唤"
+   }
+  },
+  "432": {
+   "P": {
+    "en": "Traveler's Call",
+    "zh": "旅者的召唤"
+   },
+   "Q": {
+    "en": "Cosmic Binding",
+    "zh": "星界束缚"
+   },
+   "W": {
+    "en": "Caretaker's Shrine",
+    "zh": "游神圣坛"
+   },
+   "E": {
+    "en": "Magical Journey",
+    "zh": "神奇旅程"
+   },
+   "R": {
+    "en": "Tempered Fate",
+    "zh": "调和命运"
+   }
+  },
+  "497": {
+   "P": {
+    "en": "Fey Feathers",
+    "zh": "异色羽裳"
+   },
+   "Q": {
+    "en": "Gleaming Quill",
+    "zh": "微光飞翎"
+   },
+   "W": {
+    "en": "Grand Entrance",
+    "zh": "盛大登场"
+   },
+   "E": {
+    "en": "Battle Dance",
+    "zh": "轻舞成双"
+   },
+   "R": {
+    "en": "The Quickness",
+    "zh": "惊鸿过隙"
+   }
+  },
+  "498": {
+   "P": {
+    "en": "Clean Cuts",
+    "zh": "锐切"
+   },
+   "Q": {
+    "en": "Double Daggers",
+    "zh": "双刃"
+   },
+   "W": {
+    "en": "Deadly Plumage",
+    "zh": "致死羽衣"
+   },
+   "E": {
+    "en": "Bladecaller",
+    "zh": "倒钩"
+   },
+   "R": {
+    "en": "Featherstorm",
+    "zh": "暴风羽刃"
+   }
+  },
+  "516": {
+   "P": {
+    "en": "Living Forge",
+    "zh": "活体锻炉"
+   },
+   "Q": {
+    "en": "Volcanic Rupture",
+    "zh": "火山突堑"
+   },
+   "W": {
+    "en": "Bellows Breath",
+    "zh": "风箱炎息"
+   },
+   "E": {
+    "en": "Searing Charge",
+    "zh": "炽烈冲锋"
+   },
+   "R": {
+    "en": "Call of the Forge God",
+    "zh": "熔铸之神的召唤"
+   }
+  },
+  "517": {
+   "P": {
+    "en": "Petricite Burst",
+    "zh": "破敌禁法"
+   },
+   "Q": {
+    "en": "Chain Lash",
+    "zh": "锁链鞭击"
+   },
+   "W": {
+    "en": "Kingslayer",
+    "zh": "弑君突刺"
+   },
+   "E": {
+    "en": "Abscond / Abduct",
+    "zh": "潜掠/强掳"
+   },
+   "R": {
+    "en": "Hijack",
+    "zh": "其人之道"
+   }
+  },
+  "518": {
+   "P": {
+    "en": "Inherent Glamour",
+    "zh": "天生幻魅"
+   },
+   "Q": {
+    "en": "Blooming Burst",
+    "zh": "盛开花种"
+   },
+   "W": {
+    "en": "Shapesplitter",
+    "zh": "两生花影"
+   },
+   "E": {
+    "en": "Tangle-Barbs",
+    "zh": "缠结倒刺"
+   },
+   "R": {
+    "en": "Pop Blossom",
+    "zh": "怒放"
+   }
+  },
+  "523": {
+   "P": {
+    "en": "The Hitman and the Seer",
+    "zh": "传知者与真知者"
+   },
+   "Q": {
+    "en": "Weapon Abilites",
+    "zh": "武器技能"
+   },
+   "W": {
+    "en": "Phase",
+    "zh": "月相轮转"
+   },
+   "E": {
+    "en": "Weapon Queue System",
+    "zh": "武器队列系统"
+   },
+   "R": {
+    "en": "Moonlight Vigil",
+    "zh": "清辉夜凝"
+   }
+  },
+  "526": {
+   "P": {
+    "en": "Break the Mold",
+    "zh": "溃敌沉力"
+   },
+   "Q": {
+    "en": "Shattering Strike",
+    "zh": "裂阵"
+   },
+   "W": {
+    "en": "Ferromancy: Crash Down",
+    "zh": "驭铁术：轰落"
+   },
+   "E": {
+    "en": "Full Tilt",
+    "zh": "全速冲锋"
+   },
+   "R": {
+    "en": "Magnet Storm",
+    "zh": "极涌"
+   }
+  },
+  "555": {
+   "P": {
+    "en": "Gift of the Drowned Ones",
+    "zh": "溺水之幸"
+   },
+   "Q": {
+    "en": "Bone Skewer",
+    "zh": "透骨尖钉"
+   },
+   "W": {
+    "en": "Ghostwater Dive",
+    "zh": "幽潭潜行"
+   },
+   "E": {
+    "en": "Phantom Undertow",
+    "zh": "魅影浪洄"
+   },
+   "R": {
+    "en": "Death From Below",
+    "zh": "涌泉之恨"
+   }
+  },
+  "711": {
+   "P": {
+    "en": "Doom 'n Gloom",
+    "zh": "终焉暮气"
+   },
+   "Q": {
+    "en": "Mistral Bolt",
+    "zh": "寒心波云"
+   },
+   "W": {
+    "en": "Personal Space",
+    "zh": "生人勿近"
+   },
+   "E": {
+    "en": "Looming Darkness",
+    "zh": "溟濛渐染"
+   },
+   "R": {
+    "en": "Shadow Surge",
+    "zh": "愁煞"
+   }
+  },
+  "777": {
+   "P": {
+    "en": "Way of the Hunter",
+    "zh": "狩人之道"
+   },
+   "Q": {
+    "en": "Mortal Steel",
+    "zh": "错玉切"
+   },
+   "W": {
+    "en": "Spirit Cleave",
+    "zh": "凛神斩"
+   },
+   "E": {
+    "en": "Soul Unbound",
+    "zh": "破障之锋"
+   },
+   "R": {
+    "en": "Fate Sealed",
+    "zh": "封尘绝念斩"
+   }
+  },
+  "799": {
+   "P": {
+    "en": "Drakehound's Step",
+    "zh": "龙犬诡步"
+   },
+   "Q": {
+    "en": "Cunning Sweep / Sundering Slam",
+    "zh": "暗袭 / 裂斩"
+   },
+   "W": {
+    "en": "Repudiation",
+    "zh": "铁令"
+   },
+   "E": {
+    "en": "Lacerate",
+    "zh": "血戮"
+   },
+   "R": {
+    "en": "Public Execution",
+    "zh": "公开处刑"
+   }
+  },
+  "800": {
+   "P": {
+    "en": "Searing Brilliance",
+    "zh": "灼灼之光"
+   },
+   "Q": {
+    "en": "Radiant Barrage",
+    "zh": "耀光弹幕"
+   },
+   "W": {
+    "en": "Rebuttal",
+    "zh": "灵魂折镜"
+   },
+   "E": {
+    "en": "Solar Snare",
+    "zh": "阳炎涡旋"
+   },
+   "R": {
+    "en": "Golden Eclipse",
+    "zh": "鎏金蚀日"
+   }
+  },
+  "804": {
+   "P": {
+    "en": "Vow of the First Lands",
+    "zh": "初生之誓"
+   },
+   "Q": {
+    "en": "Cultivation of Spirit",
+    "zh": "灵蕴拳"
+   },
+   "W": {
+    "en": "Arc of Judgment | Arc of Ruin",
+    "zh": "善恶轮 | 寂灭掌"
+   },
+   "E": {
+    "en": "Kanmei's Steps | Untouchable Shadow",
+    "zh": "明踪步 | 夜影翻"
+   },
+   "R": {
+    "en": "Transcend One's Self",
+    "zh": "定圣诀"
+   }
+  },
+  "805": {
+   "P": {
+    "en": "Silver Stake",
+    "zh": "圣银穿心"
+   },
+   "Q": {
+    "en": "Ritual Nails",
+    "zh": "伏魔三钉"
+   },
+   "W": {
+    "en": "Soul Ignition",
+    "zh": "灵焰仪式"
+   },
+   "E": {
+    "en": "Ashen Pursuit",
+    "zh": "灰猎无影"
+   },
+   "R": {
+    "en": "Purgatory",
+    "zh": "万魔狱"
+   }
+  },
+  "875": {
+   "P": {
+    "en": "Pit Grit",
+    "zh": "沙场豪情"
+   },
+   "Q": {
+    "en": "Knuckle Down",
+    "zh": "屈人之威"
+   },
+   "W": {
+    "en": "Haymaker",
+    "zh": "蓄意轰拳"
+   },
+   "E": {
+    "en": "Facebreaker",
+    "zh": "强手裂颅"
+   },
+   "R": {
+    "en": "The Show Stopper",
+    "zh": "叹为观止"
+   }
+  },
+  "876": {
+   "P": {
+    "en": "Dream-Laden Bough",
+    "zh": "梦满枝"
+   },
+   "Q": {
+    "en": "Blooming Blows",
+    "zh": "飞花挞"
+   },
+   "W": {
+    "en": "Watch Out! Eep!",
+    "zh": "惊惶木"
+   },
+   "E": {
+    "en": "Swirlseed",
+    "zh": "流涡种"
+   },
+   "R": {
+    "en": "Lilting Lullaby",
+    "zh": "夜阑谣"
+   }
+  },
+  "887": {
+   "P": {
+    "en": "A Thousand Cuts",
+    "zh": "千穿百孔"
+   },
+   "Q": {
+    "en": "Snip Snip!",
+    "zh": "快刀剪乱"
+   },
+   "W": {
+    "en": "Hallowed Mist",
+    "zh": "丝缕缠流"
+   },
+   "E": {
+    "en": "Skip 'n Slash",
+    "zh": "断续疾走"
+   },
+   "R": {
+    "en": "Needlework",
+    "zh": "引针簇射"
+   }
+  },
+  "888": {
+   "P": {
+    "en": "Leverage",
+    "zh": "物尽其用"
+   },
+   "Q": {
+    "en": "Handshake",
+    "zh": "铁腕竞合"
+   },
+   "W": {
+    "en": "Bailout",
+    "zh": "及时救难"
+   },
+   "E": {
+    "en": "Loyalty Program",
+    "zh": "忠诚激励"
+   },
+   "R": {
+    "en": "Hostile Takeover",
+    "zh": "恶意收购"
+   }
+  },
+  "893": {
+   "P": {
+    "en": "Spirit Abjuration",
+    "zh": "驱灵奇术"
+   },
+   "Q": {
+    "en": "Twofold Hex",
+    "zh": "飞去来咒"
+   },
+   "W": {
+    "en": "Across the Veil",
+    "zh": "灵纱洞开"
+   },
+   "E": {
+    "en": "The Weirding",
+    "zh": "怪奇喷涌"
+   },
+   "R": {
+    "en": "Between Worlds",
+    "zh": "双界合一"
+   }
+  },
+  "895": {
+   "P": {
+    "en": "Joy Unending",
+    "zh": "喜色川流"
+   },
+   "Q": {
+    "en": "Formless Blade",
+    "zh": "游刃万变"
+   },
+   "W": {
+    "en": "Jubilant Veil",
+    "zh": "轻纱飞漾"
+   },
+   "E": {
+    "en": "Slipstream",
+    "zh": "纵情逐流"
+   },
+   "R": {
+    "en": "Apotheosis",
+    "zh": "神恩激荡"
+   }
+  },
+  "897": {
+   "P": {
+    "en": "Dauntless Instinct",
+    "zh": "血性本能"
+   },
+   "Q": {
+    "en": "Ntofo Strikes",
+    "zh": "无双陀斧"
+   },
+   "W": {
+    "en": "Path Maker",
+    "zh": "辟路先锋"
+   },
+   "E": {
+    "en": "Footwork",
+    "zh": "大步驰援"
+   },
+   "R": {
+    "en": "All Out",
+    "zh": "傲岸雄姿"
+   }
+  },
+  "901": {
+   "P": {
+    "en": "Dragon Practice",
+    "zh": "龙之研习"
+   },
+   "Q": {
+    "en": "Super Scorcher Breath",
+    "zh": "超级灼热龙息"
+   },
+   "W": {
+    "en": "Achooo!",
+    "zh": "阿嚏！"
+   },
+   "E": {
+    "en": "Flap, Flap, Flap",
+    "zh": "扑棱，扑棱，扑棱！"
+   },
+   "R": {
+    "en": "MMOOOMMMM!",
+    "zh": "妈----！"
+   }
+  },
+  "902": {
+   "P": {
+    "en": "Fired Up!",
+    "zh": "热情洋溢！"
+   },
+   "Q": {
+    "en": "Ultra Mega Fire Kick",
+    "zh": "火爆飞踢"
+   },
+   "W": {
+    "en": "Cozy Campfire",
+    "zh": "依依不舍"
+   },
+   "E": {
+    "en": "Warm Hugs",
+    "zh": "融融情谊"
+   },
+   "R": {
+    "en": "Breath of Life",
+    "zh": "生生不息"
+   }
+  },
+  "904": {
+   "P": {
+    "en": "Cultivation of War",
+    "zh": "不落之志"
+   },
+   "Q": {
+    "en": "The Darkin Glaive",
+    "zh": "暗裔长刀"
+   },
+   "W": {
+    "en": "Dreaded Return",
+    "zh": "厄影回锋"
+   },
+   "E": {
+    "en": "Aureate Rush",
+    "zh": "赤金突袭"
+   },
+   "R": {
+    "en": "Grim Deliverance",
+    "zh": "大赦"
+   }
+  },
+  "910": {
+   "P": {
+    "en": "Signature of the Visionary",
+    "zh": "落款"
+   },
+   "Q": {
+    "en": "Subject: Disaster",
+    "zh": "主题：灾"
+   },
+   "W": {
+    "en": "Subject: Serenity",
+    "zh": "主题：靖"
+   },
+   "E": {
+    "en": "Subject: Torment",
+    "zh": "主题：悚"
+   },
+   "R": {
+    "en": "Spiraling Despair",
+    "zh": "焚心绚华绘"
+   }
+  },
+  "950": {
+   "P": {
+    "en": "We Are More",
+    "zh": "狂烈种群"
+   },
+   "Q": {
+    "en": "Darkin Daggers",
+    "zh": "暗裔犬牙"
+   },
+   "W": {
+    "en": "The Call of the Pack",
+    "zh": "暴吼"
+   },
+   "E": {
+    "en": "Eviscerate",
+    "zh": "剔骨本能"
+   },
+   "R": {
+    "en": "Hounds' Pursuit",
+    "zh": "猎狗血性"
+   }
+  }
+ },
+ "champions": {
+  "1": {
+   "name": "Annie",
+   "zh": "安妮",
+   "stats": {
+    "dealt": -0.05,
+    "received": 0,
+    "shielding": 0
+   },
+   "aram": {
+    "received": 0.05,
+    "shielding": -0.1
+   },
+   "abilities": []
+  },
+  "2": {
+   "name": "Olaf",
+   "zh": "奥拉夫",
+   "stats": {
+    "dealt": 0.05
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "3": {
+   "name": "Galio",
+   "zh": "加里奥",
+   "stats": {
+    "dealt": -0.1,
+    "received": 0.05
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "5": {
+   "name": "Xin Zhao",
+   "zh": "赵信",
+   "stats": {
+    "dealt": 0
+   },
+   "aram": {
+    "dealt": -0.05
+   },
+   "abilities": []
+  },
+  "6": {
+   "name": "Urgot",
+   "zh": "厄加特",
+   "stats": {
+    "received": 0
+   },
+   "aram": {
+    "received": 0.05
+   },
+   "abilities": []
+  },
+  "7": {
+   "name": "LeBlanc",
+   "zh": "乐芙兰",
+   "stats": {
+    "dealt": 0.1,
+    "received": -0.1,
+    "abilityHaste": 20
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "8": {
+   "name": "Vladimir",
+   "zh": "弗拉基米尔",
+   "stats": {
+    "dealt": 0,
+    "received": 0,
+    "healing": 0
+   },
+   "aram": {
+    "dealt": 0,
+    "received": 0,
+    "healing": 0
+   },
+   "abilities": []
+  },
+  "9": {
+   "name": "Fiddlesticks",
+   "zh": "费德提克",
+   "stats": {
+    "dealt": 0,
+    "received": 0
+   },
+   "aram": {
+    "dealt": -0.05,
+    "received": 0.05
+   },
+   "abilities": []
+  },
+  "10": {
+   "name": "Kayle",
+   "zh": "凯尔",
+   "stats": {
+    "dealt": -0.05,
+    "received": 0.1
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "12": {
+   "name": "Alistar",
+   "zh": "阿利斯塔",
+   "stats": {
+    "dealt": 0,
+    "received": 0.05,
+    "healing": 0
+   },
+   "aram": {
+    "dealt": -0.05,
+    "healing": -0.2
+   },
+   "abilities": []
+  },
+  "13": {
+   "name": "Ryze",
+   "zh": "瑞兹",
+   "stats": {
+    "dealt": 0,
+    "received": 0
+   },
+   "aram": {
+    "dealt": 0.05,
+    "received": -0.05
+   },
+   "abilities": []
+  },
+  "14": {
+   "name": "Sion",
+   "zh": "赛恩",
+   "stats": {
+    "dealt": -0.1,
+    "received": 0,
+    "abilityHaste": -10
+   },
+   "aram": {
+    "received": 0.1
+   },
+   "abilities": [
+    {
+     "key": "P",
+     "name": {
+      "en": "Glory in Death",
+      "zh": "死亡荣耀"
+     },
+     "lines": [
+      {
+       "text": "Life steal changed to 50%.",
+       "mode": "aram",
+       "zh": "生命偷取改为50%。"
+      }
+     ]
+    },
+    {
+     "key": "W",
+     "name": {
+      "en": "Soul Furnace",
+      "zh": "灵魂熔炉"
+     },
+     "lines": [
+      {
+       "text": "Bonus health per lesser unit kill changed to 3.",
+       "mode": "aram",
+       "zh": "每击杀一个小型单位获得的额外生命值改为3。"
+      },
+      {
+       "text": "Bonus health per greater unit kill changed to 8.",
+       "mode": "aram",
+       "zh": "每击杀一个大型单位获得的额外生命值改为8。"
+      },
+      {
+       "text": "Shield health ratio changed to 6 / 7 / 8 / 9 / 10% maximum health.",
+       "mode": "aram",
+       "zh": "护盾的生命值加成改为6 / 7 / 8 / 9 / 10%最大生命值。"
+      }
+     ]
+    }
+   ]
+  },
+  "15": {
+   "name": "Sivir",
+   "zh": "希维尔",
+   "stats": {
+    "dealt": -0.05,
+    "received": 0
+   },
+   "aram": {
+    "dealt": -0.07,
+    "received": 0.05
+   },
+   "abilities": [
+    {
+     "key": "Q",
+     "name": {
+      "en": "Boomerang Blade",
+      "zh": "回旋之刃"
+     },
+     "lines": [
+      {
+       "text": "Cooldown changed to 14 / 13 / 12 / 11 / 10 seconds.",
+       "mode": "aram",
+       "zh": "冷却时间改为14 / 13 / 12 / 11 / 10秒。"
+      }
+     ]
+    }
+   ]
+  },
+  "16": {
+   "name": "Soraka",
+   "zh": "索拉卡",
+   "stats": {
+    "abilityHaste": 10,
+    "healing": 0
+   },
+   "aram": {
+    "healing": 0
+   },
+   "abilities": [
+    {
+     "key": "Q",
+     "name": {
+      "en": "Starcall",
+      "zh": "流星坠落"
+     },
+     "lines": [
+      {
+       "text": "Total heal changed to 75 / 90 / 105 / 120 / 135.",
+       "mode": "aram",
+       "zh": "总治疗量改为75 / 90 / 105 / 120 / 135。"
+      },
+      {
+       "text": "Heal AP ratio changed to 40% AP.",
+       "mode": "aram",
+       "zh": "治疗的法术强度加成改为40%法术强度。"
+      }
+     ]
+    },
+    {
+     "key": "W",
+     "name": {
+      "en": "Astral Infusion",
+      "zh": "星之灌注"
+     },
+     "lines": [
+      {
+       "text": "Health cost changed to 5% maximum health. Minimum health threshold unchanged.",
+       "mode": "aram",
+       "zh": "生命值消耗改为5%最大生命值。最低生命值门槛不变。"
+      }
+     ]
+    }
+   ]
+  },
+  "17": {
+   "name": "Teemo",
+   "zh": "提莫",
+   "stats": {
+    "dealt": -0.05,
+    "received": 0.1,
+    "abilityHaste": 0
+   },
+   "aram": {
+    "abilityHaste": -15
+   },
+   "abilities": [
+    {
+     "key": "R",
+     "name": {
+      "en": "Noxious Trap",
+      "zh": "种蘑菇"
+     },
+     "lines": [
+      {
+       "text": "Trap duration changed to 180 seconds.",
+       "mode": "aram",
+       "zh": "陷阱持续时间改为180秒。"
+      },
+      {
+       "text": "Base damage changed to 180 / 290 / 400.",
+       "mode": "aram",
+       "zh": "基础伤害改为180 / 290 / 400。"
+      },
+      {
+       "text": "Total AP ratio changed to 40% AP.",
+       "mode": "aram",
+       "zh": "总法术强度加成改为40%法术强度。"
+      },
+      {
+       "text": "Slow changed to 20% at all ranks.",
+       "mode": "aram",
+       "zh": "减速效果改为20%（所有等级）。"
+      },
+      {
+       "text": "Deals 66% damage to minions (50% total).",
+       "mode": "aram",
+       "zh": "对小兵造成66%伤害（合计50%）。"
+      },
+      {
+       "text": "Maximum charges changed to 3 / 4 / 5.",
+       "mode": "aram",
+       "zh": "最大充能层数改为3 / 4 / 5。"
+      },
+      {
+       "text": "Damage dealt to minions increased to 100% from 66%.",
+       "mode": "mayhem",
+       "zh": "对小兵造成的伤害提升至100%（原66%）。"
+      }
+     ]
+    }
+   ]
+  },
+  "18": {
+   "name": "Tristana",
+   "zh": "崔丝塔娜",
+   "stats": {
+    "dealt": 0,
+    "received": 0
+   },
+   "aram": {
+    "dealt": 0.05,
+    "received": -0.05
+   },
+   "abilities": []
+  },
+  "19": {
+   "name": "Warwick",
+   "zh": "沃里克",
+   "stats": {
+    "dealt": 0.05,
+    "received": -0.05
+   },
+   "aram": {},
+   "abilities": [
+    {
+     "key": "Q",
+     "name": {
+      "en": "Jaws of the Beast",
+      "zh": "野兽之口"
+     },
+     "lines": [
+      {
+       "text": "Cooldown changed to 6 seconds at all ranks.",
+       "mode": "aram",
+       "zh": "冷却时间改为6秒（所有等级）。"
+      }
+     ]
+    }
+   ]
+  },
+  "20": {
+   "name": "Nunu & Willump",
+   "zh": "努努和威朗普",
+   "stats": {
+    "dealt": 0.1,
+    "received": -0.1,
+    "healing": 0.1,
+    "shielding": 0.2,
+    "tenacity": 0.2
+   },
+   "aram": {},
+   "abilities": [
+    {
+     "key": "Q",
+     "name": {
+      "en": "Consume",
+      "zh": "吞噬"
+     },
+     "lines": [
+      {
+       "text": "Non-champion heal AP ratio changed to 110% AP.",
+       "mode": "aram",
+       "zh": "对非英雄单位时的治疗法术强度加成改为110%法术强度。"
+      }
+     ]
+    },
+    {
+     "key": "W",
+     "name": {
+      "en": "Biggest Snowball Ever!",
+      "zh": "史上最大雪球！"
+     },
+     "lines": [
+      {
+       "text": "Minimum AP ratio changed to 67% AP.",
+       "mode": "aram",
+       "zh": "最小法术强度加成改为67%法术强度。"
+      },
+      {
+       "text": "Maximum AP ratio changed to 200% AP.",
+       "mode": "aram",
+       "zh": "最大法术强度加成改为200%法术强度。"
+      }
+     ]
+    }
+   ]
+  },
+  "21": {
+   "name": "Miss Fortune",
+   "zh": "厄运小姐",
+   "stats": {
+    "dealt": -0.05,
+    "received": 0
+   },
+   "aram": {
+    "received": 0.05
+   },
+   "abilities": []
+  },
+  "22": {
+   "name": "Ashe",
+   "zh": "艾希",
+   "stats": {
+    "dealt": 0
+   },
+   "aram": {
+    "dealt": 0.05
+   },
+   "abilities": [
+    {
+     "key": "W",
+     "name": {
+      "en": "Volley",
+      "zh": "万箭齐发"
+     },
+     "lines": [
+      {
+       "text": "Cooldown changed to 18 / 17 / 16 / 15 / 14 seconds.",
+       "mode": "aram",
+       "zh": "冷却时间改为18 / 17 / 16 / 15 / 14秒。"
+      }
+     ]
+    }
+   ]
+  },
+  "23": {
+   "name": "Tryndamere",
+   "zh": "泰达米尔",
+   "stats": {
+    "dealt": 0.1,
+    "received": -0.1,
+    "healing": 0.2
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "24": {
+   "name": "Jax",
+   "zh": "贾克斯",
+   "stats": {
+    "dealt": 0,
+    "received": 0
+   },
+   "aram": {
+    "dealt": 0.05,
+    "received": -0.03
+   },
+   "abilities": []
+  },
+  "25": {
+   "name": "Morgana",
+   "zh": "莫甘娜",
+   "stats": {
+    "dealt": -0.05,
+    "received": 0
+   },
+   "aram": {
+    "received": 0.1
+   },
+   "abilities": []
+  },
+  "26": {
+   "name": "Zilean",
+   "zh": "基兰",
+   "stats": {
+    "dealt": 0,
+    "received": 0
+   },
+   "aram": {
+    "dealt": 0.05,
+    "received": -0.05
+   },
+   "abilities": [
+    {
+     "key": "P",
+     "name": {
+      "en": "Time In A Bottle",
+      "zh": "瓶中时光"
+     },
+     "lines": [
+      {
+       "text": "Cooldown changed to 90 seconds.",
+       "mode": "aram",
+       "zh": "冷却时间改为90秒。"
+      }
+     ]
+    },
+    {
+     "key": "W",
+     "name": {
+      "en": "Rewind",
+      "zh": "穿梭未来"
+     },
+     "lines": [
+      {
+       "text": "Cooldown changed to 13 / 11 / 9 / 7 / 5 seconds.",
+       "mode": "aram",
+       "zh": "冷却时间改为13 / 11 / 9 / 7 / 5秒。"
+      }
+     ]
+    },
+    {
+     "key": "E",
+     "name": {
+      "en": "Time Warp",
+      "zh": "时光发条"
+     },
+     "lines": [
+      {
+       "text": "Cooldown changed to 13 seconds.",
+       "mode": "aram",
+       "zh": "冷却时间改为13秒。"
+      }
+     ]
+    },
+    {
+     "key": "R",
+     "name": {
+      "en": "Chronoshift",
+      "zh": "时光倒流"
+     },
+     "lines": [
+      {
+       "text": "Heal AP ratio changed to 250% AP.",
+       "mode": "aram",
+       "zh": "治疗的法术强度加成改为250%法术强度。"
+      }
+     ]
+    }
+   ]
+  },
+  "27": {
+   "name": "Singed",
+   "zh": "辛吉德",
+   "stats": {
+    "received": 0
+   },
+   "aram": {
+    "received": 0.08
+   },
+   "abilities": [
+    {
+     "key": "P",
+     "name": {
+      "en": "Noxious Slipstream",
+      "zh": "剧毒冲流"
+     },
+     "lines": [
+      {
+       "text": "Bonus movement speed per stack changed to 20%. Maximum bonus movement speed changed to 500%.",
+       "mode": "aram",
+       "zh": "每层额外移动速度改为20%。额外移动速度上限改为500%。"
+      },
+      {
+       "text": "Cooldown per target changed to 10 seconds.",
+       "mode": "aram",
+       "zh": "对同一目标的冷却时间改为10秒。"
+      }
+     ]
+    }
+   ]
+  },
+  "28": {
+   "name": "Evelynn",
+   "zh": "伊芙琳",
+   "stats": {
+    "dealt": 0.1,
+    "received": -0.1,
+    "tenacity": 0.2
+   },
+   "aram": {},
+   "abilities": [
+    {
+     "key": "R",
+     "name": {
+      "en": "Last Caress",
+      "zh": "最终抚慰"
+     },
+     "lines": [
+      {
+       "text": "Cooldown changed to 100 / 80 / 60 seconds.",
+       "mode": "aram",
+       "zh": "冷却时间改为100 / 80 / 60秒。"
+      }
+     ]
+    }
+   ]
+  },
+  "29": {
+   "name": "Twitch",
+   "zh": "图奇",
+   "stats": {
+    "received": 0
+   },
+   "aram": {
+    "received": -0.05
+   },
+   "abilities": []
+  },
+  "30": {
+   "name": "Karthus",
+   "zh": "卡尔萨斯",
+   "stats": {
+    "dealt": -0.07,
+    "received": 0.05
+   },
+   "aram": {},
+   "abilities": [
+    {
+     "key": "P",
+     "name": {
+      "en": "Death Defied",
+      "zh": "死亡契约"
+     },
+     "lines": [
+      {
+       "text": "Duration changed to 5 seconds.",
+       "mode": "aram",
+       "zh": "持续时间改为5秒。"
+      }
+     ]
+    }
+   ]
+  },
+  "31": {
+   "name": "Cho'Gath",
+   "zh": "科加斯",
+   "stats": {
+    "received": -0.05
+   },
+   "aram": {
+    "received": 0.1
+   },
+   "abilities": []
+  },
+  "34": {
+   "name": "Anivia",
+   "zh": "艾尼维亚",
+   "stats": {
+    "dealt": 0.05
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "35": {
+   "name": "Shaco",
+   "zh": "萨科",
+   "stats": {
+    "dealt": 0.05
+   },
+   "aram": {},
+   "abilities": [
+    {
+     "key": "P",
+     "name": {
+      "en": "Backstab",
+      "zh": "背刺"
+     },
+     "lines": [
+      {
+       "text": "Bonus AD ratio changed to 40% bonus AD.",
+       "mode": "aram",
+       "zh": "额外攻击力加成改为40%额外攻击力。"
+      }
+     ]
+    },
+    {
+     "key": "Q",
+     "name": {
+      "en": "Deceive",
+      "zh": "欺诈魔术"
+     },
+     "lines": [
+      {
+       "text": "Bonus AD ratio changed to 85% bonus AD.",
+       "mode": "aram",
+       "zh": "额外攻击力加成改为85%额外攻击力。"
+      },
+      {
+       "text": "Cooldown changed to 12 / 11 / 10 / 9 / 8 seconds.",
+       "mode": "aram",
+       "zh": "冷却时间改为12 / 11 / 10 / 9 / 8秒。"
+      }
+     ]
+    },
+    {
+     "key": "W",
+     "name": {
+      "en": "Jack In The Box",
+      "zh": "惊吓魔盒"
+     },
+     "lines": [
+      {
+       "text": "Limited to 6 Boxes active.",
+       "mode": "aram",
+       "zh": "同时最多存在6个魔盒。"
+      }
+     ]
+    },
+    {
+     "key": "E",
+     "name": {
+      "en": "Two-Shiv Poison",
+      "zh": "双面毒刃"
+     },
+     "lines": [
+      {
+       "text": "Bonus AD ratio changed to 100% bonus AD.",
+       "mode": "aram",
+       "zh": "额外攻击力加成改为100%额外攻击力。"
+      }
+     ]
+    }
+   ]
+  },
+  "36": {
+   "name": "Dr. Mundo",
+   "zh": "蒙多医生",
+   "stats": {
+    "dealt": -0.1,
+    "received": 0.05,
+    "healing": -0.1
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "37": {
+   "name": "Sona",
+   "zh": "娑娜",
+   "stats": {},
+   "aram": {},
+   "abilities": [
+    {
+     "key": "P",
+     "name": {
+      "en": "Power Chord",
+      "zh": "能量和弦"
+     },
+     "lines": [
+      {
+       "text": "Maximum Accelerando stacks changed to 60. Maximum basic ability haste changed to 30.",
+       "mode": "aram",
+       "zh": "【渐入佳音】层数上限改为60。基础技能的技能急速上限改为30。"
+      }
+     ]
+    },
+    {
+     "key": "Q",
+     "name": {
+      "en": "Hymn of Valor",
+      "zh": "英勇赞美诗"
+     },
+     "lines": [
+      {
+       "text": "Cooldown reduced to 8 seconds from 10.",
+       "mode": "mayhem",
+       "zh": "冷却时间降低至8秒（原10秒）。"
+      }
+     ]
+    },
+    {
+     "key": "W",
+     "name": {
+      "en": "Aria of Perseverance",
+      "zh": "坚毅咏叹调"
+     },
+     "lines": [
+      {
+       "text": "Cooldown changed to 13 seconds.",
+       "mode": "aram",
+       "zh": "冷却时间改为13秒。"
+      },
+      {
+       "text": "Base heal changed to 45 / 56.25 / 67.5 / 78.75 / 90.",
+       "mode": "aram",
+       "zh": "基础治疗量改为45 / 56.25 / 67.5 / 78.75 / 90。"
+      },
+      {
+       "text": "Aura base shield changed to 65 / 75 / 85 / 95 / 105.",
+       "mode": "aram",
+       "zh": "光环的基础护盾值改为65 / 75 / 85 / 95 / 105。"
+      },
+      {
+       "text": "Heal AP ratio increased to 30% AP from 20% AP.",
+       "mode": "mayhem",
+       "zh": "治疗的法术强度加成提升至30%法术强度（原20%法术强度）。"
+      },
+      {
+       "text": "Shield AP ratio increased to 25% AP from 20% AP.",
+       "mode": "mayhem",
+       "zh": "护盾的法术强度加成提升至25%法术强度（原20%法术强度）。"
+      }
+     ]
+    }
+   ]
+  },
+  "38": {
+   "name": "Kassadin",
+   "zh": "卡萨丁",
+   "stats": {
+    "received": -0.05
+   },
+   "aram": {},
+   "abilities": [
+    {
+     "key": "E",
+     "name": {
+      "en": "Force Pulse",
+      "zh": "能量脉冲"
+     },
+     "lines": [
+      {
+       "text": "Base damage changed to 80 / 115 / 150 / 185 / 220.",
+       "mode": "aram",
+       "zh": "基础伤害改为80 / 115 / 150 / 185 / 220。"
+      },
+      {
+       "text": "AP ratio changed to 75% AP.",
+       "mode": "aram",
+       "zh": "法术强度加成改为75%法术强度。"
+      }
+     ]
+    }
+   ]
+  },
+  "39": {
+   "name": "Irelia",
+   "zh": "艾瑞莉娅",
+   "stats": {
+    "dealt": 0.05,
+    "abilityHaste": 20
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "40": {
+   "name": "Janna",
+   "zh": "迦娜",
+   "stats": {
+    "dealt": 0,
+    "received": 0,
+    "healing": 0,
+    "shielding": 0
+   },
+   "aram": {
+    "dealt": -0.05,
+    "received": 0.05,
+    "healing": -0.1,
+    "shielding": 0
+   },
+   "abilities": [
+    {
+     "key": "Q",
+     "name": {
+      "en": "Howling Gale",
+      "zh": "飓风呼啸"
+     },
+     "lines": [
+      {
+       "text": "Cooldown changed to 16 seconds.",
+       "mode": "aram",
+       "zh": "冷却时间改为16秒。"
+      }
+     ]
+    }
+   ]
+  },
+  "41": {
+   "name": "Gangplank",
+   "zh": "普朗克",
+   "stats": {
+    "dealt": 0.05
+   },
+   "aram": {},
+   "abilities": [
+    {
+     "key": "Q",
+     "name": {
+      "en": "Parrrley",
+      "zh": "枪火谈判"
+     },
+     "lines": [
+      {
+       "text": "NEW EFFECT: Passively gains 1 Silver Serpent per second.",
+       "mode": "aram",
+       "zh": "新增效果：被动地每秒获得1枚银蛇币。"
+      }
+     ]
+    }
+   ]
+  },
+  "42": {
+   "name": "Corki",
+   "zh": "库奇",
+   "stats": {
+    "received": -0.05,
+    "abilityHaste": -20
+   },
+   "aram": {
+    "received": -0.1
+   },
+   "abilities": []
+  },
+  "43": {
+   "name": "Karma",
+   "zh": "卡尔玛",
+   "stats": {},
+   "aram": {},
+   "abilities": [
+    {
+     "key": "Q",
+     "name": {
+      "en": "Inner Flame",
+      "zh": "心灵烈焰"
+     },
+     "lines": [
+      {
+       "text": "Soulflare Bonus primary damage changed to 40 / 90 / 140 / 190.",
+       "mode": "aram",
+       "zh": "【灵光闪耀】的额外主目标伤害改为40 / 90 / 140 / 190。"
+      }
+     ]
+    },
+    {
+     "key": null,
+     "name": {
+      "en": "Soulflare",
+      "zh": "灵光闪耀"
+     },
+     "lines": [
+      {
+       "text": "Bonus primary damage increased to 40 / 100 / 160 / 220 from 40 / 90 / 140 / 190.",
+       "mode": "mayhem",
+       "zh": "额外主目标伤害提升至40 / 100 / 160 / 220（原40 / 90 / 140 / 190）。"
+      }
+     ]
+    }
+   ]
+  },
+  "44": {
+   "name": "Taric",
+   "zh": "塔里克",
+   "stats": {
+    "received": 0.1
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "45": {
+   "name": "Veigar",
+   "zh": "维迦",
+   "stats": {
+    "dealt": -0.07,
+    "received": 0.1
+   },
+   "aram": {},
+   "abilities": [
+    {
+     "key": "P",
+     "name": {
+      "en": "Phenomenal Evil Power",
+      "zh": "超凡邪力"
+     },
+     "lines": [
+      {
+       "text": "Stacks per champion takedown changed to 3.",
+       "mode": "aram",
+       "zh": "每次参与击杀英雄获得的层数改为3。"
+      }
+     ]
+    },
+    {
+     "key": "E",
+     "name": {
+      "en": "Event Horizon",
+      "zh": "扭曲空间"
+     },
+     "lines": [
+      {
+       "text": "Cooldown changed to 23 / 21.5 / 20 / 18.5 / 17 seconds.",
+       "mode": "aram",
+       "zh": "冷却时间改为23 / 21.5 / 20 / 18.5 / 17秒。"
+      }
+     ]
+    }
+   ]
+  },
+  "48": {
+   "name": "Trundle",
+   "zh": "特朗德尔",
+   "stats": {
+    "received": 0
+   },
+   "aram": {
+    "received": 0.05
+   },
+   "abilities": []
+  },
+  "50": {
+   "name": "Swain",
+   "zh": "斯维因",
+   "stats": {
+    "dealt": 0,
+    "received": 0,
+    "healing": 0
+   },
+   "aram": {
+    "dealt": -0.05,
+    "received": 0.15,
+    "healing": -0.2
+   },
+   "abilities": [
+    {
+     "key": "P",
+     "name": {
+      "en": "Ravenous Flock",
+      "zh": "狂食鸦群"
+     },
+     "lines": [
+      {
+       "text": "Heal health ratio changed to 3% – 6% (based on level).",
+       "mode": "mayhem",
+       "zh": "治疗的生命值加成改为3% – 6%（基于等级）。"
+      }
+     ]
+    }
+   ]
+  },
+  "51": {
+   "name": "Caitlyn",
+   "zh": "凯特琳",
+   "stats": {},
+   "aram": {},
+   "abilities": [
+    {
+     "key": "Q",
+     "name": {
+      "en": "Piltover Peacemaker",
+      "zh": "和平使者"
+     },
+     "lines": [
+      {
+       "text": "AD ratio changed to 125 / 140 / 155 / 170 / 185% AD.",
+       "mode": "aram",
+       "zh": "攻击力加成改为125 / 140 / 155 / 170 / 185%攻击力。"
+      }
+     ]
+    }
+   ]
+  },
+  "55": {
+   "name": "Katarina",
+   "zh": "卡特琳娜",
+   "stats": {
+    "tenacity": 0.2,
+    "abilityHaste": 10
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "56": {
+   "name": "Nocturne",
+   "zh": "魔腾",
+   "stats": {
+    "dealt": 0.1,
+    "received": -0.1,
+    "healing": 0.2
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "57": {
+   "name": "Maokai",
+   "zh": "茂凯",
+   "stats": {
+    "dealt": -0.05,
+    "received": 0
+   },
+   "aram": {
+    "dealt": -0.15,
+    "received": 0.1
+   },
+   "abilities": [
+    {
+     "key": "P",
+     "name": {
+      "en": "Sap Magic",
+      "zh": "吸元秘术"
+     },
+     "lines": [
+      {
+       "text": "Cooldown reduction changed to 3 seconds.",
+       "mode": "aram",
+       "zh": "冷却缩减改为3秒。"
+      }
+     ]
+    },
+    {
+     "key": "Q",
+     "name": {
+      "en": "Bramble Smash",
+      "zh": "荆棘重击"
+     },
+     "lines": [
+      {
+       "text": "Cooldown changed to 8 / 7.5 / 7 / 6.5 / 6 seconds.",
+       "mode": "aram",
+       "zh": "冷却时间改为8 / 7.5 / 7 / 6.5 / 6秒。"
+      }
+     ]
+    },
+    {
+     "key": "E",
+     "name": {
+      "en": "Sapling Toss",
+      "zh": "树苗投掷"
+     },
+     "lines": [
+      {
+       "text": "AP ratio changed to 20% AP.",
+       "mode": "aram",
+       "zh": "法术强度加成改为20%法术强度。"
+      },
+      {
+       "text": "Total enhanced AP ratio changed to 40% AP.",
+       "mode": "aram",
+       "zh": "强化后的总法术强度加成改为40%法术强度。"
+      }
+     ]
+    }
+   ]
+  },
+  "58": {
+   "name": "Renekton",
+   "zh": "雷克顿",
+   "stats": {
+    "healing": 0.1
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "60": {
+   "name": "Elise",
+   "zh": "伊莉丝",
+   "stats": {
+    "dealt": 0.05,
+    "received": -0.1,
+    "tenacity": 0.1
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "62": {
+   "name": "Wukong",
+   "zh": "孙悟空",
+   "stats": {},
+   "aram": {},
+   "abilities": [
+    {
+     "key": "W",
+     "name": {
+      "en": "Warrior Trickster",
+      "zh": "真假猴王"
+     },
+     "lines": [
+      {
+       "text": "Cooldown changed to 20 / 19 / 18 / 17 / 16 seconds.",
+       "mode": "aram",
+       "zh": "冷却时间改为20 / 19 / 18 / 17 / 16秒。"
+      }
+     ]
+    },
+    {
+     "key": "R",
+     "name": {
+      "en": "Cyclone",
+      "zh": "大闹天宫"
+     },
+     "lines": [
+      {
+       "text": "Cooldown changed to 140 / 120 / 100 seconds.",
+       "mode": "aram",
+       "zh": "冷却时间改为140 / 120 / 100秒。"
+      }
+     ]
+    }
+   ]
+  },
+  "63": {
+   "name": "Brand",
+   "zh": "布兰德",
+   "stats": {
+    "dealt": -0.05,
+    "received": 0.05,
+    "abilityHaste": -10
+   },
+   "aram": {
+    "received": 0.1
+   },
+   "abilities": []
+  },
+  "64": {
+   "name": "Lee Sin",
+   "zh": "李青",
+   "stats": {
+    "dealt": 0.05,
+    "received": -0.05,
+    "healing": 0.1,
+    "shielding": 0.2,
+    "energyRegen": 0.2
+   },
+   "aram": {},
+   "abilities": [
+    {
+     "key": "P",
+     "name": {
+      "en": "Flurry",
+      "zh": "疾风骤雨"
+     },
+     "lines": [
+      {
+       "text": "Bonus attack speed changed to 50%.",
+       "mode": "mayhem",
+       "zh": "额外攻击速度改为50%。"
+      },
+      {
+       "text": "Energy restored on first attack changed to 30 / 35 / 40 / 45 / 50. Energy restored on second attack changed to 15 / 17.5 / 20 / 22.5 / 25.",
+       "mode": "mayhem",
+       "zh": "第一次攻击回复的能量改为30 / 35 / 40 / 45 / 50。第二次攻击回复的能量改为15 / 17.5 / 20 / 22.5 / 25。"
+      }
+     ]
+    },
+    {
+     "key": "Q",
+     "name": {
+      "en": "Resonating Strike",
+      "zh": "回音击"
+     },
+     "lines": [
+      {
+       "text": "Minimum base damage changed to 80 / 120 / 160 / 200 / 240. Maximum base damage changed to 160 / 240 / 320 / 400 / 480.",
+       "mode": "mayhem",
+       "zh": "最小基础伤害改为80 / 120 / 160 / 200 / 240。最大基础伤害改为160 / 240 / 320 / 400 / 480。"
+      }
+     ]
+    },
+    {
+     "key": "W",
+     "name": {
+      "en": "Safeguard",
+      "zh": "金钟罩"
+     },
+     "lines": [
+      {
+       "text": "Base shield strength changed to 80 / 140 / 200 / 260 / 320.",
+       "mode": "mayhem",
+       "zh": "基础护盾值改为80 / 140 / 200 / 260 / 320。"
+      }
+     ]
+    }
+   ]
+  },
+  "67": {
+   "name": "Vayne",
+   "zh": "薇恩",
+   "stats": {
+    "received": 0,
+    "dealt": 0
+   },
+   "aram": {
+    "dealt": 0,
+    "received": -0.05
+   },
+   "abilities": []
+  },
+  "72": {
+   "name": "Skarner",
+   "zh": "斯卡纳",
+   "stats": {
+    "dealt": 0.05,
+    "received": -0.05
+   },
+   "aram": {
+    "dealt": 0,
+    "received": 0
+   },
+   "abilities": [
+    {
+     "key": "E",
+     "name": {
+      "en": "Ixtal's Impact",
+      "zh": "以绪塔尔冲击"
+     },
+     "lines": [
+      {
+       "text": "Cooldown changed to 18 / 17 / 16 / 15 / 14 seconds (from default).",
+       "mode": "mayhem",
+       "zh": "冷却时间改为18 / 17 / 16 / 15 / 14秒（相对于默认值）。"
+      }
+     ]
+    }
+   ]
+  },
+  "74": {
+   "name": "Heimerdinger",
+   "zh": "黑默丁格",
+   "stats": {
+    "dealt": -0.1,
+    "received": 0.1
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "75": {
+   "name": "Nasus",
+   "zh": "内瑟斯",
+   "stats": {
+    "dealt": 0,
+    "received": 0
+   },
+   "aram": {
+    "dealt": -0.1,
+    "received": 0.05
+   },
+   "abilities": [
+    {
+     "key": "Q",
+     "name": {
+      "en": "Siphoning Strike",
+      "zh": "汲魂痛击"
+     },
+     "lines": [
+      {
+       "text": "Per-kill stacks changed to 6.",
+       "mode": "aram",
+       "zh": "每次击杀获得的层数改为6。"
+      },
+      {
+       "text": "Per-large-kill stacks changed to 24.",
+       "mode": "aram",
+       "zh": "每次击杀大型单位获得的层数改为24。"
+      }
+     ]
+    }
+   ]
+  },
+  "76": {
+   "name": "Nidalee",
+   "zh": "奈德丽",
+   "stats": {
+    "dealt": 0.1
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "79": {
+   "name": "Gragas",
+   "zh": "古拉加斯",
+   "stats": {
+    "received": -0.05
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "82": {
+   "name": "Mordekaiser",
+   "zh": "莫德凯撒",
+   "stats": {
+    "received": 0
+   },
+   "aram": {
+    "received": 0
+   },
+   "abilities": []
+  },
+  "83": {
+   "name": "Yorick",
+   "zh": "约里克",
+   "stats": {},
+   "aram": {},
+   "abilities": [
+    {
+     "key": "P",
+     "name": {
+      "en": "Shepherd of Souls",
+      "zh": "牧魂人"
+     },
+     "lines": [
+      {
+       "text": "Deaths required for a grave changed to 5 at all levels.",
+       "mode": "aram",
+       "zh": "生成一座坟墓所需的阵亡单位数改为5（所有等级）。"
+      }
+     ]
+    },
+    {
+     "key": "Q",
+     "name": {
+      "en": "Last Rites",
+      "zh": "临终仪式"
+     },
+     "lines": [
+      {
+       "text": "AD ratio changed to 30% AD.",
+       "mode": "aram",
+       "zh": "攻击力加成改为30%攻击力。"
+      },
+      {
+       "text": "Heal health ratio changed to 4 / 5 / 6 / 7 / 8% of his missing health.",
+       "mode": "aram",
+       "zh": "治疗的生命值加成改为4 / 5 / 6 / 7 / 8%已损失生命值。"
+      }
+     ]
+    }
+   ]
+  },
+  "84": {
+   "name": "Akali",
+   "zh": "阿卡丽",
+   "stats": {
+    "received": -0.05,
+    "energyRegen": 0.2,
+    "tenacity": 0.2
+   },
+   "aram": {},
+   "abilities": [
+    {
+     "key": "P",
+     "name": {
+      "en": "Assassin's Mark",
+      "zh": "我流忍法！潜龙印"
+     },
+     "lines": [
+      {
+       "text": "AP ratio changed to 65% AP.",
+       "mode": "aram",
+       "zh": "法术强度加成改为65%法术强度。"
+      }
+     ]
+    },
+    {
+     "key": "Q",
+     "name": {
+      "en": "Five Point Strike",
+      "zh": "我流奥义！寒影"
+     },
+     "lines": [
+      {
+       "text": "AP ratio changed to 70% AP.",
+       "mode": "aram",
+       "zh": "法术强度加成改为70%法术强度。"
+      }
+     ]
+    },
+    {
+     "key": "R",
+     "name": {
+      "en": "Perfect Execution",
+      "zh": "我流秘奥义！表里杀缭乱"
+     },
+     "lines": [
+      {
+       "text": "First dash AP ratio changed to 40% AP.",
+       "mode": "aram",
+       "zh": "第一段冲刺的法术强度加成改为40%法术强度。"
+      },
+      {
+       "text": "Second dash minimum AP ratio changed to 40% AP.",
+       "mode": "aram",
+       "zh": "第二段冲刺的最小法术强度加成改为40%法术强度。"
+      },
+      {
+       "text": "Cooldown changed to 90 / 75 / 60 seconds.",
+       "mode": "aram",
+       "zh": "冷却时间改为90 / 75 / 60秒。"
+      }
+     ]
+    }
+   ]
+  },
+  "85": {
+   "name": "Kennen",
+   "zh": "凯南",
+   "stats": {
+    "energyRegen": 0.2
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "86": {
+   "name": "Garen",
+   "zh": "盖伦",
+   "stats": {
+    "received": -0.05
+   },
+   "aram": {},
+   "abilities": [
+    {
+     "key": "P",
+     "name": {
+      "en": "Perseverance",
+      "zh": "坚韧"
+     },
+     "lines": [
+      {
+       "text": "Bonus health regeneration changed to 2% – 12% (based on level) of his maximum health.",
+       "mode": "mayhem",
+       "zh": "额外生命回复改为2% – 12%（基于等级）最大生命值。"
+      }
+     ]
+    },
+    {
+     "key": "W",
+     "name": {
+      "en": "Courage",
+      "zh": "勇气"
+     },
+     "lines": [
+      {
+       "text": "Shield strength health ratio changed to 20% bonus health.",
+       "mode": "mayhem",
+       "zh": "护盾值的生命值加成改为20%额外生命值。"
+      },
+      {
+       "text": "Bonus resistances on-kill increased to 0.75 from 0.4.",
+       "mode": "mayhem",
+       "zh": "击杀时获得的额外双抗提升至0.75（原0.4）。"
+      },
+      {
+       "text": "Cooldown changed to 18 / 16.5 / 15 / 13.5 / 12 seconds.",
+       "mode": "mayhem",
+       "zh": "冷却时间改为18 / 16.5 / 15 / 13.5 / 12秒。"
+      }
+     ]
+    }
+   ]
+  },
+  "89": {
+   "name": "Leona",
+   "zh": "蕾欧娜",
+   "stats": {
+    "dealt": -0.05,
+    "received": 0.05
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "90": {
+   "name": "Malzahar",
+   "zh": "玛尔扎哈",
+   "stats": {
+    "dealt": -0.1,
+    "received": 0.1
+   },
+   "aram": {},
+   "abilities": [
+    {
+     "key": "Q",
+     "name": {
+      "en": "Call of the Void",
+      "zh": "虚空召唤"
+     },
+     "lines": [
+      {
+       "text": "Deals 80% damage to minions (60% total).",
+       "mode": "aram",
+       "zh": "对小兵造成80%伤害（合计60%）。"
+      }
+     ]
+    },
+    {
+     "key": "W",
+     "name": {
+      "en": "Void Swarm",
+      "zh": "虚空虫群"
+     },
+     "lines": [
+      {
+       "text": "Deals 80% damage to minions (60% total).",
+       "mode": "aram",
+       "zh": "对小兵造成80%伤害（合计60%）。"
+      }
+     ]
+    },
+    {
+     "key": "R",
+     "name": {
+      "en": "Nether Grasp",
+      "zh": "冥府之握"
+     },
+     "lines": [
+      {
+       "text": "Null Zone deals 80% damage to minions (60% total).",
+       "mode": "aram",
+       "zh": "【虚无领域】对小兵造成80%伤害（合计60%）。"
+      }
+     ]
+    },
+    {
+     "key": "",
+     "name": {
+      "en": "General",
+      "zh": "通用"
+     },
+     "lines": [
+      {
+       "text": "Abilities' damage to minions increased to 100% from 60%.",
+       "mode": "mayhem",
+       "zh": "技能对小兵的伤害提升至100%（原60%）。"
+      }
+     ]
+    }
+   ]
+  },
+  "91": {
+   "name": "Talon",
+   "zh": "泰隆",
+   "stats": {
+    "dealt": 0.05,
+    "received": -0.05,
+    "tenacity": 0.2
+   },
+   "aram": {},
+   "abilities": [
+    {
+     "key": "Q",
+     "name": {
+      "en": "Noxian Diplomacy",
+      "zh": "诺克萨斯式外交"
+     },
+     "lines": [
+      {
+       "text": "Bonus AD ratio changed to 115% bonus AD.",
+       "mode": "aram",
+       "zh": "额外攻击力加成改为115%额外攻击力。"
+      }
+     ]
+    },
+    {
+     "key": "W",
+     "name": {
+      "en": "Rake",
+      "zh": "斩草除根"
+     },
+     "lines": [
+      {
+       "text": "Outgoing bonus AD ratio changed to 50% bonus AD.",
+       "mode": "aram",
+       "zh": "飞出时的额外攻击力加成改为50%额外攻击力。"
+      },
+      {
+       "text": "Incoming bonus AD ratio changed to 100% bonus AD.",
+       "mode": "aram",
+       "zh": "飞回时的额外攻击力加成改为100%额外攻击力。"
+      }
+     ]
+    },
+    {
+     "key": "E",
+     "name": {
+      "en": "Assassin's Path",
+      "zh": "刺客之道"
+     },
+     "lines": [
+      {
+       "text": "Per-wall cooldown changed to 10 / 9 / 8 / 7 / 6 seconds.",
+       "mode": "aram",
+       "zh": "同一地形的冷却时间改为10 / 9 / 8 / 7 / 6秒。"
+      }
+     ]
+    },
+    {
+     "key": "R",
+     "name": {
+      "en": "Shadow Assault",
+      "zh": "暗影突袭"
+     },
+     "lines": [
+      {
+       "text": "Cooldown changed to 80 / 70 / 60 seconds.",
+       "mode": "aram",
+       "zh": "冷却时间改为80 / 70 / 60秒。"
+      }
+     ]
+    }
+   ]
+  },
+  "92": {
+   "name": "Riven",
+   "zh": "锐雯",
+   "stats": {
+    "dealt": 0.05,
+    "received": -0.08
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "96": {
+   "name": "Kog'Maw",
+   "zh": "克格莫",
+   "stats": {
+    "dealt": -0.1,
+    "received": 0.1
+   },
+   "aram": {
+    "dealt": -0.08
+   },
+   "abilities": [
+    {
+     "key": "Q",
+     "name": {
+      "en": "Caustic Spittle",
+      "zh": "腐蚀唾液"
+     },
+     "lines": [
+      {
+       "text": "Resistances reduction changed to 15 / 18 / 21 / 24 / 27%.",
+       "mode": "aram",
+       "zh": "双抗削减改为15 / 18 / 21 / 24 / 27%。"
+      }
+     ]
+    },
+    {
+     "key": "W",
+     "name": {
+      "en": "Bio-Arcane Barrage",
+      "zh": "生化弹幕"
+     },
+     "lines": [
+      {
+       "text": "Target health ratio changed to 2.5 / 3 / 3.5 / 4 / 4.5% of target's maximum health.",
+       "mode": "aram",
+       "zh": "目标生命值加成改为2.5 / 3 / 3.5 / 4 / 4.5%目标最大生命值。"
+      }
+     ]
+    }
+   ]
+  },
+  "98": {
+   "name": "Shen",
+   "zh": "慎",
+   "stats": {
+    "dealt": -0.05,
+    "received": 0.05
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "99": {
+   "name": "Lux",
+   "zh": "拉克丝",
+   "stats": {
+    "dealt": -0.1,
+    "received": 0.1,
+    "shielding": 0
+   },
+   "aram": {
+    "shielding": -0.1
+   },
+   "abilities": [
+    {
+     "key": "R",
+     "name": {
+      "en": "Final Spark",
+      "zh": "终极闪光"
+     },
+     "lines": [
+      {
+       "text": "Cooldown changed to 80 / 70 / 60 seconds.",
+       "mode": "aram",
+       "zh": "冷却时间改为80 / 70 / 60秒。"
+      }
+     ]
+    }
+   ]
+  },
+  "101": {
+   "name": "Xerath",
+   "zh": "泽拉斯",
+   "stats": {
+    "dealt": -0.07,
+    "received": 0.05
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "102": {
+   "name": "Shyvana",
+   "zh": "希瓦娜",
+   "stats": {
+    "received": 0
+   },
+   "aram": {
+    "received": -0.05
+   },
+   "abilities": [
+    {
+     "key": "P",
+     "name": {
+      "en": "Scalemail",
+      "zh": "龙鳞铁衣"
+     },
+     "lines": [
+      {
+       "text": "ALTERNATIVE INNATE: While alive, Shyvana gains 1.5 bonus armor, 1.5 bonus magic resistance, and 0.2 bonus Fury regeneration whenever a large minion dies within 1400 units of her, or when she is healed by a health relic's area of effect on the enemy's side of the map.",
+       "mode": "aram",
+       "zh": "替代天赋：存活期间，每当一个大型小兵在希瓦娜1400码内阵亡，或她在敌方半场被治疗圣物的范围效果治疗时，希瓦娜获得1.5额外护甲、1.5额外魔法抗性和0.2额外怒气回复。"
+      }
+     ]
+    },
+    {
+     "key": "R",
+     "name": {
+      "en": "Dragon's Descent",
+      "zh": "魔龙降世"
+     },
+     "lines": [
+      {
+       "text": "Dragon Fury generation per damaging attack or ability changed to 2.5.",
+       "mode": "mayhem",
+       "zh": "每次造成伤害的攻击或技能产生的龙怒改为2.5。"
+      }
+     ]
+    }
+   ]
+  },
+  "103": {
+   "name": "Ahri",
+   "zh": "阿狸",
+   "stats": {
+    "healing": 0
+   },
+   "aram": {
+    "healing": -0.1
+   },
+   "abilities": []
+  },
+  "105": {
+   "name": "Fizz",
+   "zh": "菲兹",
+   "stats": {
+    "dealt": 0,
+    "received": 0,
+    "tenacity": 0
+   },
+   "aram": {
+    "dealt": 0.05,
+    "received": -0.05,
+    "tenacity": 0.1
+   },
+   "abilities": []
+  },
+  "106": {
+   "name": "Volibear",
+   "zh": "沃利贝尔",
+   "stats": {},
+   "aram": {},
+   "abilities": [
+    {
+     "key": "E",
+     "name": {
+      "en": "Sky Splitter",
+      "zh": "霹天雳地"
+     },
+     "lines": [
+      {
+       "text": "Shield health ratio increased to 14% of his maximum health from 11%.",
+       "mode": "mayhem",
+       "zh": "护盾的生命值加成提升至14%最大生命值（原11%）。"
+      }
+     ]
+    }
+   ]
+  },
+  "107": {
+   "name": "Rengar",
+   "zh": "雷恩加尔",
+   "stats": {
+    "dealt": 0.05,
+    "received": -0.08,
+    "tenacity": 0.2
+   },
+   "aram": {},
+   "abilities": [
+    {
+     "key": "Q",
+     "name": {
+      "en": "Savagery",
+      "zh": "残忍无情"
+     },
+     "lines": [
+      {
+       "text": "Unempowered AD ratio changed to 10 / 13.75 / 17.5 / 21.25 / 25% AD.",
+       "mode": "aram",
+       "zh": "未强化时的攻击力加成改为10 / 13.75 / 17.5 / 21.25 / 25%攻击力。"
+      },
+      {
+       "text": "Empowered AD ratio changed to 40% AD.",
+       "mode": "aram",
+       "zh": "强化后的攻击力加成改为40%攻击力。"
+      }
+     ]
+    },
+    {
+     "key": "E",
+     "name": {
+      "en": "Bola Strike",
+      "zh": "套索打击"
+     },
+     "lines": [
+      {
+       "text": "Bonus AD ratio changed to 100% bonus AD.",
+       "mode": "aram",
+       "zh": "额外攻击力加成改为100%额外攻击力。"
+      }
+     ]
+    },
+    {
+     "key": "R",
+     "name": {
+      "en": "Thrill of the Hunt",
+      "zh": "狩猎律动"
+     },
+     "lines": [
+      {
+       "text": "Cooldown changed to 90 / 80 / 70 seconds.",
+       "mode": "aram",
+       "zh": "冷却时间改为90 / 80 / 70秒。"
+      }
+     ]
+    }
+   ]
+  },
+  "110": {
+   "name": "Varus",
+   "zh": "韦鲁斯",
+   "stats": {
+    "received": 0
+   },
+   "aram": {
+    "received": 0
+   },
+   "abilities": []
+  },
+  "111": {
+   "name": "Nautilus",
+   "zh": "诺提勒斯",
+   "stats": {
+    "dealt": 0,
+    "received": 0
+   },
+   "aram": {
+    "dealt": -0.05,
+    "received": 0.1
+   },
+   "abilities": []
+  },
+  "112": {
+   "name": "Viktor",
+   "zh": "维克托",
+   "stats": {},
+   "aram": {},
+   "abilities": [
+    {
+     "key": "P",
+     "name": {
+      "en": "Glorious Evolution",
+      "zh": "光荣进化"
+     },
+     "lines": [
+      {
+       "text": "Stacks per takedown changed to 8.",
+       "mode": "aram",
+       "zh": "每次参与击杀获得的层数改为8。"
+      },
+      {
+       "text": "Stacks per large minion reduced to 5.",
+       "mode": "aram",
+       "zh": "每个大型小兵提供的层数降低至5。"
+      },
+      {
+       "text": "NEW EFFECT: Passively generates 1 stack every 5 seconds.",
+       "mode": "aram",
+       "zh": "新增效果：被动地每5秒获得1层。"
+      }
+     ]
+    }
+   ]
+  },
+  "114": {
+   "name": "Fiora",
+   "zh": "菲奥娜",
+   "stats": {
+    "received": -0.05
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "115": {
+   "name": "Ziggs",
+   "zh": "吉格斯",
+   "stats": {
+    "dealt": -0.1,
+    "received": 0.1,
+    "abilityHaste": -20
+   },
+   "aram": {
+    "dealt": -0.08,
+    "received": 0.2
+   },
+   "abilities": [
+    {
+     "key": "P",
+     "name": {
+      "en": "Short Fuse",
+      "zh": "一触即发"
+     },
+     "lines": [
+      {
+       "text": "Damage to structures changed to 150%.",
+       "mode": "aram",
+       "zh": "对建筑物的伤害改为150%。"
+      }
+     ]
+    },
+    {
+     "key": "Q",
+     "name": {
+      "en": "Bouncing Bomb",
+      "zh": "弹跳炸弹"
+     },
+     "lines": [
+      {
+       "text": "AP ratio changed to 60 / 62.5 / 65 / 67.5 / 70% AP.",
+       "mode": "aram",
+       "zh": "法术强度加成改为60 / 62.5 / 65 / 67.5 / 70%法术强度。"
+      },
+      {
+       "text": "Deals 80% damage to minions (60% total).",
+       "mode": "aram",
+       "zh": "对小兵造成80%伤害（合计60%）。"
+      }
+     ]
+    },
+    {
+     "key": "W",
+     "name": {
+      "en": "Satchel Charge",
+      "zh": "定点爆破"
+     },
+     "lines": [
+      {
+       "text": "Tower execute threshold changed to 12.5 / 15 / 17.5 / 20 / 22.5% of turret's maximum health.",
+       "mode": "aram",
+       "zh": "防御塔斩杀线改为防御塔最大生命值的12.5 / 15 / 17.5 / 20 / 22.5%。"
+      },
+      {
+       "text": "Deals 80% damage to minions (60% total).",
+       "mode": "aram",
+       "zh": "对小兵造成80%伤害（合计60%）。"
+      }
+     ]
+    },
+    {
+     "key": "E",
+     "name": {
+      "en": "Hexplosive Minefield",
+      "zh": "海克斯爆破雷区"
+     },
+     "lines": [
+      {
+       "text": "First hit AP ratio changed to 25 / 27.5 / 30 / 32.5 / 35% AP.",
+       "mode": "aram",
+       "zh": "首次命中的法术强度加成改为25 / 27.5 / 30 / 32.5 / 35%法术强度。"
+      },
+      {
+       "text": "Field duration changed to 7 seconds.",
+       "mode": "aram",
+       "zh": "雷区持续时间改为7秒。"
+      },
+      {
+       "text": "Deals 80% damage to minions (60% total).",
+       "mode": "aram",
+       "zh": "对小兵造成80%伤害（合计60%）。"
+      }
+     ]
+    },
+    {
+     "key": "R",
+     "name": {
+      "en": "Mega Inferno Bomb",
+      "zh": "科学的地狱火炮"
+     },
+     "lines": [
+      {
+       "text": "Deals 80% damage to minions (60% total).",
+       "mode": "aram",
+       "zh": "对小兵造成80%伤害（合计60%）。"
+      }
+     ]
+    },
+    {
+     "key": "",
+     "name": {
+      "en": "General",
+      "zh": "通用"
+     },
+     "lines": [
+      {
+       "text": "Abilities' damage to minions increased to 100% from 60%.",
+       "mode": "mayhem",
+       "zh": "技能对小兵的伤害提升至100%（原60%）。"
+      }
+     ]
+    }
+   ]
+  },
+  "119": {
+   "name": "Draven",
+   "zh": "德莱文",
+   "stats": {
+    "dealt": 0.05,
+    "received": -0.05
+   },
+   "aram": {},
+   "abilities": [
+    {
+     "key": "P",
+     "name": {
+      "en": "League of Draven",
+      "zh": "德莱文联盟"
+     },
+     "lines": [
+      {
+       "text": "Base gold per kill changed to 40.",
+       "mode": "aram",
+       "zh": "每次击杀的基础金币改为40。"
+      },
+      {
+       "text": "Stacks lost on death changed to 30%.",
+       "mode": "aram",
+       "zh": "阵亡时损失的层数改为30%。"
+      }
+     ]
+    }
+   ]
+  },
+  "120": {
+   "name": "Hecarim",
+   "zh": "赫卡里姆",
+   "stats": {
+    "dealt": 0.05,
+    "received": -0.1,
+    "healing": 0.2,
+    "abilityHaste": 0
+   },
+   "aram": {
+    "abilityHaste": 10
+   },
+   "abilities": [
+    {
+     "key": "E",
+     "name": {
+      "en": "Devastating Charge",
+      "zh": "毁灭冲锋"
+     },
+     "lines": [
+      {
+       "text": "Cooldown changed to 16 / 15 / 14 / 13 / 12 seconds.",
+       "mode": "aram",
+       "zh": "冷却时间改为16 / 15 / 14 / 13 / 12秒。"
+      }
+     ]
+    }
+   ]
+  },
+  "121": {
+   "name": "Kha'Zix",
+   "zh": "卡兹克",
+   "stats": {
+    "dealt": 0.1,
+    "received": -0.1,
+    "healing": 0.2,
+    "tenacity": 0.2
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "122": {
+   "name": "Darius",
+   "zh": "德莱厄斯",
+   "stats": {
+    "dealt": 0.05
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "126": {
+   "name": "Jayce",
+   "zh": "杰斯",
+   "stats": {
+    "dealt": 0.05
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "127": {
+   "name": "Lissandra",
+   "zh": "丽桑卓",
+   "stats": {
+    "dealt": -0.05,
+    "received": 0.05
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "133": {
+   "name": "Quinn",
+   "zh": "奎因",
+   "stats": {
+    "dealt": 0.1,
+    "received": -0.1,
+    "attackSpeed": 0.025,
+    "tenacity": 0.2
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "134": {
+   "name": "Syndra",
+   "zh": "辛德拉",
+   "stats": {
+    "dealt": 0.05,
+    "abilityHaste": 5
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "136": {
+   "name": "Aurelion Sol",
+   "zh": "奥瑞利安·索尔",
+   "stats": {},
+   "aram": {},
+   "abilities": [
+    {
+     "key": "E",
+     "name": {
+      "en": "Singularity",
+      "zh": "星芒凝汇"
+     },
+     "lines": [
+      {
+       "text": "Cooldown changed to 14 seconds.",
+       "mode": "aram",
+       "zh": "冷却时间改为14秒。"
+      }
+     ]
+    }
+   ]
+  },
+  "141": {
+   "name": "Kayn",
+   "zh": "凯隐",
+   "stats": {
+    "healing": -0.2,
+    "tenacity": 0.2
+   },
+   "aram": {},
+   "abilities": [
+    {
+     "key": "P",
+     "name": {
+      "en": "The Darkin Scythe",
+      "zh": "暗裔魔镰"
+     },
+     "lines": [
+      {
+       "text": "Locked form cooldown changed to 1 minute.",
+       "mode": "aram",
+       "zh": "锁定形态后的冷却时间改为1分钟。"
+      },
+      {
+       "text": "Shadow Assassin combat timer changed to 4 seconds.",
+       "mode": "aram",
+       "zh": "影流刺客的战斗计时改为4秒。"
+      },
+      {
+       "text": "Transformation no longer restores full health and mana.",
+       "mode": "aram",
+       "zh": "变身时不再回满生命值和法力值。"
+      }
+     ]
+    },
+    {
+     "key": "Q",
+     "name": {
+      "en": "Reaping Slash",
+      "zh": "巨镰横扫"
+     },
+     "lines": [
+      {
+       "text": "Bonus AD ratio per hit changed to 95% bonus AD. Total bonus AD ratio changed to 190% bonus AD.",
+       "mode": "aram",
+       "zh": "每次命中的额外攻击力加成改为95%额外攻击力。总额外攻击力加成改为190%额外攻击力。"
+      }
+     ]
+    },
+    {
+     "key": "E",
+     "name": {
+      "en": "Shadow Step",
+      "zh": "掠影步"
+     },
+     "lines": [
+      {
+       "text": "Shadow Assassin cooldown changed to 7 seconds.",
+       "mode": "aram",
+       "zh": "影流刺客形态下的冷却时间改为7秒。"
+      }
+     ]
+    }
+   ]
+  },
+  "142": {
+   "name": "Zoe",
+   "zh": "佐伊",
+   "stats": {
+    "dealt": 0.1,
+    "received": -0.05
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "143": {
+   "name": "Zyra",
+   "zh": "婕拉",
+   "stats": {
+    "dealt": -0.1,
+    "received": 0.05,
+    "abilityHaste": -10
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "145": {
+   "name": "Kai'Sa",
+   "zh": "卡莎",
+   "stats": {
+    "received": 0,
+    "attackSpeed": 0.025
+   },
+   "aram": {
+    "received": -0.1
+   },
+   "abilities": [
+    {
+     "key": "Q",
+     "name": {
+      "en": "Icathian Rain",
+      "zh": "艾卡西亚暴雨"
+     },
+     "lines": [
+      {
+       "text": "Bonus AD ratio changed to 65% bonus AD.",
+       "mode": "aram",
+       "zh": "额外攻击力加成改为65%额外攻击力。"
+      }
+     ]
+    }
+   ]
+  },
+  "147": {
+   "name": "Seraphine",
+   "zh": "萨勒芬妮",
+   "stats": {
+    "received": 0.2,
+    "healing": -0.2,
+    "shielding": -0.2,
+    "abilityHaste": 0
+   },
+   "aram": {
+    "abilityHaste": -20
+   },
+   "abilities": []
+  },
+  "150": {
+   "name": "Gnar",
+   "zh": "纳尔",
+   "stats": {
+    "dealt": 0.05,
+    "received": -0.05,
+    "attackSpeed": 0.025
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "154": {
+   "name": "Zac",
+   "zh": "扎克",
+   "stats": {
+    "received": -0.04,
+    "healing": 0.1
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "157": {
+   "name": "Yasuo",
+   "zh": "亚索",
+   "stats": {
+    "attackSpeed": 0
+   },
+   "aram": {
+    "attackSpeed": 0.025
+   },
+   "abilities": [
+    {
+     "key": "W",
+     "name": {
+      "en": "Wind Wall",
+      "zh": "风之障壁"
+     },
+     "lines": [
+      {
+       "text": "Cooldown changed to 27 / 25 / 23 / 21 / 19 seconds.",
+       "mode": "aram",
+       "zh": "冷却时间改为27 / 25 / 23 / 21 / 19秒。"
+      }
+     ]
+    }
+   ]
+  },
+  "161": {
+   "name": "Vel'Koz",
+   "zh": "维克兹",
+   "stats": {
+    "dealt": -0.05,
+    "received": 0.05
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "164": {
+   "name": "Camille",
+   "zh": "卡蜜尔",
+   "stats": {
+    "dealt": 0.05,
+    "received": -0.05,
+    "healing": 0.2,
+    "shielding": 0.1,
+    "abilityHaste": 10
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "166": {
+   "name": "Akshan",
+   "zh": "阿克尚",
+   "stats": {
+    "dealt": 0,
+    "received": 0
+   },
+   "aram": {
+    "dealt": 0.05,
+    "received": -0.05
+   },
+   "abilities": [
+    {
+     "key": "W",
+     "name": {
+      "en": "Going Rogue",
+      "zh": "赴险夺人"
+     },
+     "lines": [
+      {
+       "text": "Scoundrel duration changed to 10 seconds.",
+       "mode": "aram",
+       "zh": "【恶人】标记持续时间改为10秒。"
+      }
+     ]
+    }
+   ]
+  },
+  "200": {
+   "name": "Bel'Veth",
+   "zh": "卑尔维斯",
+   "stats": {},
+   "aram": {},
+   "abilities": [
+    {
+     "key": "P",
+     "name": {
+      "en": "Death in Lavender ",
+      "zh": "溶烛化紫 "
+     },
+     "lines": [
+      {
+       "text": "Bel'Veth gains 2 stacks from nearby siege minion deaths.",
+       "mode": "aram",
+       "zh": "附近的炮车小兵阵亡时，卑尔维斯获得2层。"
+      }
+     ]
+    },
+    {
+     "key": "R",
+     "name": {
+      "en": "Endless Banquet",
+      "zh": "万载豪筵"
+     },
+     "lines": [
+      {
+       "text": "Enhanced Void Corals spawn from nearby turrets being destroyed.",
+       "mode": "aram",
+       "zh": "附近的防御塔被摧毁时会生成强化的【虚空珊瑚】。"
+      },
+      {
+       "text": "Void Coral duration changed to 40 seconds.",
+       "mode": "aram",
+       "zh": "【虚空珊瑚】持续时间改为40秒。"
+      }
+     ]
+    }
+   ]
+  },
+  "202": {
+   "name": "Jhin",
+   "zh": "烬",
+   "stats": {
+    "dealt": -0.05,
+    "received": 0
+   },
+   "aram": {
+    "received": 0.05
+   },
+   "abilities": []
+  },
+  "203": {
+   "name": "Kindred",
+   "zh": "千珏",
+   "stats": {
+    "dealt": 0,
+    "received": -0.1,
+    "attackSpeed": 0.025
+   },
+   "aram": {
+    "dealt": 0.1
+   },
+   "abilities": []
+  },
+  "221": {
+   "name": "Zeri",
+   "zh": "泽丽",
+   "stats": {
+    "dealt": 0.1,
+    "received": -0.05
+   },
+   "aram": {},
+   "abilities": [
+    {
+     "key": "Q",
+     "name": {
+      "en": "Burst Fire",
+      "zh": "电火迸射"
+     },
+     "lines": [
+      {
+       "text": "Zeri will start the game with one point already allocated in Burst Fire!, allowing her to allocate the other two to her other abilities.",
+       "mode": "aram",
+       "zh": "泽丽开局时【电火迸射】已自带一个技能点，前两个技能点可以分配给其他技能。"
+      }
+     ]
+    },
+    {
+     "key": "E",
+     "name": {
+      "en": "Spark Surge",
+      "zh": "灿丽花火"
+     },
+     "lines": [
+      {
+       "text": "Cooldown changed to 20 / 19 / 18 / 17 / 16 seconds.",
+       "mode": "aram",
+       "zh": "冷却时间改为20 / 19 / 18 / 17 / 16秒。"
+      }
+     ]
+    }
+   ]
+  },
+  "222": {
+   "name": "Jinx",
+   "zh": "金克丝",
+   "stats": {
+    "dealt": -0.1,
+    "received": 0.05
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "223": {
+   "name": "Tahm Kench",
+   "zh": "塔姆",
+   "stats": {
+    "received": 0
+   },
+   "aram": {
+    "received": 0.05
+   },
+   "abilities": []
+  },
+  "233": {
+   "name": "Briar",
+   "zh": "贝蕾亚",
+   "stats": {
+    "dealt": 0.05,
+    "healing": 0.1
+   },
+   "aram": {},
+   "abilities": [
+    {
+     "key": "E",
+     "name": {
+      "en": "Chilling Scream",
+      "zh": "惊吼"
+     },
+     "lines": [
+      {
+       "text": "Damage reduction changed to 55%.",
+       "mode": "aram",
+       "zh": "伤害减免改为55%。"
+      }
+     ]
+    }
+   ]
+  },
+  "234": {
+   "name": "Viego",
+   "zh": "佛耶戈",
+   "stats": {
+    "dealt": 0.05
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "235": {
+   "name": "Senna",
+   "zh": "赛娜",
+   "stats": {
+    "dealt": 0,
+    "received": 0.05
+   },
+   "aram": {
+    "dealt": -0.08
+   },
+   "abilities": []
+  },
+  "236": {
+   "name": "Lucian",
+   "zh": "卢锡安",
+   "stats": {
+    "dealt": 0,
+    "received": -0.05,
+    "tenacity": 0.2,
+    "abilityHaste": 10
+   },
+   "aram": {
+    "dealt": 0.05
+   },
+   "abilities": []
+  },
+  "238": {
+   "name": "Zed",
+   "zh": "劫",
+   "stats": {
+    "dealt": 0.05,
+    "received": -0.05,
+    "energyRegen": 0.2,
+    "tenacity": 0.2
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "240": {
+   "name": "Kled",
+   "zh": "克烈",
+   "stats": {
+    "dealt": 0.05
+   },
+   "aram": {},
+   "abilities": [
+    {
+     "key": "P",
+     "name": {
+      "en": "Skaarl, the Cowardly Lizard",
+      "zh": "怯战蜥蜴斯嘎尔"
+     },
+     "lines": [
+      {
+       "text": "REMOVED: No longer generates Courage while at the allied spawn.",
+       "mode": "aram",
+       "zh": "移除：在己方泉水时不再产生勇气值。"
+      },
+      {
+       "text": "While at the allied fountain, Kled generates 25 Courage every 0.25 seconds.(unexpected)",
+       "mode": "mayhem",
+       "zh": "在己方泉水时，克烈每0.25秒产生25勇气值。（非预期效果）"
+      }
+     ]
+    }
+   ]
+  },
+  "245": {
+   "name": "Ekko",
+   "zh": "艾克",
+   "stats": {
+    "dealt": 0.05,
+    "tenacity": 0.1
+   },
+   "aram": {
+    "dealt": 0.1,
+    "tenacity": 0.2
+   },
+   "abilities": []
+  },
+  "246": {
+   "name": "Qiyana",
+   "zh": "奇亚娜",
+   "stats": {
+    "dealt": 0.1,
+    "received": -0.1,
+    "tenacity": 0.2,
+    "abilityHaste": 20
+   },
+   "aram": {
+    "dealt": 0.15
+   },
+   "abilities": [
+    {
+     "key": "W",
+     "name": {
+      "en": "Terrashape",
+      "zh": "方圆塑令"
+     },
+     "lines": [
+      {
+       "text": "NEW EFFECT: Targeting a Health Relic on Howling Abyss grants the RIVER Element.",
+       "mode": "aram",
+       "zh": "新增效果：在嚎哭深渊以治疗圣物为目标时，获得河流元素。"
+      }
+     ]
+    }
+   ]
+  },
+  "254": {
+   "name": "Vi",
+   "zh": "蔚",
+   "stats": {
+    "dealt": 0.05,
+    "received": -0.05
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "266": {
+   "name": "Aatrox",
+   "zh": "亚托克斯",
+   "stats": {
+    "dealt": 0.05
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "267": {
+   "name": "Nami",
+   "zh": "娜美",
+   "stats": {
+    "dealt": 0,
+    "received": 0
+   },
+   "aram": {
+    "dealt": -0.05,
+    "received": 0.05
+   },
+   "abilities": []
+  },
+  "268": {
+   "name": "Azir",
+   "zh": "阿兹尔",
+   "stats": {
+    "received": -0.05,
+    "attackSpeed": 0.025,
+    "abilityHaste": 20
+   },
+   "aram": {},
+   "abilities": [
+    {
+     "key": "W",
+     "name": {
+      "en": "Arise!",
+      "zh": "沙兵现身"
+     },
+     "lines": [
+      {
+       "text": "Azir will start the game with one point already ranked in Arise!, allowing him to allocate the other two to his other abilities.",
+       "mode": "aram",
+       "zh": "阿兹尔开局时【沙兵现身】已自带一个技能点，前两个技能点可以分配给其他技能。"
+      }
+     ]
+    }
+   ]
+  },
+  "360": {
+   "name": "Samira",
+   "zh": "莎弥拉",
+   "stats": {
+    "received": 0
+   },
+   "aram": {
+    "received": 0
+   },
+   "abilities": []
+  },
+  "412": {
+   "name": "Thresh",
+   "zh": "锤石",
+   "stats": {
+    "received": 0
+   },
+   "aram": {
+    "received": 0.05
+   },
+   "abilities": [
+    {
+     "key": "P",
+     "name": {
+      "en": "Damnation",
+      "zh": "地狱诅咒"
+     },
+     "lines": [
+      {
+       "text": "Stacks per soul increased to 3 from 2.",
+       "mode": "mayhem",
+       "zh": "每个灵魂提供的层数提升至3（原2）。"
+      }
+     ]
+    },
+    {
+     "key": "W",
+     "name": {
+      "en": "Dark Passage",
+      "zh": "魂引之灯"
+     },
+     "lines": [
+      {
+       "text": "Cooldown changed to 19 / 18 / 17 / 16 / 15 seconds.",
+       "mode": "mayhem",
+       "zh": "冷却时间改为19 / 18 / 17 / 16 / 15秒。"
+      }
+     ]
+    }
+   ]
+  },
+  "420": {
+   "name": "Illaoi",
+   "zh": "俄洛伊",
+   "stats": {
+    "dealt": -0.05,
+    "received": 0,
+    "healing": -0.1
+   },
+   "aram": {
+    "received": 0.05,
+    "healing": -0.2
+   },
+   "abilities": []
+  },
+  "421": {
+   "name": "Rek'Sai",
+   "zh": "雷克塞",
+   "stats": {
+    "dealt": 0.05,
+    "received": -0.1
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "427": {
+   "name": "Ivern",
+   "zh": "艾翁",
+   "stats": {
+    "dealt": 0,
+    "shielding": 0
+   },
+   "aram": {
+    "dealt": -0.05,
+    "shielding": -0.1
+   },
+   "abilities": []
+  },
+  "429": {
+   "name": "Kalista",
+   "zh": "卡莉丝塔",
+   "stats": {
+    "dealt": 0.05,
+    "received": -0.05
+   },
+   "aram": {
+    "dealt": 0.05,
+    "received": 0
+   },
+   "abilities": []
+  },
+  "432": {
+   "name": "Bard",
+   "zh": "巴德",
+   "stats": {
+    "dealt": 0.15,
+    "received": -0.15,
+    "healing": 0.2
+   },
+   "aram": {},
+   "abilities": [
+    {
+     "key": "P",
+     "name": {
+      "en": "Traveler's Call",
+      "zh": "旅者的召唤"
+     },
+     "lines": [
+      {
+       "text": "Chime spawn rate changed to every 30 seconds (initial spawn unchanged).",
+       "mode": "aram",
+       "zh": "【调和之音】的生成间隔改为每30秒（首次生成时间不变）。"
+      },
+      {
+       "text": "Meep attack AP ratio changed to 67% AP.",
+       "mode": "mayhem",
+       "zh": "木灵攻击的法术强度加成改为67%法术强度。"
+      },
+      {
+       "text": "Base Meep recharge time changed to 5 seconds.",
+       "mode": "mayhem",
+       "zh": "木灵的基础充能时间改为5秒。"
+      },
+      {
+       "text": "Meep attack bonus damage per 3 Chimes changed to 10.",
+       "mode": "mayhem",
+       "zh": "每3个【调和之音】为木灵攻击提供的额外伤害改为10。"
+      }
+     ]
+    },
+    {
+     "key": "W",
+     "name": {
+      "en": "Caretaker's Shrine",
+      "zh": "游神圣坛"
+     },
+     "lines": [
+      {
+       "text": "Recharge timer changed to 10 seconds.",
+       "mode": "aram",
+       "zh": "充能时间改为10秒。"
+      },
+      {
+       "text": "Base bonus movement speed changed to 25 / 27.5 / 30 / 32.5 / 35%.",
+       "mode": "mayhem",
+       "zh": "基础额外移动速度改为25 / 27.5 / 30 / 32.5 / 35%。"
+      },
+      {
+       "text": "Bonus movement speed AP ratio changed to 7.5% per 100 AP.",
+       "mode": "mayhem",
+       "zh": "额外移动速度的法术强度加成改为每100法术强度7.5%。"
+      },
+      {
+       "text": "Recharge changed to 8 seconds.",
+       "mode": "mayhem",
+       "zh": "充能时间改为8秒。"
+      }
+     ]
+    }
+   ]
+  },
+  "497": {
+   "name": "Rakan",
+   "zh": "洛",
+   "stats": {
+    "received": -0.05,
+    "abilityHaste": 10
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "498": {
+   "name": "Xayah",
+   "zh": "霞",
+   "stats": {
+    "dealt": 0,
+    "attackSpeed": 0
+   },
+   "aram": {
+    "dealt": 0.05,
+    "attackSpeed": 0.03
+   },
+   "abilities": []
+  },
+  "516": {
+   "name": "Ornn",
+   "zh": "奥恩",
+   "stats": {
+    "dealt": -0.1,
+    "received": 0.05
+   },
+   "aram": {},
+   "abilities": [
+    {
+     "key": "P",
+     "name": {
+      "en": "Living Forge",
+      "zh": "活体锻炉"
+     },
+     "lines": [
+      {
+       "text": "NEW EFFECT: Forging an item puts Living Forge on a 120-second cooldown. He cannot upgrade the items of allies during this cooldown.(unexpected)",
+       "mode": "aram",
+       "zh": "新增效果：锻造一件装备会使【活体锻炉】进入120秒冷却，冷却期间无法为友军升级装备。（非预期效果）"
+      },
+      {
+       "text": "Forge cooldown changed to 90 – 10 (based on level) seconds.",
+       "mode": "mayhem",
+       "zh": "锻造冷却时间改为90 – 10秒（基于等级）。"
+      }
+     ]
+    }
+   ]
+  },
+  "517": {
+   "name": "Sylas",
+   "zh": "塞拉斯",
+   "stats": {
+    "dealt": 0.05
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "526": {
+   "name": "Rell",
+   "zh": "芮尔",
+   "stats": {
+    "dealt": -0.05,
+    "shielding": -0.1
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "555": {
+   "name": "Pyke",
+   "zh": "派克",
+   "stats": {
+    "dealt": 0.1,
+    "received": -0.1,
+    "tenacity": 0.2
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "711": {
+   "name": "Vex",
+   "zh": "薇古丝",
+   "stats": {
+    "dealt": -0.05
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "777": {
+   "name": "Yone",
+   "zh": "永恩",
+   "stats": {
+    "dealt": 0,
+    "received": 0,
+    "attackSpeed": 0.025
+   },
+   "aram": {
+    "dealt": 0.05,
+    "received": -0.03
+   },
+   "abilities": []
+  },
+  "799": {
+   "name": "Ambessa",
+   "zh": "安蓓萨",
+   "stats": {
+    "received": 0
+   },
+   "aram": {
+    "received": 0.05
+   },
+   "abilities": []
+  },
+  "800": {
+   "name": "Mel",
+   "zh": "梅尔",
+   "stats": {
+    "abilityHaste": -10
+   },
+   "aram": {},
+   "abilities": [
+    {
+     "key": "W",
+     "name": {
+      "en": "Rebuttal",
+      "zh": "灵魂折镜"
+     },
+     "lines": [
+      {
+       "text": "Cooldown changed to 45 / 44 / 43 / 42 / 41 seconds.",
+       "mode": "aram",
+       "zh": "冷却时间改为45 / 44 / 43 / 42 / 41秒。"
+      }
+     ]
+    }
+   ]
+  },
+  "804": {
+   "name": "Yunara",
+   "zh": "芸阿娜",
+   "stats": {},
+   "aram": {},
+   "abilities": [
+    {
+     "key": "R",
+     "name": {
+      "en": "Transcend One's Self",
+      "zh": "定圣诀"
+     },
+     "lines": [
+      {
+       "text": "Cooldown changed to 80 / 70 / 60 seconds.",
+       "mode": "aram",
+       "zh": "冷却时间改为80 / 70 / 60秒。"
+      }
+     ]
+    },
+    {
+     "key": null,
+     "name": {
+      "en": "Kanmei's Steps",
+      "zh": "明踪步"
+     },
+     "lines": [
+      {
+       "text": "Regular bonus movement speed changed to 40 / 45 / 50 / 55 / 60%.",
+       "mode": "aram",
+       "zh": "常规额外移动速度改为40 / 45 / 50 / 55 / 60%。"
+      }
+     ]
+    }
+   ]
+  },
+  "805": {
+   "name": "Locke",
+   "zh": "洛克",
+   "stats": {
+    "dealt": 0.05,
+    "received": -0.05,
+    "tenacity": 0.2
+   },
+   "aram": {
+    "dealt": 0.15,
+    "received": 0,
+    "tenacity": 0
+   },
+   "abilities": []
+  },
+  "875": {
+   "name": "Sett",
+   "zh": "瑟提",
+   "stats": {
+    "received": 0
+   },
+   "aram": {
+    "received": 0.1
+   },
+   "abilities": [
+    {
+     "key": "P",
+     "name": {
+      "en": "Pit Grit",
+      "zh": "沙场豪情"
+     },
+     "lines": [
+      {
+       "text": "Health regeneration is halved.",
+       "mode": "aram",
+       "zh": "生命回复减半。"
+      }
+     ]
+    },
+    {
+     "key": "W",
+     "name": {
+      "en": "Haymaker",
+      "zh": "蓄意轰拳"
+     },
+     "lines": [
+      {
+       "text": "Grit cap changed to 35% maximum health.",
+       "mode": "aram",
+       "zh": "【豪意】上限改为35%最大生命值。"
+      },
+      {
+       "text": "Damage base Grit ratio changed to 20%.",
+       "mode": "aram",
+       "zh": "伤害的基础【豪意】加成改为20%。"
+      },
+      {
+       "text": "Cooldown changed to 18 / 17 / 16 / 15 / 14 seconds.",
+       "mode": "aram",
+       "zh": "冷却时间改为18 / 17 / 16 / 15 / 14秒。"
+      }
+     ]
+    }
+   ]
+  },
+  "876": {
+   "name": "Lillia",
+   "zh": "莉莉娅",
+   "stats": {
+    "dealt": -0.05,
+    "received": 0.05
+   },
+   "aram": {},
+   "abilities": [
+    {
+     "key": "E",
+     "name": {
+      "en": "Swirlseed",
+      "zh": "流涡种"
+     },
+     "lines": [
+      {
+       "text": "Cooldown changed to 18 / 17 / 16 / 15 / 14 seconds.",
+       "mode": "aram",
+       "zh": "冷却时间改为18 / 17 / 16 / 15 / 14秒。"
+      }
+     ]
+    }
+   ]
+  },
+  "887": {
+   "name": "Gwen",
+   "zh": "格温",
+   "stats": {
+    "dealt": 0,
+    "received": 0.05
+   },
+   "aram": {
+    "dealt": 0.02,
+    "received": 0
+   },
+   "abilities": [
+    {
+     "key": "Q",
+     "name": {
+      "en": "Snip Snip!",
+      "zh": "快刀剪乱"
+     },
+     "lines": [
+      {
+       "text": "Final snip AP ratio changed to 40% AP.",
+       "mode": "aram",
+       "zh": "最后一剪的法术强度加成改为40%法术强度。"
+      }
+     ]
+    },
+    {
+     "key": "R",
+     "name": {
+      "en": "Needlework",
+      "zh": "引针簇射"
+     },
+     "lines": [
+      {
+       "text": "Cooldown changed to 110 / 90 / 70 seconds.",
+       "mode": "aram",
+       "zh": "冷却时间改为110 / 90 / 70秒。"
+      }
+     ]
+    }
+   ]
+  },
+  "888": {
+   "name": "Renata Glasc",
+   "zh": "烈娜塔 · 戈拉斯克",
+   "stats": {
+    "dealt": 0,
+    "received": 0.05,
+    "shielding": 0
+   },
+   "aram": {
+    "dealt": -0.05,
+    "shielding": 0
+   },
+   "abilities": []
+  },
+  "893": {
+   "name": "Aurora",
+   "zh": "阿萝拉",
+   "stats": {
+    "abilityHaste": 10
+   },
+   "aram": {},
+   "abilities": []
+  },
+  "897": {
+   "name": "K'Sante",
+   "zh": "奎桑提",
+   "stats": {
+    "dealt": 0.05
+   },
+   "aram": {},
+   "abilities": [
+    {
+     "key": "W",
+     "name": {
+      "en": "Path Maker",
+      "zh": "辟路先锋"
+     },
+     "lines": [
+      {
+       "text": "Cooldown changed to 10 seconds at all ranks.",
+       "mode": "mayhem",
+       "zh": "冷却时间改为10秒（所有等级）。"
+      },
+      {
+       "text": "Damage reduction changed to 45%.",
+       "mode": "mayhem",
+       "zh": "伤害减免改为45%。"
+      }
+     ]
+    },
+    {
+     "key": "E",
+     "name": {
+      "en": "Footwork",
+      "zh": "大步驰援"
+     },
+     "lines": [
+      {
+       "text": "Shield strength health ratio changed to 15% bonus health.",
+       "mode": "mayhem",
+       "zh": "护盾值的生命值加成改为15%额外生命值。"
+      }
+     ]
+    }
+   ]
+  },
+  "901": {
+   "name": "Smolder",
+   "zh": "斯莫德",
+   "stats": {
+    "received": 0,
+    "abilityHaste": 0
+   },
+   "aram": {
+    "received": 0.02,
+    "abilityHaste": -10
+   },
+   "abilities": []
+  },
+  "902": {
+   "name": "Milio",
+   "zh": "米利欧",
+   "stats": {
+    "healing": 0,
+    "shielding": 0,
+    "abilityHaste": 0
+   },
+   "aram": {
+    "abilityHaste": -10,
+    "healing": -0.05,
+    "shielding": -0.1
+   },
+   "abilities": []
+  },
+  "904": {
+   "name": "Zaahen",
+   "zh": "亚恒",
+   "stats": {
+    "dealt": 0,
+    "received": 0.05
+   },
+   "aram": {
+    "dealt": -0.05,
+    "received": 0.05
+   },
+   "abilities": []
+  },
+  "910": {
+   "name": "Hwei",
+   "zh": "彗",
+   "stats": {
+    "dealt": -0.05
+   },
+   "aram": {},
+   "abilities": [
+    {
+     "key": "P",
+     "name": {
+      "en": "Signature of the Visionary",
+      "zh": "落款"
+     },
+     "lines": [
+      {
+       "text": "Deals 80% damage to minions (60% total).",
+       "mode": "aram",
+       "zh": "对小兵造成80%伤害（合计60%）。"
+      }
+     ]
+    },
+    {
+     "key": "R",
+     "name": {
+      "en": "Spiraling Despair",
+      "zh": "焚心绚华绘"
+     },
+     "lines": [
+      {
+       "text": "Deals 80% damage to minions (60% total).",
+       "mode": "aram",
+       "zh": "对小兵造成80%伤害（合计60%）。"
+      }
+     ]
+    },
+    {
+     "key": "",
+     "name": {
+      "en": "General",
+      "zh": "通用"
+     },
+     "lines": [
+      {
+       "text": "Abilities' damage to minions increased to 100% from 60%.",
+       "mode": "mayhem",
+       "zh": "技能对小兵的伤害提升至100%（原60%）。"
+      }
+     ]
+    },
+    {
+     "key": null,
+     "name": {
+      "en": "Devastating Fire",
+      "zh": "没骨火"
+     },
+     "lines": [
+      {
+       "text": "Deals 80% damage to minions (60% total).",
+       "mode": "aram",
+       "zh": "对小兵造成80%伤害（合计60%）。"
+      }
+     ]
+    },
+    {
+     "key": null,
+     "name": {
+      "en": "Severing Bolt",
+      "zh": "攒聚雷"
+     },
+     "lines": [
+      {
+       "text": "Dealt 80% damage to minions (60% total).",
+       "mode": "aram",
+       "zh": "对小兵造成80%伤害（合计60%）。"
+      }
+     ]
+    },
+    {
+     "key": null,
+     "name": {
+      "en": "Molten Fissure",
+      "zh": "连皴山"
+     },
+     "lines": [
+      {
+       "text": "Deals 80% damage to minions (60% total).",
+       "mode": "aram",
+       "zh": "对小兵造成80%伤害（合计60%）。"
+      }
+     ]
+    },
+    {
+     "key": null,
+     "name": {
+      "en": "Stirring Lights",
+      "zh": "宿墨"
+     },
+     "lines": [
+      {
+       "text": "Deals 80% damage to minions (60% total).",
+       "mode": "aram",
+       "zh": "对小兵造成80%伤害（合计60%）。"
+      }
+     ]
+    },
+    {
+     "key": null,
+     "name": {
+      "en": "Grim Visage",
+      "zh": "阴沉变意"
+     },
+     "lines": [
+      {
+       "text": "Deals 80% damage to minions (60% total).",
+       "mode": "aram",
+       "zh": "对小兵造成80%伤害（合计60%）。"
+      }
+     ]
+    },
+    {
+     "key": null,
+     "name": {
+      "en": "Gaze of the Abyss",
+      "zh": "滞涩幽瞳"
+     },
+     "lines": [
+      {
+       "text": "Deals 80% damage to minions (60% total).",
+       "mode": "aram",
+       "zh": "对小兵造成80%伤害（合计60%）。"
+      }
+     ]
+    },
+    {
+     "key": null,
+     "name": {
+      "en": "Crushing Maw",
+      "zh": "双钩血喉"
+     },
+     "lines": [
+      {
+       "text": "Deals 80% damage to minions (60% total).",
+       "mode": "aram",
+       "zh": "对小兵造成80%伤害（合计60%）。"
+      }
+     ]
+    }
+   ]
+  },
+  "950": {
+   "name": "Naafiri",
+   "zh": "纳亚菲利",
+   "stats": {
+    "dealt": 0.1,
+    "abilityHaste": 10
+   },
+   "aram": {},
+   "abilities": []
+  }
+ }
+}

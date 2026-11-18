@@ -159,11 +159,18 @@ export type Tier = 'S' | 'A' | 'B' | 'C' | 'D';
 export type Tiers = Partial<Record<Tier, number[]>>;
 /** Champion classes: Data Dragon's champion tags. */
 export type ChampClass = 'Fighter' | 'Assassin' | 'Mage' | 'Tank' | 'Support' | 'Marksman';
-export type Content = { updated: string; builds: Record<string, MayhemBuild>; itemTiers: Tiers; championTiers: Partial<Record<ChampClass, Tiers>> };
+/** Skill brackets with their own champion tiers (AramHex's 娱乐, 中分, 前 5%). */
+export type TierBracket = 'casual' | 'mid' | 'high';
+export type Content = {
+  updated: string;
+  builds: Record<string, MayhemBuild>;
+  itemTiers: Tiers;
+  championTiersByBracket: Partial<Record<TierBracket, Partial<Record<ChampClass, Tiers>>>>;
+};
 export type ContentEdit =
   | { kind: 'build'; championId: number; build: MayhemBuild | null }
   | { kind: 'itemTiers'; tiers: Tiers }
-  | { kind: 'championTiers'; class: ChampClass; tiers: Tiers };
+  | { kind: 'championTiers'; bracket: TierBracket; class: ChampClass; tiers: Tiers };
 /** `canEdit`: this copy is the admin's (its GitHub CLI account can push to the repository). */
 export type ContentStatus = { publish: 'done' | 'waiting' | 'publishing' | 'failed'; error: string; canEdit: boolean };
 export type Spell = { key: string; name: string; cooldown: number };

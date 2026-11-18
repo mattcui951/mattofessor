@@ -100,6 +100,27 @@ Meta and builds come from two public sources, cached locally so the app keeps wo
   (Settings > Admin), which publishes through the GitHub CLI (`gh`). Only a copy whose `gh`
   account can push to this repository shows that section or accepts edits; at start it asks
   GitHub (`repos/<repo>` `.permissions.push`).
+- **Refreshed data** (`src-tauri/src/data.rs`), on this repository's `data` branch, written every 6
+  hours by `.github/workflows/refresh-data.yml` (`tools/refresh-data`, Node + headless Chromium):
+  - `mayhem.json`: each champion's Hextech ARAM modifiers and ability changes from the
+    [League of Legends Wiki](https://wiki.leagueoflegends.com/en-us/ARAM:_Mayhem) (CC BY-SA 3.0):
+    the ARAM page's mode overrides with the ARAM: Mayhem page's layer on top. The wiki answers
+    scripts with a challenge page, hence the browser. Plus the mode's rules and headliner bands,
+    written by hand in both languages (`tools/refresh-data/rules.json`); when the wiki's text of
+    those sections changes, the run opens an issue labelled `data-rules`. Melee or ranged comes
+    from CommunityDragon's per-champion `attackType`.
+  - `patch-notes.json`: the latest 5 patches, Summoner's Rift sections (champions, items, ...)
+    and ARAM: Mayhem apart, with champion, item and augment ids: Riot's notes for English and
+    Tencent's official Chinese notes (lol.qq.com) for Chinese.
+  - Chinese never mixes in English. Names come from the game's own Chinese data (Data Dragon,
+    CommunityDragon's `cherry-augments.json` and `lol.stringtable.json`, which also give the
+    headliners' official names and texts). The wiki's ability lines have no official Chinese:
+    `tools/refresh-data/zh-lines.json` holds reviewed translations; new lines are translated by
+    Claude (`translate.mjs`) when the `ANTHROPIC_API_KEY` repository secret is set, else the run
+    opens a `data-translations` issue and the app leaves those lines out in Chinese.
+  Apps check the branch every 30 minutes (`src-tauri/src/branch.rs`, shared with `content`) and
+  start from the copy they shipped with (`src-tauri/data/`), whichever was built later. To try
+  it: `cd tools/refresh-data && npm ci && npx playwright install chromium && node refresh.mjs`.
 - Augment names and icons: Riot's game data via [CommunityDragon](https://communitydragon.org).
 - Item roles (the shop's Fighter, Marksman, ... filter, `mItemAttributes`): CommunityDragon's
   `items.cdtb.bin.json` for the patch (about 16 MB, read once per patch; only the roles are kept).
@@ -158,6 +179,9 @@ ranked entries), throttled under those limits. The key is stored with Windows DP
 | `src-tauri/src/opgg.rs` | OP.GG public endpoint client, its text format parser, tier lists |
 | `src-tauri/src/aramhex.rs` | Hextech ARAM statistics (AramHex open data): download, checks, views, augment picks, item win rates |
 | `src-tauri/src/content.rs` | The admin's builds and tier lists: following the `content` branch, editing, publishing with `gh` |
+| `src-tauri/src/data.rs` | Refreshed Hextech ARAM modifiers, rules and patch notes: following the `data` branch |
+| `src-tauri/src/branch.rs` | Reading a branch of this repository at its latest commit |
+| `tools/refresh-data/` | Builds the `data` branch (run by `.github/workflows/refresh-data.yml`) |
 | `src-tauri/src/cards.rs` | Augment card reader: finds the offered cards on screen, places the win rates above them |
 | `src-tauri/src/ocr.rs` | Windows OCR (Windows.Media.Ocr) wrapper |
 | `src-tauri/src/augments.rs` | Augment names, rarity and icons |

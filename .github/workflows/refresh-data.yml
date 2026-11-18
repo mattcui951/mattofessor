@@ -1,0 +1,109 @@
+# Keeps the `data` branch current: Hextech ARAM champion modifiers and rules (mayhem.json), the
+# latest patch notes in English (Riot) and Chinese (Tencent) (patch-notes.json), and the Chinese
+# of the wiki's ability lines (translations-zh.json), built by tools/refresh-data. Every installed
+# app follows that branch. A run that finds nothing new commits nothing; a run that fails keeps
+# the last good data (GitHub emails the failure).
+#
+# New wiki lines are translated by Claude when the ANTHROPIC_API_KEY repository secret is set;
+# without it they wait, and the run opens an issue labelled "data-translations". When the wiki's
+# text of the mode rules changes, tools/refresh-data/rules.json needs a look: the run opens an
+# issue labelled "data-rules".
+name: Refresh data
+
+on:
+  schedule:
+    - cron: '23 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: refresh-data
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: tools/refresh-data/package-lock.json
+
+      - name: Install the browser
+        working-directory: tools/refresh-data
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      # The branch as it is: earlier translations carry over, and new files are compared to it.
+      - name: Check out the data branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git fetch --depth=1 origin data; then
+            git worktree add "$RUNNER_TEMP/data" FETCH_HEAD
+            git -C "$RUNNER_TEMP/data" switch -c data
+          else
+            git worktree add --detach "$RUNNER_TEMP/data"
+            git -C "$RUNNER_TEMP/data" switch --orphan data
+          fi
+
+      - name: Build the data
+        working-directory: tools/refresh-data
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node refresh.mjs --out "$RUNNER_TEMP/out" --prev "$RUNNER_TEMP/data"
+
+      - name: Publish to the data branch when it changed
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="$RUNNER_TEMP/out"
+          cd "$RUNNER_TEMP/data"
+          if cmp -s "$out/mayhem.json" mayhem.json && cmp -s "$out/patch-notes.json" patch-notes.json && cmp -s "$out/translations-zh.json" translations-zh.json; then
+            echo "No changes."
+            exit 0
+          fi
+          cp "$out/mayhem.json" "$out/patch-notes.json" "$out/translations-zh.json" "$out/meta.json" .
+          printf '%s\n' "Written by .github/workflows/refresh-data.yml on main. Do not edit by hand." > README.md
+          git add mayhem.json patch-notes.json translations-zh.json meta.json README.md
+          patch=$(node -p "require('./mayhem.json').patch")
+          git commit -m "Update data (patch $patch)"
+          git push origin data
+
+      - name: Flag changed mode rules and untranslated lines
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          out="$RUNNER_TEMP/out"
+          flag() { # label, title, body, marker
+            gh label create "$1" --color FBCA04 2>/dev/null || true
+            issue=$(gh issue list --label "$1" --state open --json number --jq '.[0].number')
+            if [ -n "$issue" ]; then
+              # Once per new state, not every run.
+              if gh issue view "$issue" --comments | grep -qF "$4"; then return 0; fi
+              gh issue comment "$issue" --body "$3"
+            else
+              gh issue create --title "$2" --label "$1" --body "$3"
+            fi
+          }
+          if [ "$(node -p "require('$out/meta.json').rulesChanged")" = "true" ]; then
+            hash=$(node -p "require('$out/meta.json').rulesHash")
+            flag data-rules "Hextech ARAM rules changed on the wiki" \
+              "$(printf 'The wiki text of the ARAM: Mayhem rules changed (hash %s). Update tools/refresh-data/rules.json to match, then set its sourceHash.\n\n<details><summary>Current text</summary>\n\n```\n%s\n```\n</details>' "$hash" "$(cat "$out/rule-text.txt")")" "$hash"
+          fi
+          missing=$(node -p "require('$out/meta.json').untranslated")
+          if [ "$missing" != "0" ]; then
+            flag data-translations "Wiki lines without Chinese" \
+              "$missing wiki ability lines have no Chinese yet (patch $(node -p "require('$out/mayhem.json').patch")). Add them to tools/refresh-data/zh-lines.json, or set the ANTHROPIC_API_KEY secret. Marker: untranslated-$missing" "untranslated-$missing"
+          fi

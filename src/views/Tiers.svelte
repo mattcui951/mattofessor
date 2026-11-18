@@ -11,15 +11,18 @@
   import { adminMode, content, editContent, loadContent } from '../lib/content.svelte';
   import { champIcon, champName, dd, ITEM_CLASSES, itemClasses, itemIcon, itemName, OTHER_ITEMS } from '../lib/dd.svelte';
   import { t } from '../lib/i18n.svelte';
-  import { bracket, pct1 } from '../lib/meta.svelte';
+  import { bracket, pct1, setBracket } from '../lib/meta.svelte';
   import { errorText, go, toast } from '../lib/state.svelte';
-  import type { ChampClass, ItemClass, Tier, Tiers } from '../lib/types';
+  import type { ChampClass, ItemClass, Tier, TierBracket, Tiers } from '../lib/types';
 
   const TIERS: Tier[] = ['S', 'A', 'B', 'C', 'D'];
   const CLASSES: ChampClass[] = ['Fighter', 'Assassin', 'Mage', 'Tank', 'Support', 'Marksman'];
+  const TIER_BRACKETS: TierBracket[] = ['casual', 'mid', 'high'];
 
   let view = $state<'items' | 'champions'>('items');
   let cls = $state<ChampClass>('Fighter');
+  /** Champions: each skill bracket has its own tiers; the pick is shared with the Meta page. */
+  const br = $derived<TierBracket>(bracket() === 'all' ? 'mid' : (bracket() as TierBracket));
   /** Items: the one ranking, all of it or one shop role's items in it. */
   let itemCls = $state<'all' | ItemClass>('all');
   let names = $state(false);
@@ -31,9 +34,11 @@
   let itemWin = $state<Record<number, number>>({});
   let champWin = $state<Record<number, number>>({});
   api.aramItems('all').then((o) => (itemWin = Object.fromEntries(o.items.map((r) => [r.id, r.winRate]))), () => {});
-  api.aramOverview(bracket()).then((o) => (champWin = Object.fromEntries(o.champions.map((r) => [r.championId, r.winRate]))), () => {});
+  $effect(() => {
+    api.aramOverview(br).then((o) => (champWin = Object.fromEntries(o.champions.map((r) => [r.championId, r.winRate]))), () => {});
+  });
 
-  const board = $derived<Tiers>((view === 'items' ? content.data.itemTiers : content.data.championTiers[cls]) ?? {});
+  const board = $derived<Tiers>((view === 'items' ? content.data.itemTiers : content.data.championTiersByBracket?.[br]?.[cls]) ?? {});
   const placed = $derived(new Set(TIERS.flatMap((tier) => board[tier] ?? [])));
   /** Whether an id shows in the item role picked (champions: always). */
   const shown = (id: number) => view === 'champions' || itemCls === 'all' || itemClasses(id).includes(itemCls);
@@ -74,10 +79,13 @@
   }
 
   async function save(next: Tiers) {
-    const edit = view === 'items' ? ({ kind: 'itemTiers', tiers: next } as const) : ({ kind: 'championTiers', class: cls, tiers: next } as const);
+    const edit = view === 'items' ? ({ kind: 'itemTiers', tiers: next } as const) : ({ kind: 'championTiers', bracket: br, class: cls, tiers: next } as const);
     // Show the move at once; the saved copy follows.
     if (view === 'items') content.data.itemTiers = next;
-    else content.data.championTiers = { ...content.data.championTiers, [cls]: next };
+    else {
+      const all = content.data.championTiersByBracket ?? {};
+      content.data.championTiersByBracket = { ...all, [br]: { ...all[br], [cls]: next } };
+    }
     try {
       await editContent(edit);
     } catch (e) {
@@ -178,6 +186,7 @@
   $effect(() => {
     view;
     cls;
+    br;
     itemCls;
     selected = null;
     query = '';
@@ -217,6 +226,7 @@
       onchange={(v) => (view = v as typeof view)}
     />
     {#if view === 'champions'}
+      <Segmented label={t('meta.bracket')} value={br} options={TIER_BRACKETS.map((b) => ({ value: b, label: t(`bracket.${b}`) }))} onchange={(v) => setBracket(v as TierBracket)} />
       <Segmented label={t('meta.class')} value={cls} options={CLASSES.map((c) => ({ value: c, label: t(`class.${c}`) }))} onchange={(v) => (cls = v as ChampClass)} />
     {:else}
       <Segmented

@@ -8,7 +8,7 @@ import type { Content, ContentEdit, ContentStatus } from './types';
  * the app): loaded once per window and kept current by the "content" event.
  */
 export const content = $state({
-  data: { updated: '', builds: {}, itemTiers: {}, championTiers: {} } as Content,
+  data: { updated: '', builds: {}, itemTiers: {}, championTiersByBracket: {} } as Content,
   status: { publish: 'done', error: '', canEdit: false } as ContentStatus,
   loaded: false,
 });

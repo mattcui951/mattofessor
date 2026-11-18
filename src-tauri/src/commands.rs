@@ -332,6 +332,12 @@ pub fn content_status() -> crate::content::Status {
     crate::content::status()
 }
 
+/// The refreshed game data: Hextech ARAM modifiers and rules, patch notes.
+#[tauri::command]
+pub fn game_data() -> crate::data::Data {
+    (*crate::data::current()).clone()
+}
+
 /// Apply an admin edit (a build or a tier list) and publish it shortly. Admin only: admin mode on,
 /// in the copy whose GitHub account can push to the repository.
 #[tauri::command]

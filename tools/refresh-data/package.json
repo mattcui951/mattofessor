@@ -1,0 +1,13 @@
+{
+  "name": "mattofessor-refresh-data",
+  "private": true,
+  "type": "module",
+  "description": "Builds the data branch: Hextech ARAM champion modifiers (League Wiki) and patch notes (Riot).",
+  "scripts": {
+    "refresh": "node refresh.mjs --out out"
+  },
+  "dependencies": {
+    "playwright": "1.64.1",
+    "@anthropic-ai/sdk": "1.4.0"
+  }
+}

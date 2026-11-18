@@ -81,6 +81,42 @@ Version: 1.0.12
 
 ## Recently done
 
+- Not released yet (after 1.0.12): Hextech ARAM guide, champion adjustments and patch notes, kept
+  current by a scheduled job (design reviewed in `.lavish/mayhem-guide-design.html`; the user
+  picked the recommended options: two rail pages, ability change lines in English with Chinese
+  names, structured patch notes plus a link).
+  - Job: `tools/refresh-data/refresh.mjs` (Playwright 1.64.1) + `.github/workflows/refresh-data.yml`
+    (every 6 h) write the `data` branch; the app follows it (`data.rs`, `branch.rs`, every 30 min)
+    and ships a copy in `src-tauri/data/`. Strict: unknown wiki lines or too few rows fail the run.
+  - The Mayhem page's "changed to X from Y" gives the final X; its "from" is often stale (about 20
+    differ from today's ARAM list, logged as notes), so the regular ARAM value shown is the ARAM
+    list's. A Mayhem ability line replaces the ARAM line about the same thing.
+  - Pages: 海克斯大乱斗简介 (rules, bands, champion table), 版本更新 (Rift / Hextech ARAM, 5
+    patches, localized champion, item, augment and ability names, buff/nerf tags for modifier
+    lines), and a 海克斯大乱斗调整 card on each champion's Hextech ARAM page (own modifiers, the
+    ARAM value where Mayhem changed it, melee/ranged bonus from the rules, ability changes).
+  - Verified in the dev app with the shipped data (zh). Not verified: the workflow on GitHub (the
+    wiki may challenge GitHub's runners harder; fallback is running the same script on this PC),
+    and the app reading the `data` branch (it does not exist until the workflow first runs).
+  - One language at a time (user's rule: no English in Chinese, official translations first).
+    Chinese patch notes are Tencent's (lol.qq.com list API target 24, GBK pages, parsed like
+    Riot's; 26.18 to 26.22 now, China lags Riot by a patch). Names and band texts come from the
+    game's string tables (Bit Rush 比特狂飙, Debonair 执事乐队 from their voice lines; La Ilusión
+    and Maestro have none: 魂蔷薇乐队 and 大师乐队 marked 暂译). Rule terms follow the game's
+    wording (连招破坏者, 坚强壁垒, 属性锻造器, 治疗圣物, 外/水晶/枢纽防御塔, 强化符文). The 142
+    wiki ability lines are translated by hand in `zh-lines.json`; new ones need the
+    ANTHROPIC_API_KEY secret (Claude Opus 5.5, structured output, refusal fallback; untested,
+    no key here) or a hand translation. Verified in the dev app: no English words in Chinese
+    pages and no Chinese in English pages (DOM scan).
+- Not released yet (after 1.0.12): champion tiers per skill bracket (娱乐, 中分, 前 5%; AramHex
+  bands, no all-players list). Content key `championTiersByBracket` (bracket to class to tiers);
+  the old `championTiers` (all players) is passed on untouched for apps before 1.0.13 and can be
+  dropped once they are gone. The tier page's champion view has a bracket picker shared with the
+  Meta page's (`aramBracket`; "all" shows 中分). Published: every bracket ranked by its own win
+  rates with the same cut-offs (53.5% S, 51.5% A, 50% B, 48% C). The Hextech ARAM build page shows
+  the champion's win rate in all four brackets (全体, 娱乐, 中分, 前 5%; games on hover; a click
+  picks the bracket). Items: AramHex has item stats for all players and 前 5% only, so item tiers
+  stay one list.
 - 1.0.12: items by class. Every item gets the shop's roles from
   CommunityDragon's game data (`dd.rs` `roles`, cached as `dd/<patch>-roles.json`; Data Dragon
   cache renamed `-5.json`, not written when the roles fail so the next start retries). Tier list

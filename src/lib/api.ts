@@ -1,4 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
+import type { GameData } from './gamedata.svelte';
 import type { AramBracket, AramChampion, AramOverview, AramPicks, Augment, Build, BuildMode, Content, ContentEdit, ContentStatus, FullGame, ImportResult, InGame, ItemOverview, LiveState, MyScore, PlayerScore, Profile, RiftTiers, RiotStatus, Settings, StaticData, Summoner, UpdateState } from './types';
 
 export type Boot = {
@@ -51,6 +52,7 @@ export const api = {
   openBuild: (championId: number, mode: BuildMode) => invoke<void>('open_build', { championId, mode }),
   content: () => invoke<Content>('content'),
   contentStatus: () => invoke<ContentStatus>('content_status'),
+  gameData: () => invoke<GameData>('game_data'),
   editContent: (edit: ContentEdit) => invoke<Content>('edit_content', { edit }),
   publishContent: () => invoke<void>('publish_content'),
   aramItems: (bracket: AramBracket) => invoke<ItemOverview>('aram_items', { bracket }),

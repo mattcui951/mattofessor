@@ -63,6 +63,8 @@
     inhibitor: '<path d="M12 3l6 7-6 11-6-11z"/><path d="M6 10h12"/>',
     trophy: '<path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5.2A2.8 2.8 0 0 0 8 10M16 6h2.8A2.8 2.8 0 0 1 16 10M12 13v4M8.5 20.5h7M10 17h4"/>',
     flag: '<path d="M6 21V4M6 4h11l-2.5 4L17 12H6"/>',
+    book: '<path d="M12 6.5C10.5 5.3 8 4.8 4 5v13c4-.2 6.5.3 8 1.5 1.5-1.2 4-1.7 8-1.5V5c-4-.2-6.5.3-8 1.5zM12 6.5v13"/>',
+    news: '<rect x="4" y="4.5" width="16" height="15" rx="1.5"/><path d="M8 9h8M8 12.5h8M8 16h5"/>',
   };
 </script>
 

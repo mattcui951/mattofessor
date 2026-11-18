@@ -26,6 +26,12 @@
   <button class="item" class:on={app.route.name === 'builds'} aria-label={t('nav.builds')} title={t('nav.builds')} onclick={() => go({ name: 'builds' })}>
     <Icon name="builds" size={21} />
   </button>
+  <button class="item" class:on={app.route.name === 'guide'} aria-label={t('nav.guide')} title={t('nav.guide')} onclick={() => go({ name: 'guide' })}>
+    <Icon name="book" size={21} />
+  </button>
+  <button class="item" class:on={app.route.name === 'patches'} aria-label={t('nav.patches')} title={t('nav.patches')} onclick={() => go({ name: 'patches' })}>
+    <Icon name="news" size={21} />
+  </button>
   <div class="grow"></div>
   <button class="item" class:on={['settings', 'appearance', 'riotGuide'].includes(app.route.name)} aria-label={t('nav.settings')} title={t('nav.settings')} onclick={() => go({ name: 'settings' })}>
     <Icon name="settings" size={21} />

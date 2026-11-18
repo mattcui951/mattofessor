@@ -24,9 +24,10 @@ that reads the League client API (LCU) and public data only. Public repo, releas
 
 ## Releasing
 
-First refresh the shipped copy of the admin's builds and tier lists (what a new install shows
-before it can reach GitHub): download `content.json` from the `content` branch over
-`src-tauri/data/content.json` and commit it. Never edit that branch by hand; the app publishes it.
+First refresh the shipped copies (what a new install shows before it can reach GitHub): download
+`content.json` from the `content` branch over `src-tauri/data/content.json`, and `meta.json`,
+`mayhem.json` and `patch-notes.json` from the `data` branch into `src-tauri/data/`, then commit them.
+Never edit either branch by hand: the app publishes `content`, the refresh-data workflow `data`.
 
 In App HQ, call the `propose_release` tool with the version and the release notes: App HQ runs
 the tests, bumps the version files, tags, pushes, watches the build and checks `latest.json`.

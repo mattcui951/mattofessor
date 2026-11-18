@@ -3,6 +3,7 @@
   import AugmentList from '../components/AugmentList.svelte';
   import MayhemBuild from '../components/MayhemBuild.svelte';
   import MayhemEditor from '../components/MayhemEditor.svelte';
+  import MayhemMods from '../components/MayhemMods.svelte';
   import { adminMode, content, loadContent } from '../lib/content.svelte';
   import Icon from '../components/Icon.svelte';
   import PublishState from '../components/PublishState.svelte';
@@ -13,9 +14,9 @@
   import { SHARD_NAMES, champIcon, dd, itemIcon, itemName, loadOtherNames, otherNames, rune, runeIcon, spell, spellIcon } from '../lib/dd.svelte';
   import { pct, roleName } from '../lib/format';
   import { i18n, t } from '../lib/i18n.svelte';
-  import { ARAM_CREDIT, BRACKETS, bracket, setBracket } from '../lib/meta.svelte';
+  import { ARAM_CREDIT, BRACKETS, bracket, pct1, setBracket } from '../lib/meta.svelte';
   import { app, errorText, toast } from '../lib/state.svelte';
-  import type { Build, BuildMode, TierRow } from '../lib/types';
+  import type { AramBracket, Build, BuildMode, TierRow } from '../lib/types';
 
   const LANES = ['top', 'jungle', 'mid', 'adc', 'support'] as const;
   type Lane = (typeof LANES)[number];
@@ -32,6 +33,25 @@
   /** Admin: writing the selected champion's Hextech ARAM build. */
   let editing = $state(false);
   const admin = $derived(adminMode() && mode === 'aram');
+
+  /** Hextech ARAM: every champion's win rate in each skill bracket, loaded once per bracket. */
+  let bracketWin = $state<Partial<Record<AramBracket, Record<number, { winRate: number; games: number }>>>>({});
+  const asked = new Set<AramBracket>();
+  $effect(() => {
+    if (mode !== 'aram') return;
+    for (const b of BRACKETS) {
+      if (asked.has(b)) continue;
+      asked.add(b);
+      api.aramOverview(b).then(
+        (o) => {
+          // A bracket the data set does not have comes back as all players: leave it out.
+          if (o.source.bracket !== b) return;
+          bracketWin = { ...bracketWin, [b]: Object.fromEntries(o.champions.map((r) => [r.championId, { winRate: r.winRate, games: r.games }])) };
+        },
+        () => asked.delete(b),
+      );
+    }
+  });
   loadContent();
   const written = $derived(Object.keys(content.data.builds).length);
   let error = $state<string | null>(null);
@@ -217,7 +237,19 @@
         <Img src={champIcon(build.championId)} size={56} />
         <div>
           <h2>{dd.data?.champions[String(build.championId)]?.name}</h2>
-          {#if build.games > 0}<div class="sub num">{t('builds.sample', build.games.toLocaleString())} · {t('builds.wr', pct(build.wins, build.games))}</div>{/if}
+          {#if build.mode === 'aram' && BRACKETS.some((b) => bracketWin[b]?.[build!.championId])}
+            <!-- Its win rate in every skill bracket; picking one also picks the augments' bracket. -->
+            <div class="roles brackets">
+              {#each BRACKETS as b (b)}
+                {@const r = bracketWin[b]?.[build.championId]}
+                {#if r}
+                  <button class:on={bracket() === b} title={t('builds.sample', r.games.toLocaleString())} onclick={() => setBracket(b)}>
+                    {t(`bracket.${b}`)} <span class="num">{pct1(r.winRate)}%</span>
+                  </button>
+                {/if}
+              {/each}
+            </div>
+          {:else if build.games > 0}<div class="sub num">{t('builds.sample', build.games.toLocaleString())} · {t('builds.wr', pct(build.wins, build.games))}</div>{/if}
           {#if build.mode === 'rift'}
             <div class="roles">
               {#each build.roles as r (r.value)}
@@ -240,6 +272,7 @@
       </header>
 
       {#if build.mode === 'aram'}
+        <MayhemMods championId={build.championId} />
         <section class="card">
           <div class="label-row">
             <div class="label">{t('meta.augments')}</div>
@@ -571,6 +604,13 @@
     background: var(--panel-3);
     color: var(--you);
     box-shadow: inset 0 -2px 0 var(--you);
+  }
+  .brackets .num {
+    margin-left: 3px;
+    color: var(--text);
+  }
+  .brackets button.on .num {
+    color: inherit;
   }
   .roles button.rare {
     background: transparent;
