@@ -275,7 +275,7 @@
    },
    "official": true,
    "effect": {
-    "en": "The Health Relic Aura restores an additional 20% missing Health and grants 25% bonus Move Speed that decays over 6 seconds.",
+    "en": "The Health Relic Aura restoresan additional 20% missing Health and grants 25% bonus Move Speed that decays over 6 seconds.",
     "zh": "治疗圣物光环会额外回复20%已损失生命值，并提供在6秒里持续衰减的25%移动速度加成。"
    }
   },
