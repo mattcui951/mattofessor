@@ -1,10 +1,11 @@
 {
-  "updated": "2026-11-18T00:14:48Z",
+  "updated": "2026-11-18T00:14:57Z",
   "builds": {},
   "itemTiers": {
     "S": [
       6333,
-      6616
+      6616,
+      3036
     ]
   },
   "championTiers": {}
