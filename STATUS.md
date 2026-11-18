@@ -1,7 +1,7 @@
 # Status
 
 Updated: 2026-11-17
-Version: 1.0.10
+Version: 1.0.11
 
 ## In progress
 
@@ -81,7 +81,7 @@ Version: 1.0.10
 
 ## Recently done
 
-- Not released yet (after 1.0.10): only the admin sees the Admin setting and the editing tools.
+- 1.0.11: only the admin sees the Admin setting and the editing tools.
   At start the app asks GitHub, through the GitHub CLI, whether its signed-in account can push to
   the repository (`.permissions.push`). No `gh`, signed out (or a token GitHub refuses) or no
   push access: no Admin section in Settings, tier lists and builds are view-only and
@@ -89,7 +89,7 @@ Version: 1.0.10
   again every 3 minutes. Verified in the dev app as the admin and with `gh` signed out
   (`GH_CONFIG_DIR` pointing at an empty folder). Not tested: a signed-in account without push
   access (needs a second GitHub account; the same `false` answer path).
-- Not released yet: tier lists in Chinese use the usual Chinese names (夯, 顶级, 人上人, NPC, 拉完了; keys
+- 1.0.11: tier lists in Chinese use the usual Chinese names (夯, 顶级, 人上人, NPC, 拉完了; keys
   1-5 as well as S-D); English keeps S-D. The item pool now matches what Hextech ARAM players
   finish: Data Dragon's `aramLegendary` (sold on map 12 under a base or 12xxxx id, 2200+ gold,
   nothing sold after it) gives exactly AramHex's 108 items, including the ARAM-only ones the old
