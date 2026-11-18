@@ -1,7 +1,9 @@
 # Mattofessor
 
+**English** · [简体中文](README.zh-CN.md) · [繁體中文](README.zh-TW.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [Español](README.es.md) · [Français](README.fr.md)
+
 A local Porofessor replacement for League of Legends on Windows, without Overwolf, ads or
-accounts. English and Simplified Chinese.
+accounts. In English, Simplified and Traditional Chinese, Japanese, Korean, Spanish and French.
 
 - **Profile**: your (or any Riot ID's) solo and flex rank, past ranks, tags, most played
   champions, roles, mastery and match history with full 10-player game details (items and gold,
@@ -23,8 +25,10 @@ accounts. English and Simplified Chinese.
 - **Hextech ARAM augments**: in champ select and in game, the augments to take and to avoid
   for your champion, by rarity. When the augment cards are open, your champion's win rate with
   each card shows above it, the best one marked (read from the screen with Windows' own text
-  recognition, English or Chinese; nothing is saved).
+  recognition, in the client's language or English; nothing is saved).
 
+- **Patch notes**: the latest 5 patches' changes, Summoner's Rift and Hextech ARAM apart, from
+  Riot's own notes in your language (Tencent's in Simplified Chinese).
 - **Scores**: every player in every game gets a 0.0-10.0 performance score and a place (1st to
   10th); the best on the winning team is MVP, the best on the losing team SVP.
 
@@ -35,7 +39,11 @@ accounts. English and Simplified Chinese.
    that is the source code.)
 2. Run it. Windows may show "Windows protected your PC" because the installer is not
    code-signed: click **More info**, then **Run anyway**. It asks for administrator rights and
-   installs to `C:\Program Files\Mattofessor` with a desktop shortcut.
+   installs to `C:\Program Files\Mattofessor` with a desktop shortcut. If your antivirus blocks or
+   quarantines it (some call it a trojan or stealer), that is a false positive with the same
+   cause, made worse by what the app does: it reads the League client's local lockfile and the
+   screen, which those scanners look for. Download only from this Releases page, then restore the
+   file and add it and `C:\Program Files\Mattofessor` to the antivirus's trusted list.
 3. Start League of Legends and sign in; Mattofessor connects by itself and starts with Windows
    (turn that off in Settings).
 4. Optional: get your own free Riot API key for exact ranked wins and losses: Settings > Riot
@@ -48,7 +56,8 @@ Needs Windows 10 or 11 (WebView2 is installed automatically if missing). League 
 Uninstall from Windows Settings > Apps; settings and cache live in `%APPDATA%\Mattofessor`.
 
 **Updates:** Mattofessor checks this repository's latest release in the background (no GitHub
-account needed) and shows a banner when a new version is out. Click **Update now**, allow the
+account needed), every 30 minutes and when you open the window or bring it back to the front,
+and shows a banner when a new version is out. Click **Update now**, allow the
 Windows prompt, and it restarts on the new version; it never updates during a game. Turn the
 check off or run it by hand in Settings > Updates.
 
@@ -163,6 +172,10 @@ To add a language:
    a test checks the `{0}` placeholders), added to `dicts` in `src/lib/i18n.svelte.ts`.
 3. `tools/refresh-data/`: the language in `LANGS` and `RIOT_LOCALES` (refresh.mjs), its wording in
    `WORDS` and `STATS` (augments.mjs), and its text in every entry of `rules.json`.
+4. `README.<id>.md` (`README.zh-CN.md` for Simplified Chinese): the players' part of this README
+   in that language, and the language in the bar at the top of every README (imported by name in
+   `src/lib/__tests__/readme.test.ts`, which checks there is one per language and each bar lists
+   every language in the registry's order).
 
 ## Appearance
 

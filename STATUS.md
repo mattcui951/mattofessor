@@ -85,6 +85,9 @@ Version: 1.0.16
 
 ## Recently done
 
+- Not released yet (after 1.0.16): the README in all seven languages (`README.<id>.md`, the
+  players' part; development stays in the English one), a language bar on top of each, kept in step
+  with the registry by `readme.test.ts`. Each README says what to do when antivirus flags the installer.
 - 1.0.16:
   - MIT license (LICENSE; package.json and Cargo.toml say so). Needed to apply for free code signing.
   - Seven languages: English, Simplified and Traditional Chinese, Japanese, Korean, Spanish,
