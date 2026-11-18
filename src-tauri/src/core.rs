@@ -100,16 +100,13 @@ impl Core {
         Ok(())
     }
 
-    /// "en" or "zh".
+    /// The UI language id (`lang`): the setting, or the League client's language for "auto".
     pub fn language(&self) -> String {
         let s = self.settings.read().language.clone();
-        if s == "en" || s == "zh" {
+        if crate::lang::known(&s) {
             return s;
         }
-        match self.client_locale.read().as_deref() {
-            Some(l) if l.starts_with("zh") => "zh".into(),
-            _ => "en".into(),
-        }
+        self.client_locale.read().as_deref().map(crate::lang::from_client).unwrap_or_else(crate::lang::english).id.to_string()
     }
 
     /// The UI's text size; the in-game windows grow with it.

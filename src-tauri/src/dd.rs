@@ -155,17 +155,16 @@ pub struct StaticData {
     pub items: BTreeMap<i32, Item>,
     pub spells: BTreeMap<i32, Spell>,
     pub trees: Vec<Tree>,
+    /// Rune stat shards' names (5001 to 5013), from CommunityDragon's perks in the language.
+    #[serde(default)]
+    pub shards: BTreeMap<i32, String>,
 }
 
 const TIMEOUT: Duration = Duration::from_secs(20);
 
-/// "en" / "zh" (or a Data Dragon locale) to a Data Dragon locale.
+/// A language id (`lang`) or Data Dragon locale to a Data Dragon locale.
 pub fn dd_locale(lang: &str) -> &'static str {
-    if lang.to_lowercase().starts_with("zh") {
-        "zh_CN"
-    } else {
-        "en_US"
-    }
+    crate::lang::get(lang).dd
 }
 
 async fn latest_version() -> Result<String> {
@@ -207,8 +206,8 @@ fn parse(version: &str, locale: &str, champs: &Value, items: &Value, spells: &Va
         for c in m.values() {
             if let Ok(id) = s(c, "key").parse::<i32>() {
                 let tags = c.get("tags").and_then(Value::as_array).map(|a| a.iter().filter_map(|t| t.as_str().map(str::to_string)).collect()).unwrap_or_default();
-                // zh_CN puts the epithet in "name" and the champion's name in "title".
-                let (name, alias) = if locale.starts_with("zh") { (s(c, "title"), s(c, "name")) } else { (s(c, "name"), s(c, "title")) };
+                // zh_CN (only) puts the epithet in "name" and the champion's name in "title".
+                let (name, alias) = if locale == "zh_CN" { (s(c, "title"), s(c, "name")) } else { (s(c, "name"), s(c, "title")) };
                 champions.insert(id, Champ { key: s(c, "id"), name, alias, tags });
             }
         }
@@ -275,7 +274,7 @@ fn parse(version: &str, locale: &str, champs: &Value, items: &Value, spells: &Va
                 .collect()
         })
         .unwrap_or_default();
-    StaticData { version: version.into(), locale: locale.into(), champions, items: item_map, spells: spell_map, trees }
+    StaticData { version: version.into(), locale: locale.into(), champions, items: item_map, spells: spell_map, trees, shards: BTreeMap::new() }
 }
 
 static CACHE: Mutex<Option<HashMap<String, Arc<StaticData>>>> = Mutex::new(None);
@@ -287,7 +286,21 @@ pub fn classes() -> Arc<HashMap<i32, String>> {
     CLASSES.lock().clone().unwrap_or_default()
 }
 
-/// Static data for a language ("en" / "zh"), from memory, disk or the CDN.
+/// Rune stat shards' names in a language: CommunityDragon's perks with ids 5000 to 5999.
+async fn shard_names(lang: &str) -> Result<BTreeMap<i32, String>> {
+    let url = format!("https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/{}/v1/perks.json", crate::lang::get(lang).cdragon);
+    let v = fetch_json(&url).await?;
+    Ok(v.as_array()
+        .map(|a| {
+            a.iter()
+                .filter_map(|p| Some((p.get("id")?.as_i64()? as i32, p.get("name")?.as_str()?.to_string())))
+                .filter(|(id, _)| (5000..6000).contains(id))
+                .collect()
+        })
+        .unwrap_or_default())
+}
+
+/// Static data for a language (`lang` id), from memory, disk or the CDN.
 pub async fn get(lang: &str) -> Result<Arc<StaticData>> {
     let locale = dd_locale(lang);
     let version = latest_version().await?;
@@ -296,7 +309,7 @@ pub async fn get(lang: &str) -> Result<Arc<StaticData>> {
         return Ok(d);
     }
     let dir = crate::paths::config_dir().join("dd");
-    let file = dir.join(format!("{version}-{locale}-6.json"));
+    let file = dir.join(format!("{version}-{locale}-7.json"));
     let data = match std::fs::read_to_string(&file).ok().and_then(|t| serde_json::from_str::<StaticData>(&t).ok()) {
         Some(d) => d,
         None => {
@@ -305,6 +318,10 @@ pub async fn get(lang: &str) -> Result<Arc<StaticData>> {
             let _ = std::fs::create_dir_all(&dir);
             let (c, i, s, r) = tokio::try_join!(fetch_json(&urls[0]), fetch_json(&urls[1]), fetch_json(&urls[2]), fetch_json(&urls[3]))?;
             let mut d = parse(&version, locale, &c, &i, &s, &r);
+            match shard_names(lang).await {
+                Ok(s) => d.shards = s,
+                Err(e) => log::warn!("shard names: {e:#}"),
+            }
             match roles(&version).await {
                 Ok(roles) => {
                     for (id, item) in d.items.iter_mut() {

@@ -5,7 +5,7 @@
    * changes. In Chinese the ability lines show their translation; a line not translated yet is
    * left out (and counted) rather than shown in English.
    */
-  import { bi, gameData, loadGameData, MOD_KEYS, modGood, modText, type ModKey } from '../lib/gamedata.svelte';
+  import { bi, gameData, lineText, loadGameData, MOD_KEYS, modGood, modText, type ModKey } from '../lib/gamedata.svelte';
   import { ago } from '../lib/format';
   import { i18n, t } from '../lib/i18n.svelte';
 
@@ -25,10 +25,10 @@
   /** The ability changes as shown: in Chinese only the translated lines. */
   const abilities = $derived(
     (mods?.abilities ?? [])
-      .map((a) => ({ ...a, shown: a.lines.map((l) => ({ mode: l.mode, text: i18n.lang === 'zh' ? l.zh : l.text })).filter((l) => l.text) }))
+      .map((a) => ({ ...a, shown: a.lines.map((l) => ({ mode: l.mode, text: lineText(l) })).filter((l) => l.text) }))
       .filter((a) => a.shown.length),
   );
-  const pending = $derived(i18n.lang === 'zh' ? (mods?.abilities ?? []).reduce((n, a) => n + a.lines.filter((l) => !l.zh).length, 0) : 0);
+  const pending = $derived(i18n.lang === 'en' ? 0 : (mods?.abilities ?? []).reduce((n, a) => n + a.lines.filter((l) => !lineText(l)).length, 0));
   const checked = $derived(gameData.data?.checkedAt ? ago(Date.parse(gameData.data.checkedAt)) : '');
   const label = (k: ModKey) => t(`mods.${k}`);
 </script>

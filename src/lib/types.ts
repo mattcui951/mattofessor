@@ -1,5 +1,7 @@
+import type { LangId } from './locales';
 export type Settings = {
-  language: 'auto' | 'en' | 'zh';
+  /** "auto" (the League client's language) or a language id (`locales.ts`). */
+  language: 'auto' | LangId;
   hotkeyOverlay: string;
   hotkeySpells: string;
   openInChampSelect: boolean;
@@ -184,6 +186,8 @@ export type StaticData = {
   items: Record<string, Item>;
   spells: Record<string, Spell>;
   trees: Tree[];
+  /** Rune stat shards' names by id. */
+  shards?: Record<string, string>;
 };
 
 export type Pick<T> = { value: T; games: number; wins: number };

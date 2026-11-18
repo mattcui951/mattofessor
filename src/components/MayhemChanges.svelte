@@ -5,7 +5,7 @@
    */
   import Img from './Img.svelte';
   import { champIcon, champName, dd, itemIcon, itemName } from '../lib/dd.svelte';
-  import { gameData, loadGameData, noteVerdict, type NoteEntry } from '../lib/gamedata.svelte';
+  import { gameData, loadGameData, notesFor, noteVerdict, type NoteEntry } from '../lib/gamedata.svelte';
   import { i18n, t } from '../lib/i18n.svelte';
   import { augment, pct1, share } from '../lib/meta.svelte';
   import type { ChampionPage } from '../lib/types';
@@ -17,7 +17,7 @@
   const AUG_SHARE = 0.01;
   const ITEM_SHARE = 0.03;
 
-  const notes = $derived(i18n.lang === 'zh' ? gameData.data?.patchNotes.zh : gameData.data?.patchNotes);
+  const notes = $derived(notesFor(gameData.data?.patchNotes));
 
   type Change = { e: NoteEntry; patch: string; icon: string | null; name: string; stat: string };
 

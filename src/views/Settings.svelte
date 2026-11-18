@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { LOCALES, locale } from '../lib/locales';
+  import Select from '../components/Select.svelte';
   import HotkeyInput from '../components/HotkeyInput.svelte';
   import Segmented from '../components/Segmented.svelte';
   import Toggle from '../components/Toggle.svelte';
@@ -85,6 +87,24 @@
       <h2>{t('settings.title')}</h2>
 
       <section>
+        <h3>{t('update.title')}</h3>
+        <div class="riot-status"><i style="background:{updateLine.color}"></i>{updateLine.text}<span class="ver">{t('update.version', app.version)}</span></div>
+        {#if u.error && u.phase !== 'checking'}<p class="note">{u.error}</p>{/if}
+        <div class="how-actions">
+          {#if u.version}
+            <button class="btn primary" disabled={inGame() || u.phase === 'downloading' || u.phase === 'installing'} onclick={installUpdate}>
+              <Icon name="download" size={16} />{t('update.now')}
+            </button>
+            <button class="btn" onclick={() => openUrl(releaseUrl(u.version!))}>{t('update.whatsNew')}</button>
+          {:else}
+            <button class="btn" disabled={u.phase === 'checking'} onclick={checkUpdate}><Icon name="refresh" size={16} />{t('update.check')}</button>
+          {/if}
+        </div>
+        {@render toggleRow(t('update.auto'), 'checkUpdates')}
+        <p class="note">{t('update.note')}</p>
+      </section>
+
+      <section>
         <h3>{t('appearance.title')}</h3>
         <div class="appearance">
           <div class="current">
@@ -104,16 +124,14 @@
 
       <section>
         <h3>{t('settings.language')}</h3>
-        <Segmented
-          label={t('settings.language')}
-          value={s.language}
-          options={[
-            { value: 'auto', label: t('settings.language.auto') },
-            { value: 'en', label: 'English' },
-            { value: 'zh', label: '简体中文' },
-          ]}
-          onchange={(v) => updateSettings({ language: v })}
-        />
+        <div class="lang">
+          <Select
+            label={t('settings.language')}
+            value={s.language}
+            options={[{ value: 'auto', label: t('settings.language.auto') }, ...LOCALES.map((l) => ({ value: l.id, label: l.name }))]}
+            onchange={(v) => updateSettings({ language: v })}
+          />
+        </div>
       </section>
 
       <section>
@@ -172,10 +190,11 @@
         {@render toggleRow(t('cards.toggle'), 'cardReader')}
         <p class="note">{t('cards.note')}</p>
         {#if s.cardReader && reader?.missing}
+          {@const game = locale(reader.gameLang ?? 'en')}
           <div class="ocr-warn">
-            <b>{t(reader.gameLang === 'zh' ? 'cards.noOcrZh' : 'cards.noOcrEn')}</b>
-            <span>{t(reader.gameLang === 'zh' ? 'cards.ocrHowZh' : 'cards.ocrHowEn')}</span>
-            <code>{reader.gameLang === 'zh' ? 'Add-WindowsCapability -Online -Name "Language.OCR~~~zh-CN~0.0.1.0"' : 'Add-WindowsCapability -Online -Name "Language.OCR~~~en-US~0.0.1.0"'}</code>
+            <b>{t('cards.noOcr', game.name)}</b>
+            <span>{t('cards.ocrHow', game.name)}</span>
+            <code>{`Add-WindowsCapability -Online -Name "Language.OCR~~~${game.tag}~0.0.1.0"`}</code>
           </div>
         {/if}
         {@render toggleRow(t('capture.toggle'), 'captureAugments')}
@@ -211,23 +230,6 @@
         <p class="note">{t('riot.stored')}</p>
       </section>
 
-      <section>
-        <h3>{t('update.title')}</h3>
-        <div class="riot-status"><i style="background:{updateLine.color}"></i>{updateLine.text}</div>
-        {#if u.error && u.phase !== 'checking'}<p class="note">{u.error}</p>{/if}
-        <div class="how-actions">
-          {#if u.version}
-            <button class="btn primary" disabled={inGame() || u.phase === 'downloading' || u.phase === 'installing'} onclick={installUpdate}>
-              <Icon name="download" size={16} />{t('update.now')}
-            </button>
-            <button class="btn" onclick={() => openUrl(releaseUrl(u.version!))}>{t('update.whatsNew')}</button>
-          {:else}
-            <button class="btn" disabled={u.phase === 'checking'} onclick={checkUpdate}><Icon name="refresh" size={16} />{t('update.check')}</button>
-          {/if}
-        </div>
-        {@render toggleRow(t('update.auto'), 'checkUpdates')}
-        <p class="note">{t('update.note')}</p>
-      </section>
 
       <section>
         <p class="note">{t('settings.about', app.version)}</p>
@@ -365,5 +367,12 @@
     gap: 5px;
     color: var(--text-2);
     font-size: 12.5px;
+  }
+  .ver {
+    margin-left: 4px;
+    color: var(--text-3);
+  }
+  .lang {
+    max-width: 260px;
   }
 </style>

@@ -1,5 +1,6 @@
 <script lang="ts" module>
   import type { ItemClass } from '../lib/types';
+  import { day } from '../lib/format';
 
   // What the page shows, kept while the app runs: back to this page lands on the same tabs.
   let itemCls = $state<'all' | ItemClass>('all');
@@ -177,7 +178,7 @@
     query = '';
   });
 
-  const updated = $derived(content.data.updated ? new Date(content.data.updated).toLocaleDateString() : '');
+  const updated = $derived(content.data.updated ? day(content.data.updated) : '');
 </script>
 
 <svelte:window onpointermove={move} onpointerup={up} onkeydown={key} />

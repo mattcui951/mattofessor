@@ -12,10 +12,16 @@ export type ChampHit = { id: number; score: number };
 /** `name` terms (name, key) outrank `title` terms ("the Blind Monk", 武器大师). */
 type Entry = { id: number; name: string[]; title: string[] };
 
-/** Lower case, no spaces or punctuation, full-width letters folded ("Kai'Sa" -> "kaisa"). */
+/**
+ * Lower case, no spaces or punctuation, full-width letters folded, accents dropped
+ * ("Kai'Sa" -> "kaisa", "Ícaro" -> "icaro"); Hangul and kana stay whole.
+ */
 export function norm(s: string): string {
   return s
     .normalize('NFKC')
+    .normalize('NFKD')
+    .replace(/[̀-ͯ]/g, '')
+    .normalize('NFC')
     .toLowerCase()
     .replace(/[\s'’.·&_-]/g, '');
 }

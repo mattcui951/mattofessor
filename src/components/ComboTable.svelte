@@ -1,6 +1,7 @@
 <script lang="ts">
   /** Champion × augment pairs, ranked (AramHex: every pair with enough games). */
   import Img from './Img.svelte';
+  import { num } from '../lib/format';
   import { tip } from '../lib/hover.svelte';
   import { augmentTip } from '../lib/tips.svelte';
   import { loadGameData } from '../lib/gamedata.svelte';
@@ -38,12 +39,12 @@
           <span class="pair">
             <span class="who"><Img src={champIcon(c.championId)} size={28} />{champName(c.championId)}</span>
             <span class="x">×</span>
-            <span class="who" use:tip={() => augmentTip(c.augmentId, [{ label: t('hex.win'), value: `${pct1(c.winRate)}%` }, { label: t('hex.deltaLong'), value: delta(c.delta) }, { label: t('hex.games'), value: c.games.toLocaleString() }])}><Img src={a?.icon ?? null} size={28} round /><span>{a?.name ?? `#${c.augmentId}`}</span></span>
+            <span class="who" use:tip={() => augmentTip(c.augmentId, [{ label: t('hex.win'), value: `${pct1(c.winRate)}%` }, { label: t('hex.deltaLong'), value: delta(c.delta) }, { label: t('hex.games'), value: num(c.games) }])}><Img src={a?.icon ?? null} size={28} round /><span>{a?.name ?? `#${c.augmentId}`}</span></span>
           </span>
         </td>
         <td class="num r">{pct1(c.winRate)}%</td>
         <td class="num r" class:hi={c.delta > 0.005} class:lo={c.delta < -0.005}>{delta(c.delta)}</td>
-        <td class="num r dim">{c.games.toLocaleString()}</td>
+        <td class="num r dim">{num(c.games)}</td>
       </tr>
     {:else}
       <tr class="static"><td colspan="5" class="empty">{t('hex.noCombos')}</td></tr>

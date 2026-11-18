@@ -17,6 +17,7 @@ pub mod game;
 pub mod hexstats;
 pub mod hotkeys;
 pub mod keywords;
+pub mod lang;
 pub mod lcu;
 pub mod live;
 pub mod net;

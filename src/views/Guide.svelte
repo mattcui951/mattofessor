@@ -30,7 +30,7 @@
   import { findChamps, loadChampSearch } from '../lib/champFind.svelte';
   import { champIcon, champName, dd } from '../lib/dd.svelte';
   import { ago } from '../lib/format';
-  import { bi, gameData, loadGameData, MOD_KEYS, modGood, modText, type AbilityMods } from '../lib/gamedata.svelte';
+  import { bi, gameData, loadGameData, MOD_KEYS, modGood, modText, type AbilityMods, lineText } from '../lib/gamedata.svelte';
   import { i18n, t } from '../lib/i18n.svelte';
   import { go } from '../lib/state.svelte';
   import { tick } from 'svelte';
@@ -47,7 +47,7 @@
 
   /** An ability's lines of one kind (Hextech ARAM only, or regular ARAM's) in the UI language. */
   function linesOf(a: AbilityMods, mode: 'aram' | 'mayhem') {
-    return a.lines.filter((l) => l.mode === mode).map((l) => (i18n.lang === 'zh' ? l.zh : l.text)).filter((x): x is string => Boolean(x));
+    return a.lines.filter((l) => l.mode === mode).map(lineText).filter((x): x is string => Boolean(x));
   }
   function changes(abilities: AbilityMods[], mode: 'aram' | 'mayhem') {
     return abilities.map((a) => ({ a, lines: linesOf(a, mode) })).filter((x) => x.lines.length);
@@ -175,7 +175,7 @@
       <div class="bands">
         {#each m.headliners as h (h.id)}
           <section class="box band">
-            <h3>{bi(h.name)}{#if !h.official && i18n.lang === 'zh'}<span class="tag" title={t('mguide.unofficialHint')}>{t('mguide.unofficial')}</span>{/if}</h3>
+            <h3>{bi(h.name)}{#if !h.official && i18n.lang !== 'en'}<span class="tag" title={t('mguide.unofficialHint')}>{t('mguide.unofficial')}</span>{/if}</h3>
             <p>{bi(h.effect)}</p>
           </section>
         {/each}

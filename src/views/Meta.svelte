@@ -32,9 +32,9 @@
   import { augmentTip, itemTip } from '../lib/tips.svelte';
   import { findChamps, loadChampSearch } from '../lib/champFind.svelte';
   import { champIcon, champName, dd, ITEM_CLASSES, itemClasses, itemIcon, itemName, loadOtherNames } from '../lib/dd.svelte';
-  import { roleName } from '../lib/format';
+  import { compact, num, roleName } from '../lib/format';
   import { t } from '../lib/i18n.svelte';
-  import { ARAM_CREDIT, aramTier, augment, augs, bracket, delta, gamesShort, hex, loadAugments, notePatches, pct1, riftTier, share } from '../lib/meta.svelte';
+  import { ARAM_CREDIT, aramTier, augment, augs, bracket, delta, hex, loadAugments, notePatches, pct1, riftTier, share } from '../lib/meta.svelte';
   import { errorText, go } from '../lib/state.svelte';
   import type { AugBoard, Board, Combos, ItemOverview, ItemRow, RiftTiers } from '../lib/types';
 
@@ -186,7 +186,7 @@
     const s = aramView === 'champions' ? board?.source : aramView === 'augments' ? augBoard?.source : aramView === 'combos' ? combos?.source : items?.source;
     if (!s) return '';
     const all = s.bracket !== bracket() ? `${t('meta.itemsAllPlayers')} · ` : '';
-    return all + t('meta.srcAram', s.patch, gamesShort(s.matches));
+    return all + t('meta.srcAram', s.patch, compact(s.matches));
   });
   const searchHint = $derived(
     mode === 'rift' ? t('builds.search') : aramView === 'augments' ? t('meta.findAugment') : aramView === 'combos' ? t('hex.findCombo') : aramView === 'items' ? t('mayhem.search') : t('builds.search'),
@@ -310,7 +310,7 @@
                 <td class="num" class:hi={r.winRate >= 0.52} class:lo={r.winRate < 0.48}>{pct1(r.winRate)}%</td>
                 <td class="num">{Math.round(r.pickRate * 100)}%</td>
                 <td class="num">{Math.round(r.banRate * 100)}%</td>
-                <td class="num dim">{r.games.toLocaleString()}</td>
+                <td class="num dim">{num(r.games)}</td>
               </tr>
             {/each}
           </tbody>
@@ -349,7 +349,7 @@
                   <td class="num" class:hi={r.previous !== null && r.winRate - r.previous >= 0.01} class:lo={r.previous !== null && r.previous - r.winRate >= 0.01}>{r.previous === null ? '' : delta(r.winRate - r.previous)}</td>
                 {/if}
                 <td class="num">{pct1(r.pickRate)}%</td>
-                <td class="num dim">{r.games.toLocaleString()}</td>
+                <td class="num dim">{num(r.games)}</td>
               </tr>
             {/each}
           </tbody>
@@ -381,7 +381,7 @@
                 <td class="num">{pct1(a.winRate)}%</td>
                 <td class="num" class:hi={a.delta > 0.01} class:lo={a.delta < -0.01}>{delta(a.delta)}</td>
                 <td class="num">{share(a.pickRate)}%</td>
-                <td class="num dim">{a.games.toLocaleString()}</td>
+                <td class="num dim">{num(a.games)}</td>
               </tr>
             {/each}
           </tbody>
@@ -412,7 +412,7 @@
                 <td class="num" class:hi={r.winRate >= 0.52} class:lo={r.winRate < 0.48}>{pct1(r.winRate)}%</td>
                 <td class="num" class:hi={r.delta > 0.01} class:lo={r.delta < -0.01}>{delta(r.delta)}</td>
                 <td class="num">{share(r.pickRate)}%</td>
-                <td class="num dim">{r.games.toLocaleString()}</td>
+                <td class="num dim">{num(r.games)}</td>
               </tr>
             {/each}
           </tbody>
@@ -421,7 +421,7 @@
     {/if}
   </div>
   <p class="credit">
-    {#if mode === 'rift'}{t('meta.creditRift')}{:else}{aramView === 'champions' ? t('meta.creditAram') : aramView === 'items' ? t('meta.itemsHint') : aramView === 'combos' ? t('hex.combosHint', combos?.total.toLocaleString() ?? '0', combos?.rows.length ?? 0) : t('meta.data')} {ARAM_CREDIT}{/if}
+    {#if mode === 'rift'}{t('meta.creditRift')}{:else}{aramView === 'champions' ? t('meta.creditAram') : aramView === 'items' ? t('meta.itemsHint') : aramView === 'combos' ? t('hex.combosHint', combos ? num(combos.total) : '0', combos?.rows.length ?? 0) : t('meta.data')} {ARAM_CREDIT}{/if}
   </p>
 </div>
 

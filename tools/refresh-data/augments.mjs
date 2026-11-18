@@ -1,4 +1,4 @@
-// Hextech ARAM augment descriptions with their numbers, in English and Chinese, from the game's
+// Hextech ARAM augment descriptions with their numbers, in every language of the app, from the game's
 // own data (CommunityDragon's copies): the mode's augment list and spells (kiwi.bin.json) and the
 // string tables. A tooltip's @Name@ is a spell value or a calculation; calculations are written
 // the way the game shows them: "100 - 400 (based on level) (+40% AP)". Counters the game fills
@@ -6,20 +6,23 @@
 
 export const KIWI = 'https://raw.communitydragon.org/latest/game/maps/modespecificdata/kiwi.bin.json';
 
-/** Stats a calculation scales with (`mStat`), as the tooltips name them. */
+/** Stats a calculation scales with (`mStat`), as each language's client names them. */
 const STATS = {
-  0: { en: 'AP', zh: '法术强度' },
-  1: { en: 'Armor', zh: '护甲' },
-  2: { en: 'AD', zh: '攻击力' },
-  4: { en: 'Attack Speed', zh: '攻击速度' },
-  6: { en: 'Magic Resist', zh: '魔法抗性' },
-  7: { en: 'Move Speed', zh: '移动速度' },
-  8: { en: 'Crit Chance', zh: '暴击几率' },
-  9: { en: 'Crit Damage', zh: '暴击伤害' },
-  11: { en: 'Ability Haste', zh: '技能急速' },
-  12: { en: 'max Health', zh: '最大生命值' },
-  34: { en: 'Heal and Shield Power', zh: '治疗和护盾强度' },
+  0: { en: 'AP', zh: '法术强度', 'zh-TW': '魔法攻擊', ja: '魔力', ko: '주문력', es: 'poder de habilidad', fr: 'puissance' },
+  1: { en: 'Armor', zh: '护甲', 'zh-TW': '物理防禦', ja: '物理防御', ko: '방어력', es: 'armadura', fr: 'armure' },
+  2: { en: 'AD', zh: '攻击力', 'zh-TW': '攻擊力', ja: '攻撃力', ko: '공격력', es: 'daño de ataque', fr: "dégâts d'attaque" },
+  4: { en: 'Attack Speed', zh: '攻击速度', 'zh-TW': '攻擊速度', ja: '攻撃速度', ko: '공격 속도', es: 'velocidad de ataque', fr: "vitesse d'attaque" },
+  6: { en: 'Magic Resist', zh: '魔法抗性', 'zh-TW': '魔法防禦', ja: '魔法防御', ko: '마법 저항력', es: 'resistencia mágica', fr: 'résistance magique' },
+  7: { en: 'Move Speed', zh: '移动速度', 'zh-TW': '移動速度', ja: '移動速度', ko: '이동 속도', es: 'velocidad de movimiento', fr: 'vitesse de déplacement' },
+  8: { en: 'Crit Chance', zh: '暴击几率', 'zh-TW': '暴擊率', ja: 'クリティカル率', ko: '치명타 확률', es: 'probabilidad de crítico', fr: 'chances de coup critique' },
+  9: { en: 'Crit Damage', zh: '暴击伤害', 'zh-TW': '暴擊傷害', ja: 'クリティカルダメージ', ko: '치명타 피해량', es: 'daño crítico', fr: 'dégâts critiques' },
+  11: { en: 'Ability Haste', zh: '技能急速', 'zh-TW': '技能加速', ja: 'スキルヘイスト', ko: '스킬 가속', es: 'velocidad de habilidades', fr: 'accélération de compétence' },
+  12: { en: 'max Health', zh: '最大生命值', 'zh-TW': '最大生命', ja: '最大体力', ko: '최대 체력', es: 'vida máxima', fr: 'PV max' },
+  34: { en: 'Heal and Shield Power', zh: '治疗和护盾强度', 'zh-TW': '治療和護盾量', ja: 'ヒールとシールドの効果', ko: '체력 회복 및 보호막 효과', es: 'poder de curaciones y escudos', fr: 'puissance de soins et boucliers' },
 };
+
+/** The languages written (ids of `src/lib/locales.ts`). */
+export const AUGMENT_LANGS = ['en', 'zh', 'zh-TW', 'ja', 'ko', 'es', 'fr'];
 
 /** The game's hash of a name it stores hashed (`{0123abcd}`): 32-bit FNV-1a of the lower case. */
 export function hashName(name) {
@@ -33,9 +36,18 @@ export function hashName(name) {
 
 /** A spell's value or calculation by name, stored plain or hashed. */
 const lookup = (map, name) => map[name] ?? map[hashName(name)];
+/**
+ * Each language's wording: `scale(pct, stat, kind)` writes one scaling ("40% bonus AD",
+ * "增加攻撃力の40%", "40% de daño de ataque adicional"), `kind` being "bonus", "base" or "".
+ */
 const WORDS = {
-  en: { level: ' (based on level)', bonus: 'bonus ', base: 'base ', stack: (v) => ` (+${v} per stack)`, mana: 'max Mana', ranged: (p) => ` (${p} for ranged)`, spell: 'chosen ability', open: ' (+', close: ')' },
-  zh: { level: '（基于等级）', bonus: '额外', base: '基础', stack: (v) => `（每层+${v}）`, mana: '最大法力值', ranged: (p) => `（远程英雄为${p}）`, spell: '指定', open: '（+', close: '）' },
+  en: { level: ' (based on level)', bonus: 'bonus ', base: 'base ', scale: (p, n, k) => `${p} ${k}${n}`, stack: (v) => ` (+${v} per stack)`, mana: 'max Mana', ranged: (p) => ` (${p} for ranged)`, spell: 'chosen ability', open: ' (+', close: ')' },
+  zh: { level: '（基于等级）', bonus: '额外', base: '基础', scale: (p, n, k) => `${p}${k}${n}`, stack: (v) => `（每层+${v}）`, mana: '最大法力值', ranged: (p) => `（远程英雄为${p}）`, spell: '指定', open: '（+', close: '）' },
+  'zh-TW': { level: '（依等級）', bonus: '額外', base: '基礎', scale: (p, n, k) => `${p}${k}${n}`, stack: (v) => `（每層+${v}）`, mana: '最大魔力', ranged: (p) => `（遠程英雄為${p}）`, spell: '指定', open: '（+', close: '）' },
+  ja: { level: '（レベルに応じて）', bonus: '増加', base: '基本', scale: (p, n, k) => `${k}${n}の${p}`, stack: (v) => `（1スタックごとに+${v}）`, mana: '最大マナ', ranged: (p) => `（遠隔攻撃チャンピオンは${p}）`, spell: '指定スキル', open: '（+', close: '）' },
+  ko: { level: ' (레벨에 따라)', bonus: '추가 ', base: '기본 ', scale: (p, n, k) => `${k}${n}의 ${p}`, stack: (v) => ` (중첩당 +${v})`, mana: '최대 마나', ranged: (p) => ` (원거리 챔피언은 ${p})`, spell: '지정한 스킬', open: ' (+', close: ')' },
+  es: { level: ' (según el nivel)', bonus: ' adicional', base: ' base', scale: (p, n, k) => `${p} de ${n}${k}`, stack: (v) => ` (+${v} por acumulación)`, mana: 'maná máximo', ranged: (p) => ` (${p} a distancia)`, spell: 'habilidad elegida', open: ' (+', close: ')' },
+  fr: { level: ' (selon le niveau)', bonus: ' bonus', base: ' de base', scale: (p, n, k) => `${p} de ${n}${k}`, stack: (v) => ` (+${v} par cumul)`, mana: 'mana max', ranged: (p) => ` (${p} à distance)`, spell: 'compétence choisie', open: ' (+', close: ')' },
 };
 
 const num = (v, precision = 2) => {
@@ -121,7 +133,7 @@ function show(r, lang, missing) {
     .map((s) => {
       const name = s.stat === 'mana' ? w.mana : STATS[s.stat][lang];
       const kind = s.formula === 2 ? w.bonus : s.formula === 1 ? w.base : '';
-      return `${num(s.coef * 100, 1)}%${lang === 'en' ? ' ' : ''}${kind}${name}`;
+      return w.scale(`${num(s.coef * 100, 1)}%`, name, kind);
     });
   const base = r.lo === r.hi ? v(r.lo) : `${v(r.lo)} - ${v(r.hi)}${w.level}`;
   let text;
@@ -165,8 +177,11 @@ export function resolve(text, table, calcs, values, lang, missing) {
   return s.trim();
 }
 
-/** Every augment of the mode: { [id]: { en, zh } } (markup kept), and what could not be read. */
-export function augmentTexts(kiwi, en, zh) {
+/**
+ * Every augment of the mode: { [id]: { en, zh, ja... } } (markup kept), and what could not be read.
+ * `tables`: each language's string table entries, by language id.
+ */
+export function augmentTexts(kiwi, tables) {
   const out = {};
   const problems = [];
   for (const a of Object.values(kiwi)) {
@@ -177,7 +192,13 @@ export function augmentTexts(kiwi, en, zh) {
     const keys = [a.AugmentTooltipTra, a.DescriptionTra].filter(Boolean).map((k) => k.toLowerCase());
     const pick = (table) => keys.map((k) => table[k]).find((t) => t && !/^\s*$/.test(t));
     const missing = new Set();
-    const text = { en: resolve(pick(en), en, calcs, values, 'en', missing), zh: resolve(pick(zh), zh, calcs, values, 'zh', missing) };
+    const text = {};
+    for (const lang of AUGMENT_LANGS) {
+      const table = tables[lang];
+      if (!table) continue;
+      const t = resolve(pick(table), table, calcs, values, lang, lang === 'en' ? missing : new Set());
+      if (t) text[lang] = t;
+    }
     if (!text.en && !text.zh) continue;
     out[a.AugmentPlatformId] = text;
     if (missing.size) problems.push(`${a.AugmentNameId}: ${[...missing].join(', ')}`);

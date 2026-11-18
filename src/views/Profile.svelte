@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { locale } from '../lib/locales';
   import { untrack } from 'svelte';
   import Img from '../components/Img.svelte';
   import Icon from '../components/Icon.svelte';
@@ -7,7 +8,7 @@
   import SearchBox from '../components/SearchBox.svelte';
   import TagChip from '../components/TagChip.svelte';
   import { champIcon, champName, profileIcon, tierColor, tierText } from '../lib/dd.svelte';
-  import { ago, compact, gamesText, one, pct, roleName } from '../lib/format';
+  import { ago, compact, dec, gamesText, one, pct, roleName } from '../lib/format';
   import { i18n, t } from '../lib/i18n.svelte';
   import { findMe, meId, openProfile, profiles, refresh, scoreOf } from '../lib/profiles.svelte';
   import { app, go } from '../lib/state.svelte';
@@ -73,7 +74,7 @@
   });
   function monthLabel(m: string) {
     const [y, mo] = m.split('-').map(Number);
-    return new Date(y, mo - 1, 1).toLocaleDateString(i18n.lang === 'zh' ? 'zh-CN' : 'en-US', { year: 'numeric', month: 'short' });
+    return new Date(y, mo - 1, 1).toLocaleDateString(locale(i18n.lang).tag, { year: 'numeric', month: 'short' });
   }
 </script>
 
@@ -145,7 +146,7 @@
         {#if perfStats.games > 0}
           <div class="perf">
             <div class="avg">
-              <span class="num big">{perfStats.avg.toFixed(1)}</span>
+              <span class="num big">{dec(perfStats.avg)}</span>
               <span class="dim">{t('score.avg')} · {t('score.games', perfStats.games)}</span>
             </div>
             <div class="counts">

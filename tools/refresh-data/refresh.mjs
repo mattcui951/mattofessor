@@ -36,6 +36,19 @@ const PATCHES = Number(arg('patches', 5));
 const PREV = arg('prev', '');
 const WIKI = 'https://wiki.leagueoflegends.com/en-us/';
 const DD = 'https://ddragon.leagueoflegends.com';
+/**
+ * The app's languages (src/lib/locales.ts): id, Data Dragon locale, CommunityDragon folder.
+ * English and Simplified Chinese come first; every text the job writes has them all.
+ */
+const LANGS = [
+  ['en', 'en_US', 'en_us'],
+  ['zh', 'zh_CN', 'zh_cn'],
+  ['zh-TW', 'zh_TW', 'zh_tw'],
+  ['ja', 'ja_JP', 'ja_jp'],
+  ['ko', 'ko_KR', 'ko_kr'],
+  ['es', 'es_ES', 'es_es'],
+  ['fr', 'fr_FR', 'fr_fr'],
+];
 const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140 Safari/537.36';
 
 const log = (...a) => console.log(...a);
@@ -57,18 +70,20 @@ const norm = (s) => s.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]/g, '');
 
 async function dataDragon() {
   const version = (await json(`${DD}/api/versions.json`))[0];
-  const [en, zh, items, itemsZh] = await Promise.all([
-    json(`${DD}/cdn/${version}/data/en_US/championFull.json`),
-    json(`${DD}/cdn/${version}/data/zh_CN/championFull.json`),
+  const [full, items, itemsZh] = await Promise.all([
+    Promise.all(LANGS.map(([, locale]) => json(`${DD}/cdn/${version}/data/${locale}/championFull.json`))),
     json(`${DD}/cdn/${version}/data/en_US/item.json`),
     json(`${DD}/cdn/${version}/data/zh_CN/item.json`),
   ]);
+  const [en, zh] = full;
   const champs = new Map(); // normalized English name -> { id, abilities }
   for (const [key, c] of Object.entries(en.data)) {
     const z = zh.data[key];
+    // An ability's name in every language (English where one has none).
+    const names = (get) => Object.fromEntries(LANGS.map(([id], i) => [id, (full[i].data[key] && get(full[i].data[key])) || get(c)]));
     const abilities = [
-      { key: 'P', en: c.passive.name, zh: z?.passive.name ?? c.passive.name },
-      ...c.spells.map((s, i) => ({ key: 'QWER'[i], en: s.name, zh: z?.spells[i]?.name ?? s.name })),
+      { key: 'P', en: c.passive.name, zh: z?.passive.name ?? c.passive.name, all: names((x) => x.passive.name) },
+      ...c.spells.map((s, i) => ({ key: 'QWER'[i], en: s.name, zh: z?.spells[i]?.name ?? s.name, all: names((x) => x.spells[i]?.name) })),
     ];
     // zh_CN puts the epithet in "name" and the champion's name in "title".
     const entry = { id: Number(c.key), name: c.name, zh: z?.title ?? c.name, abilities };
@@ -99,7 +114,35 @@ async function dataDragon() {
     itemIdsZh,
     augmentIds: await augmentIds('default', norm),
     augmentIdsZh: await augmentIds('zh_cn', zhKey),
+    names: await localNames(version, full),
   };
+}
+
+/** Comparable text in any language: lower case, no spaces, punctuation or accents. */
+const nameKey = (s) => s.normalize('NFKD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[\s\p{P}\p{S}]/gu, '');
+
+/**
+ * Champion, item and augment names in each language Riot writes notes in (id -> `nameKey`), to
+ * tell which localized entry is which (`alignEntries`).
+ */
+async function localNames(version, full) {
+  const out = {};
+  await Promise.all(
+    RIOT_LOCALES.map(async ([lang]) => {
+      const [, locale, folder] = LANGS.find(([id]) => id === lang);
+      const [items, augments] = await Promise.all([
+        json(`${DD}/cdn/${version}/data/${locale}/item.json`),
+        json(`https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/${folder}/v1/cherry-augments.json`),
+      ]);
+      const champs = full[LANGS.findIndex(([id]) => id === lang)].data;
+      out[lang] = {
+        champion: new Map(Object.values(champs).map((c) => [Number(c.key), nameKey(c.name)])),
+        item: new Map(Object.entries(items.data).map(([id, it]) => [Number(id), nameKey(it.name)])),
+        augment: new Map(augments.map((a) => [a.id, nameKey(a.nameTRA)])),
+      };
+    }),
+  );
+  return out;
 }
 
 /** Comparable Chinese text: no spaces or punctuation. */
@@ -135,29 +178,55 @@ async function augmentIds(folder, key) {
 // The game's own text (CommunityDragon's copy of the string tables, English and Chinese)
 
 /**
- * Official Chinese for spell names the wiki uses that are not one of a champion's five (Lee Sin's
- * Resonating Strike, Hwei's subspells), and the headliners' official names and descriptions.
+ * The game's text in every language (CommunityDragon's copy of the string tables, about 35 MB
+ * each, kept only for the keys the job reads): names for spells the wiki uses that are not one of
+ * a champion's five (Lee Sin's Resonating Strike, Hwei's subspells), the headliners' names and
+ * descriptions, and the augments' texts (`augments.mjs`).
  */
-async function stringTables() {
+async function stringTables(kiwi) {
   const base = 'https://raw.communitydragon.org/latest/game';
-  const [en, zh] = await Promise.all([json(`${base}/en_us/data/menu/en_us/lol.stringtable.json`), json(`${base}/zh_cn/data/menu/en_us/lol.stringtable.json`)]);
-  const E = en.entries;
-  const Z = zh.entries;
+  const wanted = /^(game_spell_displayname_|spell_\w+_name$|kiwi_|cherry_|aram_)/;
+  // The augments' own keys and every key their texts refer to ({{Key}}), found in English.
+  const keep = new Set();
+  for (const a of Object.values(kiwi)) if (a?.__type === 'AugmentData') for (const k of [a.NameTra, a.DescriptionTra, a.AugmentTooltipTra]) if (k) keep.add(k.toLowerCase());
+  /** Language id -> the kept entries. One at a time: a whole table is large. */
+  const tables = {};
+  for (const [id, , folder] of LANGS) {
+    const all = (await json(`${base}/${folder}/data/menu/en_us/lol.stringtable.json`)).entries;
+    if (id === 'en') {
+      for (let round = 0, grew = true; round < 6 && grew; round++) {
+        grew = false;
+        for (const k of [...keep]) {
+          for (const m of (all[k] ?? '').matchAll(/\{\{\s*(\w+)\s*\}\}/g)) {
+            const ref = m[1].toLowerCase();
+            if (!keep.has(ref)) {
+              keep.add(ref);
+              grew = true;
+            }
+          }
+        }
+      }
+    }
+    tables[id] = Object.fromEntries(Object.entries(all).filter(([k]) => wanted.test(k) || keep.has(k)));
+  }
+  const E = tables.en;
   const plainText = (v) => (v ?? '').replace(/<[^>]+>/g, '').replace(/%i:[^%]+%/g, '').replace(/\s+/g, ' ').trim();
-  const spellZh = new Map();
+  /** In every language that has it, else none. */
+  const inAll = (key) => Object.fromEntries(LANGS.map(([id]) => [id, plainText(tables[id][key])]).filter(([, v]) => v));
+  const spellNames = new Map();
   for (const [k, v] of Object.entries(E)) {
-    if (!/^(game_spell_displayname_|spell_\w+_name$)/.test(k) || !Z[k]) continue;
+    if (!/^(game_spell_displayname_|spell_\w+_name$)/.test(k) || !tables.zh[k]) continue;
     const name = plainText(v);
-    if (name && !spellZh.has(name)) spellZh.set(name, plainText(Z[k]));
+    if (name && !spellNames.has(name)) spellNames.set(name, inAll(k));
   }
   const goh = (id) => {
-    const t = E[`kiwi_goh_${id}_title`];
-    const d = E[`kiwi_goh_${id}_long_desc`];
-    if (!t || !d || !Z[`kiwi_goh_${id}_title`] || !Z[`kiwi_goh_${id}_long_desc`]) return null;
-    return { name: { en: plainText(t), zh: plainText(Z[`kiwi_goh_${id}_title`]) }, effect: { en: plainText(d), zh: plainText(Z[`kiwi_goh_${id}_long_desc`]) } };
+    const name = inAll(`kiwi_goh_${id}_title`);
+    const effect = inAll(`kiwi_goh_${id}_long_desc`);
+    if (!name.en || !name.zh || !effect.en || !effect.zh) return null;
+    return { name, effect };
   };
-  if (spellZh.size < 500) fail(`string tables: only ${spellZh.size} spell names`);
-  return { spellZh, goh, en: E, zh: Z };
+  if (spellNames.size < 500) fail(`string tables: only ${spellNames.size} spell names`);
+  return { spellNames, goh, tables };
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -265,20 +334,28 @@ function parseStat(line, champ) {
 /** What a change line is about ("Cooldown" in "Cooldown changed to 18 seconds."). */
 const subject = (line) => line.replace(/\s+(changed|increased|reduced|decreased)\s+(to|by)\b.*$/i, '').toLowerCase();
 
+const GENERAL = { en: 'General', zh: '通用', 'zh-TW': '通用', ja: '共通', ko: '공통', es: 'General', fr: 'Général' };
+
 function abilityOf(champ, title, st) {
-  if (/^general$/i.test(title)) return { key: '', en: 'General', zh: '通用' };
+  if (/^general$/i.test(title)) return { key: '', en: 'General', zh: '通用', all: GENERAL };
   const found = champ.abilities.find((a) => norm(a.en) === norm(title));
   if (found) return found;
-  // One half of a two-form ability ("Safeguard / Iron Will"): the same half of its Chinese name.
+  // One half of a two-form ability ("Safeguard / Iron Will"): the same half in each language.
   for (const a of champ.abilities) {
     const ens = a.en.split(/\s*\/\s*/);
-    const zhs = a.zh.split(/\s*\/\s*/);
     const i = ens.findIndex((x) => norm(x) === norm(title));
-    if (i >= 0 && ens.length > 1) return { key: a.key, en: title, zh: zhs.length === ens.length ? zhs[i] : a.zh };
+    if (i >= 0 && ens.length > 1) {
+      const half = (v) => {
+        const parts = v.split(/\s*\/\s*/);
+        return parts.length === ens.length ? parts[i] : v;
+      };
+      const all = Object.fromEntries(Object.entries(a.all).map(([l, v]) => [l, l === 'en' ? title : half(v)]));
+      return { key: a.key, en: title, zh: all.zh, all };
+    }
   }
-  const zh = st.spellZh.get(title);
-  if (!zh) fail(`${champ.name}: no Chinese name for the ability "${title}"`);
-  return { key: null, en: title, zh };
+  const all = st.spellNames.get(title);
+  if (!all?.zh) fail(`${champ.name}: no Chinese name for the ability "${title}"`);
+  return { key: null, en: title, zh: all.zh, all: { ...all, en: title } };
 }
 
 function buildChampions(aramRows, mayhemRows, dd, st) {
@@ -288,7 +365,7 @@ function buildChampions(aramRows, mayhemRows, dd, st) {
     (champions[c.id] ??= { name: c.name, zh: c.zh, stats: {}, aram: {}, abilities: [] });
   const ability = (e, a) => {
     let found = e.abilities.find((x) => x.name.en === a.en);
-    if (!found) e.abilities.push((found = { key: a.key, name: { en: a.en, zh: a.zh }, lines: [] }));
+    if (!found) e.abilities.push((found = { key: a.key, name: a.all ?? { en: a.en, zh: a.zh }, lines: [] }));
     return found;
   };
   for (const [rows, mode] of [
@@ -351,7 +428,7 @@ async function attackTypes(dd) {
 /** Champion id to its abilities' names in both languages (for patch note headings). */
 function abilityNames(dd) {
   const out = {};
-  for (const c of dd.champs.values()) out[c.id] = Object.fromEntries(c.abilities.map((a) => [a.key, { en: a.en, zh: a.zh }]));
+  for (const c of dd.champs.values()) out[c.id] = Object.fromEntries(c.abilities.map((a) => [a.key, a.all]));
   return out;
 }
 
@@ -438,7 +515,7 @@ function readPatchNotes() {
 const RIFT = /^(Champions|Items|Runes|Summoner Spells|Systems)$/i;
 const MAYHEM = /^ARAM:?\s*Mayhem/i;
 
-function shapePatch(raw, dd) {
+function shapePatch(raw, dd, sectionsOnly = false) {
   const keep = (secs) =>
     secs.map((s) => ({
       title: s.title,
@@ -456,6 +533,7 @@ function shapePatch(raw, dd) {
         };
       }),
     }));
+  if (sectionsOnly) return keep(raw.sections);
   return {
     rift: keep(raw.sections.filter((s) => RIFT.test(s.title))),
     mayhem: keep(raw.sections.filter((s) => MAYHEM.test(s.title))),
@@ -485,10 +563,175 @@ async function patchNotes(browser, dd) {
     }
     const shaped = shapePatch(raw, dd);
     log(`patch ${patch}: rift ${shaped.rift.length} sections, mayhem ${shaped.mayhem.length} sections`);
-    patches.push({ patch, url, date: raw.date, ...shaped });
+    patches.push({ patch, url, date: raw.date, ...shaped, raw });
   }
   await page.close();
   return patches;
+}
+
+/** Riot's site locale for each language Riot writes its notes in (Chinese is Tencent's). */
+const RIOT_LOCALES = [
+  ['zh-TW', 'zh-tw'],
+  ['ja', 'ja-jp'],
+  ['ko', 'ko-kr'],
+  ['es', 'es-es'],
+  ['fr', 'fr-fr'],
+];
+
+/**
+ * An in-order alignment of two lists (the longest chain of pairs, by score; a score of 0 never
+ * pairs). Returns, for each item of `a`, the index of its partner in `b`, or -1.
+ */
+function align(a, b, score) {
+  const n = a.length;
+  const m = b.length;
+  const s = a.map((x) => b.map((y) => score(x, y)));
+  const best = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
+  for (let i = n - 1; i >= 0; i--) {
+    for (let j = m - 1; j >= 0; j--) {
+      best[i][j] = Math.max(best[i + 1][j], best[i][j + 1], s[i][j] ? s[i][j] + best[i + 1][j + 1] : 0);
+    }
+  }
+  const pair = new Array(n).fill(-1);
+  for (let i = 0, j = 0; i < n && j < m; ) {
+    if (s[i][j] && best[i][j] === s[i][j] + best[i + 1][j + 1]) pair[i++] = j++;
+    else if (best[i + 1][j] >= best[i][j + 1]) i++;
+    else j++;
+  }
+  return pair;
+}
+
+/**
+ * Whether a localized entry is the English section's entry `i`, by name: 2 when it has the
+ * champion's, item's or augment's name in that language, 1 when it contains it (or the reverse),
+ * 0 when it is another champion, undefined when the name cannot tell (no id, or an item or
+ * augment written differently from the game).
+ */
+function identify(en, dd, lang) {
+  const ids = shapePatch({ sections: [en] }, dd, true)[0].entries;
+  const names = dd.names[lang];
+  return (i, e) => {
+    const x = ids[i];
+    const kind = x.championId ? 'champion' : x.itemId ? 'item' : x.augmentId ? 'augment' : null;
+    const want = kind && names?.[kind].get(x[`${kind}Id`]);
+    const got = nameKey(e.name);
+    if (!want || !got) return undefined;
+    if (got === want) return 2;
+    if (got.includes(want) || want.includes(got)) return 1;
+    return kind === 'champion' ? 0 : undefined;
+  };
+}
+
+/**
+ * Pairs the entries of one section across languages. A localized page can leave entries out
+ * (Riot's other languages skip some of the English page's one-line entries) or order them
+ * differently, so entries pair in order: by name where the name tells (`identify`), otherwise when
+ * they have the same parts (more when the parts also have the same number of lines) and, when both
+ * sides have the same groups, sit in the same group.
+ */
+function alignEntries(en, loc, known) {
+  const groups = (s) => {
+    const names = [];
+    return s.entries.map((e) => (names.at(-1) === e.group ? names.length - 1 : names.push(e.group) - 1));
+  };
+  const ge = groups(en);
+  const gl = groups(loc);
+  const sameGroups = Math.max(-1, ...ge) === Math.max(-1, ...gl);
+  const lines = (e) => e.parts.map((p) => p.lines.length).join(',');
+  return align(
+    en.entries.map((e, i) => [e, ge[i], i]),
+    loc.entries.map((e, j) => [e, gl[j]]),
+    ([a, x, i], [b, y]) => {
+      const k = known?.(i, b);
+      if (k === 0) return 0;
+      if (k) return 4 + k;
+      return a.parts.length !== b.parts.length || (sameGroups && x !== y) ? 0 : lines(a) === lines(b) ? 2 : 1;
+    },
+  );
+}
+
+/**
+ * Pairs the sections of a localized page with the English page's. Their order is the same, but a
+ * page can lack a section or add one (a regional event, an untitled heading), so sections pair in
+ * order by how many of their entries pair (`alignEntries`): at least half of the smaller side's,
+ * or both have none. `known(section)` gives a section's `identify`.
+ */
+function alignSections(en, loc, known) {
+  return align(en, loc, (a, b) => {
+    if (!a.entries.length || !b.entries.length) return a.entries.length === b.entries.length ? 1 : 0;
+    const k = alignEntries(a, b, known(a)).filter((j) => j >= 0).length;
+    return k * 2 >= Math.min(a.entries.length, b.entries.length) ? 1 + k : 0;
+  });
+}
+
+/**
+ * Riot's notes in another language: the same page under that locale. Each English section and
+ * entry is paired with a localized one (`alignSections`, `alignEntries`), and an entry gets the
+ * English entry's champion, item or augment. The localized page's own entries are what is shown;
+ * one with no English partner is left out rather than guessed.
+ */
+async function patchNotesIn(browser, english, lang, locale, dd) {
+  const out = [];
+  for (const p of english) {
+    const url = p.url.replace('/en-us/', `/${locale}/`);
+    let raw = null;
+    for (let attempt = 1; attempt <= 2 && !raw; attempt++) {
+      const page = await browser.newPage({ userAgent: UA });
+      try {
+        const r = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
+        if (r && r.ok()) raw = await page.evaluate(readPatchNotes);
+        else break;
+      } catch (e) {
+        log(`patch ${p.patch} (${locale}): attempt ${attempt} failed: ${String(e).split('\n')[0]}`);
+      } finally {
+        await page.close();
+      }
+    }
+    if (!raw) {
+      log(`patch ${p.patch} (${locale}): not found, left out`);
+      continue;
+    }
+    const ident = new Map();
+    const known = (s) => ident.get(s) ?? ident.set(s, identify(s, dd, lang)).get(s);
+    const pair = alignSections(p.raw.sections, raw.sections, known);
+    const shape = (test) => {
+      const kept = [];
+      p.raw.sections.forEach((en, i) => {
+        if (!test.test(en.title)) return;
+        if (pair[i] < 0) {
+          log(`patch ${p.patch} (${locale}): "${en.title}" has no matching section, left out`);
+          return;
+        }
+        const loc = raw.sections[pair[i]];
+        const shapedEn = shapePatch({ sections: [en] }, dd, true)[0];
+        const partner = new Map(alignEntries(en, loc, known(en)).flatMap((j, k) => (j >= 0 ? [[j, k]] : [])));
+        const dropped = loc.entries.length - partner.size;
+        if (dropped || partner.size < en.entries.length) {
+          log(`patch ${p.patch} (${locale}): "${en.title}" ${partner.size} of ${en.entries.length} English entries${dropped ? `, ${dropped} unmatched localized left out` : ''}`);
+        }
+        kept.push({
+          title: loc.title,
+          intro: loc.intro,
+          lines: loc.lines,
+          entries: loc.entries.flatMap(({ fromH3, ...e }, j) => {
+            if (!partner.has(j)) return [];
+            const ids = shapedEn.entries[partner.get(j)];
+            return [{ ...e, ...(ids.championId ? { championId: ids.championId } : {}), ...(ids.itemId ? { itemId: ids.itemId } : {}), ...(ids.augmentId ? { augmentId: ids.augmentId } : {}) }];
+          }),
+        });
+      });
+      return kept;
+    };
+    const rift = shape(RIFT);
+    const mayhem = shape(MAYHEM);
+    // A part English has but this language's page lacks: the app says so instead of "no changes".
+    const missing = [
+      ...(!rift.length && p.rift.length ? ['rift'] : []),
+      ...(!mayhem.length && p.mayhem.length ? ['mayhem'] : []),
+    ];
+    out.push({ patch: p.patch, url, date: raw.date || p.date, rift, mayhem, ...(missing.length ? { missing } : {}) });
+  }
+  return out;
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -671,12 +914,14 @@ async function main() {
   const dd = await dataDragon();
   log(`Data Dragon ${dd.version} (patch ${dd.patch})`);
   const rules = JSON.parse(readFileSync(join(here, 'rules.json'), 'utf8'));
-  const st = await stringTables();
+  const kiwi = await json(KIWI);
+  const st = await stringTables(kiwi);
   // Headliners: the game's own name and description where it has them.
   rules.headliners = rules.headliners.map(({ goh, ...h }) => {
     const official = goh ? st.goh(goh) : null;
     if (goh && !official) log(`headliner ${h.id}: no official text for "${goh}", keeping rules.json`);
-    return official ? { ...h, ...official, official: true } : h;
+    // The game's text in each language it has, the hand-written one for the others.
+    return official ? { ...h, name: { ...h.name, ...official.name }, effect: { ...h.effect, ...official.effect }, official: true } : h;
   });
 
   const browser = await chromium.launch();
@@ -699,6 +944,12 @@ async function main() {
     const attack = await attackTypes(dd);
     const patches = await patchNotes(browser, dd);
     if (!patches.length) fail('no patch notes found');
+    const localized = {};
+    for (const [lang, locale] of RIOT_LOCALES) {
+      localized[lang] = { source: { name: 'Riot Games', url: `https://www.leagueoflegends.com/${locale}/news/tags/patch-notes/` }, patches: await patchNotesIn(browser, patches, lang, locale, dd) };
+      log(`${lang}: ${localized[lang].patches.length} patches`);
+    }
+    for (const p of patches) delete p.raw;
     let patchesZh = await patchNotesZh(browser, dd);
     if (!patchesZh.length) {
       // lol.qq.com is sometimes out of reach from GitHub's runners: keep the last good Chinese
@@ -709,7 +960,7 @@ async function main() {
     }
     const { known, untranslated } = await translateLines(champions);
     // Augment descriptions with their numbers (the game's text and the mode's spell data).
-    const { texts: augments, problems } = augmentTexts(await json(KIWI), st.en, st.zh);
+    const { texts: augments, problems } = augmentTexts(kiwi, st.tables);
     if (Object.keys(augments).length < 150) fail(`only ${Object.keys(augments).length} augment descriptions`);
     for (const p of problems) log(`augment text: ${p}`);
     log(`augment descriptions: ${Object.keys(augments).length}`);
@@ -734,6 +985,7 @@ async function main() {
         source: { name: 'Riot Games', url: 'https://www.leagueoflegends.com/en-us/news/tags/patch-notes/' },
         patches,
         zh: { source: { name: '英雄联盟官方网站', url: 'https://lol.qq.com/' }, patches: patchesZh },
+        ...localized,
       }),
     );
     writeFileSync(join(OUT, 'translations-zh.json'), stable(Object.fromEntries(Object.entries(known).sort())));

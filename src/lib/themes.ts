@@ -267,8 +267,9 @@ export function cssVars(t: Theme): Record<string, string> {
   for (const k of COLOR_KEYS) vars[CSS_VARS[k]] = col[k];
   vars['--you-ink'] = inkOn(col.you);
   vars['--mark'] = col.text;
-  vars['--font-ui'] = stack(t.fontUi, "'Segoe UI', 'Microsoft YaHei UI', system-ui, sans-serif");
-  vars['--font-score'] = stack(t.fontScore, "'Segoe UI', 'Microsoft YaHei UI', sans-serif");
+  // --font-cjk: the UI language's Chinese, Japanese or Korean font (`locales.ts`).
+  vars['--font-ui'] = stack(t.fontUi, "'Segoe UI', var(--font-cjk), system-ui, sans-serif");
+  vars['--font-score'] = stack(t.fontScore, "'Segoe UI', var(--font-cjk), sans-serif");
   const r = Math.max(0, Math.min(16, t.radius));
   vars['--r-lg'] = `${r}px`;
   vars['--r-md'] = `${Math.round((r * 2) / 3)}px`;

@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase", default)]
 pub struct Settings {
-    /// "auto" (League client's language), "en" or "zh".
+    /// "auto" (League client's language) or a language id (`lang`).
     pub language: String,
     /// Show / hide the in-game scouting panel. Only registered while a game runs.
     pub hotkey_overlay: String,

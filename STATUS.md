@@ -81,6 +81,31 @@ Version: 1.0.15
 
 ## Recently done
 
+- Not released yet (after 1.0.15):
+  - Seven languages: English, Simplified and Traditional Chinese, Japanese, Korean, Spanish,
+    French. One registry each side (`src/lib/locales.ts`, `src-tauri/src/lang.rs`, a test keeps them
+    equal), one dictionary per language (`src/lib/locales/<id>.ts`, English the source, every key
+    checked by a test). Game text per language from Riot: Data Dragon, rune shard names (perks.json),
+    augment names (cherry-augments), augment descriptions, headliners, ability and spell names
+    (string tables), Riot's localized patch notes (the same pages; sections and entries paired with
+    the English ones in order, by localized champion/item/augment name, else by structure; Riot's
+    other languages skip some one-line entries and the newest patch can lag, and a part a language
+    lacks says so instead of "no changes"). Rules (`tools/refresh-data/rules.json`) translated by hand; Traditional Chinese
+    dictionary made with OpenCC (Taiwan phrases) plus the Taiwan client's terms, then by hand.
+    Search folds accents and always knows English and Chinese names; counts, decimals, short
+    numbers and dates follow the UI language, not the system (`format.ts` `num`, `dec`, `compact`,
+    `day`: 57.823, 54,7, 5782万, 10.2만); the CJK font follows the language (YaHei, JhengHei, Yu Gothic, Malgun Gothic).
+    Card reader: the client's language plus English. Not done: the wiki's ability change lines
+    outside English and Chinese (hidden and counted). Not verified: the card reader with a
+    Japanese, Korean, Spanish, French or Taiwan client, and installing their Windows OCR packs.
+    Gotcha: Vitest's module cache (node_modules/.vitest-cache) keys by file content, so
+    `import.meta.glob` over new files went stale in tests; dictionaries are imported by name.
+  - Update checks: every 30 minutes (was 6 hours, so a running app missed releases for hours),
+    and when the main window opens or comes to the front after 10+ minutes
+    (`checkUpdateIfStale`). The update section is first in Settings, with the version shown.
+    Seen on the installed 1.0.15 (computer use): its check works, only the timing was the problem.
+    To verify on the installed app: install this version, then the next release should show the
+    notice by Settings without pressing Check for updates.
 - 1.0.15:
   - Refresh job: lol.qq.com articles redirect to themselves while loading, which broke the
     Tencent notes on GitHub's runners (the data branch had dropped to 2 of 5 Chinese patches).

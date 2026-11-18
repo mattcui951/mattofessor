@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ordinal } from '../lib/format';
+  import { dec, ordinal } from '../lib/format';
   import { t } from '../lib/i18n.svelte';
 
   let {
@@ -12,13 +12,13 @@
 
   const tone = $derived(typeof score !== 'number' ? '' : score >= 7.5 ? 'high' : score < 4 ? 'low' : '');
   const hint = $derived(
-    [badge ? t(`score.${badge}Hint`) : '', typeof score === 'number' && place && players ? t('score.hint', score.toFixed(1), place, players) : ''].filter(Boolean).join('\n'),
+    [badge ? t(`score.${badge}Hint`) : '', typeof score === 'number' && place && players ? t('score.hint', dec(score), place, players) : ''].filter(Boolean).join('\n'),
   );
 </script>
 
 <span class="score {size}" title={hint}>
   {#if badge}<span class="badge {badge}">{t(`score.${badge}`)}</span>{:else if place > 0}<span class="badge place" class:top={place <= 3}>{ordinal(place)}</span>{/if}
-  {#if typeof score === 'number'}<span class="num value {tone}">{score.toFixed(1)}</span>{/if}
+  {#if typeof score === 'number'}<span class="num value {tone}">{dec(score)}</span>{/if}
 </span>
 
 <style>

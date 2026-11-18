@@ -1,5 +1,6 @@
 /** Meta data helpers: augment names, tier letters, sources and credits. */
 import { api } from './api';
+import { dec } from './format';
 import { i18n } from './i18n.svelte';
 import { app, updateSettings } from './state.svelte';
 import type { AramBracket, Augment, PatchInfo } from './types';
@@ -86,22 +87,17 @@ export function isAramMode(mode: string): boolean {
 }
 
 export function pct1(rate: number): string {
-  return (rate * 100).toFixed(1);
+  return dec(rate * 100, 1);
 }
 
 /** A share as a percentage with one decimal, "<0.1" for tiny ones. */
 export function share(rate: number): string {
-  return rate > 0 && rate < 0.0005 ? '<0.1' : pct1(rate);
+  return rate > 0 && rate < 0.0005 ? `<${dec(0.1, 1)}` : pct1(rate);
 }
 
 /** "+2.3" / "−1.0" percentage points ("0.0" when it rounds to nothing). */
 export function delta(rate: number): string {
   const v = Math.round(rate * 1000) / 10;
-  if (v === 0) return '0.0';
-  return (v > 0 ? '+' : '−') + Math.abs(v).toFixed(1);
-}
-
-/** A game count in short: "57.8M" / "5,782 万". */
-export function gamesShort(n: number): string {
-  return i18n.lang === 'zh' ? `${Math.round(n / 1e4).toLocaleString()} 万` : `${(n / 1e6).toFixed(1)}M`;
+  if (v === 0) return dec(0, 1);
+  return (v > 0 ? '+' : '−') + dec(Math.abs(v), 1);
 }

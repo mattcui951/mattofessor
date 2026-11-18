@@ -8,6 +8,7 @@
 
 <script lang="ts">
   import { tick } from 'svelte';
+  import { locale } from '../lib/locales';
   import HexFilter from '../components/HexFilter.svelte';
   import MayhemBuild from '../components/MayhemBuild.svelte';
   import MayhemChampion from '../components/MayhemChampion.svelte';
@@ -21,8 +22,8 @@
   import { api } from '../lib/api';
   import { searchChamps } from '../lib/champSearch';
   import { champIndex, loadChampSearch } from '../lib/champFind.svelte';
-  import { SHARD_NAMES, champIcon, dd, itemIcon, itemName, loadOtherNames, otherNames, rune, runeIcon, spell, spellIcon } from '../lib/dd.svelte';
-  import { pct, roleName } from '../lib/format';
+  import { shardName, champIcon, dd, itemIcon, itemName, loadOtherNames, otherNames, rune, runeIcon, spell, spellIcon } from '../lib/dd.svelte';
+  import { num, pct, roleName } from '../lib/format';
   import { i18n, t } from '../lib/i18n.svelte';
   import { aramTier, bracket, pct1, setBracket, share } from '../lib/meta.svelte';
   import { app, errorText, go, toast } from '../lib/state.svelte';
@@ -95,7 +96,7 @@
   const champs = $derived.by(() => {
     const all = Object.entries(dd.data?.champions ?? {})
       .map(([id, c]) => ({ id: Number(id), ...c }))
-      .sort((a, b) => a.name.localeCompare(b.name, i18n.lang === 'zh' ? 'zh-CN' : 'en'));
+      .sort((a, b) => a.name.localeCompare(b.name, locale(i18n.lang).tag));
     const inClass = mode === 'aram' && cls !== 'all' ? all.filter((c) => c.tags.includes(cls)) : all;
     if (!query.trim()) return inClass;
     const rank = new Map(searchChamps(index, query, Infinity).map((h, i) => [h.id, i]));
@@ -247,30 +248,30 @@
           {#if build.mode === 'aram' && hexChamp?.champion}
             {@const c = hexChamp.champion}
             <div class="sub num">
-              {t('hex.headWin')} <b class="wr">{pct1(c.winRate)}%</b> · {t('hex.headRank', c.rank, hexChamp.champions)} · {t('builds.sample', c.games.toLocaleString())} · {t('hex.headPick', share(c.pickRate))} · {hexChamp.source.patch}
+              {t('hex.headWin')} <b class="wr">{pct1(c.winRate)}%</b> · {t('hex.headRank', c.rank, hexChamp.champions)} · {t('builds.sample', num(c.games))} · {t('hex.headPick', share(c.pickRate))} · {hexChamp.source.patch}
             </div>
             <!-- Its win rate in every skill bracket; picking one picks the bracket for the whole page. -->
             {#if hexChamp.bands.length > 1}
               <div class="roles brackets">
                 {#each hexChamp.bands as r (r.bracket)}
-                  <button class:on={bracket() === r.bracket} title={t('builds.sample', r.games.toLocaleString())} onclick={() => setBracket(r.bracket)}>
+                  <button class:on={bracket() === r.bracket} title={t('builds.sample', num(r.games))} onclick={() => setBracket(r.bracket)}>
                     {t(`bracket.${r.bracket}`)} <span class="num">{pct1(r.winRate)}%</span>
                   </button>
                 {/each}
               </div>
             {/if}
-          {:else if build.games > 0}<div class="sub num">{t('builds.sample', build.games.toLocaleString())} · {t('builds.wr', pct(build.wins, build.games))}</div>{/if}
+          {:else if build.games > 0}<div class="sub num">{t('builds.sample', num(build.games))} · {t('builds.wr', pct(build.wins, build.games))}</div>{/if}
           {#if build.mode === 'rift'}
             <div class="roles">
               {#each build.roles as r (r.value)}
-                <button class:on={build.role === r.value} onclick={() => (selRole = r.value)}>{roleName(r.value)} <span class="num">{r.games.toLocaleString()}</span></button>
+                <button class:on={build.role === r.value} onclick={() => (selRole = r.value)}>{roleName(r.value)} <span class="num">{num(r.games)}</span></button>
               {/each}
               <!-- The other lanes: off-meta, OP.GG may have a few games there. -->
               {#each LANES.filter((l) => !build!.roles.some((r) => r.value === l)) as l (l)}
                 <button class="rare" class:on={build.role === l} title={t('builds.rareLane')} onclick={() => (selRole = l)}>{roleName(l)}</button>
               {/each}
             </div>
-            {#if build.rare}<p class="rare-note">{t('builds.rareNote', build.games.toLocaleString())}</p>{/if}
+            {#if build.rare}<p class="rare-note">{t('builds.rareNote', num(build.games))}</p>{/if}
           {/if}
         </div>
         <div class="imp">
@@ -331,7 +332,7 @@
                   {/each}
                   {#if page.shards.length}
                     <div class="shards">
-                      {#each page.shards as s, i (i)}<span>{SHARD_NAMES[s]?.[i18n.lang] ?? s}</span>{/each}
+                      {#each page.shards as s, i (i)}<span>{shardName(s)}</span>{/each}
                     </div>
                   {/if}
                 </div>

@@ -195,7 +195,7 @@ pub fn card_offer() -> Option<crate::cards::Offer> {
     crate::cards::current()
 }
 
-/// Augment names, rarity and icons in a language ("en" or "zh").
+/// Augment names, rarity and icons in a language (`lang` id).
 #[tauri::command]
 pub async fn augment_names(lang: String) -> Res<crate::augments::Augments> {
     crate::augments::all(&lang).await.map_err(err)

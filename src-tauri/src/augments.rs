@@ -21,13 +21,9 @@ pub struct Augment {
     pub icon: String,
 }
 
-/// "en" / "zh" to the mirror's folder.
+/// A language id to the mirror's folder.
 fn folder(lang: &str) -> &'static str {
-    if lang.starts_with("zh") {
-        "zh_cn"
-    } else {
-        "default"
-    }
+    crate::lang::get(lang).cdragon
 }
 
 /// Icons live under the "default" folder whatever the language.
@@ -60,7 +56,7 @@ pub type Augments = Arc<HashMap<i32, Augment>>;
 
 static CACHE: Mutex<Option<HashMap<String, Augments>>> = Mutex::new(None);
 
-/// Every augment in a language ("en" or "zh").
+/// Every augment in a language (`lang` id).
 pub async fn all(lang: &str) -> Result<Augments> {
     let f = folder(lang);
     if let Some(m) = CACHE.lock().as_ref().and_then(|c| c.get(f).cloned()) {

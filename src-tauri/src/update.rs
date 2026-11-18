@@ -1,6 +1,8 @@
 //! App updates from the latest GitHub release: the release workflow publishes a signed
 //! `latest.json` next to the installer, so checking and downloading need no GitHub account.
-//! Updates are only offered; the user starts the install.
+//! Updates are only offered; the user starts the install. The app lives in the tray for days, so
+//! it looks often: every half hour, and when its window is opened or focused after a while (the
+//! page asks, see `checkUpdateIfStale`).
 
 use crate::core::Core;
 use parking_lot::Mutex;
@@ -10,8 +12,8 @@ use std::time::Duration;
 use tauri::Emitter;
 use tauri_plugin_updater::{Update, UpdaterExt};
 
-/// How often to look for a new version while the app runs.
-const INTERVAL: Duration = Duration::from_secs(6 * 3600);
+/// How often to look for a new version while the app runs (one small file from GitHub).
+const INTERVAL: Duration = Duration::from_secs(30 * 60);
 /// First check after start, once the client connection has settled.
 const FIRST_CHECK: Duration = Duration::from_secs(20);
 
@@ -69,7 +71,7 @@ fn busy() -> bool {
     matches!(STATE.lock().phase, "checking" | "downloading" | "installing")
 }
 
-/// Checks in the background: shortly after start, then every few hours (if enabled).
+/// Checks in the background: shortly after start, then every `INTERVAL` (if enabled).
 pub fn spawn(core: Arc<Core>) {
     tauri::async_runtime::spawn(async move {
         tokio::time::sleep(FIRST_CHECK).await;

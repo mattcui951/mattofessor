@@ -31,13 +31,9 @@ pub struct Word {
     pub h: f32,
 }
 
-/// "en" or "zh" to the OCR language tag.
+/// A language id to the OCR language tag.
 fn tag(lang: &str) -> &'static str {
-    if lang.starts_with("zh") {
-        "zh-Hans-CN"
-    } else {
-        "en-US"
-    }
+    crate::lang::get(lang).ocr
 }
 
 /// Whether Windows can read this language (its OCR language pack is installed).

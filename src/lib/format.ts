@@ -1,21 +1,37 @@
 import { hasKey, i18n, t } from './i18n.svelte';
 import type { Tag } from './types';
 import { champName, tierText } from './dd.svelte';
+import { locale } from './locales';
 
 export function pct(wins: number, games: number): number {
   return games > 0 ? Math.round((wins * 100) / games) : 0;
 }
 
 export function kdaRatio(k: number, d: number, a: number): string {
-  if (d === 0) return k + a > 0 ? t('common.perfect') : '0.00';
-  return ((k + a) / d).toFixed(2);
+  if (d === 0) return k + a > 0 ? t('common.perfect') : dec(0, 2);
+  return dec((k + a) / d, 2);
 }
 
-/** 1st, 2nd, 3rd... (第1, 第2... in Chinese). */
+/** 1st, 2nd, 3rd... in English; each other language's own form (`fmt.ordinal`). */
 export function ordinal(n: number): string {
-  if (i18n.lang === 'zh') return `第${n}`;
+  if (i18n.lang !== 'en') return t('fmt.ordinal', n);
   const tail = n % 100 >= 11 && n % 100 <= 13 ? 'th' : ({ 1: 'st', 2: 'nd', 3: 'rd' } as Record<number, string>)[n % 10] ?? 'th';
   return `${n}${tail}`;
+}
+
+/** A count with the UI language's digit grouping (57,823 · 57 823 · 57.823), not the system's. */
+export function num(n: number): string {
+  return n.toLocaleString(locale(i18n.lang).tag);
+}
+
+/** A number with a fixed count of decimals in the UI language's way (54.7 · 54,7). */
+export function dec(n: number, digits = 1): string {
+  return n.toLocaleString(locale(i18n.lang).tag, { minimumFractionDigits: digits, maximumFractionDigits: digits, useGrouping: false });
+}
+
+/** A date as the UI language writes it (11/17/2026 · 2026/11/17 · 17/11/2026), not the system. */
+export function day(d: string | number | Date): string {
+  return new Date(d).toLocaleDateString(locale(i18n.lang).tag);
 }
 
 export function gamesText(n: number): string {
@@ -23,7 +39,7 @@ export function gamesText(n: number): string {
 }
 
 export function one(n: number): string {
-  return n.toFixed(1);
+  return dec(n, 1);
 }
 
 export function ago(ms: number, now = Date.now()): string {
@@ -40,10 +56,14 @@ export function duration(sec: number): string {
   return `${m}:${String(s).padStart(2, '0')}`;
 }
 
+/**
+ * A number in short, as the UI language writes it: "23K", "57.8M", "2.3万", "5782만", "57,8 M".
+ * No decimal once the leading number has three digits ("5782万", not "5782.3万").
+ */
 export function compact(n: number): string {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1000) return `${Math.round(n / 1000)}k`;
-  return String(n);
+  const tag = locale(i18n.lang).tag;
+  const short = new Intl.NumberFormat(tag, { notation: 'compact', maximumFractionDigits: 1 }).format(n);
+  return /\d{3}/.test(short) ? new Intl.NumberFormat(tag, { notation: 'compact', maximumFractionDigits: 0 }).format(n) : short;
 }
 
 const BOT_QUEUES = [830, 840, 850, 870, 880, 890];

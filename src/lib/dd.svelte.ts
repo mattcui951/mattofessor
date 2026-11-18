@@ -19,18 +19,28 @@ export async function loadStatic(lang: string) {
   }
 }
 
-/** Champion names in the language the UI is not using, so search works in both. */
-export const otherNames = $state({ lang: '', champions: null as Record<string, Champ> | null });
+/** Languages every champion search also knows, whatever the UI language (English, Chinese and its pinyin). */
+const SEARCH_ALSO = ['en', 'zh'];
+
+/**
+ * Champion names in those languages besides the UI's: `champions` is the first of them (shown
+ * under a search result), `sets` all of them (the search index).
+ */
+export const otherNames = $state({ lang: '', champions: null as Record<string, Champ> | null, sets: [] as Record<string, Champ>[] });
 
 export async function loadOtherNames() {
-  const other = dd.lang === 'zh' ? 'en' : 'zh';
-  if (!dd.lang || otherNames.lang === other) return;
+  if (!dd.lang || otherNames.lang === dd.lang) return;
+  const want = SEARCH_ALSO.filter((l) => l !== dd.lang);
+  const ui = dd.lang;
+  otherNames.lang = ui;
   try {
-    const d = await api.staticData(other);
-    otherNames.champions = d.champions;
-    otherNames.lang = other;
+    const sets = await Promise.all(want.map((l) => api.staticData(l).then((d) => d.champions)));
+    if (dd.lang !== ui) return;
+    otherNames.sets = sets;
+    otherNames.champions = sets[0] ?? null;
   } catch (e) {
-    console.warn('static data', other, e);
+    console.warn('static data', want, e);
+    otherNames.lang = '';
   }
 }
 
@@ -107,15 +117,10 @@ export function runeIcon(id: number): string | null {
 }
 
 /** Stat shard ids are not in Data Dragon. */
-export const SHARD_NAMES: Record<number, { en: string; zh: string }> = {
-  5008: { en: 'Adaptive Force', zh: '适应之力' },
-  5005: { en: 'Attack Speed', zh: '攻击速度' },
-  5007: { en: 'Ability Haste', zh: '技能急速' },
-  5010: { en: 'Move Speed', zh: '移动速度' },
-  5001: { en: 'Health Scaling', zh: '成长生命值' },
-  5011: { en: 'Health', zh: '生命值' },
-  5013: { en: 'Tenacity and Slow Resist', zh: '韧性和减速抗性' },
-};
+/** A rune stat shard's name in the UI language (Riot's data). */
+export function shardName(id: number): string {
+  return dd.data?.shards?.[String(id)] ?? String(id);
+}
 
 export const TIER_COLORS: Record<string, string> = {
   IRON: '#a39a92',

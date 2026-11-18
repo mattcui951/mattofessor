@@ -1,10 +1,11 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../api', () => ({ api: {} }));
 vi.mock('@tauri-apps/api/event', () => ({ listen: vi.fn() }));
 
 import { _dicts, i18n } from '../i18n.svelte';
-import { gamesText, kdaRatio, ordinal, positionRole, queueName, roleName, tagText } from '../format';
+import { LOCALES } from '../locales';
+import { compact, dec, gamesText, kdaRatio, num, ordinal, positionRole, queueName, roleName, tagText } from '../format';
 import { tierScore, tierText } from '../dd.svelte';
 import { errorText } from '../state.svelte';
 import { cooldownFor } from '../../overlay/spells';
@@ -14,11 +15,19 @@ beforeEach(() => {
 });
 
 describe('i18n', () => {
-  it('has every key in both languages with the same placeholders', () => {
-    for (const [key, en] of Object.entries(_dicts.en)) {
-      const zh = (_dicts.zh as Record<string, string>)[key];
-      expect(zh, key).toBeTruthy();
-      expect((zh.match(/\{\d\}/g) ?? []).sort(), key).toEqual((en.match(/\{\d\}/g) ?? []).sort());
+  it('has a dictionary for every language', () => {
+    expect(Object.keys(_dicts).sort()).toEqual(LOCALES.map((l) => l.id).sort());
+  });
+
+  it('has every key in every language with the same placeholders', () => {
+    const en = _dicts.en!;
+    for (const l of LOCALES) {
+      const d = _dicts[l.id] as Record<string, string>;
+      for (const [key, text] of Object.entries(en)) {
+        expect(d[key], `${l.id} ${key}`).toBeTruthy();
+        expect((d[key].match(/\{\d\}/g) ?? []).sort(), `${l.id} ${key}`).toEqual((text.match(/\{\d\}/g) ?? []).sort());
+      }
+      expect(Object.keys(d).filter((k) => !(k in en)), `${l.id}: keys English does not have`).toEqual([]);
     }
   });
 });
@@ -90,5 +99,32 @@ describe('spell timers', () => {
   it('applies Ionian Boots summoner haste', () => {
     expect(cooldownFor(300, [], 'CLASSIC')).toBe(300);
     expect(cooldownFor(300, [3158], 'CLASSIC')).toBeCloseTo(272.7, 1);
+  });
+});
+
+describe('numbers in the UI language', () => {
+  afterEach(() => {
+    i18n.lang = 'en';
+  });
+  it('writes short numbers its way, without a decimal past three digits', () => {
+    i18n.lang = 'en';
+    expect(compact(57_823_093)).toBe('57.8M');
+    expect(compact(23_456)).toBe('23.5K');
+    expect(compact(999)).toBe('999');
+    i18n.lang = 'zh';
+    expect(compact(57_823_093)).toBe('5782万');
+    i18n.lang = 'ko';
+    expect(compact(57_823_093)).toBe('5782만');
+  });
+  it('groups digits its way', () => {
+    i18n.lang = 'en';
+    expect(num(57_823)).toBe('57,823');
+    i18n.lang = 'es';
+    expect(num(57_823)).toBe('57.823');
+  });
+  it('writes decimals its way', () => {
+    i18n.lang = 'fr';
+    expect(kdaRatio(5, 2, 3)).toBe('4,00');
+    expect(dec(54.66)).toBe('54,7');
   });
 });

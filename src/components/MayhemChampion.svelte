@@ -1,5 +1,6 @@
 <script lang="ts" module>
   import type { StatSort } from './StatGrid.svelte';
+  import { num } from '../lib/format';
 
   // Sort orders and toggles, kept while the app runs (the same on every champion).
   const sorts = $state<Record<string, StatSort>>({ prismatic: 'pick', gold: 'pick', silver: 'pick', items: 'pick', bad: 'pick', boots: 'pick', spells: 'pick' });
@@ -61,7 +62,7 @@
       { label: t('hex.win'), value: `${pct1(s.winRate)}%`, tone: s.winRate > base + 0.005 ? 'up' : s.winRate < base - 0.005 ? 'down' : '' },
       { label: t('hex.deltaLong'), value: delta(s.delta), tone: s.delta > 0.005 ? 'up' : s.delta < -0.005 ? 'down' : '' },
       { label: pickLabel, value: `${share(s.pickRate)}%` },
-      { label: t('hex.games'), value: s.games.toLocaleString() },
+      { label: t('hex.games'), value: num(s.games) },
     ];
   }
   const small = (low: boolean) => (low ? t('meta.lowSample') : undefined);
@@ -89,7 +90,7 @@
 
   /** Data Dragon's name, or AramHex's (Chinese) for an item it does not have yet. */
   const known = (id: number) => Boolean(dd.data?.items[String(id)]);
-  const iname = (i: { id: number; name: string }) => (i.id === 0 ? t('hex.noBoots') : known(i.id) ? itemName(i.id) : i18n.lang === 'zh' && i.name ? i.name : t('hex.item', i.id));
+  const iname = (i: { id: number; name: string }) => (i.id === 0 ? t('hex.noBoots') : known(i.id) ? itemName(i.id) : i18n.lang === 'zh' && i.name ? i.name /* AramHex's own names are Simplified Chinese */ : t('hex.item', i.id));
   const iicon = (i: { id: number; icon: string }) => (i.id === 0 ? null : known(i.id) ? itemIcon(i.id) : i.icon || null);
   const byId = $derived(new Map((page?.items ?? []).map((i) => [i.id, i])));
 
@@ -136,10 +137,10 @@
   const bandBars = $derived(
     (page?.bands ?? [])
       .filter((b) => b.bracket !== 'all')
-      .map((b) => ({ label: t(`bracket.${b.bracket}`), value: b.winRate, hover: { title: t(`bracket.${b.bracket}`), sub: t(`bracket.${b.bracket}Hint`), stats: [{ label: t('hex.win'), value: `${pct1(b.winRate)}%` }, { label: t('hex.games'), value: b.games.toLocaleString() }] } })),
+      .map((b) => ({ label: t(`bracket.${b.bracket}`), value: b.winRate, hover: { title: t(`bracket.${b.bracket}`), sub: t(`bracket.${b.bracket}Hint`), stats: [{ label: t('hex.win'), value: `${pct1(b.winRate)}%` }, { label: t('hex.games'), value: num(b.games) }] } })),
   );
   const allPlayers = $derived(page?.bands.find((b) => b.bracket === 'all')?.winRate ?? null);
-  const trend = $derived((page?.history ?? []).map((h) => ({ label: h.patch, value: h.winRate, hover: { title: h.patch, stats: [{ label: t('hex.win'), value: `${pct1(h.winRate)}%` }, { label: t('hex.games'), value: h.games.toLocaleString() }] } })));
+  const trend = $derived((page?.history ?? []).map((h) => ({ label: h.patch, value: h.winRate, hover: { title: h.patch, stats: [{ label: t('hex.win'), value: `${pct1(h.winRate)}%` }, { label: t('hex.games'), value: num(h.games) }] } })));
   const itemsNote = $derived(!page ? '' : !page.itemsBracket ? t('hex.noItems', page.source.patch) : page.itemsBracket !== bracket() ? t('hex.itemsAll') : '');
 </script>
 
@@ -187,7 +188,7 @@
                   stats: [
                     { label: t('hex.win'), value: `${pct1(wr)}%`, tone: wr > base + 0.005 ? 'up' : wr < base - 0.005 ? 'down' : '' },
                     { label: t('hex.stylePick', iname(it)), value: `${share(byId.get(s.item)?.pickRate ?? 0)}%` },
-                    { label: t('hex.games'), value: s.games.toLocaleString() },
+                    { label: t('hex.games'), value: num(s.games) },
                   ],
                   note: t('hex.styleNote'),
                 })}
@@ -213,7 +214,7 @@
                 <span class="rname">{c.items.map((id) => iname(itemOf(id))).join(' › ')}</span>
                 <span class="rnum">
                   <b class="num" class:up={c.winRate >= base}>{pct1(c.winRate)}%</b>
-                  <small class="num">{t('hex.pick')} {share(c.pickRate)}% · {c.games.toLocaleString()}</small>
+                  <small class="num">{t('hex.pick')} {share(c.pickRate)}% · {num(c.games)}</small>
                 </span>
                 {#if c.winRate === bestRoute && (page.cores.length ?? 0) > 1}<span class="badge">{t('hex.bestRoute')}</span>{/if}
               </div>
@@ -283,7 +284,7 @@
   <details class="card about">
     <summary>{t('hex.about')}</summary>
     <ul>
-      <li>{t('hex.about1', page.source.patch, page.source.matches.toLocaleString(), page.source.snapshotAt.slice(0, 10))}</li>
+      <li>{t('hex.about1', page.source.patch, num(page.source.matches), page.source.snapshotAt.slice(0, 10))}</li>
       <li>{t('hex.about2')}</li>
       <li>{t('hex.about3')}</li>
       <li>{t('hex.about4')}</li>

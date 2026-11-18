@@ -7,15 +7,17 @@
 <script lang="ts">
   /**
    * The latest patches' changes, Summoner's Rift and Hextech ARAM apart (refreshed data): Riot's
-   * patch notes in English, Tencent's official notes in Chinese, never mixed. Champions, items
-   * and augments are shown by their names in the UI language.
+   * patch notes in the UI language (Tencent's for Simplified Chinese), never another language's.
+   * Champions, items and augments are shown by their names in the UI language.
    */
   import Icon from '../components/Icon.svelte';
+  import { day } from '../lib/format';
   import Img from '../components/Img.svelte';
   import Segmented from '../components/Segmented.svelte';
   import { openUrl } from '@tauri-apps/plugin-opener';
+  import { locale } from '../lib/locales';
   import { champIcon, champName, itemIcon, itemName } from '../lib/dd.svelte';
-  import { gameData, loadGameData, noteBetter, noteMod, noteVerdict, plain, bi, type NoteEntry } from '../lib/gamedata.svelte';
+  import { gameData, loadGameData, noteBetter, noteMod, notesFor, noteVerdict, plain, bi, type NoteEntry } from '../lib/gamedata.svelte';
   import { hasKey, i18n, t } from '../lib/i18n.svelte';
   import { augment, loadAugments } from '../lib/meta.svelte';
   import { go } from '../lib/state.svelte';
@@ -23,7 +25,7 @@
   loadGameData();
   loadAugments();
 
-  const notes = $derived(i18n.lang === 'zh' ? gameData.data?.patchNotes.zh : gameData.data?.patchNotes);
+  const notes = $derived(notesFor(gameData.data?.patchNotes));
   const patches = $derived(notes?.patches ?? []);
   const patch = $derived(patches.find((p) => p.patch === picked) ?? patches[0]);
   const sections = $derived(patch ? patch[part] : []);
@@ -47,7 +49,7 @@
   }
   const better = noteBetter;
   const verdict = noteVerdict;
-  const colon = $derived(i18n.lang === 'zh' ? '：' : ': ');
+  const colon = $derived(t('fmt.colon'));
   /** An ability heading ("R - Summon: Tibbers") with the ability's name in the UI language. */
   function partTitle(e: NoteEntry, title: string): string {
     if (title === 'Base Stats') return t('patches.baseStats');
@@ -60,7 +62,7 @@
   function open(e: NoteEntry) {
     if (e.championId) go({ name: 'builds', championId: e.championId, mode: part === 'mayhem' ? 'aram' : 'rift' });
   }
-  const date = $derived(patch?.date ? new Date(patch.date).toLocaleDateString() : '');
+  const date = $derived(patch?.date ? day(patch.date) : '');
 </script>
 
 <div class="page">
@@ -88,8 +90,14 @@
   <div class="scroll">
     {#if !gameData.data}
       <p class="dim">{t('common.loading')}</p>
+    {:else if !notes}
+      <!-- No notes in this language yet (English is Riot's, Chinese Tencent's): never another language's. -->
+      <div class="none">
+        <p class="dim">{t('notes.none')}</p>
+        <button class="btn sm" onclick={() => openUrl(`https://www.leagueoflegends.com/${locale(i18n.lang).riot}/news/tags/patch-notes/`)}><Icon name="open" size={14} />{t('notes.official')}</button>
+      </div>
     {:else if !sections.length}
-      <p class="dim">{t('patches.nothing')}</p>
+      <p class="dim">{t(patch?.missing?.includes(part) ? 'patches.missing' : 'patches.nothing')}</p>
     {:else}
       {#each sections as s, si (si)}
         <section class="sec">
@@ -307,5 +315,10 @@
     margin: 0;
     color: var(--text-3);
     font-size: 12px;
+  }
+  .none {
+    display: grid;
+    justify-items: start;
+    gap: 10px;
   }
 </style>

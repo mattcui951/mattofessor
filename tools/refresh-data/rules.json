@@ -3,75 +3,706 @@
   "sections": [
     {
       "id": "champions",
-      "title": { "en": "All champions", "zh": "所有英雄" },
+      "title": {
+        "en": "All champions",
+        "zh": "所有英雄",
+        "zh-TW": "所有英雄",
+        "ja": "全チャンピオン",
+        "ko": "모든 챔피언",
+        "es": "Todos los campeones",
+        "fr": "Tous les champions"
+      },
       "items": [
-        { "label": { "en": "Melee", "zh": "近战" }, "text": { "en": "+20 to 600 base health (by level), +15 armor and magic resist", "zh": "+20 到 600 基础生命值（随等级提升），+15 护甲和魔法抗性" } },
         {
-          "label": { "en": "Ranged", "zh": "远程" },
-          "text": { "en": "+20 to 400 base health (by level), +2 to 25 armor and magic resist (by level)", "zh": "+20 到 400 基础生命值（随等级提升），+2 到 25 护甲和魔法抗性（随等级提升）" },
-          "note": { "en": "The wiki notes ranged champions currently get no bonus armor or magic resist (a bug).", "zh": "英雄联盟维基注：远程英雄的护甲和魔法抗性加成目前存在程序错误，实际没有生效。" }
+          "label": {
+            "en": "Melee",
+            "zh": "近战",
+            "zh-TW": "近戰",
+            "ja": "近接",
+            "ko": "근접",
+            "es": "Cuerpo a cuerpo",
+            "fr": "Mêlée"
+          },
+          "text": {
+            "en": "+20 to 600 base health (by level), +15 armor and magic resist",
+            "zh": "+20 到 600 基础生命值（随等级提升），+15 护甲和魔法抗性",
+            "zh-TW": "+20 到 600 基礎生命值（隨等級提升），+15 護甲和魔法防禦",
+            "ja": "基本体力 +20〜600 (レベルに応じて)、物理防御と魔法防御 +15",
+            "ko": "기본 체력 +20~600 (레벨에 따라), 방어력과 마법 저항력 +15",
+            "es": "+20 a 600 de vida base (según el nivel), +15 de armadura y resistencia mágica",
+            "fr": "+20 à 600 PV de base (selon le niveau), +15 armure et résistance magique"
+          }
         },
-        { "label": { "en": "Regen", "zh": "回复" }, "text": { "en": "+10% mana or energy regeneration", "zh": "+10% 法力回复或能量回复" } },
-        { "label": { "en": "Rune", "zh": "符文" }, "text": { "en": "Everyone has Presence of Mind", "zh": "所有英雄自带【气定神闲】" } },
-        { "label": { "en": "Crit overflow", "zh": "暴击溢出" }, "text": { "en": "Each 1% crit chance over 100% gives 0.45 attack damage or 0.75 ability power (adaptive)", "zh": "暴击几率超过 100% 的部分，每 1% 转化为 0.45 攻击力或 0.75 法术强度（自适应）" } },
-        { "label": { "en": "Attack speed cap", "zh": "攻击速度上限" }, "text": { "en": "5.0", "zh": "5.0" } },
         {
-          "label": { "en": "Combo Breaker", "zh": "连招破坏者" },
+          "label": {
+            "en": "Ranged",
+            "zh": "远程",
+            "zh-TW": "遠端",
+            "ja": "遠隔",
+            "ko": "원거리",
+            "es": "A distancia",
+            "fr": "Distance"
+          },
+          "text": {
+            "en": "+20 to 400 base health (by level), +2 to 25 armor and magic resist (by level)",
+            "zh": "+20 到 400 基础生命值（随等级提升），+2 到 25 护甲和魔法抗性（随等级提升）",
+            "zh-TW": "+20 到 400 基礎生命值（隨等級提升），+2 到 25 護甲和魔法防禦（隨等級提升）",
+            "ja": "基本体力 +20〜400 (レベルに応じて)、物理防御と魔法防御 +2〜25 (レベルに応じて)",
+            "ko": "기본 체력 +20~400 (레벨에 따라), 방어력과 마법 저항력 +2~25 (레벨에 따라)",
+            "es": "+20 a 400 de vida base (según el nivel), +2 a 25 de armadura y resistencia mágica (según el nivel)",
+            "fr": "+20 à 400 PV de base (selon le niveau), +2 à 25 armure et résistance magique (selon le niveau)"
+          },
+          "note": {
+            "en": "The wiki notes ranged champions currently get no bonus armor or magic resist (a bug).",
+            "zh": "英雄联盟维基注：远程英雄的护甲和魔法抗性加成目前存在程序错误，实际没有生效。",
+            "zh-TW": "英雄聯盟維基注：遠端英雄的護甲和魔法防禦加成目前存在程式錯誤，實際沒有生效。",
+            "ja": "Wiki によると、遠隔チャンピオンの物理防御と魔法防御のボーナスは現在バグで付きません。",
+            "ko": "위키에 따르면 원거리 챔피언의 방어력과 마법 저항력 보너스는 현재 버그로 적용되지 않습니다.",
+            "es": "Según la wiki, ahora mismo los campeones a distancia no reciben la armadura ni la resistencia mágica adicionales (un error).",
+            "fr": "Selon le wiki, les champions à distance ne reçoivent actuellement pas le bonus d'armure et de résistance magique (un bug)."
+          }
+        },
+        {
+          "label": {
+            "en": "Regen",
+            "zh": "回复",
+            "zh-TW": "回覆",
+            "ja": "回復",
+            "ko": "재생",
+            "es": "Regeneración",
+            "fr": "Régénération"
+          },
+          "text": {
+            "en": "+10% mana or energy regeneration",
+            "zh": "+10% 法力回复或能量回复",
+            "zh-TW": "+10% 法力回覆或能量回復",
+            "ja": "マナまたは気の回復 +10%",
+            "ko": "마나 또는 기력 재생 +10%",
+            "es": "+10% de regeneración de maná o energía",
+            "fr": "+10% de régénération de mana ou d'énergie"
+          }
+        },
+        {
+          "label": {
+            "en": "Rune",
+            "zh": "符文",
+            "zh-TW": "符文",
+            "ja": "ルーン",
+            "ko": "룬",
+            "es": "Runa",
+            "fr": "Rune"
+          },
+          "text": {
+            "en": "Everyone has Presence of Mind",
+            "zh": "所有英雄自带【气定神闲】",
+            "zh-TW": "所有英雄自帶【氣定神閒】",
+            "ja": "全員が「冷静沈着」を持つ",
+            "ko": "모두가 “침착”을 가집니다",
+            "es": "Todos tienen Claridad mental",
+            "fr": "Tout le monde a Présence d'esprit"
+          }
+        },
+        {
+          "label": {
+            "en": "Crit overflow",
+            "zh": "暴击溢出",
+            "zh-TW": "暴擊溢位",
+            "ja": "クリティカル率の超過分",
+            "ko": "치명타 초과분",
+            "es": "Crítico sobrante",
+            "fr": "Excédent de critique"
+          },
+          "text": {
+            "en": "Each 1% crit chance over 100% gives 0.45 attack damage or 0.75 ability power (adaptive)",
+            "zh": "暴击几率超过 100% 的部分，每 1% 转化为 0.45 攻击力或 0.75 法术强度（自适应）",
+            "zh-TW": "暴擊機率超過 100% 的部分，每 1% 轉化為 0.45 攻擊力或 0.75 魔法攻擊（自適應）",
+            "ja": "100%を超えたクリティカル率1%ごとに、攻撃力0.45または魔力0.75 (アダプティブ)",
+            "ko": "100%를 넘는 치명타 확률 1%마다 공격력 0.45 또는 주문력 0.75 (적응형)",
+            "es": "Cada 1% de probabilidad de crítico por encima del 100% da 0,45 de daño de ataque o 0,75 de poder de habilidad (adaptable)",
+            "fr": "Chaque 1% de chances de coup critique au-delà de 100% donne 0,45 dégâts d'attaque ou 0,75 puissance (adaptatif)"
+          }
+        },
+        {
+          "label": {
+            "en": "Attack speed cap",
+            "zh": "攻击速度上限",
+            "zh-TW": "攻擊速度上限",
+            "ja": "攻撃速度の上限",
+            "ko": "공격 속도 상한",
+            "es": "Límite de velocidad de ataque",
+            "fr": "Plafond de vitesse d'attaque"
+          },
+          "text": {
+            "en": "5.0",
+            "zh": "5.0",
+            "zh-TW": "5.0",
+            "ja": "5.0",
+            "ko": "5.0",
+            "es": "5,0",
+            "fr": "5,0"
+          }
+        },
+        {
+          "label": {
+            "en": "Combo Breaker",
+            "zh": "连招破坏者",
+            "zh-TW": "連招破壞者",
+            "ja": "コンボブレイカー",
+            "ko": "콤보 차단",
+            "es": "Rompecombos",
+            "fr": "Briseur de combo"
+          },
           "text": {
             "en": "Each new immobilize gives tenacity for 3.25 seconds. Immobilized for 5 of the last 7 seconds: cleansed and immune to crowd control for 3 seconds.",
-            "zh": "每次受到新的定身效果时获得韧性，持续 3.25 秒；最近 7 秒内被定身满 5 秒时，立即净化所有控制效果并免疫控制效果 3 秒。"
+            "zh": "每次受到新的定身效果时获得韧性，持续 3.25 秒；最近 7 秒内被定身满 5 秒时，立即净化所有控制效果并免疫控制效果 3 秒。",
+            "zh-TW": "每次受到新的定身效果時獲得韌性，持續 3.25 秒；最近 7 秒內被定身滿 5 秒時，立即淨化所有控制效果並免疫控制效果 3 秒。",
+            "ja": "新しい移動不能効果を受けるたびに3.25秒間行動妨害耐性を得る。直近7秒のうち5秒移動不能になると、すべての行動妨害が解除され3秒間行動妨害を無効化する。",
+            "ko": "새로운 이동 불가 효과를 받을 때마다 3.25초 동안 강인함을 얻습니다. 최근 7초 중 5초 동안 이동 불가 상태였다면 군중 제어가 모두 해제되고 3초 동안 군중 제어에 면역이 됩니다.",
+            "es": "Cada nueva inmovilización da tenacidad durante 3,25 s. Inmovilizado 5 de los últimos 7 s: se eliminan los controles y eres inmune a ellos durante 3 s.",
+            "fr": "Chaque nouvelle immobilisation donne de la ténacité pendant 3,25 s. Immobilisé 5 des 7 dernières secondes : contrôles dissipés et insensible aux contrôles pendant 3 s."
           }
         }
       ]
     },
     {
       "id": "map",
-      "title": { "en": "Map", "zh": "地图资源" },
+      "title": {
+        "en": "Map",
+        "zh": "地图资源",
+        "zh-TW": "地圖資源",
+        "ja": "マップ",
+        "ko": "맵",
+        "es": "Mapa",
+        "fr": "Carte"
+      },
       "items": [
-        { "label": { "en": "Health relic", "zh": "治疗圣物" }, "text": { "en": "Heals 22% of missing health and restores 22% of missing mana in an area", "zh": "范围治疗 22% 已损失生命值，并回复 22% 已损失法力值" } },
-        { "label": { "en": "Siege minions", "zh": "炮车小兵" }, "text": { "en": "Give nearby allied minions 20% attack speed and 20% movement speed", "zh": "为附近的友方小兵提供 20% 攻击速度和 20% 移动速度" } },
-        { "label": { "en": "Super minions", "zh": "超级兵" }, "text": { "en": "Only 1 per wave while the enemy inhibitor is down", "zh": "敌方召唤水晶被摧毁时，每波只出 1 个超级兵" } }
+        {
+          "label": {
+            "en": "Health relic",
+            "zh": "治疗圣物",
+            "zh-TW": "治療聖物",
+            "ja": "回復の遺物",
+            "ko": "체력 회복 유물",
+            "es": "Reliquia de salud",
+            "fr": "Relique de soin"
+          },
+          "text": {
+            "en": "Heals 22% of missing health and restores 22% of missing mana in an area",
+            "zh": "范围治疗 22% 已损失生命值，并回复 22% 已损失法力值",
+            "zh-TW": "範圍治療 22% 已損失生命值，並回復 22% 已損失法力值",
+            "ja": "範囲内で減少体力の22%を回復し、減少マナの22%を回復する",
+            "ko": "범위 안에서 잃은 체력의 22%와 잃은 마나의 22%를 회복합니다",
+            "es": "Cura un 22% de la vida perdida y restaura un 22% del maná perdido en un área",
+            "fr": "Soigne 22% des PV manquants et rend 22% du mana manquant dans une zone"
+          }
+        },
+        {
+          "label": {
+            "en": "Siege minions",
+            "zh": "炮车小兵",
+            "zh-TW": "炮車士兵",
+            "ja": "砲台ミニオン",
+            "ko": "공성 미니언",
+            "es": "Súbditos de asedio",
+            "fr": "Sbires de siège"
+          },
+          "text": {
+            "en": "Give nearby allied minions 20% attack speed and 20% movement speed",
+            "zh": "为附近的友方小兵提供 20% 攻击速度和 20% 移动速度",
+            "zh-TW": "為附近的友方士兵提供 20% 攻擊速度和 20% 移動速度",
+            "ja": "近くの味方ミニオンに攻撃速度20%と移動速度20%を与える",
+            "ko": "근처 아군 미니언에게 공격 속도 20%와 이동 속도 20%를 줍니다",
+            "es": "Dan a los súbditos aliados cercanos un 20% de velocidad de ataque y un 20% de velocidad de movimiento",
+            "fr": "Donnent aux sbires alliés proches 20% de vitesse d'attaque et 20% de vitesse de déplacement"
+          }
+        },
+        {
+          "label": {
+            "en": "Super minions",
+            "zh": "超级兵",
+            "zh-TW": "超級兵",
+            "ja": "スーパーミニオン",
+            "ko": "슈퍼 미니언",
+            "es": "Supersúbditos",
+            "fr": "Super sbires"
+          },
+          "text": {
+            "en": "Only 1 per wave while the enemy inhibitor is down",
+            "zh": "敌方召唤水晶被摧毁时，每波只出 1 个超级兵",
+            "zh-TW": "敵方水晶兵營被摧毀時，每波只出 1 個超級兵",
+            "ja": "敵のインヒビターが壊れている間、1ウェーブに1体だけ",
+            "ko": "상대 억제기가 파괴된 동안 웨이브마다 1마리만",
+            "es": "Solo 1 por oleada mientras el inhibidor enemigo está destruido",
+            "fr": "Un seul par vague tant que l'inhibiteur ennemi est détruit"
+          }
+        }
       ]
     },
     {
       "id": "turrets",
-      "title": { "en": "Turrets and Nexus", "zh": "防御塔与枢纽" },
+      "title": {
+        "en": "Turrets and Nexus",
+        "zh": "防御塔与枢纽",
+        "zh-TW": "防禦塔與樞紐",
+        "ja": "タワーとネクサス",
+        "ko": "포탑과 넥서스",
+        "es": "Torretas y Nexo",
+        "fr": "Tourelles et Nexus"
+      },
       "items": [
-        { "label": { "en": "Outer turret falls", "zh": "外防御塔被摧毁后" }, "text": { "en": "The inhibitor turret takes 40% less damage for 70 seconds", "zh": "水晶防御塔在 70 秒内受到的伤害降低 40%" }, "highlight": true },
-        { "label": { "en": "Resistances", "zh": "护甲和魔抗" }, "text": { "en": "Outer, inhibitor and Nexus turrets: 120 to 144 armor and magic resist (by minute). Outer turrets no longer drop to 40 after 12 minutes.", "zh": "外防御塔、水晶防御塔、枢纽防御塔：120 到 144 护甲和魔法抗性（随时间提升）；外防御塔不再在 12 分钟后降至 40。" } },
         {
-          "label": { "en": "Plating", "zh": "防御塔镀层" },
+          "label": {
+            "en": "Outer turret falls",
+            "zh": "外防御塔被摧毁后",
+            "zh-TW": "外防禦塔被摧毀後",
+            "ja": "外側タワーが壊れると",
+            "ko": "외곽 포탑이 파괴되면",
+            "es": "Cae la torreta exterior",
+            "fr": "Chute de la tourelle extérieure"
+          },
           "text": {
-            "en": "Outer and inhibitor turrets have 3 plates worth 100 gold each (split). Each plate lost gives a Bulwark stack for 20 seconds: 60 to 80 armor and magic resist (more with more enemy champions within 850 range), up to 120 to 160 at 2 stacks.",
-            "zh": "外防御塔和水晶防御塔各有 3 层镀层，每层 100 金币（由参与者平分）。每失去一层，防御塔获得一层【坚强壁垒】，持续 20 秒：60 到 80 护甲和魔法抗性（防御塔 850 码内存活的敌方英雄越多越高），2 层时最多 120 到 160。"
+            "en": "The inhibitor turret takes 40% less damage for 70 seconds",
+            "zh": "水晶防御塔在 70 秒内受到的伤害降低 40%",
+            "zh-TW": "水晶防禦塔在 70 秒內受到的傷害降低 40%",
+            "ja": "インヒビタータワーが70秒間受けるダメージが40%減る",
+            "ko": "억제기 포탑이 70초 동안 받는 피해가 40% 줄어듭니다",
+            "es": "La torreta inhibidora recibe un 40% menos de daño durante 70 s",
+            "fr": "La tourelle d'inhibiteur subit 40% de dégâts en moins pendant 70 s"
+          },
+          "highlight": true
+        },
+        {
+          "label": {
+            "en": "Resistances",
+            "zh": "护甲和魔抗",
+            "zh-TW": "護甲和魔抗",
+            "ja": "耐性",
+            "ko": "저항력",
+            "es": "Resistencias",
+            "fr": "Résistances"
+          },
+          "text": {
+            "en": "Outer, inhibitor and Nexus turrets: 120 to 144 armor and magic resist (by minute). Outer turrets no longer drop to 40 after 12 minutes.",
+            "zh": "外防御塔、水晶防御塔、枢纽防御塔：120 到 144 护甲和魔法抗性（随时间提升）；外防御塔不再在 12 分钟后降至 40。",
+            "zh-TW": "外防禦塔、水晶防禦塔、樞紐防禦塔：120 到 144 護甲和魔法防禦（隨時間提升）；外防禦塔不再在 12 分鐘後降至 40。",
+            "ja": "外側、インヒビター、ネクサスのタワー: 物理防御と魔法防御120〜144 (時間に応じて)。外側タワーは12分後も40に下がらない。",
+            "ko": "외곽, 억제기, 넥서스 포탑: 방어력과 마법 저항력 120~144 (시간에 따라). 외곽 포탑은 12분 뒤에도 40으로 떨어지지 않습니다.",
+            "es": "Torretas exteriores, inhibidoras y del Nexo: 120 a 144 de armadura y resistencia mágica (según el minuto). Las exteriores ya no bajan a 40 tras 12 minutos.",
+            "fr": "Tourelles extérieures, d'inhibiteur et de Nexus : 120 à 144 armure et résistance magique (selon la minute). Les tourelles extérieures ne tombent plus à 40 après 12 minutes."
           }
         },
-        { "label": { "en": "Nexus", "zh": "枢纽" }, "text": { "en": "Nexus turrets 3000 health (from 1800); Nexus 3000 health (from 5500)", "zh": "枢纽防御塔 3000 生命值（原 1800）；枢纽 3000 生命值（原 5500）" } }
+        {
+          "label": {
+            "en": "Plating",
+            "zh": "防御塔镀层",
+            "zh-TW": "防禦塔鍍層",
+            "ja": "タワー プレート",
+            "ko": "포탑 방패",
+            "es": "Placas",
+            "fr": "Plaques"
+          },
+          "text": {
+            "en": "Outer and inhibitor turrets have 3 plates worth 100 gold each (split). Each plate lost gives a Bulwark stack for 20 seconds: 60 to 80 armor and magic resist (more with more enemy champions within 850 range), up to 120 to 160 at 2 stacks.",
+            "zh": "外防御塔和水晶防御塔各有 3 层镀层，每层 100 金币（由参与者平分）。每失去一层，防御塔获得一层【坚强壁垒】，持续 20 秒：60 到 80 护甲和魔法抗性（防御塔 850 码内存活的敌方英雄越多越高），2 层时最多 120 到 160。",
+            "zh-TW": "外防禦塔和水晶防禦塔各有 3 層鍍層，每層 100 金幣（由參與者平分）。每失去一層，防禦塔獲得一層【堅強壁壘】，持續 20 秒：60 到 80 護甲和魔法防禦（防禦塔 850 碼記憶體活的敵方英雄越多越高），2 層時最多 120 到 160。",
+            "ja": "外側とインヒビターのタワーには100ゴールド (分配) のプレートが3枚ある。プレートを失うたびに20秒間「忠義の防壁」スタック: 物理防御と魔法防御60〜80 (850範囲内の敵チャンピオンが多いほど増加)、2スタックで最大120〜160。",
+            "ko": "외곽과 억제기 포탑에는 100골드 (분배)짜리 방패가 3개 있습니다. 방패를 잃을 때마다 20초 동안 방벽 중첩: 방어력과 마법 저항력 60~80 (850 범위 안의 상대 챔피언이 많을수록 증가), 2중첩 시 최대 120~160.",
+            "es": "Las torretas exteriores e inhibidoras tienen 3 placas de 100 de oro cada una (repartido). Cada placa perdida da una acumulación de Baluarte durante 20 s: 60 a 80 de armadura y resistencia mágica (más con más campeones enemigos a 850 de distancia), hasta 120 a 160 con 2 acumulaciones.",
+            "fr": "Les tourelles extérieures et d'inhibiteur ont 3 plaques de 100 PO chacune (partagés). Chaque plaque perdue donne un cumul de Pavois pendant 20 s : 60 à 80 armure et résistance magique (plus avec plus de champions ennemis à 850 de portée), jusqu'à 120 à 160 à 2 cumuls."
+          }
+        },
+        {
+          "label": {
+            "en": "Nexus",
+            "zh": "枢纽",
+            "zh-TW": "樞紐",
+            "ja": "ネクサス",
+            "ko": "넥서스",
+            "es": "Nexo",
+            "fr": "Nexus"
+          },
+          "text": {
+            "en": "Nexus turrets 3000 health (from 1800); Nexus 3000 health (from 5500)",
+            "zh": "枢纽防御塔 3000 生命值（原 1800）；枢纽 3000 生命值（原 5500）",
+            "zh-TW": "樞紐防禦塔 3000 生命值（原 1800）；樞紐 3000 生命值（原 5500）",
+            "ja": "ネクサス・タワーの体力3000 (1800から)、ネクサスの体力3000 (5500から)",
+            "ko": "넥서스 포탑 체력 3000 (1800에서), 넥서스 체력 3000 (5500에서)",
+            "es": "Torretas del Nexo con 3000 de vida (antes 1800); Nexo con 3000 de vida (antes 5500)",
+            "fr": "Tourelles de Nexus à 3000 PV (au lieu de 1800) ; Nexus à 3000 PV (au lieu de 5500)"
+          }
+        }
       ]
     },
     {
       "id": "augments",
-      "title": { "en": "Augments", "zh": "强化符文" },
+      "title": {
+        "en": "Augments",
+        "zh": "强化符文",
+        "zh-TW": "增幅裝置",
+        "ja": "オーグメント",
+        "ko": "증강",
+        "es": "Aumentos",
+        "fr": "Optimisations"
+      },
       "items": [
-        { "label": { "en": "When", "zh": "时机" }, "text": { "en": "At the start (level 3), then levels 7, 11 and 15; only while you can shop (dead, or at your spawn)", "zh": "开局（3 级）一次，之后 7、11、15 级各一次；只在可以购买装备时出现（阵亡或在泉水）" } },
-        { "label": { "en": "Rarity", "zh": "品质" }, "text": { "en": "Silver, Gold or Prismatic, the same for every player each time and random; the first two can't both be Silver", "zh": "白银阶、黄金阶或棱彩阶，每次全场相同且随机；前两次不会都是白银阶" } },
-        { "label": { "en": "Rerolls", "zh": "刷新" }, "text": { "en": "Each offer can be rerolled once, for up to 6 choices; an augment never shows up twice in a game", "zh": "每个选项可以刷新一次，最多 6 选 1；同一个强化符文在一局中不会出现两次" } }
+        {
+          "label": {
+            "en": "When",
+            "zh": "时机",
+            "zh-TW": "時機",
+            "ja": "タイミング",
+            "ko": "시점",
+            "es": "Cuándo",
+            "fr": "Quand"
+          },
+          "text": {
+            "en": "At the start (level 3), then levels 7, 11 and 15; only while you can shop (dead, or at your spawn)",
+            "zh": "开局（3 级）一次，之后 7、11、15 级各一次；只在可以购买装备时出现（阵亡或在泉水）",
+            "zh-TW": "開局（3 級）一次，之後 7、11、15 級各一次；只在可以購買道具時出現（陣亡或在泉水）",
+            "ja": "開始時 (レベル3)、その後レベル7、11、15。購入できる間だけ (死んでいるか、スポーン地点にいるとき)",
+            "ko": "시작할 때 (레벨 3), 그 뒤 레벨 7, 11, 15. 상점을 쓸 수 있을 때만 (죽었거나 우물에 있을 때)",
+            "es": "Al empezar (nivel 3) y luego en los niveles 7, 11 y 15; solo mientras puedes comprar (muerto o en tu base)",
+            "fr": "Au début (niveau 3), puis aux niveaux 7, 11 et 15 ; seulement quand vous pouvez acheter (mort ou à votre base)"
+          }
+        },
+        {
+          "label": {
+            "en": "Rarity",
+            "zh": "品质",
+            "zh-TW": "品質",
+            "ja": "レア度",
+            "ko": "등급",
+            "es": "Rareza",
+            "fr": "Rareté"
+          },
+          "text": {
+            "en": "Silver, Gold or Prismatic, the same for every player each time and random; the first two can't both be Silver",
+            "zh": "白银阶、黄金阶或棱彩阶，每次全场相同且随机；前两次不会都是白银阶",
+            "zh-TW": "白銀階、黃金階或稜鏡階，每次全場相同且隨機；前兩次不會都是白銀階",
+            "ja": "シルバー、ゴールド、プリズムのいずれかで、毎回全プレイヤー共通のランダム。最初の2回が両方シルバーになることはない",
+            "ko": "실버, 골드, 프리즘 중 하나로 매번 모든 플레이어가 같고 무작위입니다. 처음 두 번이 모두 실버일 수는 없습니다",
+            "es": "Plata, Oro o Prismático, igual para todos los jugadores cada vez y al azar; los dos primeros no pueden ser ambos de Plata",
+            "fr": "Argent, Or ou Prismatique, la même pour tous les joueurs à chaque fois et au hasard ; les deux premières ne peuvent pas être toutes deux Argent"
+          }
+        },
+        {
+          "label": {
+            "en": "Rerolls",
+            "zh": "刷新",
+            "zh-TW": "重新整理",
+            "ja": "リロール",
+            "ko": "새로고침",
+            "es": "Cambios",
+            "fr": "Relances"
+          },
+          "text": {
+            "en": "Each offer can be rerolled once, for up to 6 choices; an augment never shows up twice in a game",
+            "zh": "每个选项可以刷新一次，最多 6 选 1；同一个强化符文在一局中不会出现两次",
+            "zh-TW": "每個選項可以重新整理一次，最多 6 選 1；同一個增幅裝置在一局中不會出現兩次",
+            "ja": "それぞれの候補は1回リロールでき、選択肢は最大6つ。同じオーグメントが1試合で2回出ることはない",
+            "ko": "각 제안은 한 번 새로고침할 수 있어 최대 6개 중에서 고릅니다. 한 게임에서 같은 증강이 두 번 나오지 않습니다",
+            "es": "Cada oferta se puede cambiar una vez, hasta 6 opciones; un aumento nunca sale dos veces en una partida",
+            "fr": "Chaque offre peut être relancée une fois, jusqu'à 6 choix ; une optimisation n'apparaît jamais deux fois dans une partie"
+          }
+        }
       ]
     }
   ],
   "headliners": [
-    { "id": "pentakill", "goh": "pentakill", "name": { "en": "Pentakill", "zh": "五杀乐队" }, "official": true, "effect": { "en": "An extra pick after the first augments: Q, W or E gains 20 ability haste and 10% more damage, healing and shielding. Again at level 18, now with the ultimate too.", "zh": "强化你的一个基础技能，为它提供20技能急速、10%额外伤害、以及10%治疗和护盾效果。在18级时，强化另一个技能，甚至可以是你的终极技能！" } },
-    { "id": "kda", "goh": "kda", "name": { "en": "K/DA", "zh": "K/DA" }, "official": true, "effect": { "en": "Every 12 seconds a member throws a Photocard. Collect all 4 (Ahri, Akali, Evelynn, Kai'Sa) for an extra augment the next time you die. Starts at 0:30.", "zh": "K/DA会时不时地投掷明星卡给她们的忠实粉丝们！集齐它们就会获得一个额外的强化符文并证明你的忠诚！" } },
-    { "id": "true-damage", "goh": "truedamage", "name": { "en": "True Damage", "zh": "真实伤害" }, "official": true, "effect": { "en": "Takedowns and destroyed turrets can drop a Stat Anvil anyone can pick up (at most 1 Prismatic Anvil per team per game).", "zh": "多杀、终结连杀、以及摧毁防御塔都会激起小兵的干劲，使它们为提供干劲的队伍掉落锻造器！" } },
-    { "id": "heartsteel", "goh": "heartsteel", "name": { "en": "HEARTSTEEL", "zh": "心之钢" }, "official": true, "effect": { "en": "Some augment offers carry a member's sticker for a bonus: Aphelios 2 Stat Anvils, Ezreal 4 to 72 AD and AP, Kayn 5% omnivamp, K'Sante +1 level and level cap 19, Sett 30 to 540 health, Yone 40% attack speed and 20 ability haste.", "zh": "【心之钢】成员们有一定几率给你的强化符文贴上贴纸，从而在你选择一个带贴纸的强化符文时为你提供一个加成。每个成员会提供一个独特加成。" } },
-    { "id": "cafe-cuties", "goh": "cafecuties", "name": { "en": "Cafe Cuties", "zh": "咖啡甜心" }, "official": true, "effect": { "en": "Health relics heal 20% more missing health (42% in all) and give 25% movement speed decaying over 6 seconds; each base gets an extra relic between the Nexus turrets.", "zh": "治疗圣物光环会额外回复20%已损失生命值，并提供在6秒里持续衰减的25%移动速度加成。" } },
-    { "id": "space-groove", "goh": "disco", "name": { "en": "Space Groove", "zh": "太空律动" }, "official": true, "effect": { "en": "Dance on the mid-lane floor to grow the disco ball. When it bursts, everyone gets 100 gold every 0.5 seconds, 1000 in all.", "zh": "跳起舞步跃入舞池直到迪斯科灯球落下，从而为每个人提供1000金币！" } },
-    { "id": "bee-band", "goh": "bees", "name": { "en": "The Bee Band", "zh": "小蜜蜂乐队" }, "official": true, "effect": { "en": "Every 3 to 10 seconds a bee or honey flies across. Bees deal 10% (giant: 20%) max health true damage; honey heals 15% (giant: 30%) max health and gives 25 (100) gold.", "zh": "蜂蜜和蜜蜂会周期性地飞越地图。收集小块蜂蜜可为你和你的队伍提供25金币，并为你治疗15%最大生命值。收集大块蜂蜜可提供100金币，并为你治疗30%最大生命值。被小蜜蜂蜇到会对你造成10%最大生命值的伤害。大蜜蜂会对你造成20%最大生命值的伤害。" } },
-    { "id": "command-line", "goh": "commandline", "name": { "en": "Command Line", "zh": "命令行" }, "official": true, "effect": { "en": "Augment offers are only Silver or Gold. Rerolls become Hacked Rerolls that upgrade an offer one tier (Silver to Gold, Gold to Prismatic); using one turns the other two back to normal rerolls.", "zh": "你在每轮符文选择中的第一次刷新还会提升被刷新强化符文的稀有度。" } },
-    { "id": "superfans", "goh": "worlds", "name": { "en": "Superfans", "zh": "超级粉丝" }, "official": true, "effect": { "en": "Level cap 21 and 60% more experience; reaching level 21 gives an extra augment the next time you die.", "zh": "所有玩家的等级上限提升至21并获得额外经验值。在21级时获得一个额外的强化符文！" } },
-    { "id": "arcade", "name": { "en": "Bit Rush", "zh": "比特狂飙" }, "official": true, "effect": { "en": "Takedowns give Tokens; spend 4 while dead to revive at your spawn.", "zh": "参与击杀获得代币；阵亡时用 4 枚代币在泉水复活。" } },
-    { "id": "debonair", "name": { "en": "Debonair", "zh": "执事乐队" }, "official": true, "effect": { "en": "Each augment offer also gives 200, 350, 500 or 700 gold (random) and hats.", "zh": "每次强化符文选择额外提供 200、350、500 或 700 金币（随机）以及帽子。" } },
-    { "id": "la-ilusion", "name": { "en": "La Ilusión", "zh": "魂蔷薇乐队" }, "official": false, "effect": { "en": "Allies drop a candle where they die (10 seconds); picking it up shields you and allies within 1500 range for 4 seconds.", "zh": "友方英雄阵亡处掉落一根蜡烛（持续 10 秒）；友方拾取后为自己和 1500 码内的友方英雄提供护盾，持续 4 秒。" } },
-    { "id": "maestro", "name": { "en": "Maestro", "zh": "大师乐队" }, "official": false, "effect": { "en": "Augment offers show 4 choices instead of 3.", "zh": "强化符文选择从 3 个选项变为 4 个。" } }
+    {
+      "id": "pentakill",
+      "goh": "pentakill",
+      "name": {
+        "en": "Pentakill",
+        "zh": "五杀乐队",
+        "zh-TW": "五殺樂隊",
+        "ja": "PENTAKILL",
+        "ko": "펜타킬",
+        "es": "Pentakill",
+        "fr": "Pentakill"
+      },
+      "official": true,
+      "effect": {
+        "en": "An extra pick after the first augments: Q, W or E gains 20 ability haste and 10% more damage, healing and shielding. Again at level 18, now with the ultimate too.",
+        "zh": "强化你的一个基础技能，为它提供20技能急速、10%额外伤害、以及10%治疗和护盾效果。在18级时，强化另一个技能，甚至可以是你的终极技能！",
+        "zh-TW": "強化你的一個基礎技能，為它提供20技能加速、10%額外傷害、以及10%治療和護盾效果。在18級時，強化另一個技能，甚至可以是你的終極技能！",
+        "ja": "最初のオーグメントの後に追加の選択: Q、W、Eのどれかがスキルヘイスト20とダメージ・回復・シールド10%増加を得る。レベル18でもう一度、今度はアルティメットも選べる。",
+        "ko": "첫 증강 뒤에 추가 선택: Q, W, E 중 하나가 스킬 가속 20과 피해량, 회복, 보호막 10% 증가를 얻습니다. 레벨 18에 한 번 더, 이번에는 궁극기도 고를 수 있습니다.",
+        "es": "Una elección extra tras los primeros aumentos: Q, W o E gana 20 de velocidad de habilidades y un 10% más de daño, curación y escudos. Otra vez al nivel 18, ahora también con la definitiva.",
+        "fr": "Un choix supplémentaire après les premières optimisations : Q, W ou E gagne 20 accélération de compétence et 10% de dégâts, soins et boucliers en plus. Encore au niveau 18, avec l'ultime cette fois."
+      }
+    },
+    {
+      "id": "kda",
+      "goh": "kda",
+      "name": {
+        "en": "K/DA",
+        "zh": "K/DA",
+        "zh-TW": "K/DA",
+        "ja": "K/DA",
+        "ko": "K/DA",
+        "es": "K/DA",
+        "fr": "K/DA"
+      },
+      "official": true,
+      "effect": {
+        "en": "Every 12 seconds a member throws a Photocard. Collect all 4 (Ahri, Akali, Evelynn, Kai'Sa) for an extra augment the next time you die. Starts at 0:30.",
+        "zh": "K/DA会时不时地投掷明星卡给她们的忠实粉丝们！集齐它们就会获得一个额外的强化符文并证明你的忠诚！",
+        "zh-TW": "K/DA會時不時地投擲明星卡給她們的忠實粉絲們！集齊它們就會獲得一個額外的增幅裝置並證明你的忠誠！",
+        "ja": "12秒ごとにメンバーがフォトカードを投げる。4枚 (アーリ、アカリ、イブリン、カイサ) 集めると、次に死んだときにオーグメントが1つ増える。0:30から。",
+        "ko": "12초마다 멤버가 포토카드를 던집니다. 4장 (아리, 아칼리, 이블린, 카이사)을 모으면 다음에 죽을 때 증강을 하나 더 얻습니다. 0:30부터.",
+        "es": "Cada 12 s una integrante lanza una fotocarta. Reúne las 4 (Ahri, Akali, Evelynn, Kai'Sa) para un aumento extra la próxima vez que mueras. Empieza en el 0:30.",
+        "fr": "Toutes les 12 s, une membre lance une photocarte. Réunissez les 4 (Ahri, Akali, Evelynn, Kai'Sa) pour une optimisation de plus à votre prochaine mort. Commence à 0:30."
+      }
+    },
+    {
+      "id": "true-damage",
+      "goh": "truedamage",
+      "name": {
+        "en": "True Damage",
+        "zh": "真实伤害",
+        "zh-TW": "真實傷害",
+        "ja": "TRUE DAMAGE",
+        "ko": "True Damage",
+        "es": "True Damage",
+        "fr": "True Damage"
+      },
+      "official": true,
+      "effect": {
+        "en": "Takedowns and destroyed turrets can drop a Stat Anvil anyone can pick up (at most 1 Prismatic Anvil per team per game).",
+        "zh": "多杀、终结连杀、以及摧毁防御塔都会激起小兵的干劲，使它们为提供干劲的队伍掉落锻造器！",
+        "zh-TW": "多殺、終結連殺、以及摧毀防禦塔都會激起士兵的幹勁，使它們為提供幹勁的隊伍掉落鍛造器！",
+        "ja": "キル/アシストや破壊したタワーから、誰でも拾えるステータスの金床が出ることがある (プリズムの金床は1試合で各チーム1つまで)。",
+        "ko": "처치 관여와 파괴한 포탑에서 누구나 주울 수 있는 능력치 모루가 떨어질 수 있습니다 (프리즘 모루는 게임마다 팀당 최대 1개).",
+        "es": "Los asesinatos o asistencias y las torretas destruidas pueden soltar un Yunque de estadísticas que cualquiera puede recoger (como mucho 1 Yunque prismático por equipo y partida).",
+        "fr": "Les participations aux éliminations et les tourelles détruites peuvent faire tomber une Enclume à stats que tout le monde peut ramasser (au plus 1 Enclume prismatique par équipe et par partie)."
+      }
+    },
+    {
+      "id": "heartsteel",
+      "goh": "heartsteel",
+      "name": {
+        "en": "HEARTSTEEL",
+        "zh": "心之钢",
+        "zh-TW": "心之鋼",
+        "ja": "HEARTSTEEL",
+        "ko": "하트스틸",
+        "es": "HEARTSTEEL",
+        "fr": "HEARTSTEEL"
+      },
+      "official": true,
+      "effect": {
+        "en": "Some augment offers carry a member's sticker for a bonus: Aphelios 2 Stat Anvils, Ezreal 4 to 72 AD and AP, Kayn 5% omnivamp, K'Sante +1 level and level cap 19, Sett 30 to 540 health, Yone 40% attack speed and 20 ability haste.",
+        "zh": "【心之钢】成员们有一定几率给你的强化符文贴上贴纸，从而在你选择一个带贴纸的强化符文时为你提供一个加成。每个成员会提供一个独特加成。",
+        "zh-TW": "【心之鋼】成員們有一定機率給你的增幅裝置貼上貼紙，從而在你選擇一個帶貼紙的增幅裝置時為你提供一個加成。每個成員會提供一個獨特加成。",
+        "ja": "一部のオーグメントの候補にメンバーのステッカーが付きボーナス: アフェリオスはステータスの金床2つ、エズリアルは攻撃力と魔力4〜72、ケインはオムニヴァンプ5%、クサンテはレベル+1と上限19、セトは体力30〜540、ヨネは攻撃速度40%とスキルヘイスト20。",
+        "ko": "일부 증강 제안에 멤버 스티커가 붙어 보너스: 아펠리오스 능력치 모루 2개, 이즈리얼 공격력과 주문력 4~72, 케인 모든 피해 흡혈 5%, 크산테 레벨 +1과 최대 레벨 19, 세트 체력 30~540, 요네 공격 속도 40%와 스킬 가속 20.",
+        "es": "Algunas ofertas de aumentos llevan la pegatina de un integrante con un extra: Aphelios 2 Yunques de estadísticas, Ezreal 4 a 72 de daño de ataque y poder de habilidad, Kayn 5% de omnisucción, K'Sante +1 nivel y límite 19, Sett 30 a 540 de vida, Yone 40% de velocidad de ataque y 20 de velocidad de habilidades.",
+        "fr": "Certaines offres d'optimisations portent l'autocollant d'un membre avec un bonus : Aphelios 2 Enclumes à stats, Ezreal 4 à 72 dégâts d'attaque et puissance, Kayn 5% d'omnivampirisme, K'Sante +1 niveau et niveau max 19, Sett 30 à 540 PV, Yone 40% de vitesse d'attaque et 20 accélération de compétence."
+      }
+    },
+    {
+      "id": "cafe-cuties",
+      "goh": "cafecuties",
+      "name": {
+        "en": "Cafe Cuties",
+        "zh": "咖啡甜心",
+        "zh-TW": "咖啡甜心",
+        "ja": "カフェキューティーズ",
+        "ko": "카페 큐티",
+        "es": "Cafe Cuties",
+        "fr": "Cafe Cuties"
+      },
+      "official": true,
+      "effect": {
+        "en": "Health relics heal 20% more missing health (42% in all) and give 25% movement speed decaying over 6 seconds; each base gets an extra relic between the Nexus turrets.",
+        "zh": "治疗圣物光环会额外回复20%已损失生命值，并提供在6秒里持续衰减的25%移动速度加成。",
+        "zh-TW": "治療聖物光環會額外回覆20%已損失生命值，並提供在6秒裡持續衰減的25%移動速度加成。",
+        "ja": "回復の遺物が減少体力をさらに20% (合計42%) 回復し、6秒かけて減衰する移動速度25%を与える。各陣地のネクサス・タワーの間に遺物が1つ増える。",
+        "ko": "체력 회복 유물이 잃은 체력을 20% 더 (총 42%) 회복하고 6초 동안 줄어드는 이동 속도 25%를 줍니다. 각 진영의 넥서스 포탑 사이에 유물이 하나 더 생깁니다.",
+        "es": "Las reliquias de salud curan un 20% más de vida perdida (42% en total) y dan un 25% de velocidad de movimiento que decae en 6 s; cada base tiene una reliquia más entre las torretas del Nexo.",
+        "fr": "Les reliques de soin rendent 20% de PV manquants en plus (42% au total) et donnent 25% de vitesse de déplacement dégressive sur 6 s ; chaque base gagne une relique entre les tourelles de Nexus."
+      }
+    },
+    {
+      "id": "space-groove",
+      "goh": "disco",
+      "name": {
+        "en": "Space Groove",
+        "zh": "太空律动",
+        "zh-TW": "太空律動",
+        "ja": "スペースグルーヴ",
+        "ko": "스페이스 그루브",
+        "es": "Space Groove",
+        "fr": "Space Groove"
+      },
+      "official": true,
+      "effect": {
+        "en": "Dance on the mid-lane floor to grow the disco ball. When it bursts, everyone gets 100 gold every 0.5 seconds, 1000 in all.",
+        "zh": "跳起舞步跃入舞池直到迪斯科灯球落下，从而为每个人提供1000金币！",
+        "zh-TW": "跳起舞步躍入舞池直到迪斯科燈球落下，從而為每個人提供1000金幣！",
+        "ja": "ミッドレーンのフロアで踊るとミラーボールが大きくなる。弾けると全員に0.5秒ごとに100ゴールド、合計1000ゴールド。",
+        "ko": "미드 라인 바닥에서 춤추면 미러볼이 커집니다. 터지면 모두가 0.5초마다 100골드, 총 1000골드를 받습니다.",
+        "es": "Baila en la pista de la calle central para que crezca la bola de discoteca. Al estallar, todos reciben 100 de oro cada 0,5 s, 1000 en total.",
+        "fr": "Dansez sur la piste de la voie du milieu pour faire grossir la boule à facettes. Quand elle éclate, tout le monde reçoit 100 PO toutes les 0,5 s, 1000 au total."
+      }
+    },
+    {
+      "id": "bee-band",
+      "goh": "bees",
+      "name": {
+        "en": "The Bee Band",
+        "zh": "小蜜蜂乐队",
+        "zh-TW": "小蜜蜂樂隊",
+        "ja": "ビーバンド",
+        "ko": "벌 밴드",
+        "es": "La Banda Abeja",
+        "fr": "Le Groupe Abeille"
+      },
+      "official": true,
+      "effect": {
+        "en": "Every 3 to 10 seconds a bee or honey flies across. Bees deal 10% (giant: 20%) max health true damage; honey heals 15% (giant: 30%) max health and gives 25 (100) gold.",
+        "zh": "蜂蜜和蜜蜂会周期性地飞越地图。收集小块蜂蜜可为你和你的队伍提供25金币，并为你治疗15%最大生命值。收集大块蜂蜜可提供100金币，并为你治疗30%最大生命值。被小蜜蜂蜇到会对你造成10%最大生命值的伤害。大蜜蜂会对你造成20%最大生命值的伤害。",
+        "zh-TW": "蜂蜜和蜜蜂會週期性地飛越地圖。收集小塊蜂蜜可為你和你的隊伍提供25金幣，併為你治療15%最大生命值。收集大塊蜂蜜可提供100金幣，併為你治療30%最大生命值。被小蜜蜂蜇到會對你造成10%最大生命值的傷害。大蜜蜂會對你造成20%最大生命值的傷害。",
+        "ja": "3〜10秒ごとにハチかハチミツが飛んでくる。ハチは最大体力の10% (巨大: 20%) の確定ダメージ、ハチミツは最大体力の15% (巨大: 30%) を回復し25 (100) ゴールドを与える。",
+        "ko": "3~10초마다 벌이나 꿀이 날아옵니다. 벌은 최대 체력의 10% (거대: 20%) 고정 피해, 꿀은 최대 체력의 15% (거대: 30%)를 회복하고 25 (100)골드를 줍니다.",
+        "es": "Cada 3 a 10 s cruza una abeja o miel. Las abejas infligen un 10% (gigante: 20%) de la vida máxima como daño verdadero; la miel cura un 15% (gigante: 30%) de la vida máxima y da 25 (100) de oro.",
+        "fr": "Toutes les 3 à 10 s, une abeille ou du miel passe. Les abeilles infligent 10% (géante : 20%) des PV max en dégâts bruts ; le miel soigne 15% (géant : 30%) des PV max et donne 25 (100) PO."
+      }
+    },
+    {
+      "id": "command-line",
+      "goh": "commandline",
+      "name": {
+        "en": "Command Line",
+        "zh": "命令行",
+        "zh-TW": "命令列",
+        "ja": "コマンドライン",
+        "ko": "커맨드 라인",
+        "es": "Línea de comandos",
+        "fr": "Ligne de commande"
+      },
+      "official": true,
+      "effect": {
+        "en": "Augment offers are only Silver or Gold. Rerolls become Hacked Rerolls that upgrade an offer one tier (Silver to Gold, Gold to Prismatic); using one turns the other two back to normal rerolls.",
+        "zh": "你在每轮符文选择中的第一次刷新还会提升被刷新强化符文的稀有度。",
+        "zh-TW": "你在每輪符文選擇中的第一次重新整理還會提升被重新整理增幅裝置的稀有度。",
+        "ja": "オーグメントの候補はシルバーかゴールドだけ。リロールは候補を1段階上げる (シルバー→ゴールド、ゴールド→プリズム) ハックリロールになり、1つ使うと残り2つは通常のリロールに戻る。",
+        "ko": "증강 제안은 실버나 골드만 나옵니다. 새로고침은 제안을 한 단계 올리는 (실버→골드, 골드→프리즘) 해킹 새로고침이 되고, 하나를 쓰면 나머지 둘은 일반 새로고침으로 돌아갑니다.",
+        "es": "Las ofertas de aumentos solo son de Plata u Oro. Los cambios se vuelven cambios hackeados que suben una oferta un nivel (Plata a Oro, Oro a Prismático); al usar uno, los otros dos vuelven a ser normales.",
+        "fr": "Les offres d'optimisations ne sont qu'Argent ou Or. Les relances deviennent des relances piratées qui montent une offre d'un rang (Argent vers Or, Or vers Prismatique) ; en utiliser une rend les deux autres normales."
+      }
+    },
+    {
+      "id": "superfans",
+      "goh": "worlds",
+      "name": {
+        "en": "Superfans",
+        "zh": "超级粉丝",
+        "zh-TW": "超級粉絲",
+        "ja": "スーパーファン",
+        "ko": "열혈 팬",
+        "es": "Superfans",
+        "fr": "Superfans"
+      },
+      "official": true,
+      "effect": {
+        "en": "Level cap 21 and 60% more experience; reaching level 21 gives an extra augment the next time you die.",
+        "zh": "所有玩家的等级上限提升至21并获得额外经验值。在21级时获得一个额外的强化符文！",
+        "zh-TW": "所有玩家的等級上限提升至21並獲得額外經驗值。在21級時獲得一個額外的增幅裝置！",
+        "ja": "レベル上限21、経験値60%増加。レベル21になると、次に死んだときにオーグメントが1つ増える。",
+        "ko": "최대 레벨 21, 경험치 60% 증가. 레벨 21이 되면 다음에 죽을 때 증강을 하나 더 얻습니다.",
+        "es": "Límite de nivel 21 y un 60% más de experiencia; llegar al nivel 21 da un aumento extra la próxima vez que mueras.",
+        "fr": "Niveau max 21 et 60% d'expérience en plus ; atteindre le niveau 21 donne une optimisation de plus à votre prochaine mort."
+      }
+    },
+    {
+      "id": "arcade",
+      "name": {
+        "en": "Bit Rush",
+        "zh": "比特狂飙",
+        "zh-TW": "位元狂飆",
+        "ja": "ビットラッシュ",
+        "ko": "비트 러시",
+        "es": "Bit Rush",
+        "fr": "Bit Rush"
+      },
+      "official": true,
+      "effect": {
+        "en": "Takedowns give Tokens; spend 4 while dead to revive at your spawn.",
+        "zh": "参与击杀获得代币；阵亡时用 4 枚代币在泉水复活。",
+        "zh-TW": "參與擊殺獲得代幣；陣亡時用 4 枚代幣在泉水復活。",
+        "ja": "キル/アシストでトークンを得る。死んでいる間に4枚使うとスポーン地点で復活する。",
+        "ko": "처치 관여로 토큰을 얻습니다. 죽어 있는 동안 4개를 쓰면 우물에서 부활합니다.",
+        "es": "Los asesinatos o asistencias dan fichas; gasta 4 mientras estás muerto para revivir en tu base.",
+        "fr": "Les participations aux éliminations donnent des jetons ; dépensez-en 4 quand vous êtes mort pour réapparaître à votre base."
+      }
+    },
+    {
+      "id": "debonair",
+      "name": {
+        "en": "Debonair",
+        "zh": "执事乐队",
+        "zh-TW": "執事樂隊",
+        "ja": "デボネア",
+        "ko": "디보네어",
+        "es": "Debonair",
+        "fr": "Debonair"
+      },
+      "official": true,
+      "effect": {
+        "en": "Each augment offer also gives 200, 350, 500 or 700 gold (random) and hats.",
+        "zh": "每次强化符文选择额外提供 200、350、500 或 700 金币（随机）以及帽子。",
+        "zh-TW": "每次增幅裝置選擇額外提供 200、350、500 或 700 金幣（隨機）以及帽子。",
+        "ja": "オーグメントの候補ごとに200、350、500、700ゴールド (ランダム) と帽子ももらえる。",
+        "ko": "증강 제안마다 200, 350, 500, 700골드 (무작위)와 모자도 받습니다.",
+        "es": "Cada oferta de aumentos da además 200, 350, 500 o 700 de oro (al azar) y sombreros.",
+        "fr": "Chaque offre d'optimisations donne aussi 200, 350, 500 ou 700 PO (au hasard) et des chapeaux."
+      }
+    },
+    {
+      "id": "la-ilusion",
+      "name": {
+        "en": "La Ilusión",
+        "zh": "魂蔷薇乐队",
+        "zh-TW": "魂薔薇樂隊",
+        "ja": "ラ・イルシオン",
+        "ko": "라 일루시온",
+        "es": "La Ilusión",
+        "fr": "La Ilusión"
+      },
+      "official": false,
+      "effect": {
+        "en": "Allies drop a candle where they die (10 seconds); picking it up shields you and allies within 1500 range for 4 seconds.",
+        "zh": "友方英雄阵亡处掉落一根蜡烛（持续 10 秒）；友方拾取后为自己和 1500 码内的友方英雄提供护盾，持续 4 秒。",
+        "zh-TW": "友方英雄陣亡處掉落一根蠟燭（持續 10 秒）；友方拾取後為自己和 1500 碼內的友方英雄提供護盾，持續 4 秒。",
+        "ja": "味方が死んだ場所にキャンドルが落ちる (10秒)。拾うと自分と1500範囲内の味方が4秒間シールドを得る。",
+        "ko": "아군이 죽은 자리에 양초가 떨어집니다 (10초). 주우면 나와 1500 범위 안의 아군이 4초 동안 보호막을 얻습니다.",
+        "es": "Los aliados sueltan una vela donde mueren (10 s); recogerla te da un escudo a ti y a los aliados a 1500 de distancia durante 4 s.",
+        "fr": "Les alliés laissent une bougie là où ils meurent (10 s) ; la ramasser vous protège, vous et les alliés à 1500 de portée, d'un bouclier pendant 4 s."
+      }
+    },
+    {
+      "id": "maestro",
+      "name": {
+        "en": "Maestro",
+        "zh": "大师乐队",
+        "zh-TW": "大師樂隊",
+        "ja": "マエストロ",
+        "ko": "마에스트로",
+        "es": "Maestro",
+        "fr": "Maestro"
+      },
+      "official": false,
+      "effect": {
+        "en": "Augment offers show 4 choices instead of 3.",
+        "zh": "强化符文选择从 3 个选项变为 4 个。",
+        "zh-TW": "增幅裝置選擇從 3 個選項變為 4 個。",
+        "ja": "オーグメントの候補が3つではなく4つになる。",
+        "ko": "증강 제안이 3개가 아니라 4개입니다.",
+        "es": "Las ofertas de aumentos muestran 4 opciones en vez de 3.",
+        "fr": "Les offres d'optimisations montrent 4 choix au lieu de 3."
+      }
+    }
   ]
 }

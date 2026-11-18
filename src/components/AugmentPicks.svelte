@@ -4,6 +4,7 @@
    * win rate the most (take) and lower it the most (avoid). `compact` is the in-game overlay form.
    */
   import Img from './Img.svelte';
+  import { num } from '../lib/format';
   import { api } from '../lib/api';
   import { champName } from '../lib/dd.svelte';
   import { t } from '../lib/i18n.svelte';
@@ -37,7 +38,7 @@
      and the augments to avoid beside the ones to take. -->
 {#snippet line(a: AugRow, bad: boolean)}
   {@const info = augment(a.id)}
-  <div class="ln" class:bad title={t('recs.games', a.games.toLocaleString())}>
+  <div class="ln" class:bad title={t('recs.games', num(a.games))}>
     <Img src={info?.icon ?? null} size={20} />
     <span class="nm">{info?.name ?? `#${a.id}`}</span>
     <b class="num" class:hi={!bad} class:lo={bad}>{delta(a.delta)}</b>
@@ -50,7 +51,7 @@
   <div class="aug" class:bad>
     <Img src={info?.icon ?? null} size={compact ? 22 : 26} />
     <span class="nm">{info?.name ?? `#${a.id}`}</span>
-    <span class="st num" title={t('recs.games', a.games.toLocaleString())}>
+    <span class="st num" title={t('recs.games', num(a.games))}>
       <b class:hi={!bad} class:lo={bad}>{delta(a.delta)}</b>
       {#if !compact}<small>{pct1(a.winRate)}%</small>{/if}
     </span>

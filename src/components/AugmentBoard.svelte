@@ -5,6 +5,7 @@
    * itself). The augments the patch before had and this one does not are listed apart.
    */
   import Img from './Img.svelte';
+  import { num } from '../lib/format';
   import { tip, type HoverInfo } from '../lib/hover.svelte';
   import { loadGameData } from '../lib/gamedata.svelte';
   import { augmentTip } from '../lib/tips.svelte';
@@ -39,7 +40,7 @@
         { label: t('hex.win'), value: `${pct1(a.winRate)}%` },
         { label: t('hex.lift'), value: delta(a.delta), tone: a.delta > 0.005 ? 'up' : a.delta < -0.005 ? 'down' : '' },
         { label: t('hex.held'), value: `${share(a.pickRate)}%` },
-        { label: t('hex.games'), value: a.games.toLocaleString() },
+        { label: t('hex.games'), value: num(a.games) },
       ],
       { note: removed ? t('hex.removedNote', board.previousPatch ?? '') : a.lowSample ? t('meta.lowSample') : t('hex.augClick') },
     );

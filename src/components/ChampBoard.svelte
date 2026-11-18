@@ -5,6 +5,7 @@
    * best build" puts each champion's best three-item build's first item on its icon.
    */
   import Img from './Img.svelte';
+  import { num } from '../lib/format';
   import { champIcon, champName, dd, itemIcon, itemName } from '../lib/dd.svelte';
   import { tip, type HoverInfo } from '../lib/hover.svelte';
   import { t } from '../lib/i18n.svelte';
@@ -33,7 +34,7 @@
     const stats: HoverInfo['stats'] = [
       { label: t('hex.win'), value: `${pct1(c.winRate)}%` },
       { label: t('hex.rank'), value: `${c.rank} / ${board.champions.length}` },
-      { label: t('hex.games'), value: c.games.toLocaleString() },
+      { label: t('hex.games'), value: num(c.games) },
       { label: t('hex.playRate'), value: `${share(c.pickRate)}%` },
     ];
     if (c.previous !== null && board.previousPatch) {

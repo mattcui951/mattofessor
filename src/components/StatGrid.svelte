@@ -86,7 +86,7 @@
 <style>
   .sg {
     display: grid;
-    grid-template-columns: 72px minmax(0, 1fr);
+    grid-template-columns: 82px minmax(0, 1fr);
     gap: 6px;
   }
   .lab {
@@ -120,8 +120,11 @@
     place-items: center;
     padding: 6px 4px;
     text-align: center;
-    font: 700 13px/1.25 var(--font-score);
+    font: 700 12.5px/1.25 var(--font-score);
+    letter-spacing: 0.01em;
     white-space: pre-line;
+    overflow-wrap: anywhere;
+    hyphens: auto;
     letter-spacing: 0.04em;
     color: var(--tone);
     background: color-mix(in oklab, var(--tone) 16%, var(--panel-3));
@@ -210,6 +213,7 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
     overflow-wrap: anywhere;
+    hyphens: auto;
   }
   .v {
     display: grid;

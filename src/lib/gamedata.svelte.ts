@@ -1,16 +1,17 @@
 import { listen } from '@tauri-apps/api/event';
 import { api } from './api';
 import { i18n } from './i18n.svelte';
+import { pick, type LangId } from './locales';
 
-/** Text in both languages. */
-export type Bi = { en: string; zh: string };
+/** A text in English and as many other languages as the data has (`locales.ts`). */
+export type Bi = { en: string } & Partial<Record<LangId, string>>;
 
 /** A champion's Hextech ARAM modifier keys (`tools/refresh-data`). */
 export type ModKey = 'dealt' | 'received' | 'healing' | 'shielding' | 'tenacity' | 'abilityHaste' | 'energyRegen' | 'attackSpeed';
 export const MOD_KEYS: ModKey[] = ['dealt', 'received', 'healing', 'shielding', 'tenacity', 'abilityHaste', 'energyRegen', 'attackSpeed'];
 
 /** `text`: the wiki's English; `zh`: its Chinese, when translated. */
-export type AbilityMods = { key: 'P' | 'Q' | 'W' | 'E' | 'R' | '' | null; name: Bi; lines: { text: string; zh?: string; mode: 'aram' | 'mayhem' }[] };
+export type AbilityMods = { key: 'P' | 'Q' | 'W' | 'E' | 'R' | '' | null; name: Bi; lines: ({ text: string; mode: 'aram' | 'mayhem' } & Partial<Record<LangId, string>>)[] };
 /** `stats`: the modifiers in Hextech ARAM (fractions; ability haste in points). `aram`: what regular ARAM has where Hextech ARAM changed it. */
 export type ChampMods = { name: string; stats: Partial<Record<ModKey, number>>; aram: Partial<Record<ModKey, number>>; abilities: AbilityMods[] };
 export type RuleItem = { label: Bi; text: Bi; note?: Bi; highlight?: boolean };
@@ -39,7 +40,8 @@ export type NoteEntry = {
   augmentId?: number;
 };
 export type NoteSection = { title: string; intro: string; lines: NoteLine[]; entries: NoteEntry[] };
-export type Patch = { patch: string; url: string; date: string; rift: NoteSection[]; mayhem: NoteSection[] };
+/** `missing`: parts the English notes have and this language's notes lack (not "no changes"). */
+export type Patch = { patch: string; url: string; date: string; rift: NoteSection[]; mayhem: NoteSection[]; missing?: ('rift' | 'mayhem')[] };
 /** `patches`: Riot's notes (English); `zh.patches`: Tencent's official Chinese notes. */
 export type PatchNotes = { source: { name: string; url: string }; patches: Patch[]; zh?: { source: { name: string; url: string }; patches: Patch[] } };
 export type GameData = { checkedAt: string; mayhem: Mayhem; patchNotes: PatchNotes };
@@ -55,7 +57,9 @@ export function loadGameData() {
   gameData.loaded = true;
   const get = () =>
     api.gameData().then(
-      (d) => (gameData.data = d),
+      (d) => {
+        gameData.data = d;
+      },
       (e) => {
         console.warn('game data', e);
         gameData.loaded = false;
@@ -65,8 +69,18 @@ export function loadGameData() {
   get();
 }
 
-/** The UI language's side of a text. */
-export const bi = (b: Bi | undefined) => (b ? (i18n.lang === 'zh' ? b.zh : b.en) : '');
+/** A text in the UI language (English when the data has none in it). */
+export const bi = (b: Bi | undefined) => pick(b, i18n.lang);
+
+/** A wiki line in the UI language, or none: these are never shown in another language. */
+export const lineText = (l: { text: string } & Partial<Record<LangId, string>>) => (i18n.lang === 'en' ? l.text : (l[i18n.lang] ?? ''));
+
+/** The patch notes in the UI language (Riot's in English, Tencent's in Chinese), none for the others yet. */
+export function notesFor(notes: PatchNotes | undefined): { source: { name: string; url: string }; patches: Patch[] } | undefined {
+  if (!notes) return undefined;
+  if (i18n.lang === 'en') return notes;
+  return (notes as unknown as Record<string, { source: { name: string; url: string }; patches: Patch[] } | undefined>)[i18n.lang];
+}
 
 /** Modifiers that are a share of normal (damage, healing, shielding): shown as "90%". */
 const SHARE: ModKey[] = ['dealt', 'received', 'healing', 'shielding'];

@@ -33,7 +33,9 @@
   --warn: #ffa53d;       /* low disk, partial events */
   --mark: #e8e4ff;       /* bookmarks, manual */
 
-  --font-ui: 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif;
+  /* Set for the UI language (`locales.ts`): which CJK font draws Chinese, Japanese or Korean. */
+  --font-cjk: 'Microsoft YaHei UI';
+  --font-ui: 'Segoe UI Variable Text', 'Segoe UI', var(--font-cjk), system-ui, sans-serif;
   --font-score: 'Chakra Petch', 'Segoe UI', sans-serif;
 
   --r-sm: 3px;

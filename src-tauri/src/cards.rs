@@ -373,7 +373,7 @@ pub fn strip(game: win::Rect, band_y: i32, found: &[(i32, Line)]) -> win::Rect {
 struct Reader {
     /// Names in both languages, built once per bracket data set.
     names: Option<Arc<Names>>,
-    /// The OCR language that found cards last ("en" or "zh"): tried first.
+    /// The OCR language that found cards last (`lang` id): tried first.
     lang: &'static str,
     misses: u32,
     /// The cards the last read found (ids and places), shown once the next read agrees.
@@ -419,8 +419,8 @@ async fn prepare(core: &Arc<Core>, r: &mut Reader) {
     if let Err(e) = aramhex::bracket(&bracket).await {
         log::warn!("card reader stats: {e:#}");
     }
-    if status(core).game_lang == Some("zh") {
-        r.lang = "zh";
+    if let Some(l) = status(core).game_lang.filter(|l| ocr::available(l)) {
+        r.lang = l;
     }
     log::info!("card reader ready in {} ms", started.elapsed().as_millis());
 }
@@ -429,23 +429,17 @@ async fn prepare(core: &Arc<Core>, r: &mut Reader) {
 #[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ReaderStatus {
-    pub ocr_en: bool,
-    pub ocr_zh: bool,
-    /// "en" or "zh": the League client's language; none before it connected once.
+    /// The League client's language (`lang` id); none before it connected once.
     pub game_lang: Option<&'static str>,
+    /// Windows OCR's tag for it ("ja-JP"...), for installing it.
+    pub ocr_tag: Option<&'static str>,
     /// The game's language cannot be read on this PC (its OCR language is not installed).
     pub missing: bool,
 }
 
 pub fn status(core: &Core) -> ReaderStatus {
-    let (ocr_en, ocr_zh) = (ocr::available("en"), ocr::available("zh"));
-    let game_lang = core.client_locale.read().as_deref().map(|l| if l.starts_with("zh") { "zh" } else { "en" });
-    let missing = match game_lang {
-        Some("zh") => !ocr_zh,
-        Some(_) => !ocr_en,
-        None => false,
-    };
-    ReaderStatus { ocr_en, ocr_zh, game_lang, missing }
+    let game = core.client_locale.read().as_deref().map(crate::lang::from_client);
+    ReaderStatus { game_lang: game.map(|l| l.id), ocr_tag: game.map(|l| l.ocr), missing: game.is_some_and(|l| !ocr::available(l.id)) }
 }
 
 /// Mostly black: what a screen capture of a game in exclusive Full screen gives.
@@ -463,13 +457,23 @@ async fn names() -> anyhow::Result<Names> {
         .values()
         .flat_map(|m| m.keys().copied())
         .collect();
-    let en = crate::augments::all("en").await?;
-    let zh = crate::augments::all("zh").await?;
-    let all = en
-        .iter()
-        .chain(zh.iter())
-        .map(|(id, a)| (*id, a.name.as_str()));
+    // English and the client's language (Chinese too while the client is not known yet).
+    let game = core_lang();
+    let mut sets = vec![crate::augments::all("en").await?];
+    for l in [game.unwrap_or("zh")] {
+        if l != "en" {
+            sets.push(crate::augments::all(l).await?);
+        }
+    }
+    let all = sets.iter().flat_map(|s| s.iter()).map(|(id, a)| (*id, a.name.as_str()));
     Ok(Names::new(all, &hextech))
+}
+
+/// The League client's language, when it connected once.
+fn core_lang() -> Option<&'static str> {
+    let core = crate::core::get()?;
+    let locale = core.client_locale.read().clone()?;
+    Some(crate::lang::from_client(&locale).id)
 }
 
 /// Your champion in a Hextech ARAM game, if that is what is being played.
@@ -536,8 +540,8 @@ async fn step(core: &Arc<Core>, r: &mut Reader) -> bool {
         let st = status(core);
         let mode = crate::display::window_mode().await.unwrap_or("unknown");
         log::info!(
-            "card reader: game window {}x{} at {},{}, League {mode}, OCR en={} zh={}, game language {}",
-            game.w, game.h, game.x, game.y, st.ocr_en, st.ocr_zh, st.game_lang.unwrap_or("?")
+            "card reader: game window {}x{} at {},{}, League {mode}, game language {} (OCR {})",
+            game.w, game.h, game.x, game.y, st.game_lang.unwrap_or("?"), if st.missing { "missing" } else { "ok" }
         );
         if st.missing {
             log::warn!("card reader: Windows cannot read {} text (its OCR language is not installed)", st.game_lang.unwrap_or("?"));
@@ -552,8 +556,11 @@ async fn step(core: &Arc<Core>, r: &mut Reader) -> bool {
             log::warn!("card reader: the game screen captures as black (League in Full screen?)");
             return Some(Err(()));
         }
-        let other = if first == "en" { "zh" } else { "en" };
-        for lang in [first, other] {
+        let mut langs = vec![first];
+        if first != "en" {
+            langs.push("en");
+        }
+        for lang in langs {
             if !ocr::available(lang) {
                 continue;
             }

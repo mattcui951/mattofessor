@@ -3,6 +3,7 @@ import { api } from './api';
 import { applySettings } from './appearance.svelte';
 import { loadStatic } from './dd.svelte';
 import { hasKey, i18n, t, type Lang } from './i18n.svelte';
+import { isLang, locale } from './locales';
 import type { BuildMode, InGame, LiveState, RiotStatus, Settings, Summoner, UpdateState } from './types';
 
 export type Route =
@@ -53,7 +54,12 @@ let toastId = 0;
 export function toast(text: string, tone: Toast['tone'] = 'info') {
   const id = ++toastId;
   app.toasts.push({ id, text, tone });
-  setTimeout(() => (app.toasts = app.toasts.filter((x) => x.id !== id)), tone === 'error' ? 7000 : 4000);
+  setTimeout(
+    () => {
+      app.toasts = app.toasts.filter((x) => x.id !== id);
+    },
+    tone === 'error' ? 7000 : 4000,
+  );
 }
 
 /** Backend errors look like "[code:arg] English text"; known codes are shown translated. */
@@ -151,6 +157,25 @@ export async function checkUpdate() {
   }
 }
 
+/** A check older than this is redone when the window is opened or focused. */
+const STALE_CHECK_MS = 10 * 60_000;
+
+/**
+ * Looks for a new version when the last look is old (the window was just opened from the tray,
+ * or came back to the front), so a release shows up without pressing Check for updates.
+ */
+export async function checkUpdateIfStale() {
+  if (!app.settings?.checkUpdates) return;
+  const u = app.update;
+  if (['checking', 'downloading', 'installing'].includes(u.phase)) return;
+  if (u.checkedAt && Date.now() - u.checkedAt < STALE_CHECK_MS) return;
+  try {
+    app.update = await api.checkUpdate();
+  } catch {
+    /* shown on the Settings page */
+  }
+}
+
 /** Download and run the installer; the app closes and comes back on the new version. */
 export async function installUpdate() {
   try {
@@ -162,12 +187,13 @@ export async function installUpdate() {
 
 export function uiLang(): Lang {
   const s = app.settings?.language ?? 'auto';
-  return s === 'en' || s === 'zh' ? s : app.clientLang;
+  return isLang(s) ? s : isLang(app.clientLang) ? app.clientLang : 'en';
 }
 
 async function applyLang() {
   i18n.lang = uiLang();
-  document.documentElement.lang = i18n.lang === 'zh' ? 'zh-CN' : 'en';
+  document.documentElement.lang = locale(i18n.lang).tag;
+  document.documentElement.style.setProperty('--font-cjk', locale(i18n.lang).cjkFont);
   await loadStatic(i18n.lang);
 }
 
@@ -214,6 +240,14 @@ export async function init() {
   if (location.hash.startsWith('#/')) app.route = routeFrom(location.hash);
   await applyPrefs();
   app.ready = true;
+  // The main window opened from the tray, or brought back to the front, looks for a new version.
+  if (!['#overlay', '#spells', '#cards'].includes(location.hash)) {
+    setTimeout(checkUpdateIfStale, 3000);
+    window.addEventListener('focus', () => checkUpdateIfStale());
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') checkUpdateIfStale();
+    });
+  }
   if (b.updatedFrom) toast(t('update.done', b.version), 'good');
 
   listen<LiveState>('live', (e) => {

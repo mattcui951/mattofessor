@@ -16,13 +16,23 @@ export const content = $state({
 export function loadContent() {
   if (content.loaded) return;
   content.loaded = true;
-  listen<Content>('content', (e) => (content.data = e.payload));
-  listen<ContentStatus>('content-status', (e) => (content.status = e.payload));
+  listen<Content>('content', (e) => {
+    content.data = e.payload;
+  });
+  listen<ContentStatus>('content-status', (e) => {
+    content.status = e.payload;
+  });
   api.content().then(
-    (c) => (content.data = c),
-    () => (content.loaded = false),
+    (c) => {
+      content.data = c;
+    },
+    () => {
+      content.loaded = false;
+    },
   );
-  api.contentStatus().then((s) => (content.status = s));
+  api.contentStatus().then((s) => {
+    content.status = s;
+  });
 }
 
 /** Editing is on: admin mode, in the admin's copy (anyone else never sees the switch). */

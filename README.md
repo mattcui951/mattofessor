@@ -146,6 +146,24 @@ Limits of the client API, found by testing against the live client:
 - **Lane labels are unreliable**, so roles come from smite, support items and Riot's
   recommended positions per champion (see `src-tauri/src/positions.rs`).
 
+## Languages
+
+English, Simplified Chinese, Traditional Chinese (Taiwan), Japanese, Korean, Spanish and French.
+Settings > Language picks one, or follows the League client. Each language shows only its own
+text: game names, item and augment descriptions, rules and patch notes come from Riot's data in
+that language (Data Dragon, the game's string tables, Riot's localized patch notes; Tencent's for
+Simplified Chinese). Where a text has no translation yet (the wiki's ability change lines outside
+English and Chinese), it is left out and counted, never shown in another language.
+
+To add a language:
+
+1. `src/lib/locales.ts` and `src-tauri/src/lang.rs`: one entry each (a test checks they match):
+   Data Dragon locale, CommunityDragon folder, OCR tag, League client locales, font.
+2. `src/lib/locales/<id>.ts`: the dictionary, every key of `en.ts` (a missing key is a type error,
+   a test checks the `{0}` placeholders), added to `dicts` in `src/lib/i18n.svelte.ts`.
+3. `tools/refresh-data/`: the language in `LANGS` and `RIOT_LOCALES` (refresh.mjs), its wording in
+   `WORDS` and `STATS` (augments.mjs), and its text in every entry of `rules.json`.
+
 ## Appearance
 
 Settings > Appearance: 25 built-in themes (Arcade, Rosé Pine / Moon / Dawn, Catppuccin Mocha /

@@ -1,5 +1,6 @@
 import { invoke } from '@tauri-apps/api/core';
 import type { GameData } from './gamedata.svelte';
+import type { LangId } from './locales';
 import type { AugBoard, Board, ChampionPage, Combos } from './types';
 import type { AramBracket, AramChampion, AramOverview, AramPicks, Augment, Build, BuildMode, Content, ContentEdit, ContentStatus, FullGame, ImportResult, InGame, ItemOverview, LiveState, MyScore, PlayerScore, Profile, RiftTiers, RiotStatus, Settings, StaticData, Summoner, UpdateState } from './types';
 
@@ -8,7 +9,7 @@ export type Boot = {
   version: string;
   connected: boolean;
   me: Summoner | null;
-  language: 'en' | 'zh';
+  language: LangId;
   live: LiveState;
   ingame: InGame | null;
   riotStatus: RiotStatus;
@@ -64,7 +65,7 @@ export const api = {
   aramCombos: (patch: string, bracket: AramBracket, minGames: number, sort: 'win' | 'delta' | 'games', champions: number[], augments: number[]) =>
     invoke<Combos>('aram_combos', { patch, bracket, minGames, sort, champions, augments }),
   aramChampionPage: (championId: number, patch: string, bracket: AramBracket) => invoke<ChampionPage>('aram_champion_page', { championId, patch, bracket }),
-  cardReaderStatus: () => invoke<{ ocrEn: boolean; ocrZh: boolean; gameLang: 'en' | 'zh' | null; missing: boolean }>('card_reader_status'),
+  cardReaderStatus: () => invoke<{ gameLang: LangId | null; missing: boolean }>('card_reader_status'),
   setRiotKey: (key: string) => invoke<RiotStatus>('set_riot_key', { key }),
   checkUpdate: () => invoke<UpdateState>('check_update'),
   installUpdate: () => invoke<void>('install_update'),

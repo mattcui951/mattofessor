@@ -4,7 +4,7 @@
   import ScoreBadge from './ScoreBadge.svelte';
   import { api } from '../lib/api';
   import { champIcon, champName, itemIcon, itemName, runeIcon, spellIcon } from '../lib/dd.svelte';
-  import { ago, compact, duration, kdaRatio, queueName } from '../lib/format';
+  import { ago, compact, dec, duration, kdaRatio, num, queueName } from '../lib/format';
   import { t } from '../lib/i18n.svelte';
   import { augment, loadAugments } from '../lib/meta.svelte';
   import { app, errorText, updateSettings } from '../lib/state.svelte';
@@ -84,7 +84,7 @@
   const max = $derived({ dmg: top((p) => p.dmg), taken: top((p) => p.taken), mit: top((p) => p.mit), heal: top((p) => p.heal) });
   // Remembered across games and restarts: items and gold, or the damage and healing numbers.
   const combat = $derived(app.settings?.matchView === 'combat');
-  const exact = (v: number) => v.toLocaleString('en-US');
+  const exact = num;
   const withAugs = $derived(players.some((p) => p.augs.length > 0));
 </script>
 
@@ -125,7 +125,7 @@
       {#if perf}<ScoreBadge score={perf.score} badge={perf.badge} place={perf.place} players={perf.players} />{/if}
     </div>
     <div class="stats">
-      <span class="num">{t('match.cs', g.cs)} <em>({(g.cs / Math.max(1, g.duration / 60)).toFixed(1)})</em></span>
+      <span class="num">{t('match.cs', g.cs)} <em>({dec(g.cs / Math.max(1, g.duration / 60))})</em></span>
       <span class="num">{compact(g.damage)} {t('match.dmg')}</span>
     </div>
     <div class="items">
