@@ -1,7 +1,7 @@
 # Status
 
 Updated: 2026-11-19
-Version: 1.0.20
+Version: 1.0.21
 
 ## In progress
 
@@ -82,7 +82,7 @@ Version: 1.0.20
 
 ## Recently done
 
-- Faster pages (2026-11-19, not released yet). Measured first: the backend already answered repeat
+- 1.0.21 (2026-11-19): faster pages. Measured first: the backend already answered repeat
   calls in 2-20 ms, but every page is rebuilt on each visit and asked again, and the first call of
   a session waited 0.5-1.8 s (AramHex tables from disk, OP.GG over the network).
   - `src/lib/cache.ts`: answers kept for the session per page and parameters. A revisit draws at
