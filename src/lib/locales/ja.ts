@@ -4,6 +4,8 @@ import type { Dict } from './en';
 export const ja: Dict = {
   // App
   'nav.profile': "プロフィール",
+  'rail.collapse': "サイドバーを折りたたむ",
+  'rail.expand': "サイドバーを展開",
   'rail.profile': "プロフィール",
   'rail.live': "対戦中",
   'rail.meta': "メタ",

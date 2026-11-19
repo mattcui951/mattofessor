@@ -4,6 +4,8 @@ import type { Dict } from './en';
 export const es: Dict = {
   // App
   'nav.profile': "Perfil",
+  'rail.collapse': "Contraer la barra lateral",
+  'rail.expand': "Expandir la barra lateral",
   'rail.profile': "Perfil",
   'rail.live': "Partida",
   'rail.meta': "Meta",

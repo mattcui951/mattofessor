@@ -6,6 +6,8 @@ import type { Dict } from './en';
 
 export const zhTW: Dict = {
   'nav.profile': '個人資料',
+  'rail.collapse': '收起側欄',
+  'rail.expand': '展開側欄',
   'rail.profile': '個人資料',
   'rail.live': '當前對局',
   'rail.meta': '版本強勢',

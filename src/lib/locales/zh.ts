@@ -3,6 +3,8 @@ import type { Dict } from './en';
 
 export const zh: Dict = {
   'nav.profile': '个人资料',
+  'rail.collapse': '收起侧栏',
+  'rail.expand': '展开侧栏',
   'rail.profile': '个人资料',
   'rail.live': '当前对局',
   'rail.meta': '版本强势',

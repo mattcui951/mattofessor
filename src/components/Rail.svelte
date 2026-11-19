@@ -1,5 +1,8 @@
 <script lang="ts">
-  /** The main navigation: an icon and a short label per page; the full name is the tooltip. */
+  /**
+   * The main navigation: an icon and a short label per page; the full name is the tooltip. The
+   * round button on its edge folds it to the icons alone (remembered in this window's storage).
+   */
   import Icon from './Icon.svelte';
   import UpdateNotice from './UpdateNotice.svelte';
   import { app, go, type Route } from '../lib/state.svelte';
@@ -18,6 +21,24 @@
     { route: 'guide', icon: 'book' },
     { route: 'patches', icon: 'news' },
   ];
+
+  const KEY = 'rail-collapsed';
+  let collapsed = $state(read());
+  function read(): boolean {
+    try {
+      return localStorage.getItem(KEY) === '1';
+    } catch {
+      return false;
+    }
+  }
+  function toggle() {
+    collapsed = !collapsed;
+    try {
+      localStorage.setItem(KEY, collapsed ? '1' : '0');
+    } catch {
+      /* this session only */
+    }
+  }
 </script>
 
 {#snippet item(route: Route['name'], icon: string, also: Route['name'][] = [])}
@@ -29,7 +50,16 @@
   </button>
 {/snippet}
 
-<nav class="rail" aria-label={t('common.mainNav')}>
+<nav class="rail" class:collapsed aria-label={t('common.mainNav')}>
+  <button
+    class="fold"
+    aria-expanded={!collapsed}
+    aria-label={collapsed ? t('rail.expand') : t('rail.collapse')}
+    title={collapsed ? t('rail.expand') : t('rail.collapse')}
+    onclick={toggle}
+  >
+    <Icon name={collapsed ? 'chevron-right' : 'chevron-left'} size={13} />
+  </button>
   {#each PAGES as p (p.route)}{@render item(p.route, p.icon)}{/each}
   <div class="grow"></div>
   {@render item('settings', 'settings', ['appearance', 'riotGuide'])}
@@ -38,7 +68,10 @@
 
 <style>
   .rail {
+    position: relative;
+    z-index: 2;
     width: 148px;
+    transition: width 180ms var(--ease-out);
     flex: none;
     display: flex;
     flex-direction: column;
@@ -46,6 +79,46 @@
     padding: 10px 8px;
     background: var(--bg-sunk);
     border-right: 1px solid var(--seam);
+  }
+  /* Folded: icons only, as wide as the icon column; the labels stay in the tooltips. */
+  .rail.collapsed {
+    width: 56px;
+  }
+  .rail.collapsed .label {
+    display: none;
+  }
+  .rail.collapsed .item {
+    justify-content: center;
+    padding: 0;
+  }
+  .rail.collapsed .dot {
+    left: 26px;
+  }
+  /* A small round button on the rail's right edge. */
+  .fold {
+    position: absolute;
+    top: 50%;
+    right: -11px;
+    width: 22px;
+    height: 22px;
+    margin-top: -11px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--panel-2);
+    border: 1px solid var(--seam-strong);
+    color: var(--text-3);
+    opacity: 0.75;
+    transition: opacity 120ms, color 120ms, background 120ms, transform 120ms var(--ease-out);
+  }
+  .rail:hover .fold,
+  .fold:focus-visible {
+    opacity: 1;
+  }
+  .fold:hover {
+    color: var(--text);
+    background: var(--panel-3);
+    transform: scale(1.08);
   }
   .grow {
     flex: 1;

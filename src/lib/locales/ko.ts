@@ -4,6 +4,8 @@ import type { Dict } from './en';
 export const ko: Dict = {
   // App
   'nav.profile': "프로필",
+  'rail.collapse': "사이드바 접기",
+  'rail.expand': "사이드바 펼치기",
   'rail.profile': "프로필",
   'rail.live': "진행 중",
   'rail.meta': "메타",

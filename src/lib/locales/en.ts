@@ -5,6 +5,8 @@
 export const en = {
   // App
   'nav.profile': 'Profile',
+  'rail.collapse': 'Collapse sidebar',
+  'rail.expand': 'Expand sidebar',
   'rail.profile': 'Profile',
   'rail.live': 'Live game',
   'rail.meta': 'Meta',

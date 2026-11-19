@@ -1,7 +1,7 @@
 # Status
 
 Updated: 2026-11-18
-Version: 1.0.17
+Version: 1.0.18
 
 ## In progress
 
@@ -85,6 +85,8 @@ Version: 1.0.17
 
 ## Recently done
 
+- 1.0.18 (2026-11-19): the sidebar folds to its icons with a round button on its edge
+  (Rail.svelte, remembered in localStorage; labels stay as tooltips). Checked in the browser preview.
 - 1.0.17, found in a UI review with the mock game (2026-11-18):
   - Hextech ARAM augment picks (Live page and in-game panel) were refetched, and shown as
     "loading", on every live update (about once a second): the effect read a field of the live
