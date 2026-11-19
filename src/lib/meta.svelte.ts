@@ -76,9 +76,9 @@ export function aramTier(winRate: number): 'S' | 'A' | 'B' | 'C' | 'D' {
   return TIER_LINES.find((l) => winRate >= l.min)!.tier;
 }
 
-/** OP.GG tier 1 (OP) to 5 as a letter. */
+/** OP.GG tier as a letter: 0 is its OP tier (above tier 1), then 1 to 5 as S to D. */
 export function riftTier(tier: number): string {
-  return ['', 'S', 'A', 'B', 'C', 'D'][tier] ?? '';
+  return ['OP', 'S', 'A', 'B', 'C', 'D'][tier] ?? '';
 }
 
 /** The client's game mode is an ARAM variant (Hextech ARAM is "KIWI"). */

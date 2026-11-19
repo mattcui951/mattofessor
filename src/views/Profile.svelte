@@ -61,6 +61,38 @@
     };
   });
 
+  /** The games by day, newest first: Today, Yesterday, then dates, each with its wins and losses. */
+  const days = $derived.by(() => {
+    const tag = locale(i18n.lang).tag;
+    const dayKey = (ms: number) => {
+      const d = new Date(ms);
+      return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+    };
+    const today = dayKey(now);
+    const yesterday = dayKey(now - 86_400_000);
+    const out: { key: string; label: string; wins: number; losses: number; games: typeof games }[] = [];
+    for (const g of games) {
+      const key = dayKey(g.created);
+      let d = out[out.length - 1];
+      if (!d || d.key !== key) {
+        const label =
+          key === today
+            ? t('time.today')
+            : key === yesterday
+              ? t('time.yesterday')
+              : new Date(g.created).toLocaleDateString(tag, { month: 'short', day: 'numeric', weekday: 'short' });
+        d = { key, label, wins: 0, losses: 0, games: [] };
+        out.push(d);
+      }
+      d.games.push(g);
+      if (!g.remake) {
+        if (g.win) d.wins++;
+        else d.losses++;
+      }
+    }
+    return out;
+  });
+
   /** Last recorded rank of each month, newest first (solo preferred). */
   const months = $derived.by(() => {
     const pts = (profile?.rankHistory ?? []) as RankPoint[];
@@ -110,7 +142,17 @@
       <button class="btn" onclick={findMe}>{t('common.retry')}</button>
     </div>
   {:else if !profile || !card}
-    <div class="empty"><p>{t('common.loading')}</p></div>
+    <!-- Shaped like the page that comes: the side column, then match rows. -->
+    <aside class="side" aria-busy="true" aria-label={t('common.loading')}>
+      <div class="who"><span class="skel" style="width:64px;height:64px"></span><span class="skel" style="width:140px;height:20px"></span></div>
+      <span class="skel" style="height:64px"></span>
+      <span class="skel" style="height:120px"></span>
+      <span class="skel" style="height:180px"></span>
+    </aside>
+    <main class="main" aria-hidden="true">
+      <span class="skel" style="height:32px;max-width:440px"></span>
+      <div class="list">{#each Array(7) as _, i (i)}<span class="skel" style="height:74px"></span>{/each}</div>
+    </main>
   {:else}
     <aside class="side">
       <div class="who">
@@ -122,8 +164,15 @@
         </div>
       </div>
 
-      {@render rankCard(t('profile.solo'), card.ranked.solo)}
-      {@render rankCard(t('profile.flex'), card.ranked.flex)}
+      <!-- A card for each ranked queue; the unranked ones share one short line. -->
+      {#if card.ranked.solo}{@render rankCard(t('profile.solo'), card.ranked.solo)}{/if}
+      {#if card.ranked.flex}{@render rankCard(t('profile.flex'), card.ranked.flex)}{/if}
+      {#if !card.ranked.solo || !card.ranked.flex}
+        <div class="unranked">
+          <span>{[!card.ranked.solo && t('profile.solo'), !card.ranked.flex && t('profile.flex')].filter(Boolean).join(' · ')}</span>
+          <b>{t('common.unranked')}</b>
+        </div>
+      {/if}
 
       <section>
         <div class="label">{t('profile.pastRanks')}</div>
@@ -237,8 +286,14 @@
         {/if}
       </div>
       <div class="list">
-        {#each games as g (g.gameId)}
-          <MatchRow {g} puuid={card.summoner.puuid} perf={scoreOf(entry, g.gameId)} onprofile={(id) => go({ name: 'profile', puuid: id })} />
+        {#each days as d (d.key)}
+          <div class="day">
+            <h4>{d.label}</h4>
+            <span class="num">{t('row.recentWr', d.wins, d.losses)}</span>
+          </div>
+          {#each d.games as g (g.gameId)}
+            <MatchRow {g} puuid={card.summoner.puuid} perf={scoreOf(entry, g.gameId)} onprofile={(id) => go({ name: 'profile', puuid: id })} />
+          {/each}
         {:else}
           <p class="dim pad">{entry?.partial ? t('profile.loadingGames') : t('profile.empty')}</p>
         {/each}
@@ -504,6 +559,39 @@
   .list {
     display: grid;
     gap: 6px;
+  }
+  .day {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-top: 8px;
+    padding: 0 2px;
+  }
+  .day:first-child {
+    margin-top: 0;
+  }
+  .day h4 {
+    font-size: 12.5px;
+    color: var(--text-2);
+  }
+  .day .num {
+    font-size: 12px;
+    color: var(--text-3);
+  }
+  .unranked {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 13px;
+    border: 1px solid var(--seam);
+    border-radius: var(--r-lg);
+    background: var(--panel);
+    font-size: 12.5px;
+    color: var(--text-3);
+  }
+  .unranked b {
+    color: var(--text-2);
+    font-weight: 600;
   }
   .dim {
     color: var(--text-3);

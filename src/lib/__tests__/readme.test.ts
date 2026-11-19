@@ -27,7 +27,7 @@ describe('READMEs', () => {
     it(`${readme(l.id)} starts with the language bar`, () => {
       const text = texts[l.id] ?? '';
       expect(text.split(/\r?\n/)[2]).toBe(bar(l.id));
-      expect(text).not.toContain('—');
+      expect(text).not.toContain(String.fromCharCode(0x2014));
     });
   }
 });

@@ -19,7 +19,8 @@
     // Only worth a line when it differs from the current rank.
     return best && (!rank || tierScore(best) > tierScore(rank)) ? best : null;
   });
-  const recent = $derived((card?.recent ?? []).filter((g) => !g.remake).slice(0, 5));
+  // Up to 10 games; the column shows as many as fit (5 at the narrowest).
+  const recent = $derived((card?.recent ?? []).filter((g) => !g.remake).slice(0, 10));
   const champ = $derived(card?.champ);
   const wr = $derived(card ? pct(card.wins, card.games) : 0);
   const champWr = $derived(champ ? pct(champ.wins, champ.games) : 0);
@@ -176,7 +177,9 @@
   .main {
     width: 100%;
     display: grid;
-    grid-template-columns: 70px minmax(0, 1fr) 104px 238px 124px;
+    /* The name and tags column stops growing at 300px; extra width goes to the recent games,
+       which fill it with more games instead of leaving a gap between name and stats. */
+    grid-template-columns: 70px minmax(150px, 300px) 104px minmax(238px, 1fr) 124px;
     align-items: center;
     gap: 10px;
     padding: 6px 8px;
@@ -322,8 +325,12 @@
   }
   .recent {
     display: flex;
-    gap: 2px;
+    flex-wrap: wrap;
+    gap: 0 2px;
     justify-content: flex-start;
+    /* One line of games: the ones that do not fit wrap out of sight. */
+    height: 44px;
+    overflow: hidden;
   }
   .g {
     display: grid;

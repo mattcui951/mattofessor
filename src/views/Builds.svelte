@@ -7,7 +7,7 @@
 </script>
 
 <script lang="ts">
-  import { tick } from 'svelte';
+  import { tick, untrack } from 'svelte';
   import { locale } from '../lib/locales';
   import HexFilter from '../components/HexFilter.svelte';
   import MayhemBuild from '../components/MayhemBuild.svelte';
@@ -80,6 +80,29 @@
   });
   const lanesOn = $derived(mode === 'rift' && tierRows.length > 0);
 
+  // The champions opened last (newest first), kept in this window's storage.
+  const RECENT_KEY = 'builds-recent';
+  function readRecent(): number[] {
+    try {
+      const v = JSON.parse(localStorage.getItem(RECENT_KEY) ?? '[]');
+      return Array.isArray(v) ? v.filter((x) => Number.isInteger(x) && x > 0).slice(0, 8) : [];
+    } catch {
+      return [];
+    }
+  }
+  let recent = $state<number[]>(readRecent());
+  function remember(id: number) {
+    recent = [id, ...recent.filter((x) => x !== id)].slice(0, 8);
+    try {
+      localStorage.setItem(RECENT_KEY, JSON.stringify(recent));
+    } catch {
+      /* this session only */
+    }
+  }
+
+  /** Your champion while a game or champ select runs. */
+  const liveChamp = $derived(app.live.teams.flatMap((tm) => tm.players).find((p) => p.me)?.championId ?? 0);
+
   $effect(() => {
     if (startMode) mode = startMode;
     if (championId) {
@@ -87,7 +110,17 @@
       selRole = role ?? '';
       // Opened from search or a link: bring the champion into view in the picker.
       tick().then(() => grid?.querySelector('.c.on')?.scrollIntoView({ block: 'nearest' }));
+    } else if (!selected) {
+      // Opened from the navigation: the champion you play now, else the one you looked at last,
+      // instead of an empty page.
+      const first = liveChamp > 0 ? liveChamp : recent[0];
+      if (first) selected = first;
     }
+  });
+  $effect(() => {
+    const id = selected;
+    // `remember` reads the list it writes: untracked, or the effect would run itself again.
+    if (id) untrack(() => remember(id));
   });
 
   // Any language or pinyin; best matches first while searching, alphabetical otherwise.
@@ -165,7 +198,9 @@
   const page = $derived(build?.runes[0]?.value);
   const primaryTree = $derived(dd.data?.trees.find((tr) => tr.id === page?.primary));
   const subTree = $derived(dd.data?.trees.find((tr) => tr.id === page?.sub));
-  const p = (n: number) => (build ? pct(n, build.games) : 0);
+  // A share of the build's games. OP.GG counts some parts (starting items) over a larger sample
+  // than the build itself (Ahri mid: 14,064 starter games of 12,821), so it is capped at 100%.
+  const p = (n: number) => (build ? Math.min(100, pct(n, build.games)) : 0);
   const showBuild = $derived(build && build.championId === selected && build.mode === mode);
 </script>
 
@@ -193,6 +228,16 @@
       </div>
     {/if}
     {#if admin}<p class="written"><span>{t('mayhem.done', written, champs.length)}</span><PublishState /></p>{/if}
+    {#if recent.length > 1 && !query.trim()}
+      <div class="recent" aria-label={t('builds.recent')}>
+        <span class="rlabel">{t('builds.recent')}</span>
+        {#each recent as id (id)}
+          <button class="rc" class:on={selected === id} title={dd.data?.champions[String(id)]?.name} onclick={() => pickChamp(id, null)}>
+            <Img src={champIcon(id)} size={28} alt={dd.data?.champions[String(id)]?.name} />
+          </button>
+        {/each}
+      </div>
+    {/if}
     <div class="grid" bind:this={grid}>
       {#each groups as g (g.lane ?? 'all')}
         {#if lane === 'off' && g.lane}<h4 class="glabel">{t('builds.offMetaLane', roleName(g.lane))}</h4>{/if}
@@ -232,7 +277,12 @@
     {:else if !selected}
       <div class="empty"><Icon name="builds" size={30} /><p>{t('builds.pickChamp')}</p></div>
     {:else if loading && !showBuild}
-      <div class="empty"><p>{t('common.loading')}</p></div>
+      <!-- Shaped like the page that comes: the champion's head, then the cards. -->
+      <div class="loading" aria-busy="true" aria-label={t('common.loading')}>
+        <div class="lhead"><span class="skel" style="width:56px;height:56px"></span><div><span class="skel" style="width:160px;height:22px"></span><span class="skel" style="width:240px;height:14px;margin-top:8px"></span></div></div>
+        <span class="skel" style="height:250px"></span>
+        <div class="lrow"><span class="skel" style="height:170px"></span><span class="skel" style="height:170px"></span></div>
+      </div>
     {:else if !showBuild || !build}
       <div class="empty">
         <Img src={champIcon(selected)} size={56} />
@@ -473,6 +523,45 @@
     color: var(--text-3);
     font-size: 12.5px;
   }
+  .recent {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    padding: 0 12px 8px;
+  }
+  .rlabel {
+    width: 100%;
+    color: var(--text-3);
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+  .rc {
+    padding: 2px;
+    border-radius: var(--r-md);
+    transition: background 120ms, transform 140ms var(--ease-out);
+  }
+  .rc:hover {
+    background: var(--panel-2);
+    transform: translateY(-2px);
+  }
+  .rc.on {
+    box-shadow: inset 0 0 0 2px var(--you);
+  }
+  .loading {
+    display: grid;
+    gap: 14px;
+  }
+  .lhead {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+  }
+  .lrow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
   .grid {
     overflow-y: auto;
     display: grid;
@@ -490,6 +579,7 @@
     color: var(--text-2);
     font-size: 11px;
     min-width: 0;
+    transition: background 120ms, color 120ms, transform 140ms var(--ease-out);
   }
   .c span {
     max-width: 100%;
@@ -500,6 +590,7 @@
   .c:hover {
     background: var(--panel-2);
     color: var(--text);
+    transform: translateY(-2px);
   }
   .c.on {
     background: var(--panel-3);
@@ -589,16 +680,16 @@
     background: var(--text-3);
   }
   .tier.tS {
-    background: var(--death);
+    background: var(--tier-S);
   }
   .tier.tA {
-    background: var(--objective);
+    background: var(--tier-A);
   }
   .tier.tB {
-    background: var(--win);
+    background: var(--tier-B);
   }
   .tier.tC {
-    background: var(--text-2);
+    background: var(--tier-C);
   }
   .sub {
     color: var(--text-3);

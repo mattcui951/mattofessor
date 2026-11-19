@@ -141,6 +141,14 @@
     return sorted(rows, k[sortKey] ?? k.tier, (a, b) => a.tier - b.tier || b.winRate - a.winRate);
   });
 
+  /** Sorted by tier (the default): rows grouped under one band per tier. */
+  const byTier = $derived(!sortKey || sortKey === 'tier');
+  const tierCount = $derived.by(() => {
+    const m = new Map<number, number>();
+    for (const r of riftRows) m.set(r.tier, (m.get(r.tier) ?? 0) + 1);
+    return m;
+  });
+
   const champRows = $derived.by(() => {
     const rows = (board?.champions ?? []).filter((r) => (!champSet || champSet.has(r.championId)) && (cls === 'all' || dd.data?.champions[String(r.championId)]?.tags.includes(cls)));
     const k: Record<string, (r: (typeof rows)[number]) => number> = { win: (r) => r.winRate, pick: (r) => r.pickRate, games: (r) => r.games, move: (r) => (r.previous === null ? -1 : r.winRate - r.previous) };
@@ -285,7 +293,7 @@
       {#if error && !rift}
         <p class="empty-row">{error}</p>
       {:else if !rift}
-        <p class="empty-row">{t('common.loading')}</p>
+        <div class="wait" aria-busy="true" aria-label={t('common.loading')}>{#each Array(12) as _, i (i)}<span class="skel" style="height:34px"></span>{/each}</div>
       {:else}
         <table>
           <thead>
@@ -302,9 +310,13 @@
           </thead>
           <tbody>
             {#each riftRows as r, i (r.championId + r.position)}
+              <!-- In tier order, a band opens each tier, so a run of the same letter reads as one group. -->
+              {#if byTier && (i === 0 || riftRows[i - 1].tier !== r.tier)}
+                <tr class="band t{riftTier(r.tier)}"><td colspan={lane === 'all' ? 8 : 7}><span class="tier t{riftTier(r.tier)}">{riftTier(r.tier)}</span><span class="bn num">{tierCount.get(r.tier) ?? 0}</span></td></tr>
+              {/if}
               <tr onclick={() => go({ name: 'builds', championId: r.championId, role: r.position, mode: 'rift' })}>
                 <td class="n num">{i + 1}</td>
-                <td><span class="tier t{riftTier(r.tier)}">{riftTier(r.tier)}</span></td>
+                <td>{#if !byTier}<span class="tier t{riftTier(r.tier)}">{riftTier(r.tier)}</span>{/if}</td>
                 <td><span class="champ"><Img src={champIcon(r.championId)} size={28} />{champName(r.championId)}</span></td>
                 {#if lane === 'all'}<td class="dim">{roleName(r.position)}</td>{/if}
                 <td class="num" class:hi={r.winRate >= 0.52} class:lo={r.winRate < 0.48}>{pct1(r.winRate)}%</td>
@@ -575,17 +587,46 @@
     background: var(--text-3);
     white-space: nowrap;
   }
+  tr.band td {
+    padding: 10px 12px 6px;
+    background: color-mix(in oklab, var(--tone, var(--text-3)) 9%, var(--panel));
+    box-shadow: inset 3px 0 0 var(--tone, var(--text-3));
+    cursor: default;
+  }
+  tr.band:hover td {
+    background: color-mix(in oklab, var(--tone, var(--text-3)) 9%, var(--panel));
+  }
+  tr.band.tOP { --tone: var(--tier-OP); }
+  tr.band.tS { --tone: var(--tier-S); }
+  tr.band.tA { --tone: var(--tier-A); }
+  tr.band.tB { --tone: var(--tier-B); }
+  tr.band.tC { --tone: var(--tier-C); }
+  tr.band.tD { --tone: var(--tier-D); }
+  .bn {
+    margin-left: 8px;
+    color: var(--text-3);
+    font-size: 12px;
+  }
+  .wait {
+    display: grid;
+    gap: 6px;
+    padding: 10px;
+  }
+  .tier.tOP {
+    background: var(--tier-OP);
+    box-shadow: var(--tier-OP-ring);
+  }
   .tier.tS {
-    background: var(--death);
+    background: var(--tier-S);
   }
   .tier.tA {
-    background: var(--objective);
+    background: var(--tier-A);
   }
   .tier.tB {
-    background: var(--win);
+    background: var(--tier-B);
   }
   .tier.tC {
-    background: var(--text-2);
+    background: var(--tier-C);
   }
   .rar {
     font: 600 11.5px var(--font-score);

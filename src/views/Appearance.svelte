@@ -11,6 +11,7 @@
   import {
     ACCENT_KEYS,
     BUILT_IN,
+    DEFAULT_THEME,
     SCORE_FONTS,
     UI_FONTS,
     contrast,
@@ -62,7 +63,7 @@
   function remove() {
     const list = appearance.custom.filter((x) => x.id !== active.id);
     confirmDelete = false;
-    saveCustom(list, 'arcade');
+    saveCustom(list, DEFAULT_THEME);
   }
 
   async function exportTheme() {
@@ -104,7 +105,7 @@
   }
 
   function resetAll() {
-    updateSettings({ theme: 'arcade', uiScale: 1 });
+    updateSettings({ theme: DEFAULT_THEME, uiScale: 1 });
   }
 
   // Reapply on leaving in case a debounced save is still pending.

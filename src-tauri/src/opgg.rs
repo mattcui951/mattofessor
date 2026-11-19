@@ -273,7 +273,7 @@ pub fn tool_name(key: &str) -> String {
 pub struct TierRow {
     pub champion_id: i32,
     pub position: String,
-    /// OP.GG tier: 1 (OP) to 5; 0 when unknown.
+    /// OP.GG tier: 0 is its OP tier (the best, above 1), then 1 to 5.
     pub tier: i32,
     pub rank: i32,
     pub games: u64,

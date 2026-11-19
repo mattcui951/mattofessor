@@ -154,19 +154,19 @@
     color: var(--tone);
   }
   .tS {
-    --tone: var(--death);
+    --tone: var(--tier-S);
   }
   .tA {
-    --tone: var(--objective);
+    --tone: var(--tier-A);
   }
   .tB {
-    --tone: var(--win);
+    --tone: var(--tier-B);
   }
   .tC {
-    --tone: var(--you);
+    --tone: var(--tier-C);
   }
   .tD {
-    --tone: var(--text-3);
+    --tone: var(--tier-D);
   }
   .cell {
     display: flex;
@@ -186,9 +186,13 @@
     border-radius: var(--r-md);
     outline: none;
   }
+  .pt {
+    transition: background 120ms, transform 140ms var(--ease-out);
+  }
   .pt:hover,
   .pt:focus-visible {
     background: var(--panel-3);
+    transform: translateY(-2px);
   }
   .pt.dim {
     opacity: 0.22;

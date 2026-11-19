@@ -133,10 +133,40 @@ const noteNum = (s: string | undefined) => (s ? parseFloat(s.replace(/[^\d.-]/g,
 /** For a Hextech ARAM modifier line: whether the change helps the champion. */
 export function noteBetter(l: NoteLine): boolean | undefined {
   const k = noteMod(l.attr);
+  if (!k) return statBetter(l);
   const a = noteNum(l.before);
   const b = noteNum(l.after);
-  if (!k || Number.isNaN(a) || Number.isNaN(b) || a === b) return undefined;
+  if (Number.isNaN(a) || Number.isNaN(b) || a === b) return undefined;
   return modGood(k, b - a);
+}
+
+/**
+ * Attributes where a smaller number is the buff (cooldowns, costs, cast times), in every language
+ * Riot writes its notes in.
+ */
+const LOWER_IS_BETTER =
+  /cooldown|cost|cast time|recharge|delay|冷却|冷卻|消耗|施法时间|施法時間|充能时间|充能時間|クールダウン|コスト|詠唱時間|재사용 대기시간|소모|비용|시전 시간|enfriamiento|coste|costo|tiempo de lanzamiento|récupération|coût|temps d'incantation/i;
+
+/** Every number in a line, in order ("80 / 120 / 160 (+80% AP)" -> 80 120 160 80; "1,5 s" -> 1.5). */
+function numbers(s: string): number[] {
+  return [...s.replace(/(\d),(\d{1,2})(?!\d)/g, '$1.$2').matchAll(/\d+(?:\.\d+)?/g)].map((m) => Number(m[0]));
+}
+
+/**
+ * A plain stat line ("Damage: 80 / 120 ⇒ 80 / 125"): better when every number moves the same way,
+ * up (or down, for cooldowns and costs). Lines whose numbers do not pair up, or move both ways,
+ * say nothing rather than guess.
+ */
+function statBetter(l: NoteLine): boolean | undefined {
+  if (!l.before || !l.after) return undefined;
+  const a = numbers(l.before);
+  const b = numbers(l.after);
+  if (!a.length || a.length !== b.length) return undefined;
+  const up = a.some((x, i) => b[i] > x);
+  const down = a.some((x, i) => b[i] < x);
+  if (up === down) return undefined;
+  const lower = LOWER_IS_BETTER.test(l.attr ?? '');
+  return lower ? down : up;
 }
 
 /** A patch note entry's direction when every modifier line agrees. */

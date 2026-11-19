@@ -85,6 +85,34 @@ Version: 1.0.16
 
 ## Recently done
 
+- Not released yet (after 1.0.16), found in a UI review with the mock game (2026-11-18):
+  - Hextech ARAM augment picks (Live page and in-game panel) were refetched, and shown as
+    "loading", on every live update (about once a second): the effect read a field of the live
+    state, which is replaced each update. Now through a `$derived`; the same fix for the
+    Full screen notice's window-mode check. Browser preview now forwards `aram_picks`.
+  - Meta, Summoner's Rift: OP.GG's best tier (0, "OP") showed an empty badge (Ahri mid). Now "OP".
+  - Builds: starting items could show a pick rate over 100% (OP.GG counts them over a larger
+    sample than the build); capped at 100%.
+  - Seen in the browser preview with the mock, not yet in the real window.
+  - UI pass (Taste + Impeccable review), all in the browser preview with the mock:
+    - New default theme Graphite (neutral surfaces, `DEFAULT_THEME` in themes.ts, Rust default
+      `graphite`); Arcade stays as a theme. Existing installs keep their saved theme.
+    - One tier palette everywhere (app.css `--tier-*`): best gold, then green, teal, grey, worst
+      red (red was the best tier before). The item tier list uses it too, as tinted bands.
+    - Riot key banner: one slim line; "Later" now hides it for a week (localStorage).
+    - Player rows (Live, in-game panel): the name column stops at 300px and up to 10 recent games
+      fill the rest, instead of an empty middle.
+    - Builds opens on your live champion, else the last one viewed; a Recent row (8) in the picker;
+      Hextech ARAM stat cards wrap instead of three sideways scrollbars.
+    - Profile: unranked queues share one line; match history grouped by day with each day's W/L.
+    - Meta, Summoner's Rift: rows grouped under a band per tier when sorted by tier.
+    - Patch notes: buff/nerf filter, a jump strip of icons, and Summoner's Rift lines coloured as
+      buffs or nerfs (`statBetter`: every number the same way; cooldowns and costs reversed; mixed
+      or unpaired lines stay neutral; tests in patchnotes.test.ts).
+    - Guide in masonry columns; Settings has a section list that marks the section in view.
+    - Skeletons in place of "Loading..." (Profile, Builds, augment picks, Rift tier list); buttons
+      press, clickable tiles lift; everything rests under reduced motion.
+    - Not verified: the real WebView2 window, light themes, other languages' text widths.
 - Not released yet (after 1.0.16): the README in all seven languages (`README.<id>.md`, the
   players' part; development stays in the English one), a language bar on top of each, kept in step
   with the registry by `readme.test.ts`. Each README says what to do when antivirus flags the installer.

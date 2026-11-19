@@ -15,9 +15,13 @@
 
   let data = $state<AramPicks | null>(null);
   let error = $state<string | null>(null);
+  // The parent passes a field of the live state, which is replaced on every live update (about
+  // once a second): a derived only changes when the id does, so the list is not refetched (and
+  // shown as loading) every second.
+  const champ = $derived(championId);
 
   $effect(() => {
-    const id = championId;
+    const id = champ;
     const b = bracket();
     loadAugments();
     data = null;
@@ -68,7 +72,10 @@
   {#if error}
     <p class="dim">{error}</p>
   {:else if !data}
-    <p class="dim">{t('common.loading')}</p>
+    <!-- Three rarities of rows, as the list will be. -->
+    <div class="wait" aria-busy="true" aria-label={t('common.loading')}>
+      {#each Array(3) as _, i (i)}<div>{#each Array(compact ? 3 : 4) as _, j (j)}<span class="skel" style="height:{compact ? 24 : 34}px"></span>{/each}</div>{/each}
+    </div>
   {:else if data.rarities.every((r) => !r.take.length && !r.avoid.length)}
     <p class="dim">{t('meta.noAugments')}</p>
   {:else if compact}
@@ -106,6 +113,16 @@
 </section>
 
 <style>
+  .wait {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .wait > div {
+    display: grid;
+    gap: 6px;
+    align-content: start;
+  }
   .recs {
     background: var(--panel);
     border: 1px solid var(--seam);

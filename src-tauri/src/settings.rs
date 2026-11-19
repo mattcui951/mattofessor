@@ -60,7 +60,7 @@ impl Default for Settings {
             start_with_windows: true,
             check_updates: true,
             spells_pos: None,
-            theme: "arcade".into(),
+            theme: "graphite".into(),
             custom_themes: Vec::new(),
             ui_scale: 1.0,
             aram_bracket: "all".into(),
@@ -101,7 +101,7 @@ mod tests {
         assert_eq!(s.language, "zh");
         assert_eq!(s.hotkey_overlay, "Ctrl+Shift+M");
         assert!(s.open_in_champ_select);
-        assert_eq!(s.theme, "arcade");
+        assert_eq!(s.theme, "graphite");
         assert_eq!(s.ui_scale, 1.0);
         assert_eq!(s.match_view, "overview");
         assert_eq!(s.overlay_size, "regular");

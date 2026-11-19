@@ -2,6 +2,7 @@
   // What the page shows, kept while the app runs: back to this page lands on the same tabs.
   let part = $state<'rift' | 'mayhem'>('rift');
   let picked = $state('');
+  let only = $state<'all' | 'buff' | 'nerf'>('all');
 </script>
 
 <script lang="ts">
@@ -28,7 +29,18 @@
   const notes = $derived(notesFor(gameData.data?.patchNotes));
   const patches = $derived(notes?.patches ?? []);
   const patch = $derived(patches.find((p) => p.patch === picked) ?? patches[0]);
-  const sections = $derived(patch ? patch[part] : []);
+  const allSections = $derived(patch ? patch[part] : []);
+  // Buffs or nerfs only: entries whose every number line agrees (`noteVerdict`).
+  const sections = $derived(
+    only === 'all'
+      ? allSections
+      : allSections.map((s) => ({ ...s, entries: s.entries.filter((e) => noteVerdict(e) === only) })).filter((s) => s.entries.length > 0),
+  );
+  /** Named entries with an icon, for the jump strip. */
+  const jumps = $derived(sections.flatMap((s, si) => s.entries.map((e, ei) => ({ e, id: `e-${si}-${ei}` })).filter((x) => x.e.name && icon(x.e))));
+  function jump(id: string) {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
   const headliners = $derived(gameData.data?.mayhem.headliners ?? []);
 
   /** A section or group title in the UI language when it is a known one. */
@@ -80,12 +92,30 @@
     {#if patches.length}
       <Segmented label={t('patches.patch')} value={patch?.patch ?? ''} options={patches.map((p) => ({ value: p.patch, label: p.patch }))} onchange={(v) => (picked = v)} />
     {/if}
+    <Segmented
+      label={t('patches.show')}
+      value={only}
+      options={[
+        { value: 'all', label: t('patches.all') },
+        { value: 'buff', label: t('patches.buff') },
+        { value: 'nerf', label: t('patches.nerf') },
+      ]}
+      onchange={(v) => (only = v as typeof only)}
+    />
     <span class="grow"></span>
     {#if patch}
       <span class="dim">{date}</span>
       <button class="btn sm" onclick={() => openUrl(patch.url)}><Icon name="open" size={14} />{t('patches.original')}</button>
     {/if}
   </header>
+
+  {#if jumps.length > 6}
+    <nav class="jumps" aria-label={t('patches.jump')}>
+      {#each jumps as j (j.id)}
+        <button class="jp" title={name(j.e)} aria-label={name(j.e)} onclick={() => jump(j.id)}><Img src={icon(j.e)} size={26} /></button>
+      {/each}
+    </nav>
+  {/if}
 
   <div class="scroll">
     {#if !gameData.data}
@@ -97,7 +127,7 @@
         <button class="btn sm" onclick={() => openUrl(`https://www.leagueoflegends.com/${locale(i18n.lang).riot}/news/tags/patch-notes/`)}><Icon name="open" size={14} />{t('notes.official')}</button>
       </div>
     {:else if !sections.length}
-      <p class="dim">{t(patch?.missing?.includes(part) ? 'patches.missing' : 'patches.nothing')}</p>
+      <p class="dim">{only !== 'all' && allSections.length ? t('patches.noneOf', t(`patches.${only}`)) : t(patch?.missing?.includes(part) ? 'patches.missing' : 'patches.nothing')}</p>
     {:else}
       {#each sections as s, si (si)}
         <section class="sec">
@@ -113,7 +143,7 @@
               {#if e.group}<h4>{title(e.group)}</h4>{/if}
             {/if}
             {@const v = verdict(e)}
-            <div class="entry" class:named={Boolean(e.name)}>
+            <div class="entry" class:named={Boolean(e.name)} id="e-{si}-{ei}">
               {#if e.name}
                 <button class="pic" disabled={!e.championId} onclick={() => open(e)}>
                   {#if icon(e)}<Img src={icon(e)} size={36} />{:else}<span class="blank"><Icon name="flag" size={16} /></span>{/if}
@@ -176,6 +206,26 @@
   .dim {
     color: var(--text-3);
     font-size: 12.5px;
+  }
+  .jumps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    max-height: 66px;
+    overflow-y: auto;
+    padding: 2px 0;
+  }
+  .jp {
+    padding: 1px;
+    border-radius: var(--r-md);
+    transition: background 120ms, transform 140ms var(--ease-out);
+  }
+  .jp:hover {
+    background: var(--panel-3);
+    transform: translateY(-2px);
+  }
+  .entry {
+    scroll-margin-top: 8px;
   }
   .scroll {
     flex: 1;

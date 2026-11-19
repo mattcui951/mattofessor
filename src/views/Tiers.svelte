@@ -318,7 +318,6 @@
     display: grid;
     place-items: center;
     font: 700 26px var(--font-score);
-    color: #15171c;
     text-align: center;
   }
   /* A name rather than a letter (the Chinese tiers): the interface font, wrapping in two lines. */
@@ -327,21 +326,28 @@
     font: 800 19px/1.15 var(--font-ui);
     word-break: keep-all;
   }
-  /* The usual tier list colors, the same in every theme. */
+  /* Tier colours from the theme (app.css `--tier-*`), the same as every other tier in the app:
+     a tinted band with the label in the tier's colour. */
+  .label {
+    --tone: var(--text-3);
+    background: color-mix(in oklab, var(--tone) 16%, var(--panel));
+    box-shadow: inset 3px 0 0 var(--tone);
+    color: var(--tone);
+  }
   .tS {
-    background: #ff6b6b;
+    --tone: var(--tier-S);
   }
   .tA {
-    background: #ffa94d;
+    --tone: var(--tier-A);
   }
   .tB {
-    background: #ffd43b;
+    --tone: var(--tier-B);
   }
   .tC {
-    background: #69db7c;
+    --tone: var(--tier-C);
   }
   .tD {
-    background: #8c9cff;
+    --tone: var(--tier-D);
   }
   .tiles {
     display: flex;
@@ -362,6 +368,13 @@
   .editing .tile,
   .pool .tile {
     cursor: grab;
+  }
+  /* Outside editing (where tiles are dragged) a tile lifts under the pointer. */
+  .tile {
+    transition: transform 140ms var(--ease-out);
+  }
+  .board:not(.editing) .tile:hover {
+    transform: translateY(-2px);
   }
   .tiles.names .tile {
     width: 64px;

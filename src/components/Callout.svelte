@@ -2,7 +2,8 @@
   /**
    * A notice: an icon in a tinted circle, a title with lines under it, then buttons. `banner` spans
    * the page's width under the title bar; otherwise it is a card. Lines are <span>s in `children`;
-   * `extra` is drawn last (the download's progress bar).
+   * `extra` is drawn last (the download's progress bar). `slim` (with `banner`) is one short line: the
+   * title, then the lines cut to fit, all of them in the tooltip (`hint`).
    */
   import type { Snippet } from 'svelte';
   import Icon from './Icon.svelte';
@@ -14,6 +15,8 @@
     icon = 'warn',
     banner = false,
     strong = false,
+    slim = false,
+    hint,
     children,
     actions,
     extra,
@@ -25,6 +28,10 @@
     banner?: boolean;
     /** A louder card (something the player tried did not work). */
     strong?: boolean;
+    /** One short line (a banner that repeats on several pages). */
+    slim?: boolean;
+    /** Tooltip: the whole text when `slim` cuts it. */
+    hint?: string;
     children?: Snippet;
     actions?: Snippet;
     extra?: Snippet;
@@ -32,8 +39,8 @@
   } = $props();
 </script>
 
-<div class="callout {tone}" class:banner class:strong role="status">
-  <span class="mark"><Icon name={icon} size={16} /></span>
+<div class="callout {tone}" class:banner class:strong class:slim role="status" title={hint}>
+  <span class="mark"><Icon name={icon} size={slim ? 13 : 16} /></span>
   <div class="text">
     <b>{title}</b>
     {@render children?.()}
@@ -76,6 +83,30 @@
     border-radius: 0;
     background: color-mix(in oklab, var(--tone) 12%, var(--bg-sunk));
     border-bottom: 1px solid color-mix(in oklab, var(--tone) 35%, var(--seam));
+  }
+  .slim {
+    flex-wrap: nowrap;
+    padding: 5px 12px 5px 14px;
+  }
+  .slim .mark {
+    width: 22px;
+    height: 22px;
+  }
+  .slim .text {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex: 1 1 auto;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .slim .text b {
+    flex: none;
+    font-size: 13px;
+  }
+  .slim .text :global(span) {
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .mark {
     flex: none;

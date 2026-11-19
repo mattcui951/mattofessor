@@ -89,6 +89,9 @@ export const SCORE_FONTS = [
   { id: 'Consolas', label: 'Consolas', bundled: false },
 ];
 
+/** The theme of a new install and of Restore defaults (the first of BUILT_IN). */
+export const DEFAULT_THEME = 'graphite';
+
 const DEFAULT_UI = 'Segoe UI Variable Text';
 const DEFAULT_SCORE = 'Chakra Petch';
 
@@ -119,6 +122,9 @@ const c = (
 
 //                         bg         sunk       panel      panel2     panel3     seam       seamStrong text       text2      text3      you        death      objective  win        assist     warn
 export const BUILT_IN: Theme[] = [
+  // The default: neutral graphite surfaces, so the six role colours carry the meaning on their own.
+  theme({ id: 'graphite', name: 'Graphite', group: 'dark', dark: true,
+    colors: c('#101317', '#0b0d10', '#161a20', '#1c2128', '#242a33', '#262c35', '#37404c', '#e9edf2', '#b4bdc8', '#8893a0', '#3fd2e2', '#ff5a6e', '#f2c14e', '#3ddc97', '#7cb4ff', '#ff9f45') }),
   theme({ id: 'arcade', name: 'Arcade', group: 'dark', dark: true,
     colors: c('#100d26', '#0b0920', '#161238', '#1d1847', '#262058', '#2a2461', '#3b3485', '#eeebff', '#bdb6e6', '#908ac2', '#3fe0f0', '#ff4f8b', '#ffc83d', '#52f0a8', '#b197ff', '#ffa53d') }),
   theme({ id: 'rose-pine', name: 'Rosé Pine', group: 'dark', dark: true,

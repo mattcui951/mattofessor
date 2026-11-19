@@ -150,16 +150,16 @@
     background: var(--text-3);
   }
   .tier.tS {
-    background: var(--death);
+    background: var(--tier-S);
   }
   .tier.tA {
-    background: var(--objective);
+    background: var(--tier-A);
   }
   .tier.tB {
-    background: var(--win);
+    background: var(--tier-B);
   }
   .tier.tC {
-    background: var(--text-2);
+    background: var(--tier-C);
   }
   .hi {
     color: var(--win);

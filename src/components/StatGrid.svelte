@@ -90,8 +90,10 @@
     gap: 6px;
   }
   .lab {
+    align-self: start;
     display: grid;
-    grid-template-rows: 1fr repeat(3, 22px);
+    /* One height for the label column and every card, so the three lines line up. */
+    grid-template-rows: 76px repeat(3, 22px);
     border-radius: var(--r-md);
     overflow: hidden;
     background: var(--panel-3);
@@ -148,18 +150,18 @@
     content: ' ↓';
     color: var(--tone);
   }
+  /* Cards wrap onto more lines instead of scrolling sideways, and stretch to fill the width; each
+     line keeps the label column's order (win rate, difference, share). */
   .cards {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
     gap: 4px;
-    overflow-x: auto;
-    padding-bottom: 4px;
-    scrollbar-width: thin;
   }
   .sc {
-    flex: none;
-    width: 80px;
+    min-width: 0;
     display: grid;
-    grid-template-rows: 1fr repeat(3, 22px);
+    /* One height for the label column and every card, so the three lines line up. */
+    grid-template-rows: 76px repeat(3, 22px);
     border-radius: var(--r-md);
     background: var(--panel-2);
     border: 1px solid transparent;
@@ -232,7 +234,14 @@
   .v.pk {
     color: var(--text);
   }
+  .sc.click:hover {
+    transform: translateY(-2px);
+  }
+  .sc {
+    transition: background 120ms, border-color 120ms, transform 140ms var(--ease-out);
+  }
   .empty {
+    grid-column: 1 / -1;
     align-self: center;
     margin: 0;
     padding: 0 8px;

@@ -297,10 +297,15 @@
     min-height: 0;
     overflow: auto;
   }
+  /* Masonry columns: a short card sits under the one above it instead of leaving a gap beside a
+     tall neighbour. */
   .sections {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-    gap: 12px;
+    columns: 380px;
+    column-gap: 12px;
+  }
+  .sections > .box {
+    break-inside: avoid;
+    margin-bottom: 12px;
   }
   .box {
     background: var(--panel);

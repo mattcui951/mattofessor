@@ -22,6 +22,42 @@
 
   const s = $derived(app.settings);
 
+  // The section list beside the page: one entry per titled section, the admin one only for admins.
+  let pageEl = $state<HTMLElement>();
+  let inView = $state('update');
+  const toc = $derived(
+    [
+      { id: 'update', label: t('update.title') },
+      { id: 'appearance', label: t('appearance.title') },
+      { id: 'language', label: t('settings.language') },
+      { id: 'hotkeys', label: t('settings.hotkeys') },
+      { id: 'panel', label: t('panel.title') },
+      { id: 'behavior', label: t('settings.behavior') },
+      { id: 'admin', label: t('settings.adminTitle'), on: content.status.canEdit },
+      { id: 'imports', label: t('settings.imports') },
+      { id: 'capture', label: t('capture.title') },
+      { id: 'riot', label: t('riot.title') },
+    ].filter((x) => x.on !== false),
+  );
+  function jumpTo(id: string) {
+    inView = id;
+    pageEl?.querySelector('#s-' + id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  // The section nearest the top of the page is the one in view.
+  $effect(() => {
+    const root = pageEl;
+    if (!root || !s) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        const top = entries.filter((e) => e.isIntersecting).sort((x, y) => x.boundingClientRect.top - y.boundingClientRect.top)[0];
+        if (top) inView = top.target.id.slice(2);
+      },
+      { root, rootMargin: '0px 0px -70% 0px' },
+    );
+    root.querySelectorAll('section[id^="s-"]').forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  });
+
   const u = $derived(app.update);
   const updateLine = $derived.by(() => {
     if (u.phase === 'checking') return { color: 'var(--objective)', text: t('update.checking') };
@@ -81,12 +117,18 @@
   </div>
 {/snippet}
 
-<div class="page">
+<div class="page" bind:this={pageEl}>
   {#if s}
+    <!-- The sections, to jump to; the one in view is marked. -->
+    <nav class="toc" aria-label={t('settings.title')}>
+      {#each toc as x (x.id)}
+        <button class:on={inView === x.id} aria-current={inView === x.id ? 'true' : undefined} onclick={() => jumpTo(x.id)}>{x.label}</button>
+      {/each}
+    </nav>
     <div class="col">
       <h2>{t('settings.title')}</h2>
 
-      <section>
+      <section id="s-update">
         <h3>{t('update.title')}</h3>
         <div class="riot-status"><i style="background:{updateLine.color}"></i>{updateLine.text}<span class="ver">{t('update.version', app.version)}</span></div>
         {#if u.error && u.phase !== 'checking'}<p class="note">{u.error}</p>{/if}
@@ -104,7 +146,7 @@
         <p class="note">{t('update.note')}</p>
       </section>
 
-      <section>
+      <section id="s-appearance">
         <h3>{t('appearance.title')}</h3>
         <div class="appearance">
           <div class="current">
@@ -122,7 +164,7 @@
         </div>
       </section>
 
-      <section>
+      <section id="s-language">
         <h3>{t('settings.language')}</h3>
         <div class="lang">
           <Select
@@ -134,7 +176,7 @@
         </div>
       </section>
 
-      <section>
+      <section id="s-hotkeys">
         <h3>{t('settings.hotkeys')}</h3>
         <div class="row">
           <span>{t('settings.hotkeyOverlay')}</span>
@@ -147,7 +189,7 @@
         <p class="note">{t('settings.hotkeyNote')}</p>
       </section>
 
-      <section>
+      <section id="s-panel">
         <h3>{t('panel.title')}</h3>
         <div class="row">
           <span>{t('panel.size')}</span>
@@ -162,7 +204,7 @@
         <FullscreenNotice always />
       </section>
 
-      <section>
+      <section id="s-behavior">
         <h3>{t('settings.behavior')}</h3>
         {@render toggleRow(t('settings.openInChampSelect'), 'openInChampSelect')}
         {@render toggleRow(t('settings.showDuringLoading'), 'showDuringLoading')}
@@ -171,21 +213,21 @@
       </section>
 
       {#if content.status.canEdit}
-        <section>
+        <section id="s-admin">
           <h3>{t('settings.adminTitle')}</h3>
           {@render toggleRow(t('settings.admin'), 'admin')}
           <p class="note">{t('settings.adminNote')}</p>
         </section>
       {/if}
 
-      <section>
+      <section id="s-imports">
         <h3>{t('settings.imports')}</h3>
         {@render toggleRow(t('settings.autoRunes'), 'autoImportRunes')}
         {@render toggleRow(t('settings.autoItems'), 'autoImportItems')}
         <p class="note">{t('settings.autoNote')}</p>
       </section>
 
-      <section>
+      <section id="s-capture">
         <h3>{t('capture.title')}</h3>
         {@render toggleRow(t('cards.toggle'), 'cardReader')}
         <p class="note">{t('cards.note')}</p>
@@ -206,7 +248,7 @@
         </div>
       </section>
 
-      <section>
+      <section id="s-riot">
         <h3>{t('riot.title')}</h3>
         <p class="note">{t('riot.why')}</p>
         <div class="riot-status"><i style="background:{riotColor}"></i>{t(`riot.status.${app.riotStatus}`)}</div>
@@ -266,6 +308,36 @@
   .page {
     height: 100%;
     overflow-y: auto;
+    display: grid;
+    grid-template-columns: 190px minmax(0, 680px);
+    align-items: start;
+  }
+  .toc {
+    position: sticky;
+    top: 0;
+    display: grid;
+    gap: 2px;
+    padding: 64px 10px 20px 16px;
+  }
+  .toc button {
+    text-align: left;
+    padding: 6px 10px;
+    border-radius: var(--r-md);
+    color: var(--text-3);
+    font-size: 12.5px;
+    transition: background 120ms, color 120ms;
+  }
+  .toc button:hover {
+    background: var(--panel-2);
+    color: var(--text);
+  }
+  .toc button.on {
+    color: var(--text);
+    background: var(--panel-2);
+    box-shadow: inset 2px 0 0 var(--you);
+  }
+  section[id] {
+    scroll-margin-top: 16px;
   }
   .col {
     max-width: 680px;

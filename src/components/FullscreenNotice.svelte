@@ -28,10 +28,12 @@
     };
   });
 
-  // Read again when the client connects or the game flow moves (champ select, game start).
+  // Read again when the client connects or the game flow moves (champ select, game start). Through
+  // a derived: the live state is replaced on every live update, its phase much less often.
+  const phase = $derived(app.live.phase);
   $effect(() => {
     app.connected;
-    app.live.phase;
+    phase;
     api.leagueWindowMode().then(
       (m) => (mode = m),
       () => (mode = null),

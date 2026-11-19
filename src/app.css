@@ -10,27 +10,27 @@
 @import '@fontsource/jetbrains-mono/700.css';
 
 :root {
-  /* Defaults are the Arcade theme; src/lib/themes.ts sets every token at runtime. */
-  --bg: #100d26;
-  --bg-sunk: #0b0920;
-  --panel: #161238;
-  --panel-2: #1d1847;
-  --panel-3: #262058;
-  --seam: #2a2461;
-  --seam-strong: #3b3485;
+  /* Defaults are the Graphite theme; src/lib/themes.ts sets every token at runtime. */
+  --bg: #101317;
+  --bg-sunk: #0b0d10;
+  --panel: #161a20;
+  --panel-2: #1c2128;
+  --panel-3: #242a33;
+  --seam: #262c35;
+  --seam-strong: #37404c;
 
-  --text: #eeebff;
-  --text-2: #bdb6e6;
-  --text-3: #908ac2;
+  --text: #e9edf2;
+  --text-2: #b4bdc8;
+  --text-3: #8893a0;
 
-  /* Phosphor palette: every color has one job. */
-  --you: #3fe0f0;        /* you: kills, multikills, your APM, primary actions */
+  /* Every color has one job. */
+  --you: #3fd2e2;        /* you: kills, your player, primary actions */
   --you-ink: #062a30;
-  --death: #ff4f8b;      /* deaths, destructive, recording */
-  --objective: #ffc83d;  /* turret, inhibitor, dragon, herald, baron */
-  --win: #52f0a8;        /* victory, healthy */
-  --assist: #b197ff;     /* assists, ultimate */
-  --warn: #ffa53d;       /* low disk, partial events */
+  --death: #ff5a6e;      /* deaths, losses, destructive */
+  --objective: #f2c14e;  /* gold, info tags, the best tier */
+  --win: #3ddc97;        /* wins, positive */
+  --assist: #7cb4ff;     /* assists, premades */
+  --warn: #ff9f45;       /* warnings */
   --mark: #e8e4ff;       /* bookmarks, manual */
 
   /* Set for the UI language (`locales.ts`): which CJK font draws Chinese, Japanese or Korean. */
@@ -41,6 +41,17 @@
   --r-sm: 3px;
   --r-md: 4px;
   --r-lg: 6px;
+
+  /* Tier letters, best first, the same on every page: gold, green, teal, grey, red. Red is kept
+     for the worst tier, as it means losses and deaths everywhere else. */
+  --tier-OP: var(--objective);
+  --tier-S: var(--objective);
+  --tier-A: var(--win);
+  --tier-B: var(--you);
+  --tier-C: var(--text-3);
+  --tier-D: var(--death);
+  /* OP (OP.GG's tier above S): gold like S, with a ring so the two read apart. */
+  --tier-OP-ring: 0 0 0 2px color-mix(in oklab, var(--objective) 45%, transparent);
 
   --shadow-pop: 0 10px 28px -6px rgb(4 2 18 / 0.7), 0 2px 6px rgb(4 2 18 / 0.5);
   /* In-game windows: how opaque their background is over the game. */
@@ -160,10 +171,15 @@ p {
   color: var(--text);
   font-weight: 600;
   white-space: nowrap;
-  transition: background 120ms, color 120ms, opacity 120ms;
+  transition: background 120ms, color 120ms, opacity 120ms, transform 120ms var(--ease-out);
 }
 .btn:hover:not(:disabled) {
   background: var(--panel-3);
+}
+/* Every button presses in when clicked. */
+.btn:active:not(:disabled),
+.icon-btn:active:not(:disabled) {
+  transform: translateY(1px) scale(0.98);
 }
 .btn:disabled {
   opacity: 0.45;
@@ -264,4 +280,41 @@ p {
 }
 .empty p {
   max-width: 52ch;
+}
+
+/* Loading placeholders shaped like what will come, in place of a "Loading..." line. */
+.skel {
+  display: block;
+  border-radius: var(--r-md);
+  background: linear-gradient(90deg, var(--panel-2) 0%, var(--panel-3) 50%, var(--panel-2) 100%);
+  background-size: 200% 100%;
+  animation: skel 1.4s linear infinite;
+}
+@keyframes skel {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* A clickable card lifts a little under the pointer. */
+.lift {
+  transition: transform 140ms var(--ease-out), background 120ms, border-color 120ms;
+}
+.lift:hover {
+  transform: translateY(-2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .lift:hover,
+  .btn:active,
+  .icon-btn:active {
+    transform: none;
+  }
 }
