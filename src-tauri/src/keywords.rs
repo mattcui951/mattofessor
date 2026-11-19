@@ -1,6 +1,7 @@
 //! Champion search keywords from Tencent's official hero list (the lol.qq.com champion
 //! database): nicknames players use ("大嘴" for Kog'Maw, "剑魔" for Aatrox), initials and pinyin.
-//! Cached for a day.
+//! The list changes only when champions are added or renamed: a copy is used for a week, and up
+//! to 90 days old it still shows at once while a new one downloads.
 
 use anyhow::{bail, Result};
 use serde_json::Value;
@@ -8,7 +9,7 @@ use std::collections::BTreeMap;
 use std::time::Duration;
 
 const URL: &str = "https://game.gtimg.cn/images/lol/act/img/js/heroList/hero_list.js";
-const TTL_MS: i64 = 24 * 3_600_000;
+const TTL: crate::store::Ttl = crate::store::Ttl { fresh_ms: 7 * crate::store::DAY_MS, stale_ms: 90 * crate::store::DAY_MS };
 
 /// Champion id to its keywords.
 pub type Keywords = BTreeMap<i32, Vec<String>>;
@@ -32,7 +33,7 @@ pub fn parse(v: &Value) -> Keywords {
 }
 
 pub async fn all() -> Result<Keywords> {
-    let v = crate::store::cached("champion-keywords", TTL_MS, "champion keywords", async {
+    let v = crate::store::cached("champion-keywords", TTL, "champion keywords", async {
         let r = crate::net::http().get(URL).timeout(Duration::from_secs(30)).send().await?;
         if !r.status().is_success() {
             bail!("champion keywords answered {}", r.status());

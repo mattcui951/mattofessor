@@ -1,5 +1,6 @@
 //! Augment names, rarity and icons (Arena and Hextech ARAM share one list), from the public
-//! mirror of Riot's game data (CommunityDragon), in English or Chinese, cached for a day.
+//! mirror of Riot's game data (CommunityDragon), in each language. A copy is used for a day; up to
+//! 30 days old it still shows at once while a new one downloads (new augments come with patches).
 
 use anyhow::{bail, Result};
 use parking_lot::Mutex;
@@ -7,10 +8,14 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::sync::Arc;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 const CDRAGON: &str = "https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global";
-const TTL_MS: i64 = 24 * 3_600_000;
+use crate::store::{Ttl, DAY_MS};
+
+const TTL: Ttl = Ttl { fresh_ms: DAY_MS, stale_ms: 30 * DAY_MS };
+/// How long a parsed list is reused before the saved copy (maybe refreshed since) is read again.
+const MEMO: Duration = Duration::from_secs(3600);
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
@@ -54,15 +59,15 @@ pub fn parse(v: &Value) -> HashMap<i32, Augment> {
 
 pub type Augments = Arc<HashMap<i32, Augment>>;
 
-static CACHE: Mutex<Option<HashMap<String, Augments>>> = Mutex::new(None);
+static CACHE: Mutex<Option<HashMap<String, (Instant, Augments)>>> = Mutex::new(None);
 
 /// Every augment in a language (`lang` id).
 pub async fn all(lang: &str) -> Result<Augments> {
     let f = folder(lang);
-    if let Some(m) = CACHE.lock().as_ref().and_then(|c| c.get(f).cloned()) {
+    if let Some((_, m)) = CACHE.lock().as_ref().and_then(|c| c.get(f).cloned()).filter(|(at, _)| at.elapsed() < MEMO) {
         return Ok(m);
     }
-    let v = crate::store::cached(&format!("augments:{f}"), TTL_MS, "augment list", async {
+    let v = crate::store::cached(&format!("augments:{f}"), TTL, "augment list", async move {
         let url = format!("{CDRAGON}/{f}/v1/cherry-augments.json");
         let r = crate::net::http().get(url).timeout(Duration::from_secs(30)).send().await?;
         if !r.status().is_success() {
@@ -72,7 +77,7 @@ pub async fn all(lang: &str) -> Result<Augments> {
     })
     .await?;
     let m = Arc::new(parse(&v));
-    CACHE.lock().get_or_insert_with(HashMap::new).insert(f.to_string(), m.clone());
+    CACHE.lock().get_or_insert_with(HashMap::new).insert(f.to_string(), (Instant::now(), m.clone()));
     Ok(m)
 }
 

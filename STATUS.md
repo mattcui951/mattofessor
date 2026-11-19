@@ -82,6 +82,23 @@ Version: 1.0.20
 
 ## Recently done
 
+- Faster pages (2026-11-19, not released yet). Measured first: the backend already answered repeat
+  calls in 2-20 ms, but every page is rebuilt on each visit and asked again, and the first call of
+  a session waited 0.5-1.8 s (AramHex tables from disk, OP.GG over the network).
+  - `src/lib/cache.ts`: answers kept for the session per page and parameters. A revisit draws at
+    once with no backend call. Answers older than their time to live still show at once and are
+    replaced when the new one comes. Times: AramHex 10 min, OP.GG 30 min, finished games and their
+    scores forever. Kept builds are dropped when content changes (ARAM builds carry the
+    hand-written one).
+  - `store::cached` uses `Ttl { fresh, stale }`. Past `fresh`, a saved copy is still answered at
+    once and replaced in the background; only past `stale` does a caller wait. TTLs: OP.GG tiers
+    12 h / 3 d, builds 1 d / 14 d, augment names 1 d / 30 d, champion keywords 7 d / 90 d.
+  - `warm.rs`: 8 s after start, loads the tier list, augment names, keywords, the AramHex
+    bracket, both boards and the champion tables in the background (0.8 s in a debug build). After
+    that, first calls took 2-9 ms instead of 0.5-1.8 s.
+  - Checked in the browser preview: second visits to Meta, Builds (both modes) and Profile made
+    no backend calls and showed no loading state. Not yet checked in a release build.
+
 - 1.0.20 app assessment (2026-11-19, main session): checked all eight navigation destinations against
   the existing debug/mock bridge, including champ select and in-game data. Fixed narrow Profile
   and Builds layouts, the Settings appearance control, and localized elapsed-day plurals.

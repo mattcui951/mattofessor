@@ -1,13 +1,14 @@
 //! Summoner's Rift statistics and builds from OP.GG's public MCP endpoint
 //! (https://mcp-api.op.gg/mcp, github.com/opgginc/opgg-mcp): lane tier lists (win, pick and ban
-//! rates) and per-champion builds. No key; answers are cached locally (tier lists 12 hours,
-//! builds a day) and the last copy is used when OP.GG cannot be reached.
+//! rates) and per-champion builds. No key; answers are cached locally: a tier list is used for
+//! 12 hours and a build for a day; older copies (tier lists up to 3 days, builds up to 14) still
+//! show at once while a new one downloads, and the last copy is used when OP.GG cannot be reached.
 //!
 //! The endpoint speaks MCP over HTTP (JSON-RPC). Tool results come as text in a compact
 //! constructor format, `class Top: champion,play` headers then `Top("Malphite",173872)`
 //! values, which `parse` turns into JSON objects.
 
-use crate::store;
+use crate::store::{self, Ttl, DAY_MS, HOUR_MS};
 use anyhow::{anyhow, bail, Context as _, Result};
 use parking_lot::Mutex;
 use serde::{Deserialize, Serialize};
@@ -17,8 +18,10 @@ use std::sync::Arc;
 use std::time::Duration;
 
 const ENDPOINT: &str = "https://mcp-api.op.gg/mcp";
-const TIERS_TTL_MS: i64 = 12 * 3_600_000;
-const BUILD_TTL_MS: i64 = 24 * 3_600_000;
+const TIERS_TTL: Ttl = Ttl { fresh_ms: 12 * HOUR_MS, stale_ms: 3 * DAY_MS };
+const BUILD_TTL: Ttl = Ttl { fresh_ms: DAY_MS, stale_ms: 14 * DAY_MS };
+/// How long the parsed tier list is reused before the saved copy (maybe refreshed since) is read again.
+const TIERS_MEMO_MS: i64 = 10 * 60_000;
 pub const POSITIONS: [&str; 5] = ["top", "jungle", "mid", "adc", "support"];
 
 static SESSION: Mutex<Option<String>> = Mutex::new(None);
@@ -97,7 +100,7 @@ async fn call(tool: &str, args: Value) -> Result<Value> {
 }
 
 /// A tool's answer through the cache (`store::cached`).
-async fn cached(key: &str, ttl: i64, tool: &str, args: Value) -> Result<Value> {
+async fn cached(key: &str, ttl: Ttl, tool: &'static str, args: Value) -> Result<Value> {
     store::cached(key, ttl, tool, call(tool, args)).await
 }
 
@@ -327,7 +330,7 @@ static TIERS: Mutex<Option<Arc<Tiers>>> = Mutex::new(None);
 /// Every champion in every lane (ranked, all tiers).
 pub async fn tiers() -> Result<Arc<Tiers>> {
     if let Some(t) = TIERS.lock().clone() {
-        if crate::players::now_ms() - t.fetched_at < TIERS_TTL_MS {
+        if crate::players::now_ms() - t.fetched_at < TIERS_MEMO_MS {
             return Ok(t);
         }
     }
@@ -335,7 +338,7 @@ pub async fn tiers() -> Result<Arc<Tiers>> {
         .iter()
         .map(|p| format!("data.positions.{p}[].{{champion,play,win,win_rate,pick_rate,ban_rate,role_rate,tier,rank}}"))
         .collect();
-    let v = cached("opgg:tiers:v2", TIERS_TTL_MS, "lol_list_lane_meta_champions", json!({"position": "all", "lang": "en_US", "desired_output_fields": fields})).await?;
+    let v = cached("opgg:tiers:v2", TIERS_TTL, "lol_list_lane_meta_champions", json!({"position": "all", "lang": "en_US", "desired_output_fields": fields})).await?;
     let dd = crate::dd::get("en").await?;
     let ids: HashMap<String, i32> = dd.champions.iter().flat_map(|(id, c)| [(norm(&c.name), *id), (norm(&c.key), *id)]).collect();
     let rows = tier_rows(&v, &ids);
@@ -366,7 +369,7 @@ pub async fn analysis(champion_key: &str, position: &str, game_mode: &str) -> Re
     ];
     let name = tool_name(champion_key);
     let key = format!("opgg:build:{game_mode}:{name}:{position}");
-    cached(&key, BUILD_TTL_MS, "lol_get_champion_analysis", json!({"game_mode": game_mode, "champion": name, "position": position, "lang": "en_US", "desired_output_fields": fields})).await
+    cached(&key, BUILD_TTL, "lol_get_champion_analysis", json!({"game_mode": game_mode, "champion": name, "position": position, "lang": "en_US", "desired_output_fields": fields})).await
 }
 
 #[cfg(test)]

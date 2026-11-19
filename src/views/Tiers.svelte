@@ -18,6 +18,7 @@
   import PublishState from '../components/PublishState.svelte';
   import Segmented from '../components/Segmented.svelte';
   import { api } from '../lib/api';
+  import { HEX_TTL, show } from '../lib/cache';
   import { adminMode, content, editContent, loadContent } from '../lib/content.svelte';
   import { dd, ITEM_CLASSES, itemClasses, itemIcon, itemName, OTHER_ITEMS } from '../lib/dd.svelte';
   import { t } from '../lib/i18n.svelte';
@@ -36,7 +37,7 @@
 
   // Win rates for the tooltips.
   let itemWin = $state<Record<number, number>>({});
-  api.aramItems('all').then((o) => (itemWin = Object.fromEntries(o.items.map((r) => [r.id, r.winRate]))), () => {});
+  show('hex:items::all', HEX_TTL, () => api.aramItems('all'), (o) => (itemWin = Object.fromEntries(o.items.map((r) => [r.id, r.winRate]))));
 
   const board = $derived<Tiers>(content.data.itemTiers ?? {});
   const placed = $derived(new Set(TIERS.flatMap((tier) => board[tier] ?? [])));

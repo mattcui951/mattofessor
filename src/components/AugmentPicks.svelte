@@ -6,6 +6,7 @@
   import Img from './Img.svelte';
   import { num } from '../lib/format';
   import { api } from '../lib/api';
+  import { HEX_TTL, show } from '../lib/cache';
   import { champName } from '../lib/dd.svelte';
   import { t } from '../lib/i18n.svelte';
   import { ARAM_CREDIT, augment, bracket, delta, loadAugments, pct1 } from '../lib/meta.svelte';
@@ -26,7 +27,10 @@
     loadAugments();
     data = null;
     error = null;
-    api.aramPicks(id, b).then(
+    show(
+      `hex:picks:${id}:${b}`,
+      HEX_TTL,
+      () => api.aramPicks(id, b),
       (d) => {
         if (id === championId) data = d;
       },

@@ -285,28 +285,85 @@ impl Store {
     }
 }
 
-/// Downloaded JSON kept in the cache: the saved copy while younger than `ttl_ms`, else `fetch`'s
-/// answer (saved), else the saved copy whatever its age (offline). `what` names it in the log.
-pub async fn cached(key: &str, ttl_ms: i64, what: &str, fetch: impl Future<Output = Result<Value>>) -> Result<Value> {
-    let st = get();
+/// How long a downloaded copy is used as it is (`fresh`), and up to what age an older copy is
+/// still answered at once while a new one downloads in the background (`stale`). Past `stale`
+/// the caller waits for the download (and still gets the old copy if that fails).
+#[derive(Clone, Copy, Debug)]
+pub struct Ttl {
+    pub fresh_ms: i64,
+    pub stale_ms: i64,
+}
+
+pub const HOUR_MS: i64 = 3_600_000;
+pub const DAY_MS: i64 = 24 * HOUR_MS;
+
+/// Keys being downloaded in the background, so a key is fetched once at a time.
+static REFRESHING: Mutex<Vec<String>> = Mutex::new(Vec::new());
+
+/// Downloaded JSON kept in the cache (see `Ttl`). `what` names it in the log.
+pub async fn cached<F>(key: &str, ttl: Ttl, what: &'static str, fetch: F) -> Result<Value>
+where
+    F: Future<Output = Result<Value>> + Send + 'static,
+{
+    cached_in(get(), key, ttl, what, fetch).await
+}
+
+async fn cached_in<F>(st: &'static Store, key: &str, ttl: Ttl, what: &'static str, fetch: F) -> Result<Value>
+where
+    F: Future<Output = Result<Value>> + Send + 'static,
+{
     let now = crate::players::now_ms();
     let old: Option<(i64, Value)> = st.kv_get(key).and_then(|t| serde_json::from_str(&t).ok());
-    if let Some((at, v)) = &old {
-        if now - at < ttl_ms {
-            return Ok(v.clone());
+    if let Some((at, v)) = old {
+        let age = now - at;
+        if age < ttl.fresh_ms {
+            return Ok(v);
         }
+        if age < ttl.stale_ms {
+            refresh_later(st, key, what, fetch);
+            return Ok(v);
+        }
+        return match fetch.await {
+            Ok(new) => Ok(save(st, key, now, new)),
+            Err(e) => {
+                log::warn!("{what}: {e:#}; using the last copy");
+                Ok(v)
+            }
+        };
     }
-    match (fetch.await, old) {
-        (Ok(v), _) => {
-            st.kv_set(key, &serde_json::to_string(&(now, &v))?);
-            Ok(v)
-        }
-        (Err(e), Some((_, v))) => {
-            log::warn!("{what}: {e:#}; using the last copy");
-            Ok(v)
-        }
-        (Err(e), None) => Err(e),
+    Ok(save(st, key, now, fetch.await?))
+}
+
+fn save(st: &Store, key: &str, at: i64, v: Value) -> Value {
+    if let Ok(t) = serde_json::to_string(&(at, &v)) {
+        st.kv_set(key, &t);
     }
+    v
+}
+
+/// Downloads a stale copy's replacement without anyone waiting on it.
+fn refresh_later<F>(st: &'static Store, key: &str, what: &'static str, fetch: F)
+where
+    F: Future<Output = Result<Value>> + Send + 'static,
+{
+    {
+        let mut busy = REFRESHING.lock();
+        if busy.iter().any(|k| k == key) {
+            return;
+        }
+        busy.push(key.to_string());
+    }
+    let key = key.to_string();
+    tauri::async_runtime::spawn(async move {
+        match fetch.await {
+            Ok(v) => {
+                save(st, &key, crate::players::now_ms(), v);
+                log::info!("{what}: refreshed in the background");
+            }
+            Err(e) => log::warn!("{what}: background refresh failed ({e:#}); keeping the last copy"),
+        }
+        REFRESHING.lock().retain(|k| k != &key);
+    });
 }
 
 #[cfg(test)]
@@ -345,6 +402,37 @@ mod tests {
         assert!(damaged);
         drop(s);
         let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[tokio::test]
+    async fn stale_copies_answer_at_once_and_refresh_behind() {
+        let st: &'static Store = Box::leak(Box::new(Store::open_memory().unwrap()));
+        let ttl = Ttl { fresh_ms: 1000, stale_ms: 10_000 };
+        let now = crate::players::now_ms();
+        let put = |age: i64, v: &str| st.kv_set("k", &serde_json::to_string(&(now - age, v)).unwrap());
+        let fetch = |v: &'static str| async move { Ok(Value::from(v)) };
+        let failed = || async { anyhow::bail!("offline") };
+
+        assert!(cached_in(st, "k", ttl, "t", failed()).await.is_err(), "nothing saved, download fails");
+        assert_eq!(cached_in(st, "k", ttl, "t", fetch("new")).await.unwrap(), "new", "nothing saved: waits");
+
+        put(500, "fresh");
+        assert_eq!(cached_in(st, "k", ttl, "t", fetch("x")).await.unwrap(), "fresh");
+
+        put(5000, "stale");
+        assert_eq!(cached_in(st, "k", ttl, "t", fetch("behind")).await.unwrap(), "stale", "answered at once");
+        for _ in 0..100 {
+            if !REFRESHING.lock().iter().any(|k| k == "k") {
+                break;
+            }
+            tokio::time::sleep(std::time::Duration::from_millis(10)).await;
+        }
+        assert_eq!(cached_in(st, "k", ttl, "t", fetch("x")).await.unwrap(), "behind", "replaced in the background");
+
+        put(50_000, "old");
+        assert_eq!(cached_in(st, "k", ttl, "t", fetch("waited")).await.unwrap(), "waited", "too old: waits");
+        put(50_000, "old");
+        assert_eq!(cached_in(st, "k", ttl, "t", failed()).await.unwrap(), "old", "too old and offline: the old copy");
     }
 
     #[test]

@@ -27,6 +27,7 @@
   import Img from '../components/Img.svelte';
   import Segmented from '../components/Segmented.svelte';
   import { api } from '../lib/api';
+  import { HEX_TTL, OPGG_TTL, show } from '../lib/cache';
   import { tip } from '../lib/hover.svelte';
   import { loadGameData } from '../lib/gamedata.svelte';
   import { augmentTip, itemTip } from '../lib/tips.svelte';
@@ -58,14 +59,18 @@
 
   $effect(() => {
     if (mode !== 'rift' || rift) return;
-    api.riftTiers().then((r) => (rift = r), (e) => (error = errorText(e)));
+    show('rift-tiers', OPGG_TTL, api.riftTiers, (r) => (rift = r), (e) => (error = errorText(e)));
   });
-  /** One answer per request: a slower earlier one never replaces a newer one. */
+  /** One answer per request: a slower earlier one never replaces a newer one. A page seen before
+   *  shows its last answer at once (`show`). */
   let run = 0;
-  function fetchInto<T extends object>(p: Promise<T>, set: (v: T) => void) {
+  function fetchInto<T extends object>(key: string, fetch: () => Promise<T>, set: (v: T) => void) {
     const mine = ++run;
     error = null;
-    p.then(
+    show(
+      `hex:${key}`,
+      HEX_TTL,
+      fetch,
       (v) => {
         if (mine !== run) return;
         set(v);
@@ -81,9 +86,9 @@
     const p = hex.patch;
     const b = bracket();
     loadAugments();
-    if (aramView === 'champions') fetchInto(api.aramBoard(p, b), (v) => (board = v));
-    else if (aramView === 'augments') fetchInto(api.aramAugmentBoard(p, b), (v) => (augBoard = v));
-    else if (aramView === 'items') fetchInto(api.aramItems(b, p), (v) => (items = v));
+    if (aramView === 'champions') fetchInto(`board:${p}:${b}`, () => api.aramBoard(p, b), (v) => (board = v));
+    else if (aramView === 'augments') fetchInto(`augboard:${p}:${b}`, () => api.aramAugmentBoard(p, b), (v) => (augBoard = v));
+    else if (aramView === 'items') fetchInto(`items:${p}:${b}`, () => api.aramItems(b, p), (v) => (items = v));
   });
 
   loadChampSearch();
@@ -112,7 +117,7 @@
       return;
     }
     loadAugments();
-    fetchInto(api.aramCombos(p, b, minGames, comboSort, champions, augments), (v) => (combos = v));
+    fetchInto(`combos:${p}:${b}:${minGames}:${comboSort}:${champions}:${augments}`, () => api.aramCombos(p, b, minGames, comboSort, champions, augments), (v) => (combos = v));
   });
   $effect(() => {
     // A new table starts with its own default order.

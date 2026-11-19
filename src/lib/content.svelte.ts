@@ -1,5 +1,6 @@
 import { listen } from '@tauri-apps/api/event';
 import { api } from './api';
+import { forget } from './cache';
 import { app } from './state.svelte';
 import type { Content, ContentEdit, ContentStatus } from './types';
 
@@ -18,6 +19,8 @@ export function loadContent() {
   content.loaded = true;
   listen<Content>('content', (e) => {
     content.data = e.payload;
+    // Hextech ARAM builds carry the hand-written one.
+    forget('build:');
   });
   listen<ContentStatus>('content-status', (e) => {
     content.status = e.payload;
@@ -43,4 +46,5 @@ export function adminMode() {
 /** Admin: applies an edit now; it is published a few seconds later. */
 export async function editContent(edit: ContentEdit) {
   content.data = await api.editContent(edit);
+  forget('build:');
 }

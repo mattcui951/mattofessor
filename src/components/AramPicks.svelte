@@ -2,6 +2,7 @@
   /** Champ select in ARAM: Hextech ARAM win rates of your team's champions and the bench. */
   import Img from './Img.svelte';
   import { api } from '../lib/api';
+  import { HEX_TTL, show } from '../lib/cache';
   import { champIcon, champName } from '../lib/dd.svelte';
   import { t } from '../lib/i18n.svelte';
   import { ARAM_CREDIT, aramTier, bracket, pct1 } from '../lib/meta.svelte';
@@ -16,10 +17,7 @@
 
   $effect(() => {
     const b = bracket();
-    api.aramOverview(b).then(
-      (o) => (overview = o),
-      () => (overview = null),
-    );
+    show(`hex:overview:${b}`, HEX_TTL, () => api.aramOverview(b), (o) => (overview = o), () => (overview = null));
   });
 
   const rates = $derived(new Map((overview?.champions ?? []).map((c) => [c.championId, c.winRate])));

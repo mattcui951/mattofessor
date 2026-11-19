@@ -20,6 +20,7 @@
   import Img from '../components/Img.svelte';
   import Segmented from '../components/Segmented.svelte';
   import { api } from '../lib/api';
+  import { cached, OPGG_TTL, peek, show } from '../lib/cache';
   import { searchChamps } from '../lib/champSearch';
   import { champIndex, loadChampSearch } from '../lib/champFind.svelte';
   import { shardName, champIcon, dd, itemIcon, itemName, loadOtherNames, otherNames, rune, runeIcon, spell, spellIcon } from '../lib/dd.svelte';
@@ -64,10 +65,7 @@
   const CLASSES: ChampClass[] = ['Fighter', 'Mage', 'Assassin', 'Marksman', 'Tank', 'Support'];
   let tierRows = $state<TierRow[]>([]);
   $effect(() => {
-    api.riftTiers().then(
-      (t) => (tierRows = t.rows),
-      () => (tierRows = []),
-    );
+    show('rift-tiers', OPGG_TTL, api.riftTiers, (t) => (tierRows = t.rows), () => (tierRows = []));
   });
   const laneSets = $derived.by(() => {
     const regular = new Map<Lane, Set<number>>(LANES.map((l) => [l, new Set()]));
@@ -154,13 +152,21 @@
   async function load() {
     if (!selected) return;
     const mine = ++run;
-    loading = true;
+    const id = selected;
+    const role = mode === 'rift' ? selRole : '';
+    const m = mode;
+    const key = `build:${id}:${role}:${m}`;
+    // A build seen before shows at once; a new answer replaces it when it comes.
+    const seen = peek<Build | null>(key);
+    loading = seen === undefined;
+    if (seen !== undefined) build = seen;
     error = null;
     try {
-      const b = await api.build(selected, mode === 'rift' ? selRole : '', mode);
+      const b = await cached(key, OPGG_TTL, () => api.build(id, role, m));
       if (mine === run) build = b;
     } catch (e) {
-      if (mine === run) {
+      // A build already on screen stays when the new answer fails.
+      if (mine === run && seen === undefined) {
         build = null;
         error = errorText(e);
       }

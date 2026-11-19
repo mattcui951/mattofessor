@@ -21,6 +21,7 @@
   import MayhemMods from './MayhemMods.svelte';
   import StatGrid, { type StatCard } from './StatGrid.svelte';
   import { api } from '../lib/api';
+  import { HEX_TTL, show } from '../lib/cache';
   import { dd, itemIcon, itemName, spell, spellIcon } from '../lib/dd.svelte';
   import { tip, type HoverInfo } from '../lib/hover.svelte';
   import { augmentTip, itemText } from '../lib/tips.svelte';
@@ -43,7 +44,10 @@
     const mine = ++run;
     loadAugments();
     error = null;
-    api.aramChampionPage(id, p, b).then(
+    show(
+      `hex:champion:${id}:${p}:${b}`,
+      HEX_TTL,
+      () => api.aramChampionPage(id, p, b),
       (d) => {
         if (mine !== run) return;
         page = d;

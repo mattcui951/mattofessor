@@ -32,6 +32,7 @@ pub mod score;
 pub mod settings;
 pub mod store;
 pub mod update;
+pub mod warm;
 pub mod win;
 
 use std::io::Write;
@@ -150,6 +151,7 @@ pub fn run() {
             data::spawn();
             cards::spawn(core.clone());
             update::spawn(core.clone());
+            warm::spawn(core.clone());
             if !started_minimized {
                 core.show_main(None);
             }

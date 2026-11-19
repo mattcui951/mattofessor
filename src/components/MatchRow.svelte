@@ -3,6 +3,7 @@
   import Img from './Img.svelte';
   import ScoreBadge from './ScoreBadge.svelte';
   import { api } from '../lib/api';
+  import { cached, FOREVER } from '../lib/cache';
   import { champIcon, champName, itemIcon, itemName, runeIcon, spellIcon } from '../lib/dd.svelte';
   import { ago, compact, dec, duration, kdaRatio, num, queueName } from '../lib/format';
   import { t } from '../lib/i18n.svelte';
@@ -31,8 +32,8 @@
     if (open && !full) {
       error = null;
       try {
-        full = await api.game(g.gameId);
-        scores = await api.gameScores(g.gameId).catch(() => []);
+        full = await cached(`game:${g.gameId}`, FOREVER, () => api.game(g.gameId));
+        scores = await cached(`scores:${g.gameId}`, FOREVER, () => api.gameScores(g.gameId)).catch(() => []);
       } catch (e) {
         error = errorText(e);
       }
