@@ -1,7 +1,7 @@
 # Status
 
 Updated: 2026-11-18
-Version: 1.0.18
+Version: 1.0.19
 
 ## In progress
 
@@ -85,7 +85,7 @@ Version: 1.0.18
 
 ## Recently done
 
-- Not released yet (after 1.0.18): Russian, the eighth language. Registry entries (ru_RU, ru_ru,
+- 1.0.19 (2026-11-19): Russian, the eighth language. Registry entries (ru_RU, ru_ru,
   OCR ru-RU, client ru_*), `locales/ru.ts` (game terms from the Russian string tables: "ARAM: Хаос",
   "аугментация"; counts written "Игр: 5" to avoid Russian plural forms), Russian in the refresh job
   (LANGS, RIOT_LOCALES, STATS, WORDS, every rules.json text), README.ru.md and the bar in every
