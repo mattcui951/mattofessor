@@ -1,7 +1,7 @@
 # Status
 
 Updated: 2026-11-18
-Version: 1.0.16
+Version: 1.0.17
 
 ## In progress
 
@@ -85,7 +85,7 @@ Version: 1.0.16
 
 ## Recently done
 
-- Not released yet (after 1.0.16), found in a UI review with the mock game (2026-11-18):
+- 1.0.17, found in a UI review with the mock game (2026-11-18):
   - Hextech ARAM augment picks (Live page and in-game panel) were refetched, and shown as
     "loading", on every live update (about once a second): the effect read a field of the live
     state, which is replaced each update. Now through a `$derived`; the same fix for the
@@ -113,7 +113,7 @@ Version: 1.0.16
     - Skeletons in place of "Loading..." (Profile, Builds, augment picks, Rift tier list); buttons
       press, clickable tiles lift; everything rests under reduced motion.
     - Not verified: the real WebView2 window, light themes, other languages' text widths.
-- Not released yet (after 1.0.16): the README in all seven languages (`README.<id>.md`, the
+- 1.0.17 (docs): the README in all seven languages (`README.<id>.md`, the
   players' part; development stays in the English one), a language bar on top of each, kept in step
   with the registry by `readme.test.ts`. Each README says what to do when antivirus flags the installer.
 - 1.0.16:
