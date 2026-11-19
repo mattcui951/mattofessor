@@ -4,7 +4,7 @@
  * `locales/en.ts`) added to `dicts` in `i18n.svelte.ts`. Game names come from Riot's data in that
  * language by themselves.
  */
-export type LangId = 'en' | 'zh' | 'zh-TW' | 'ja' | 'ko' | 'es' | 'fr';
+export type LangId = 'en' | 'zh' | 'zh-TW' | 'ja' | 'ko' | 'es' | 'fr' | 'ru';
 
 export type Locale = {
   id: LangId;
@@ -28,6 +28,7 @@ export const LOCALES: Locale[] = [
   { id: 'ko', name: '한국어', tag: 'ko-KR', cjk: true, riot: 'ko-kr', cjkFont: "'Malgun Gothic'" },
   { id: 'es', name: 'Español', tag: 'es-ES', cjk: false, riot: 'es-es', cjkFont: "'Microsoft YaHei UI'" },
   { id: 'fr', name: 'Français', tag: 'fr-FR', cjk: false, riot: 'fr-fr', cjkFont: "'Microsoft YaHei UI'" },
+  { id: 'ru', name: 'Русский', tag: 'ru-RU', cjk: false, riot: 'ru-ru', cjkFont: "'Microsoft YaHei UI'" },
 ];
 
 export function isLang(id: string | null | undefined): id is LangId {

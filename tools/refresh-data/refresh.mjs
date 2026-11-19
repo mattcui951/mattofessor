@@ -48,6 +48,7 @@ const LANGS = [
   ['ko', 'ko_KR', 'ko_kr'],
   ['es', 'es_ES', 'es_es'],
   ['fr', 'fr_FR', 'fr_fr'],
+  ['ru', 'ru_RU', 'ru_ru'],
 ];
 const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140 Safari/537.36';
 
@@ -334,7 +335,7 @@ function parseStat(line, champ) {
 /** What a change line is about ("Cooldown" in "Cooldown changed to 18 seconds."). */
 const subject = (line) => line.replace(/\s+(changed|increased|reduced|decreased)\s+(to|by)\b.*$/i, '').toLowerCase();
 
-const GENERAL = { en: 'General', zh: '通用', 'zh-TW': '通用', ja: '共通', ko: '공통', es: 'General', fr: 'Général' };
+const GENERAL = { en: 'General', zh: '通用', 'zh-TW': '通用', ja: '共通', ko: '공통', es: 'General', fr: 'Général', ru: 'Общее' };
 
 function abilityOf(champ, title, st) {
   if (/^general$/i.test(title)) return { key: '', en: 'General', zh: '通用', all: GENERAL };
@@ -576,6 +577,7 @@ const RIOT_LOCALES = [
   ['ko', 'ko-kr'],
   ['es', 'es-es'],
   ['fr', 'fr-fr'],
+  ['ru', 'ru-ru'],
 ];
 
 /**

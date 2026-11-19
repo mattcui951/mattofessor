@@ -10,7 +10,8 @@
         "ja": "全チャンピオン",
         "ko": "모든 챔피언",
         "es": "Todos los campeones",
-        "fr": "Tous les champions"
+        "fr": "Tous les champions",
+        "ru": "Все чемпионы"
       },
       "items": [
         {
@@ -21,7 +22,8 @@
             "ja": "近接",
             "ko": "근접",
             "es": "Cuerpo a cuerpo",
-            "fr": "Mêlée"
+            "fr": "Mêlée",
+            "ru": "Ближний бой"
           },
           "text": {
             "en": "+20 to 600 base health (by level), +15 armor and magic resist",
@@ -30,7 +32,8 @@
             "ja": "基本体力 +20〜600 (レベルに応じて)、物理防御と魔法防御 +15",
             "ko": "기본 체력 +20~600 (레벨에 따라), 방어력과 마법 저항력 +15",
             "es": "+20 a 600 de vida base (según el nivel), +15 de armadura y resistencia mágica",
-            "fr": "+20 à 600 PV de base (selon le niveau), +15 armure et résistance magique"
+            "fr": "+20 à 600 PV de base (selon le niveau), +15 armure et résistance magique",
+            "ru": "+20-600 базового здоровья (зависит от уровня), +15 брони и сопротивления магии"
           }
         },
         {
@@ -41,7 +44,8 @@
             "ja": "遠隔",
             "ko": "원거리",
             "es": "A distancia",
-            "fr": "Distance"
+            "fr": "Distance",
+            "ru": "Дальний бой"
           },
           "text": {
             "en": "+20 to 400 base health (by level), +2 to 25 armor and magic resist (by level)",
@@ -50,7 +54,8 @@
             "ja": "基本体力 +20〜400 (レベルに応じて)、物理防御と魔法防御 +2〜25 (レベルに応じて)",
             "ko": "기본 체력 +20~400 (레벨에 따라), 방어력과 마법 저항력 +2~25 (레벨에 따라)",
             "es": "+20 a 400 de vida base (según el nivel), +2 a 25 de armadura y resistencia mágica (según el nivel)",
-            "fr": "+20 à 400 PV de base (selon le niveau), +2 à 25 armure et résistance magique (selon le niveau)"
+            "fr": "+20 à 400 PV de base (selon le niveau), +2 à 25 armure et résistance magique (selon le niveau)",
+            "ru": "+20-400 базового здоровья (зависит от уровня), +2-25 брони и сопротивления магии (зависит от уровня)"
           },
           "note": {
             "en": "The wiki notes ranged champions currently get no bonus armor or magic resist (a bug).",
@@ -59,7 +64,8 @@
             "ja": "Wiki によると、遠隔チャンピオンの物理防御と魔法防御のボーナスは現在バグで付きません。",
             "ko": "위키에 따르면 원거리 챔피언의 방어력과 마법 저항력 보너스는 현재 버그로 적용되지 않습니다.",
             "es": "Según la wiki, ahora mismo los campeones a distancia no reciben la armadura ni la resistencia mágica adicionales (un error).",
-            "fr": "Selon le wiki, les champions à distance ne reçoivent actuellement pas le bonus d'armure et de résistance magique (un bug)."
+            "fr": "Selon le wiki, les champions à distance ne reçoivent actuellement pas le bonus d'armure et de résistance magique (un bug).",
+            "ru": "По данным вики, чемпионы дальнего боя сейчас не получают бонусную броню и сопротивление магии (ошибка)."
           }
         },
         {
@@ -70,7 +76,8 @@
             "ja": "回復",
             "ko": "재생",
             "es": "Regeneración",
-            "fr": "Régénération"
+            "fr": "Régénération",
+            "ru": "Восстановление"
           },
           "text": {
             "en": "+10% mana or energy regeneration",
@@ -79,7 +86,8 @@
             "ja": "マナまたは気の回復 +10%",
             "ko": "마나 또는 기력 재생 +10%",
             "es": "+10% de regeneración de maná o energía",
-            "fr": "+10% de régénération de mana ou d'énergie"
+            "fr": "+10% de régénération de mana ou d'énergie",
+            "ru": "+10% к восстановлению маны или энергии"
           }
         },
         {
@@ -90,7 +98,8 @@
             "ja": "ルーン",
             "ko": "룬",
             "es": "Runa",
-            "fr": "Rune"
+            "fr": "Rune",
+            "ru": "Руна"
           },
           "text": {
             "en": "Everyone has Presence of Mind",
@@ -99,7 +108,8 @@
             "ja": "全員が「冷静沈着」を持つ",
             "ko": "모두가 “침착”을 가집니다",
             "es": "Todos tienen Claridad mental",
-            "fr": "Tout le monde a Présence d'esprit"
+            "fr": "Tout le monde a Présence d'esprit",
+            "ru": "У всех есть Присутствие духа"
           }
         },
         {
@@ -110,7 +120,8 @@
             "ja": "クリティカル率の超過分",
             "ko": "치명타 초과분",
             "es": "Crítico sobrante",
-            "fr": "Excédent de critique"
+            "fr": "Excédent de critique",
+            "ru": "Избыток крита"
           },
           "text": {
             "en": "Each 1% crit chance over 100% gives 0.45 attack damage or 0.75 ability power (adaptive)",
@@ -119,7 +130,8 @@
             "ja": "100%を超えたクリティカル率1%ごとに、攻撃力0.45または魔力0.75 (アダプティブ)",
             "ko": "100%를 넘는 치명타 확률 1%마다 공격력 0.45 또는 주문력 0.75 (적응형)",
             "es": "Cada 1% de probabilidad de crítico por encima del 100% da 0,45 de daño de ataque o 0,75 de poder de habilidad (adaptable)",
-            "fr": "Chaque 1% de chances de coup critique au-delà de 100% donne 0,45 dégâts d'attaque ou 0,75 puissance (adaptatif)"
+            "fr": "Chaque 1% de chances de coup critique au-delà de 100% donne 0,45 dégâts d'attaque ou 0,75 puissance (adaptatif)",
+            "ru": "Каждый 1% шанса критического удара сверх 100% дает 0,45 силы атаки или 0,75 силы умений (адаптивно)"
           }
         },
         {
@@ -130,7 +142,8 @@
             "ja": "攻撃速度の上限",
             "ko": "공격 속도 상한",
             "es": "Límite de velocidad de ataque",
-            "fr": "Plafond de vitesse d'attaque"
+            "fr": "Plafond de vitesse d'attaque",
+            "ru": "Предел скорости атаки"
           },
           "text": {
             "en": "5.0",
@@ -139,7 +152,8 @@
             "ja": "5.0",
             "ko": "5.0",
             "es": "5,0",
-            "fr": "5,0"
+            "fr": "5,0",
+            "ru": "5,0"
           }
         },
         {
@@ -150,7 +164,8 @@
             "ja": "コンボブレイカー",
             "ko": "콤보 차단",
             "es": "Rompecombos",
-            "fr": "Briseur de combo"
+            "fr": "Briseur de combo",
+            "ru": "Прерыватель комбо"
           },
           "text": {
             "en": "Each new immobilize gives tenacity for 3.25 seconds. Immobilized for 5 of the last 7 seconds: cleansed and immune to crowd control for 3 seconds.",
@@ -159,7 +174,8 @@
             "ja": "新しい移動不能効果を受けるたびに3.25秒間行動妨害耐性を得る。直近7秒のうち5秒移動不能になると、すべての行動妨害が解除され3秒間行動妨害を無効化する。",
             "ko": "새로운 이동 불가 효과를 받을 때마다 3.25초 동안 강인함을 얻습니다. 최근 7초 중 5초 동안 이동 불가 상태였다면 군중 제어가 모두 해제되고 3초 동안 군중 제어에 면역이 됩니다.",
             "es": "Cada nueva inmovilización da tenacidad durante 3,25 s. Inmovilizado 5 de los últimos 7 s: se eliminan los controles y eres inmune a ellos durante 3 s.",
-            "fr": "Chaque nouvelle immobilisation donne de la ténacité pendant 3,25 s. Immobilisé 5 des 7 dernières secondes : contrôles dissipés et insensible aux contrôles pendant 3 s."
+            "fr": "Chaque nouvelle immobilisation donne de la ténacité pendant 3,25 s. Immobilisé 5 des 7 dernières secondes : contrôles dissipés et insensible aux contrôles pendant 3 s.",
+            "ru": "Каждое новое обездвиживание дает стойкость на 3,25 сек. Обездвижен 5 из последних 7 секунд: эффекты контроля снимаются, и на 3 сек. появляется невосприимчивость к ним."
           }
         }
       ]
@@ -173,7 +189,8 @@
         "ja": "マップ",
         "ko": "맵",
         "es": "Mapa",
-        "fr": "Carte"
+        "fr": "Carte",
+        "ru": "Карта"
       },
       "items": [
         {
@@ -184,7 +201,8 @@
             "ja": "回復の遺物",
             "ko": "체력 회복 유물",
             "es": "Reliquia de salud",
-            "fr": "Relique de soin"
+            "fr": "Relique de soin",
+            "ru": "Реликвия здоровья"
           },
           "text": {
             "en": "Heals 22% of missing health and restores 22% of missing mana in an area",
@@ -193,7 +211,8 @@
             "ja": "範囲内で減少体力の22%を回復し、減少マナの22%を回復する",
             "ko": "범위 안에서 잃은 체력의 22%와 잃은 마나의 22%를 회복합니다",
             "es": "Cura un 22% de la vida perdida y restaura un 22% del maná perdido en un área",
-            "fr": "Soigne 22% des PV manquants et rend 22% du mana manquant dans une zone"
+            "fr": "Soigne 22% des PV manquants et rend 22% du mana manquant dans une zone",
+            "ru": "Восстанавливает 22% недостающего здоровья и 22% недостающей маны в области"
           }
         },
         {
@@ -204,7 +223,8 @@
             "ja": "砲台ミニオン",
             "ko": "공성 미니언",
             "es": "Súbditos de asedio",
-            "fr": "Sbires de siège"
+            "fr": "Sbires de siège",
+            "ru": "Осадные миньоны"
           },
           "text": {
             "en": "Give nearby allied minions 20% attack speed and 20% movement speed",
@@ -213,7 +233,8 @@
             "ja": "近くの味方ミニオンに攻撃速度20%と移動速度20%を与える",
             "ko": "근처 아군 미니언에게 공격 속도 20%와 이동 속도 20%를 줍니다",
             "es": "Dan a los súbditos aliados cercanos un 20% de velocidad de ataque y un 20% de velocidad de movimiento",
-            "fr": "Donnent aux sbires alliés proches 20% de vitesse d'attaque et 20% de vitesse de déplacement"
+            "fr": "Donnent aux sbires alliés proches 20% de vitesse d'attaque et 20% de vitesse de déplacement",
+            "ru": "Дают союзным миньонам рядом 20% скорости атаки и 20% скорости передвижения"
           }
         },
         {
@@ -224,7 +245,8 @@
             "ja": "スーパーミニオン",
             "ko": "슈퍼 미니언",
             "es": "Supersúbditos",
-            "fr": "Super sbires"
+            "fr": "Super sbires",
+            "ru": "Суперминьоны"
           },
           "text": {
             "en": "Only 1 per wave while the enemy inhibitor is down",
@@ -233,7 +255,8 @@
             "ja": "敵のインヒビターが壊れている間、1ウェーブに1体だけ",
             "ko": "상대 억제기가 파괴된 동안 웨이브마다 1마리만",
             "es": "Solo 1 por oleada mientras el inhibidor enemigo está destruido",
-            "fr": "Un seul par vague tant que l'inhibiteur ennemi est détruit"
+            "fr": "Un seul par vague tant que l'inhibiteur ennemi est détruit",
+            "ru": "Только 1 за волну, пока ингибитор противника разрушен"
           }
         }
       ]
@@ -247,7 +270,8 @@
         "ja": "タワーとネクサス",
         "ko": "포탑과 넥서스",
         "es": "Torretas y Nexo",
-        "fr": "Tourelles et Nexus"
+        "fr": "Tourelles et Nexus",
+        "ru": "Башни и Нексус"
       },
       "items": [
         {
@@ -258,7 +282,8 @@
             "ja": "外側タワーが壊れると",
             "ko": "외곽 포탑이 파괴되면",
             "es": "Cae la torreta exterior",
-            "fr": "Chute de la tourelle extérieure"
+            "fr": "Chute de la tourelle extérieure",
+            "ru": "Падение внешней башни"
           },
           "text": {
             "en": "The inhibitor turret takes 40% less damage for 70 seconds",
@@ -267,7 +292,8 @@
             "ja": "インヒビタータワーが70秒間受けるダメージが40%減る",
             "ko": "억제기 포탑이 70초 동안 받는 피해가 40% 줄어듭니다",
             "es": "La torreta inhibidora recibe un 40% menos de daño durante 70 s",
-            "fr": "La tourelle d'inhibiteur subit 40% de dégâts en moins pendant 70 s"
+            "fr": "La tourelle d'inhibiteur subit 40% de dégâts en moins pendant 70 s",
+            "ru": "Башня ингибитора получает на 40% меньше урона в течение 70 сек."
           },
           "highlight": true
         },
@@ -279,7 +305,8 @@
             "ja": "耐性",
             "ko": "저항력",
             "es": "Resistencias",
-            "fr": "Résistances"
+            "fr": "Résistances",
+            "ru": "Сопротивления"
           },
           "text": {
             "en": "Outer, inhibitor and Nexus turrets: 120 to 144 armor and magic resist (by minute). Outer turrets no longer drop to 40 after 12 minutes.",
@@ -288,7 +315,8 @@
             "ja": "外側、インヒビター、ネクサスのタワー: 物理防御と魔法防御120〜144 (時間に応じて)。外側タワーは12分後も40に下がらない。",
             "ko": "외곽, 억제기, 넥서스 포탑: 방어력과 마법 저항력 120~144 (시간에 따라). 외곽 포탑은 12분 뒤에도 40으로 떨어지지 않습니다.",
             "es": "Torretas exteriores, inhibidoras y del Nexo: 120 a 144 de armadura y resistencia mágica (según el minuto). Las exteriores ya no bajan a 40 tras 12 minutos.",
-            "fr": "Tourelles extérieures, d'inhibiteur et de Nexus : 120 à 144 armure et résistance magique (selon la minute). Les tourelles extérieures ne tombent plus à 40 après 12 minutes."
+            "fr": "Tourelles extérieures, d'inhibiteur et de Nexus : 120 à 144 armure et résistance magique (selon la minute). Les tourelles extérieures ne tombent plus à 40 après 12 minutes.",
+            "ru": "Внешние башни, башни ингибиторов и Нексуса: 120-144 брони и сопротивления магии (зависит от минуты). Внешние башни больше не теряют их до 40 после 12-й минуты."
           }
         },
         {
@@ -299,7 +327,8 @@
             "ja": "タワー プレート",
             "ko": "포탑 방패",
             "es": "Placas",
-            "fr": "Plaques"
+            "fr": "Plaques",
+            "ru": "Пластины"
           },
           "text": {
             "en": "Outer and inhibitor turrets have 3 plates worth 100 gold each (split). Each plate lost gives a Bulwark stack for 20 seconds: 60 to 80 armor and magic resist (more with more enemy champions within 850 range), up to 120 to 160 at 2 stacks.",
@@ -308,7 +337,8 @@
             "ja": "外側とインヒビターのタワーには100ゴールド (分配) のプレートが3枚ある。プレートを失うたびに20秒間「忠義の防壁」スタック: 物理防御と魔法防御60〜80 (850範囲内の敵チャンピオンが多いほど増加)、2スタックで最大120〜160。",
             "ko": "외곽과 억제기 포탑에는 100골드 (분배)짜리 방패가 3개 있습니다. 방패를 잃을 때마다 20초 동안 방벽 중첩: 방어력과 마법 저항력 60~80 (850 범위 안의 상대 챔피언이 많을수록 증가), 2중첩 시 최대 120~160.",
             "es": "Las torretas exteriores e inhibidoras tienen 3 placas de 100 de oro cada una (repartido). Cada placa perdida da una acumulación de Baluarte durante 20 s: 60 a 80 de armadura y resistencia mágica (más con más campeones enemigos a 850 de distancia), hasta 120 a 160 con 2 acumulaciones.",
-            "fr": "Les tourelles extérieures et d'inhibiteur ont 3 plaques de 100 PO chacune (partagés). Chaque plaque perdue donne un cumul de Pavois pendant 20 s : 60 à 80 armure et résistance magique (plus avec plus de champions ennemis à 850 de portée), jusqu'à 120 à 160 à 2 cumuls."
+            "fr": "Les tourelles extérieures et d'inhibiteur ont 3 plaques de 100 PO chacune (partagés). Chaque plaque perdue donne un cumul de Pavois pendant 20 s : 60 à 80 armure et résistance magique (plus avec plus de champions ennemis à 850 de portée), jusqu'à 120 à 160 à 2 cumuls.",
+            "ru": "У внешних башен и башен ингибиторов 3 пластины по 100 золота (делится). Каждая потерянная пластина дает заряд Бастиона на 20 сек.: 60-80 брони и сопротивления магии (больше, если рядом в радиусе 850 больше чемпионов противника), до 120-160 при 2 зарядах."
           }
         },
         {
@@ -319,7 +349,8 @@
             "ja": "ネクサス",
             "ko": "넥서스",
             "es": "Nexo",
-            "fr": "Nexus"
+            "fr": "Nexus",
+            "ru": "Нексус"
           },
           "text": {
             "en": "Nexus turrets 3000 health (from 1800); Nexus 3000 health (from 5500)",
@@ -328,7 +359,8 @@
             "ja": "ネクサス・タワーの体力3000 (1800から)、ネクサスの体力3000 (5500から)",
             "ko": "넥서스 포탑 체력 3000 (1800에서), 넥서스 체력 3000 (5500에서)",
             "es": "Torretas del Nexo con 3000 de vida (antes 1800); Nexo con 3000 de vida (antes 5500)",
-            "fr": "Tourelles de Nexus à 3000 PV (au lieu de 1800) ; Nexus à 3000 PV (au lieu de 5500)"
+            "fr": "Tourelles de Nexus à 3000 PV (au lieu de 1800) ; Nexus à 3000 PV (au lieu de 5500)",
+            "ru": "Башни Нексуса: 3000 здоровья (было 1800); Нексус: 3000 здоровья (было 5500)"
           }
         }
       ]
@@ -342,7 +374,8 @@
         "ja": "オーグメント",
         "ko": "증강",
         "es": "Aumentos",
-        "fr": "Optimisations"
+        "fr": "Optimisations",
+        "ru": "Аугментации"
       },
       "items": [
         {
@@ -353,7 +386,8 @@
             "ja": "タイミング",
             "ko": "시점",
             "es": "Cuándo",
-            "fr": "Quand"
+            "fr": "Quand",
+            "ru": "Когда"
           },
           "text": {
             "en": "At the start (level 3), then levels 7, 11 and 15; only while you can shop (dead, or at your spawn)",
@@ -362,7 +396,8 @@
             "ja": "開始時 (レベル3)、その後レベル7、11、15。購入できる間だけ (死んでいるか、スポーン地点にいるとき)",
             "ko": "시작할 때 (레벨 3), 그 뒤 레벨 7, 11, 15. 상점을 쓸 수 있을 때만 (죽었거나 우물에 있을 때)",
             "es": "Al empezar (nivel 3) y luego en los niveles 7, 11 y 15; solo mientras puedes comprar (muerto o en tu base)",
-            "fr": "Au début (niveau 3), puis aux niveaux 7, 11 et 15 ; seulement quand vous pouvez acheter (mort ou à votre base)"
+            "fr": "Au début (niveau 3), puis aux niveaux 7, 11 et 15 ; seulement quand vous pouvez acheter (mort ou à votre base)",
+            "ru": "В начале (3 уровень), затем на 7, 11 и 15 уровнях; только когда можно делать покупки (мертвы или на базе)"
           }
         },
         {
@@ -373,7 +408,8 @@
             "ja": "レア度",
             "ko": "등급",
             "es": "Rareza",
-            "fr": "Rareté"
+            "fr": "Rareté",
+            "ru": "Редкость"
           },
           "text": {
             "en": "Silver, Gold or Prismatic, the same for every player each time and random; the first two can't both be Silver",
@@ -382,7 +418,8 @@
             "ja": "シルバー、ゴールド、プリズムのいずれかで、毎回全プレイヤー共通のランダム。最初の2回が両方シルバーになることはない",
             "ko": "실버, 골드, 프리즘 중 하나로 매번 모든 플레이어가 같고 무작위입니다. 처음 두 번이 모두 실버일 수는 없습니다",
             "es": "Plata, Oro o Prismático, igual para todos los jugadores cada vez y al azar; los dos primeros no pueden ser ambos de Plata",
-            "fr": "Argent, Or ou Prismatique, la même pour tous les joueurs à chaque fois et au hasard ; les deux premières ne peuvent pas être toutes deux Argent"
+            "fr": "Argent, Or ou Prismatique, la même pour tous les joueurs à chaque fois et au hasard ; les deux premières ne peuvent pas être toutes deux Argent",
+            "ru": "Серебряная, Золотая или Призматическая, каждый раз одинаковая для всех игроков и случайная; первые две не могут обе быть Серебряными"
           }
         },
         {
@@ -393,7 +430,8 @@
             "ja": "リロール",
             "ko": "새로고침",
             "es": "Cambios",
-            "fr": "Relances"
+            "fr": "Relances",
+            "ru": "Перебросы"
           },
           "text": {
             "en": "Each offer can be rerolled once, for up to 6 choices; an augment never shows up twice in a game",
@@ -402,7 +440,8 @@
             "ja": "それぞれの候補は1回リロールでき、選択肢は最大6つ。同じオーグメントが1試合で2回出ることはない",
             "ko": "각 제안은 한 번 새로고침할 수 있어 최대 6개 중에서 고릅니다. 한 게임에서 같은 증강이 두 번 나오지 않습니다",
             "es": "Cada oferta se puede cambiar una vez, hasta 6 opciones; un aumento nunca sale dos veces en una partida",
-            "fr": "Chaque offre peut être relancée une fois, jusqu'à 6 choix ; une optimisation n'apparaît jamais deux fois dans une partie"
+            "fr": "Chaque offre peut être relancée une fois, jusqu'à 6 choix ; une optimisation n'apparaît jamais deux fois dans une partie",
+            "ru": "Каждое предложение можно перебросить один раз, всего до 6 вариантов; одна аугментация не появляется в игре дважды"
           }
         }
       ]
@@ -419,7 +458,8 @@
         "ja": "PENTAKILL",
         "ko": "펜타킬",
         "es": "Pentakill",
-        "fr": "Pentakill"
+        "fr": "Pentakill",
+        "ru": "Pentakill"
       },
       "official": true,
       "effect": {
@@ -429,7 +469,8 @@
         "ja": "最初のオーグメントの後に追加の選択: Q、W、Eのどれかがスキルヘイスト20とダメージ・回復・シールド10%増加を得る。レベル18でもう一度、今度はアルティメットも選べる。",
         "ko": "첫 증강 뒤에 추가 선택: Q, W, E 중 하나가 스킬 가속 20과 피해량, 회복, 보호막 10% 증가를 얻습니다. 레벨 18에 한 번 더, 이번에는 궁극기도 고를 수 있습니다.",
         "es": "Una elección extra tras los primeros aumentos: Q, W o E gana 20 de velocidad de habilidades y un 10% más de daño, curación y escudos. Otra vez al nivel 18, ahora también con la definitiva.",
-        "fr": "Un choix supplémentaire après les premières optimisations : Q, W ou E gagne 20 accélération de compétence et 10% de dégâts, soins et boucliers en plus. Encore au niveau 18, avec l'ultime cette fois."
+        "fr": "Un choix supplémentaire après les premières optimisations : Q, W ou E gagne 20 accélération de compétence et 10% de dégâts, soins et boucliers en plus. Encore au niveau 18, avec l'ultime cette fois.",
+        "ru": "Дополнительный выбор после первых аугментаций: Q, W или E получает 20 ускорения умений и на 10% больше урона, лечения и щитов. Снова на 18 уровне, теперь и с абсолютным умением."
       }
     },
     {
@@ -442,7 +483,8 @@
         "ja": "K/DA",
         "ko": "K/DA",
         "es": "K/DA",
-        "fr": "K/DA"
+        "fr": "K/DA",
+        "ru": "K/DA"
       },
       "official": true,
       "effect": {
@@ -452,7 +494,8 @@
         "ja": "12秒ごとにメンバーがフォトカードを投げる。4枚 (アーリ、アカリ、イブリン、カイサ) 集めると、次に死んだときにオーグメントが1つ増える。0:30から。",
         "ko": "12초마다 멤버가 포토카드를 던집니다. 4장 (아리, 아칼리, 이블린, 카이사)을 모으면 다음에 죽을 때 증강을 하나 더 얻습니다. 0:30부터.",
         "es": "Cada 12 s una integrante lanza una fotocarta. Reúne las 4 (Ahri, Akali, Evelynn, Kai'Sa) para un aumento extra la próxima vez que mueras. Empieza en el 0:30.",
-        "fr": "Toutes les 12 s, une membre lance une photocarte. Réunissez les 4 (Ahri, Akali, Evelynn, Kai'Sa) pour une optimisation de plus à votre prochaine mort. Commence à 0:30."
+        "fr": "Toutes les 12 s, une membre lance une photocarte. Réunissez les 4 (Ahri, Akali, Evelynn, Kai'Sa) pour une optimisation de plus à votre prochaine mort. Commence à 0:30.",
+        "ru": "Каждые 12 сек. участница бросает фотокарточку. Соберите все 4 (Ари, Акали, Эвелинн, Кай'Са), чтобы получить дополнительную аугментацию при следующей смерти. Начинается на 0:30."
       }
     },
     {
@@ -465,7 +508,8 @@
         "ja": "TRUE DAMAGE",
         "ko": "True Damage",
         "es": "True Damage",
-        "fr": "True Damage"
+        "fr": "True Damage",
+        "ru": "True Damage"
       },
       "official": true,
       "effect": {
@@ -475,7 +519,8 @@
         "ja": "キル/アシストや破壊したタワーから、誰でも拾えるステータスの金床が出ることがある (プリズムの金床は1試合で各チーム1つまで)。",
         "ko": "처치 관여와 파괴한 포탑에서 누구나 주울 수 있는 능력치 모루가 떨어질 수 있습니다 (프리즘 모루는 게임마다 팀당 최대 1개).",
         "es": "Los asesinatos o asistencias y las torretas destruidas pueden soltar un Yunque de estadísticas que cualquiera puede recoger (como mucho 1 Yunque prismático por equipo y partida).",
-        "fr": "Les participations aux éliminations et les tourelles détruites peuvent faire tomber une Enclume à stats que tout le monde peut ramasser (au plus 1 Enclume prismatique par équipe et par partie)."
+        "fr": "Les participations aux éliminations et les tourelles détruites peuvent faire tomber une Enclume à stats que tout le monde peut ramasser (au plus 1 Enclume prismatique par équipe et par partie).",
+        "ru": "Участие в убийствах и разрушенные башни могут оставить Наковальню характеристик, которую может подобрать любой (не больше 1 Призматической наковальни на команду за игру)."
       }
     },
     {
@@ -488,7 +533,8 @@
         "ja": "HEARTSTEEL",
         "ko": "하트스틸",
         "es": "HEARTSTEEL",
-        "fr": "HEARTSTEEL"
+        "fr": "HEARTSTEEL",
+        "ru": "HEARTSTEEL"
       },
       "official": true,
       "effect": {
@@ -498,7 +544,8 @@
         "ja": "一部のオーグメントの候補にメンバーのステッカーが付きボーナス: アフェリオスはステータスの金床2つ、エズリアルは攻撃力と魔力4〜72、ケインはオムニヴァンプ5%、クサンテはレベル+1と上限19、セトは体力30〜540、ヨネは攻撃速度40%とスキルヘイスト20。",
         "ko": "일부 증강 제안에 멤버 스티커가 붙어 보너스: 아펠리오스 능력치 모루 2개, 이즈리얼 공격력과 주문력 4~72, 케인 모든 피해 흡혈 5%, 크산테 레벨 +1과 최대 레벨 19, 세트 체력 30~540, 요네 공격 속도 40%와 스킬 가속 20.",
         "es": "Algunas ofertas de aumentos llevan la pegatina de un integrante con un extra: Aphelios 2 Yunques de estadísticas, Ezreal 4 a 72 de daño de ataque y poder de habilidad, Kayn 5% de omnisucción, K'Sante +1 nivel y límite 19, Sett 30 a 540 de vida, Yone 40% de velocidad de ataque y 20 de velocidad de habilidades.",
-        "fr": "Certaines offres d'optimisations portent l'autocollant d'un membre avec un bonus : Aphelios 2 Enclumes à stats, Ezreal 4 à 72 dégâts d'attaque et puissance, Kayn 5% d'omnivampirisme, K'Sante +1 niveau et niveau max 19, Sett 30 à 540 PV, Yone 40% de vitesse d'attaque et 20 accélération de compétence."
+        "fr": "Certaines offres d'optimisations portent l'autocollant d'un membre avec un bonus : Aphelios 2 Enclumes à stats, Ezreal 4 à 72 dégâts d'attaque et puissance, Kayn 5% d'omnivampirisme, K'Sante +1 niveau et niveau max 19, Sett 30 à 540 PV, Yone 40% de vitesse d'attaque et 20 accélération de compétence.",
+        "ru": "Некоторые предложения аугментаций несут наклейку участника с бонусом: Афелий 2 Наковальни характеристик, Эзреаль 4-72 силы атаки и силы умений, Каин 5% всевампиризма, К'Санте +1 уровень и предел уровня 19, Сетт 30-540 здоровья, Ёнэ 40% скорости атаки и 20 ускорения умений."
       }
     },
     {
@@ -511,7 +558,8 @@
         "ja": "カフェキューティーズ",
         "ko": "카페 큐티",
         "es": "Cafe Cuties",
-        "fr": "Cafe Cuties"
+        "fr": "Cafe Cuties",
+        "ru": "Cafe Cuties"
       },
       "official": true,
       "effect": {
@@ -521,7 +569,8 @@
         "ja": "回復の遺物が減少体力をさらに20% (合計42%) 回復し、6秒かけて減衰する移動速度25%を与える。各陣地のネクサス・タワーの間に遺物が1つ増える。",
         "ko": "체력 회복 유물이 잃은 체력을 20% 더 (총 42%) 회복하고 6초 동안 줄어드는 이동 속도 25%를 줍니다. 각 진영의 넥서스 포탑 사이에 유물이 하나 더 생깁니다.",
         "es": "Las reliquias de salud curan un 20% más de vida perdida (42% en total) y dan un 25% de velocidad de movimiento que decae en 6 s; cada base tiene una reliquia más entre las torretas del Nexo.",
-        "fr": "Les reliques de soin rendent 20% de PV manquants en plus (42% au total) et donnent 25% de vitesse de déplacement dégressive sur 6 s ; chaque base gagne une relique entre les tourelles de Nexus."
+        "fr": "Les reliques de soin rendent 20% de PV manquants en plus (42% au total) et donnent 25% de vitesse de déplacement dégressive sur 6 s ; chaque base gagne une relique entre les tourelles de Nexus.",
+        "ru": "Реликвии здоровья восстанавливают на 20% больше недостающего здоровья (всего 42%) и дают 25% скорости передвижения, убывающей за 6 сек.; на каждой базе появляется дополнительная реликвия между башнями Нексуса."
       }
     },
     {
@@ -534,7 +583,8 @@
         "ja": "スペースグルーヴ",
         "ko": "스페이스 그루브",
         "es": "Space Groove",
-        "fr": "Space Groove"
+        "fr": "Space Groove",
+        "ru": "Space Groove"
       },
       "official": true,
       "effect": {
@@ -544,7 +594,8 @@
         "ja": "ミッドレーンのフロアで踊るとミラーボールが大きくなる。弾けると全員に0.5秒ごとに100ゴールド、合計1000ゴールド。",
         "ko": "미드 라인 바닥에서 춤추면 미러볼이 커집니다. 터지면 모두가 0.5초마다 100골드, 총 1000골드를 받습니다.",
         "es": "Baila en la pista de la calle central para que crezca la bola de discoteca. Al estallar, todos reciben 100 de oro cada 0,5 s, 1000 en total.",
-        "fr": "Dansez sur la piste de la voie du milieu pour faire grossir la boule à facettes. Quand elle éclate, tout le monde reçoit 100 PO toutes les 0,5 s, 1000 au total."
+        "fr": "Dansez sur la piste de la voie du milieu pour faire grossir la boule à facettes. Quand elle éclate, tout le monde reçoit 100 PO toutes les 0,5 s, 1000 au total.",
+        "ru": "Танцуйте на площадке центральной линии, чтобы диско-шар рос. Когда он лопнет, все получают по 100 золота каждые 0,5 сек., всего 1000."
       }
     },
     {
@@ -557,7 +608,8 @@
         "ja": "ビーバンド",
         "ko": "벌 밴드",
         "es": "La Banda Abeja",
-        "fr": "Le Groupe Abeille"
+        "fr": "Le Groupe Abeille",
+        "ru": "Пчелиная группа"
       },
       "official": true,
       "effect": {
@@ -567,7 +619,8 @@
         "ja": "3〜10秒ごとにハチかハチミツが飛んでくる。ハチは最大体力の10% (巨大: 20%) の確定ダメージ、ハチミツは最大体力の15% (巨大: 30%) を回復し25 (100) ゴールドを与える。",
         "ko": "3~10초마다 벌이나 꿀이 날아옵니다. 벌은 최대 체력의 10% (거대: 20%) 고정 피해, 꿀은 최대 체력의 15% (거대: 30%)를 회복하고 25 (100)골드를 줍니다.",
         "es": "Cada 3 a 10 s cruza una abeja o miel. Las abejas infligen un 10% (gigante: 20%) de la vida máxima como daño verdadero; la miel cura un 15% (gigante: 30%) de la vida máxima y da 25 (100) de oro.",
-        "fr": "Toutes les 3 à 10 s, une abeille ou du miel passe. Les abeilles infligent 10% (géante : 20%) des PV max en dégâts bruts ; le miel soigne 15% (géant : 30%) des PV max et donne 25 (100) PO."
+        "fr": "Toutes les 3 à 10 s, une abeille ou du miel passe. Les abeilles infligent 10% (géante : 20%) des PV max en dégâts bruts ; le miel soigne 15% (géant : 30%) des PV max et donne 25 (100) PO.",
+        "ru": "Каждые 3-10 сек. пролетает пчела или мед. Пчелы наносят 10% (гигантская: 20%) макс. здоровья чистым уроном; мед восстанавливает 15% (гигантский: 30%) макс. здоровья и дает 25 (100) золота."
       }
     },
     {
@@ -580,7 +633,8 @@
         "ja": "コマンドライン",
         "ko": "커맨드 라인",
         "es": "Línea de comandos",
-        "fr": "Ligne de commande"
+        "fr": "Ligne de commande",
+        "ru": "Командная строка"
       },
       "official": true,
       "effect": {
@@ -590,7 +644,8 @@
         "ja": "オーグメントの候補はシルバーかゴールドだけ。リロールは候補を1段階上げる (シルバー→ゴールド、ゴールド→プリズム) ハックリロールになり、1つ使うと残り2つは通常のリロールに戻る。",
         "ko": "증강 제안은 실버나 골드만 나옵니다. 새로고침은 제안을 한 단계 올리는 (실버→골드, 골드→프리즘) 해킹 새로고침이 되고, 하나를 쓰면 나머지 둘은 일반 새로고침으로 돌아갑니다.",
         "es": "Las ofertas de aumentos solo son de Plata u Oro. Los cambios se vuelven cambios hackeados que suben una oferta un nivel (Plata a Oro, Oro a Prismático); al usar uno, los otros dos vuelven a ser normales.",
-        "fr": "Les offres d'optimisations ne sont qu'Argent ou Or. Les relances deviennent des relances piratées qui montent une offre d'un rang (Argent vers Or, Or vers Prismatique) ; en utiliser une rend les deux autres normales."
+        "fr": "Les offres d'optimisations ne sont qu'Argent ou Or. Les relances deviennent des relances piratées qui montent une offre d'un rang (Argent vers Or, Or vers Prismatique) ; en utiliser une rend les deux autres normales.",
+        "ru": "Предложения аугментаций только Серебряные или Золотые. Перебросы становятся взломанными перебросами, которые повышают предложение на одну ступень (Серебряная в Золотую, Золотая в Призматическую); использование одного возвращает два других в обычные перебросы."
       }
     },
     {
@@ -603,7 +658,8 @@
         "ja": "スーパーファン",
         "ko": "열혈 팬",
         "es": "Superfans",
-        "fr": "Superfans"
+        "fr": "Superfans",
+        "ru": "Суперфанаты"
       },
       "official": true,
       "effect": {
@@ -613,7 +669,8 @@
         "ja": "レベル上限21、経験値60%増加。レベル21になると、次に死んだときにオーグメントが1つ増える。",
         "ko": "최대 레벨 21, 경험치 60% 증가. 레벨 21이 되면 다음에 죽을 때 증강을 하나 더 얻습니다.",
         "es": "Límite de nivel 21 y un 60% más de experiencia; llegar al nivel 21 da un aumento extra la próxima vez que mueras.",
-        "fr": "Niveau max 21 et 60% d'expérience en plus ; atteindre le niveau 21 donne une optimisation de plus à votre prochaine mort."
+        "fr": "Niveau max 21 et 60% d'expérience en plus ; atteindre le niveau 21 donne une optimisation de plus à votre prochaine mort.",
+        "ru": "Предел уровня 21 и на 60% больше опыта; достижение 21 уровня дает дополнительную аугментацию при следующей смерти."
       }
     },
     {
@@ -625,7 +682,8 @@
         "ja": "ビットラッシュ",
         "ko": "비트 러시",
         "es": "Bit Rush",
-        "fr": "Bit Rush"
+        "fr": "Bit Rush",
+        "ru": "Bit Rush"
       },
       "official": true,
       "effect": {
@@ -635,7 +693,8 @@
         "ja": "キル/アシストでトークンを得る。死んでいる間に4枚使うとスポーン地点で復活する。",
         "ko": "처치 관여로 토큰을 얻습니다. 죽어 있는 동안 4개를 쓰면 우물에서 부활합니다.",
         "es": "Los asesinatos o asistencias dan fichas; gasta 4 mientras estás muerto para revivir en tu base.",
-        "fr": "Les participations aux éliminations donnent des jetons ; dépensez-en 4 quand vous êtes mort pour réapparaître à votre base."
+        "fr": "Les participations aux éliminations donnent des jetons ; dépensez-en 4 quand vous êtes mort pour réapparaître à votre base.",
+        "ru": "Участие в убийствах дает жетоны; потратьте 4, пока мертвы, чтобы возродиться на базе."
       }
     },
     {
@@ -647,7 +706,8 @@
         "ja": "デボネア",
         "ko": "디보네어",
         "es": "Debonair",
-        "fr": "Debonair"
+        "fr": "Debonair",
+        "ru": "Debonair"
       },
       "official": true,
       "effect": {
@@ -657,7 +717,8 @@
         "ja": "オーグメントの候補ごとに200、350、500、700ゴールド (ランダム) と帽子ももらえる。",
         "ko": "증강 제안마다 200, 350, 500, 700골드 (무작위)와 모자도 받습니다.",
         "es": "Cada oferta de aumentos da además 200, 350, 500 o 700 de oro (al azar) y sombreros.",
-        "fr": "Chaque offre d'optimisations donne aussi 200, 350, 500 ou 700 PO (au hasard) et des chapeaux."
+        "fr": "Chaque offre d'optimisations donne aussi 200, 350, 500 ou 700 PO (au hasard) et des chapeaux.",
+        "ru": "Каждое предложение аугментаций также дает 200, 350, 500 или 700 золота (случайно) и шляпы."
       }
     },
     {
@@ -669,7 +730,8 @@
         "ja": "ラ・イルシオン",
         "ko": "라 일루시온",
         "es": "La Ilusión",
-        "fr": "La Ilusión"
+        "fr": "La Ilusión",
+        "ru": "La Ilusión"
       },
       "official": false,
       "effect": {
@@ -679,7 +741,8 @@
         "ja": "味方が死んだ場所にキャンドルが落ちる (10秒)。拾うと自分と1500範囲内の味方が4秒間シールドを得る。",
         "ko": "아군이 죽은 자리에 양초가 떨어집니다 (10초). 주우면 나와 1500 범위 안의 아군이 4초 동안 보호막을 얻습니다.",
         "es": "Los aliados sueltan una vela donde mueren (10 s); recogerla te da un escudo a ti y a los aliados a 1500 de distancia durante 4 s.",
-        "fr": "Les alliés laissent une bougie là où ils meurent (10 s) ; la ramasser vous protège, vous et les alliés à 1500 de portée, d'un bouclier pendant 4 s."
+        "fr": "Les alliés laissent une bougie là où ils meurent (10 s) ; la ramasser vous protège, vous et les alliés à 1500 de portée, d'un bouclier pendant 4 s.",
+        "ru": "Союзники оставляют свечу там, где погибли (10 сек.); подобравший ее дает щит себе и союзникам в радиусе 1500 на 4 сек."
       }
     },
     {
@@ -691,7 +754,8 @@
         "ja": "マエストロ",
         "ko": "마에스트로",
         "es": "Maestro",
-        "fr": "Maestro"
+        "fr": "Maestro",
+        "ru": "Maestro"
       },
       "official": false,
       "effect": {
@@ -701,7 +765,8 @@
         "ja": "オーグメントの候補が3つではなく4つになる。",
         "ko": "증강 제안이 3개가 아니라 4개입니다.",
         "es": "Las ofertas de aumentos muestran 4 opciones en vez de 3.",
-        "fr": "Les offres d'optimisations montrent 4 choix au lieu de 3."
+        "fr": "Les offres d'optimisations montrent 4 choix au lieu de 3.",
+        "ru": "Предложения аугментаций показывают 4 варианта вместо 3."
       }
     }
   ]

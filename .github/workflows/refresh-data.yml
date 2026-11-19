@@ -60,7 +60,7 @@ jobs:
         working-directory: tools/refresh-data
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          # Seven languages' string tables, read one after another.
+          # Eight languages' string tables, read one after another.
           NODE_OPTIONS: --max-old-space-size=6144
         run: node refresh.mjs --out "$RUNNER_TEMP/out" --prev "$RUNNER_TEMP/data"
 

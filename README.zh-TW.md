@@ -1,8 +1,8 @@
 # Mattofessor
 
-[English](README.md) · [简体中文](README.zh-CN.md) · **繁體中文** · [日本語](README.ja.md) · [한국어](README.ko.md) · [Español](README.es.md) · [Français](README.fr.md)
+[English](README.md) · [简体中文](README.zh-CN.md) · **繁體中文** · [日本語](README.ja.md) · [한국어](README.ko.md) · [Español](README.es.md) · [Français](README.fr.md) · [Русский](README.ru.md)
 
-一款在 Windows 本機執行的英雄聯盟助手，可以取代 Porofessor：不需要 Overwolf，沒有廣告，也不用註冊帳號。支援繁體中文、簡體中文、英文、日文、韓文、西班牙文和法文。
+一款在 Windows 本機執行的英雄聯盟助手，可以取代 Porofessor：不需要 Overwolf，沒有廣告，也不用註冊帳號。支援繁體中文、簡體中文、英文、日文、韓文、西班牙文、法文和俄文。
 
 > 本頁介紹如何安裝和使用。開發、建置和發佈的說明請見英文版 [README](README.md)。
 

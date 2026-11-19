@@ -1,8 +1,8 @@
 # Mattofessor
 
-[English](README.md) · [简体中文](README.zh-CN.md) · [繁體中文](README.zh-TW.md) · [日本語](README.ja.md) · **한국어** · [Español](README.es.md) · [Français](README.fr.md)
+[English](README.md) · [简体中文](README.zh-CN.md) · [繁體中文](README.zh-TW.md) · [日本語](README.ja.md) · **한국어** · [Español](README.es.md) · [Français](README.fr.md) · [Русский](README.ru.md)
 
-Windows에서 로컬로 실행되는 리그 오브 레전드 도우미입니다. Porofessor 대신 쓸 수 있고, Overwolf도 광고도 계정 가입도 필요 없습니다. 한국어, 영어, 중국어 간체, 중국어 번체, 일본어, 스페인어, 프랑스어를 지원합니다.
+Windows에서 로컬로 실행되는 리그 오브 레전드 도우미입니다. Porofessor 대신 쓸 수 있고, Overwolf도 광고도 계정 가입도 필요 없습니다. 한국어, 영어, 중국어 간체, 중국어 번체, 일본어, 스페인어, 프랑스어, 러시아어를 지원합니다.
 
 > 이 페이지는 설치와 사용법을 설명합니다. 개발, 빌드, 배포에 관한 내용은 영어 [README](README.md)를 참고하세요.
 

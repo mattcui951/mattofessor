@@ -85,6 +85,12 @@ Version: 1.0.18
 
 ## Recently done
 
+- Not released yet (after 1.0.18): Russian, the eighth language. Registry entries (ru_RU, ru_ru,
+  OCR ru-RU, client ru_*), `locales/ru.ts` (game terms from the Russian string tables: "ARAM: Хаос",
+  "аугментация"; counts written "Игр: 5" to avoid Russian plural forms), Russian in the refresh job
+  (LANGS, RIOT_LOCALES, STATS, WORDS, every rules.json text), README.ru.md and the bar in every
+  README. The shipped data gets Russian from the next refresh-data run. The UI in Russian is not yet
+  checked in a window (long words may wrap or clip in the rail and tables).
 - 1.0.18 (2026-11-19): the sidebar folds to its icons with a round button on its edge
   (Rail.svelte, remembered in localStorage; labels stay as tooltips). Checked in the browser preview.
 - 1.0.17, found in a UI review with the mock game (2026-11-18):

@@ -7,12 +7,13 @@ import ja from '../../../README.ja.md?raw';
 import ko from '../../../README.ko.md?raw';
 import es from '../../../README.es.md?raw';
 import fr from '../../../README.fr.md?raw';
+import ru from '../../../README.ru.md?raw';
 
 /** Each language's README at the repository root ("README.zh-CN.md" for Simplified Chinese). */
 const readme = (id: LangId) => (id === 'en' ? 'README.md' : `README.${id === 'zh' ? 'zh-CN' : id}.md`);
 
 /** Imported by name: a new language's README goes here too (the first test says so). */
-const texts: Record<string, string> = { en, zh, 'zh-TW': zhTW, ja, ko, es, fr };
+const texts: Record<string, string> = { en, zh, 'zh-TW': zhTW, ja, ko, es, fr, ru };
 
 /** The language bar every README starts with: its own language in bold, the others linked. */
 const bar = (own: LangId) =>

@@ -16,7 +16,7 @@ pub struct Lang {
     pub client: &'static [&'static str],
 }
 
-pub const LANGS: [Lang; 7] = [
+pub const LANGS: [Lang; 8] = [
     Lang { id: "en", dd: "en_US", cdragon: "default", ocr: "en-US", client: &["en_"] },
     Lang { id: "zh", dd: "zh_CN", cdragon: "zh_cn", ocr: "zh-Hans-CN", client: &["zh_CN", "zh_MY", "zh_SG"] },
     Lang { id: "zh-TW", dd: "zh_TW", cdragon: "zh_tw", ocr: "zh-Hant-TW", client: &["zh_TW", "zh_HK"] },
@@ -24,6 +24,7 @@ pub const LANGS: [Lang; 7] = [
     Lang { id: "ko", dd: "ko_KR", cdragon: "ko_kr", ocr: "ko-KR", client: &["ko_"] },
     Lang { id: "es", dd: "es_ES", cdragon: "es_es", ocr: "es-ES", client: &["es_"] },
     Lang { id: "fr", dd: "fr_FR", cdragon: "fr_fr", ocr: "fr-FR", client: &["fr_"] },
+    Lang { id: "ru", dd: "ru_RU", cdragon: "ru_ru", ocr: "ru-RU", client: &["ru_"] },
 ];
 
 pub fn english() -> &'static Lang {
@@ -60,6 +61,7 @@ mod tests {
         assert_eq!(from_client("es_MX").id, "es");
         assert_eq!(from_client("ko_KR").id, "ko");
         assert_eq!(from_client("pt_BR").id, "en");
-        assert!(known("fr") && !known("de"));
+        assert_eq!(from_client("ru_RU").id, "ru");
+        assert!(known("fr") && known("ru") && !known("de"));
     }
 }

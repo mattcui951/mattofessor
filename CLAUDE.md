@@ -20,7 +20,7 @@ that reads the League client API (LCU) and public data only. Public repo, releas
   restarts the installed app or reinstalls it.
 - Debug builds use `%APPDATA%\Mattofessor-dev`; keep it that way so a dev run never touches the
   installed app's database.
-- Strings exist in every language in `src/lib/locales/` (seven now); add each. README "Languages" says how to add a language.
+- Strings exist in every language in `src/lib/locales/` (eight now); add each. README "Languages" says how to add a language.
 
 ## Releasing
 

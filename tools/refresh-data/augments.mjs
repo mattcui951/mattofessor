@@ -8,21 +8,21 @@ export const KIWI = 'https://raw.communitydragon.org/latest/game/maps/modespecif
 
 /** Stats a calculation scales with (`mStat`), as each language's client names them. */
 const STATS = {
-  0: { en: 'AP', zh: '法术强度', 'zh-TW': '魔法攻擊', ja: '魔力', ko: '주문력', es: 'poder de habilidad', fr: 'puissance' },
-  1: { en: 'Armor', zh: '护甲', 'zh-TW': '物理防禦', ja: '物理防御', ko: '방어력', es: 'armadura', fr: 'armure' },
-  2: { en: 'AD', zh: '攻击力', 'zh-TW': '攻擊力', ja: '攻撃力', ko: '공격력', es: 'daño de ataque', fr: "dégâts d'attaque" },
-  4: { en: 'Attack Speed', zh: '攻击速度', 'zh-TW': '攻擊速度', ja: '攻撃速度', ko: '공격 속도', es: 'velocidad de ataque', fr: "vitesse d'attaque" },
-  6: { en: 'Magic Resist', zh: '魔法抗性', 'zh-TW': '魔法防禦', ja: '魔法防御', ko: '마법 저항력', es: 'resistencia mágica', fr: 'résistance magique' },
-  7: { en: 'Move Speed', zh: '移动速度', 'zh-TW': '移動速度', ja: '移動速度', ko: '이동 속도', es: 'velocidad de movimiento', fr: 'vitesse de déplacement' },
-  8: { en: 'Crit Chance', zh: '暴击几率', 'zh-TW': '暴擊率', ja: 'クリティカル率', ko: '치명타 확률', es: 'probabilidad de crítico', fr: 'chances de coup critique' },
-  9: { en: 'Crit Damage', zh: '暴击伤害', 'zh-TW': '暴擊傷害', ja: 'クリティカルダメージ', ko: '치명타 피해량', es: 'daño crítico', fr: 'dégâts critiques' },
-  11: { en: 'Ability Haste', zh: '技能急速', 'zh-TW': '技能加速', ja: 'スキルヘイスト', ko: '스킬 가속', es: 'velocidad de habilidades', fr: 'accélération de compétence' },
-  12: { en: 'max Health', zh: '最大生命值', 'zh-TW': '最大生命', ja: '最大体力', ko: '최대 체력', es: 'vida máxima', fr: 'PV max' },
-  34: { en: 'Heal and Shield Power', zh: '治疗和护盾强度', 'zh-TW': '治療和護盾量', ja: 'ヒールとシールドの効果', ko: '체력 회복 및 보호막 효과', es: 'poder de curaciones y escudos', fr: 'puissance de soins et boucliers' },
+  0: { en: 'AP', zh: '法术强度', 'zh-TW': '魔法攻擊', ja: '魔力', ko: '주문력', es: 'poder de habilidad', fr: 'puissance', ru: 'силы умений' },
+  1: { en: 'Armor', zh: '护甲', 'zh-TW': '物理防禦', ja: '物理防御', ko: '방어력', es: 'armadura', fr: 'armure', ru: 'брони' },
+  2: { en: 'AD', zh: '攻击力', 'zh-TW': '攻擊力', ja: '攻撃力', ko: '공격력', es: 'daño de ataque', fr: "dégâts d'attaque", ru: 'силы атаки' },
+  4: { en: 'Attack Speed', zh: '攻击速度', 'zh-TW': '攻擊速度', ja: '攻撃速度', ko: '공격 속도', es: 'velocidad de ataque', fr: "vitesse d'attaque", ru: 'скорости атаки' },
+  6: { en: 'Magic Resist', zh: '魔法抗性', 'zh-TW': '魔法防禦', ja: '魔法防御', ko: '마법 저항력', es: 'resistencia mágica', fr: 'résistance magique', ru: 'сопротивления магии' },
+  7: { en: 'Move Speed', zh: '移动速度', 'zh-TW': '移動速度', ja: '移動速度', ko: '이동 속도', es: 'velocidad de movimiento', fr: 'vitesse de déplacement', ru: 'скорости передвижения' },
+  8: { en: 'Crit Chance', zh: '暴击几率', 'zh-TW': '暴擊率', ja: 'クリティカル率', ko: '치명타 확률', es: 'probabilidad de crítico', fr: 'chances de coup critique', ru: 'шанса критического удара' },
+  9: { en: 'Crit Damage', zh: '暴击伤害', 'zh-TW': '暴擊傷害', ja: 'クリティカルダメージ', ko: '치명타 피해량', es: 'daño crítico', fr: 'dégâts critiques', ru: 'критического урона' },
+  11: { en: 'Ability Haste', zh: '技能急速', 'zh-TW': '技能加速', ja: 'スキルヘイスト', ko: '스킬 가속', es: 'velocidad de habilidades', fr: 'accélération de compétence', ru: 'ускорения умений' },
+  12: { en: 'max Health', zh: '最大生命值', 'zh-TW': '最大生命', ja: '最大体力', ko: '최대 체력', es: 'vida máxima', fr: 'PV max', ru: 'макс. здоровья' },
+  34: { en: 'Heal and Shield Power', zh: '治疗和护盾强度', 'zh-TW': '治療和護盾量', ja: 'ヒールとシールドの効果', ko: '체력 회복 및 보호막 효과', es: 'poder de curaciones y escudos', fr: 'puissance de soins et boucliers', ru: 'силы лечения и щитов' },
 };
 
 /** The languages written (ids of `src/lib/locales.ts`). */
-export const AUGMENT_LANGS = ['en', 'zh', 'zh-TW', 'ja', 'ko', 'es', 'fr'];
+export const AUGMENT_LANGS = ['en', 'zh', 'zh-TW', 'ja', 'ko', 'es', 'fr', 'ru'];
 
 /** The game's hash of a name it stores hashed (`{0123abcd}`): 32-bit FNV-1a of the lower case. */
 export function hashName(name) {
@@ -48,6 +48,7 @@ const WORDS = {
   ko: { level: ' (레벨에 따라)', bonus: '추가 ', base: '기본 ', scale: (p, n, k) => `${k}${n}의 ${p}`, stack: (v) => ` (중첩당 +${v})`, mana: '최대 마나', ranged: (p) => ` (원거리 챔피언은 ${p})`, spell: '지정한 스킬', open: ' (+', close: ')' },
   es: { level: ' (según el nivel)', bonus: ' adicional', base: ' base', scale: (p, n, k) => `${p} de ${n}${k}`, stack: (v) => ` (+${v} por acumulación)`, mana: 'maná máximo', ranged: (p) => ` (${p} a distancia)`, spell: 'habilidad elegida', open: ' (+', close: ')' },
   fr: { level: ' (selon le niveau)', bonus: ' bonus', base: ' de base', scale: (p, n, k) => `${p} de ${n}${k}`, stack: (v) => ` (+${v} par cumul)`, mana: 'mana max', ranged: (p) => ` (${p} à distance)`, spell: 'compétence choisie', open: ' (+', close: ')' },
+  ru: { level: ' (зависит от уровня)', bonus: 'доп. ', base: 'базов. ', scale: (p, n, k) => `${p} ${k}${n}`, stack: (v) => ` (+${v} за заряд)`, mana: 'макс. маны', ranged: (p) => ` (${p} для дальнего боя)`, spell: 'выбранное умение', open: ' (+', close: ')' },
 };
 
 const num = (v, precision = 2) => {

@@ -8,6 +8,7 @@ import { es } from './locales/es';
 import { fr } from './locales/fr';
 import { ja } from './locales/ja';
 import { ko } from './locales/ko';
+import { ru } from './locales/ru';
 import { zh } from './locales/zh';
 import { zhTW } from './locales/zh-TW';
 
@@ -15,7 +16,7 @@ export type { Key } from './locales/en';
 export type Lang = LangId;
 
 /** Every language's dictionary; a language in `locales.ts` without one is a type error. */
-const dicts: Record<LangId, Dict> = { en, zh, 'zh-TW': zhTW, ja, ko, es, fr };
+const dicts: Record<LangId, Dict> = { en, zh, 'zh-TW': zhTW, ja, ko, es, fr, ru };
 
 export const i18n = $state({ lang: 'en' as Lang });
 

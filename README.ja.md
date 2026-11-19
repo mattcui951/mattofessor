@@ -1,8 +1,8 @@
 # Mattofessor
 
-[English](README.md) · [简体中文](README.zh-CN.md) · [繁體中文](README.zh-TW.md) · **日本語** · [한국어](README.ko.md) · [Español](README.es.md) · [Français](README.fr.md)
+[English](README.md) · [简体中文](README.zh-CN.md) · [繁體中文](README.zh-TW.md) · **日本語** · [한국어](README.ko.md) · [Español](README.es.md) · [Français](README.fr.md) · [Русский](README.ru.md)
 
-Windows でローカルに動く League of Legends のアシスタントです。Porofessor の代わりに使えて、Overwolf も広告もアカウント登録もいりません。日本語、英語、簡体字中国語、繁体字中国語、韓国語、スペイン語、フランス語に対応しています。
+Windows でローカルに動く League of Legends のアシスタントです。Porofessor の代わりに使えて、Overwolf も広告もアカウント登録もいりません。日本語、英語、簡体字中国語、繁体字中国語、韓国語、スペイン語、フランス語、ロシア語に対応しています。
 
 > このページはインストールと使い方の説明です。開発、ビルド、リリースについては英語の [README](README.md) をご覧ください。
 

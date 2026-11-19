@@ -1,9 +1,10 @@
 # Mattofessor
 
-**English** · [简体中文](README.zh-CN.md) · [繁體中文](README.zh-TW.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [Español](README.es.md) · [Français](README.fr.md)
+**English** · [简体中文](README.zh-CN.md) · [繁體中文](README.zh-TW.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [Español](README.es.md) · [Français](README.fr.md) · [Русский](README.ru.md)
 
 A local Porofessor replacement for League of Legends on Windows, without Overwolf, ads or
-accounts. In English, Simplified and Traditional Chinese, Japanese, Korean, Spanish and French.
+accounts. In English, Simplified and Traditional Chinese, Japanese, Korean, Spanish, French and
+Russian.
 
 - **Profile**: your (or any Riot ID's) solo and flex rank, past ranks, tags, most played
   champions, roles, mastery and match history with full 10-player game details (items and gold,
@@ -157,7 +158,7 @@ Limits of the client API, found by testing against the live client:
 
 ## Languages
 
-English, Simplified Chinese, Traditional Chinese (Taiwan), Japanese, Korean, Spanish and French.
+English, Simplified Chinese, Traditional Chinese (Taiwan), Japanese, Korean, Spanish, French and Russian.
 Settings > Language picks one, or follows the League client. Each language shows only its own
 text: game names, item and augment descriptions, rules and patch notes come from Riot's data in
 that language (Data Dragon, the game's string tables, Riot's localized patch notes; Tencent's for
