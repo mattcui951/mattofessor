@@ -47,7 +47,8 @@ export function ago(ms: number, now = Date.now()): string {
   if (s < 60) return t('time.now');
   if (s < 3600) return t('time.min', Math.floor(s / 60));
   if (s < 86400) return t('time.hour', Math.floor(s / 3600));
-  return t('time.days', Math.floor(s / 86400));
+  return new Intl.RelativeTimeFormat(locale(i18n.lang).tag, { numeric: 'always' })
+    .format(-Math.floor(s / 86400), 'day');
 }
 
 export function duration(sec: number): string {

@@ -1,7 +1,7 @@
 # Status
 
-Updated: 2026-11-18
-Version: 1.0.19
+Updated: 2026-11-19
+Version: 1.0.20
 
 ## In progress
 
@@ -77,13 +77,19 @@ Version: 1.0.19
 
 - Huorong (火绒) blocks the 1.0.15 installer as "TrojanSpy/Stealer.jl" (2026-11-18). A false positive: the installer has no Authenticode signature, and the app reads the League lockfile, captures the screen and runs its own updates. VirusTotal had never seen the file. Fix: code signing (Next).
 
-- Profile page at a small window with a large text size (history column under about 480 px wide,
-  e.g. the smallest window at 140%): the collapsed game rows are cut off on the right. The fixed
-  width of the left column is the cause.
 - Without a Riot API key, other players' ranked losses are unknown (an LCU limit); the UI says so.
 - Match history from the LCU is limited to 40 games and the first lookup takes about 5 s.
 
 ## Recently done
+
+- 1.0.20 app assessment (2026-11-19, main session): checked all eight navigation destinations against
+  the existing debug/mock bridge, including champ select and in-game data. Fixed narrow Profile
+  and Builds layouts, the Settings appearance control, and localized elapsed-day plurals.
+  Browser checks covered search, build loading, empty history filters, expanded matches, combat
+  stats and ranking. Profile had no row/main overflow at 743, 901, 1000, 1040, 1041 and 1320 CSS px.
+  Checks: 78 frontend tests, 83 Rust tests (2 ignored), clean Svelte checks, production build.
+  Native WebView zoom, real-game hotkeys/OCR and imports remain unverified in this pass.
+  Build still warns about the 663 KB main JS chunk. Details: `tools/app-assessment-2026-11-19.md`.
 
 - 1.0.19 (2026-11-19): Russian, the eighth language. Registry entries (ru_RU, ru_ru,
   OCR ru-RU, client ru_*), `locales/ru.ts` (game terms from the Russian string tables: "ARAM: Хаос",

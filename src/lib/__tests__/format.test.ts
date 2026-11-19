@@ -5,7 +5,7 @@ vi.mock('@tauri-apps/api/event', () => ({ listen: vi.fn() }));
 
 import { _dicts, i18n } from '../i18n.svelte';
 import { LOCALES } from '../locales';
-import { compact, dec, gamesText, kdaRatio, num, ordinal, positionRole, queueName, roleName, tagText } from '../format';
+import { ago, compact, dec, gamesText, kdaRatio, num, ordinal, positionRole, queueName, roleName, tagText } from '../format';
 import { tierScore, tierText } from '../dd.svelte';
 import { errorText } from '../state.svelte';
 import { cooldownFor } from '../../overlay/spells';
@@ -43,6 +43,20 @@ describe('errorText', () => {
 });
 
 describe('format', () => {
+  it('formats elapsed days with each language’s plural rules', () => {
+    const day = 86_400_000;
+    expect(ago(0, day - 1)).toBe('23 h ago');
+    expect(ago(0, day)).toBe('1 day ago');
+    expect(ago(0, 2 * day)).toBe('2 days ago');
+    i18n.lang = 'fr';
+    expect(ago(0, day)).toBe('il y a 1 jour');
+    i18n.lang = 'es';
+    expect(ago(0, day)).toBe('hace 1 día');
+    i18n.lang = 'ru';
+    expect(ago(0, day)).toBe('1 день назад');
+    expect(ago(0, 2 * day)).toBe('2 дня назад');
+    expect(ago(0, 5 * day)).toBe('5 дней назад');
+  });
   it('names role groups', () => {
     expect(roleName('mid+top')).toBe('Mid / Top');
     expect(roleName('')).toBe('');

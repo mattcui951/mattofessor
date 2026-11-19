@@ -379,17 +379,21 @@
   }
   .appearance {
     justify-self: stretch;
-    display: grid;
-    grid-template-columns: 170px minmax(0, 1fr);
+    display: flex;
+    flex-wrap: wrap;
     gap: 16px;
     align-items: center;
   }
   .ap-text {
+    flex: 1 1 220px;
     display: grid;
     gap: 10px;
     justify-items: start;
     color: var(--text-2);
     font-size: 13px;
+  }
+  .current {
+    flex: 0 0 170px;
   }
   .riot-status {
     display: flex;

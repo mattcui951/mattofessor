@@ -497,6 +497,7 @@
   }
   .top {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 16px;
   }
@@ -530,6 +531,7 @@
   }
   .filters {
     display: flex;
+    flex-wrap: wrap;
     gap: 2px;
     background: var(--bg-sunk);
     border: 1px solid var(--seam);
@@ -602,5 +604,25 @@
   }
   .err {
     color: var(--death);
+  }
+  /* WebView zoom reduces the available CSS width even on a desktop window. */
+  @media (max-width: 1040px) {
+    .page {
+      display: block;
+      overflow-y: auto;
+    }
+    .side {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      overflow: visible;
+      border-right: 0;
+      border-bottom: 1px solid var(--seam);
+    }
+    .side > :global(*) {
+      min-width: 0;
+    }
+    .main {
+      overflow: visible;
+      min-width: 0;
+    }
   }
 </style>

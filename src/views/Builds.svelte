@@ -465,6 +465,20 @@
     grid-template-columns: 290px minmax(0, 1fr);
     overflow: hidden;
   }
+  @media (max-width: 900px) {
+    .page {
+      display: block;
+      overflow-y: auto;
+    }
+    .page .picker {
+      height: 280px;
+      border-right: 0;
+      border-bottom: 1px solid var(--seam);
+    }
+    .page .main {
+      overflow: visible;
+    }
+  }
   .picker {
     border-right: 1px solid var(--seam);
     display: flex;
@@ -597,6 +611,7 @@
     color: var(--you);
   }
   .main {
+    container-type: inline-size;
     overflow-y: auto;
     padding: 14px 20px 24px;
     display: grid;
@@ -804,6 +819,11 @@
     gap: 28px;
     align-items: start;
   }
+  @container (max-width: 640px) {
+    .runes {
+      grid-template-columns: auto auto;
+    }
+  }
   .tree {
     display: grid;
     gap: 10px;
@@ -855,6 +875,11 @@
   }
   .two.one {
     grid-template-columns: 1fr;
+  }
+  @container (max-width: 640px) {
+    .two {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
   .written {
     display: flex;
