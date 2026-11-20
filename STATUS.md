@@ -1,7 +1,7 @@
 # Status
 
 Updated: 2026-11-19
-Version: 1.0.22
+Version: 1.0.23
 
 ## In progress
 
@@ -82,7 +82,7 @@ Version: 1.0.22
 
 ## Recently done
 
-- Not released yet (after 1.0.22): augment rarity colors are the game's own in every theme.
+- 1.0.23 (2026-11-19): augment rarity colors are the game's own in every theme.
   Silver, gold and prismatic used the theme's secondary text, "objective" and "assist" colors,
   so in many themes they blurred together (Rosé Pine: gold and prismatic both peach). Now
   `rarityColors` in `themes.ts` sets `--rar-*`: a neutral silver, a true gold, and a pink, violet,
