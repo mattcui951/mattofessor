@@ -4,6 +4,7 @@ import App from './App.svelte';
 import Overlay from './overlay/Overlay.svelte';
 import Spells from './overlay/Spells.svelte';
 import Cards from './overlay/Cards.svelte';
+import { blockContextMenu } from './lib/contextmenu';
 import { logError } from './lib/errors';
 import { init } from './lib/state.svelte';
 
@@ -18,6 +19,7 @@ async function start() {
   const views: Record<string, typeof App> = { '#overlay': Overlay, '#spells': Spells, '#cards': Cards };
   const view = views[location.hash] ?? App;
   if (view !== App) document.documentElement.classList.add('overlay');
+  blockContextMenu(view !== App);
   await init();
   mount(view, { target: document.getElementById('app')! });
 }

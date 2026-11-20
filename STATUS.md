@@ -82,6 +82,14 @@ Version: 1.0.21
 
 ## Recently done
 
+- Not released yet (after 1.0.21): no browser right-click menu (Back, Refresh, Print...). A
+  right-click meant to move the champion that landed on an in-game window opened it.
+  `src/lib/contextmenu.ts`: in-game windows never show it; the main window shows it only on text
+  fields (cut, copy, paste). The spell timers' right-click reset still works. Verified in the real
+  WebView2 with a mock game: the installed 1.0.21 opens the menu on a right-click, the new build
+  does not on the panel or the spell timers, a running timer resets, and the Profile search field
+  still gets its menu.
+
 - 1.0.21 (2026-11-19): faster pages. Measured first: the backend already answered repeat
   calls in 2-20 ms, but every page is rebuilt on each visit and asked again, and the first call of
   a session waited 0.5-1.8 s (AramHex tables from disk, OP.GG over the network).
