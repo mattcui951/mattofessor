@@ -1,7 +1,7 @@
 # Status
 
 Updated: 2026-11-19
-Version: 1.0.23
+Version: 1.0.24
 
 ## In progress
 
@@ -81,6 +81,17 @@ Version: 1.0.23
 - Match history from the LCU is limited to 40 games and the first lookup takes about 5 s.
 
 ## Recently done
+
+- 1.0.24 (2026-11-19): the in-game panel (Hextech ARAM) shows what to take, not
+  what to avoid. Four augments per rarity (the backend already sends four), and an item line for
+  your champion under them: `IngameBuild.svelte` asks `build(id, '', 'aram')` (same cache key as
+  the Builds page) and shows the hand-written build when there is one, else AramHex's starting
+  items, first boots, core items in order and up to four other picks. Before, the item line only
+  showed for champions with a hand-written build, so most games had none. Item names show on
+  hover (native tooltip; the overlay has no hover layer). The content branch has no hand-written
+  builds at all yet, so this is the first time items show in game. Checked in the browser preview
+  (`#overlay`, a stand-in KIWI live state): Jinx and Garen, a champion swap updates both lists.
+  Not seen in a real game yet.
 
 - 1.0.23 (2026-11-19): augment rarity colors are the game's own in every theme.
   Silver, gold and prismatic used the theme's secondary text, "objective" and "assist" colors,
