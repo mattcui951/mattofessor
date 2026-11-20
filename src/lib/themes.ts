@@ -237,6 +237,61 @@ export function resolve(t: Theme): ThemeColors {
   return out;
 }
 
+/**
+ * Augment rarity colors: the game's own silver, gold and prismatic, the same in every theme.
+ * Borrowing the theme's accents made them blur together (in Rosé Pine gold and "assist" are both
+ * peach; secondary text, used for silver, is lavender in Arcade and cream in Gruvbox). Light
+ * themes get deeper shades of the same hues, and each is darkened (light themes) or lightened (dark
+ * themes) only as far as it takes to read on the theme's surfaces. Prismatic is a rainbow like
+ * the game's; `prismatic` alone is its middle stop, for where one color has to do.
+ */
+const RARITY_BASE = {
+  dark: { silver: '#c3cad3', gold: '#ffc61a', prismatic: ['#ff6bd6', '#9b7bff', '#3fd4ff'] },
+  light: { silver: '#6b7682', gold: '#d6a100', prismatic: ['#c4168f', '#6a3fe0', '#0076b8'] },
+};
+
+export type RarityColors = { silver: string; gold: string; prismatic: string; prismaticStops: string[] };
+
+/** HSL (h 0-360, s and l 0-1) to hex. */
+function hsl(h: number, s: number, l: number): string {
+  const k = (n: number) => (n + h / 30) % 12;
+  const a = s * Math.min(l, 1 - l);
+  const f = (n: number) => l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1));
+  return toHex([f(0) * 255, f(8) * 255, f(4) * 255]);
+}
+
+/** Hex to HSL (h 0-360, s and l 0-1). */
+export function toHsl(hex: string): [number, number, number] {
+  const [r, g, b] = (parseHex(hex) ?? [0, 0, 0]).map((v) => v / 255);
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const d = max - min;
+  const l = (max + min) / 2;
+  const s = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1));
+  let h = 0;
+  if (d) h = max === r ? ((g - b) / d) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  return [(h * 60 + 360) % 360, s, l];
+}
+
+/** Like `ensureContrast`, but keeps the hue and saturation: only lightness moves. */
+function ensureContrastHue(fg: string, bgs: string[], min: number, lighter: boolean): string {
+  const [h, s, l0] = toHsl(fg);
+  for (let l = l0; lighter ? l <= 1 : l >= 0; l += lighter ? 0.01 : -0.01) {
+    const c = hsl(h, s, l);
+    if (bgs.every((b) => contrast(c, b) >= min)) return c;
+  }
+  return lighter ? '#ffffff' : '#000000';
+}
+
+export function rarityColors(t: Theme): RarityColors {
+  const col = resolve(t);
+  const base = t.dark ? RARITY_BASE.dark : RARITY_BASE.light;
+  const surfaces = [col.bg, col.panel, col.panel3];
+  const fit = (hex: string) => (surfaces.every((s) => contrast(hex, s) >= 3) ? hex : ensureContrastHue(hex, surfaces, 3, t.dark));
+  const stops = base.prismatic.map(fit);
+  return { silver: fit(base.silver), gold: fit(base.gold), prismatic: stops[1], prismaticStops: stops };
+}
+
 /** Ink for text on a primary (`you`) button: whichever of near-black / near-white reads better. */
 export function inkOn(hex: string): string {
   return contrast(hex, '#0b0b12') >= contrast(hex, '#ffffff') ? '#0b0b12' : '#ffffff';
@@ -273,6 +328,12 @@ export function cssVars(t: Theme): Record<string, string> {
   for (const k of COLOR_KEYS) vars[CSS_VARS[k]] = col[k];
   vars['--you-ink'] = inkOn(col.you);
   vars['--mark'] = col.text;
+  const rar = rarityColors(t);
+  vars['--rar-silver'] = rar.silver;
+  vars['--rar-gold'] = rar.gold;
+  vars['--rar-prismatic'] = rar.prismatic;
+  vars['--rar-prismatic-grad'] = `linear-gradient(100deg, ${rar.prismaticStops.join(', ')})`;
+  vars['--rar-prismatic-bar'] = `linear-gradient(180deg, ${rar.prismaticStops.join(', ')})`;
   // --font-cjk: the UI language's Chinese, Japanese or Korean font (`locales.ts`).
   vars['--font-ui'] = stack(t.fontUi, "'Segoe UI', var(--font-cjk), system-ui, sans-serif");
   vars['--font-score'] = stack(t.fontScore, "'Segoe UI', var(--font-cjk), sans-serif");

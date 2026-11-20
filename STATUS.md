@@ -82,6 +82,16 @@ Version: 1.0.22
 
 ## Recently done
 
+- Not released yet (after 1.0.22): augment rarity colors are the game's own in every theme.
+  Silver, gold and prismatic used the theme's secondary text, "objective" and "assist" colors,
+  so in many themes they blurred together (Rosé Pine: gold and prismatic both peach). Now
+  `rarityColors` in `themes.ts` sets `--rar-*`: a neutral silver, a true gold, and a pink, violet,
+  blue rainbow for prismatic (gradient text, ring and side bar). Light themes get deeper shades;
+  each color only moves in lightness until it reads at 3:1 on the theme's surfaces. Tests check
+  every built-in theme. Seen in the browser preview in Rosé Pine, Gruvbox Dark and Light, GitHub
+  Light and High Contrast Dark: Meta board and list, ARAM builds labels, tooltips, icon rings.
+  Not seen in the real champ select or in-game panel (a real game was running).
+
 - 1.0.22 (2026-11-19): no browser right-click menu (Back, Refresh, Print...). A
   right-click meant to move the champion that landed on an in-game window opened it.
   `src/lib/contextmenu.ts`: in-game windows never show it; the main window shows it only on text

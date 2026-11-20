@@ -86,7 +86,7 @@
     <div class="tight">
       {#each data.rarities as r (r.rarity)}
         <div class="rcol">
-          <h4 class={r.rarity}>{t(`aug.${r.rarity}`)}</h4>
+          <h4><span class="rar-{r.rarity}">{t(`aug.${r.rarity}`)}</span></h4>
           {#if r.avoid.length}<h4 class="sub">{t('recs.avoid')}</h4>{/if}
           <div class="list take">
             {#each r.take.slice(0, 3) as a (a.id)}{@render line(a, false)}{/each}
@@ -102,7 +102,7 @@
     <div class="rar">
       {#each data.rarities as r (r.rarity)}
         <div class="col">
-          <h4 class={r.rarity}>{t(`aug.${r.rarity}`)}</h4>
+          <h4><span class="rar-{r.rarity}">{t(`aug.${r.rarity}`)}</span></h4>
           {#each r.take.slice(0, compact ? 3 : 4) as a (a.id)}{@render row(a, false)}{/each}
           {#if !r.take.length}<p class="dim small">{t('recs.noneTake')}</p>{/if}
           {#if r.avoid.length && !compact}
@@ -174,15 +174,6 @@
     font: 700 11.5px var(--font-score);
     letter-spacing: 0.08em;
     text-transform: uppercase;
-  }
-  h4.silver {
-    color: var(--text-2);
-  }
-  h4.gold {
-    color: var(--objective);
-  }
-  h4.prismatic {
-    color: var(--assist);
   }
   .sub {
     margin-top: 6px;

@@ -394,7 +394,7 @@
               <tr onclick={() => { comboAug = a.id; aramView = 'combos'; query = ''; }}>
                 <td class="n num">{i + 1}</td>
                 <td><span class="champ" use:tip={() => augmentTip(a.id)}><Img src={info?.icon ?? null} size={28} round />{info?.name}</span></td>
-                <td><span class="rar {info?.rarity}">{info?.rarity ? t(`aug.${info.rarity}`) : ''}</span></td>
+                <td><span class="rar {info?.rarity ? `rar-${info.rarity}` : ''}">{info?.rarity ? t(`aug.${info.rarity}`) : ''}</span></td>
                 <td class="num">{pct1(a.winRate)}%</td>
                 <td class="num" class:hi={a.delta > 0.01} class:lo={a.delta < -0.01}>{delta(a.delta)}</td>
                 <td class="num">{share(a.pickRate)}%</td>
@@ -637,15 +637,6 @@
     font: 600 11.5px var(--font-score);
     letter-spacing: 0.06em;
     text-transform: uppercase;
-  }
-  .rar.silver {
-    color: var(--text-2);
-  }
-  .rar.gold {
-    color: var(--objective);
-  }
-  .rar.prismatic {
-    color: var(--assist);
   }
   .hi {
     color: var(--win);

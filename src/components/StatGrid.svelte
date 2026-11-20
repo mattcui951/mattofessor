@@ -31,6 +31,8 @@
   import { t } from '../lib/i18n.svelte';
   import { delta, pct1, share } from '../lib/meta.svelte';
 
+  const RARITIES = ['silver', 'gold', 'prismatic'];
+
   let {
     label,
     tone = '',
@@ -51,7 +53,7 @@
 
 <div class="sg">
   <div class="lab {tone}">
-    <div class="nm">{label}</div>
+    <div class="nm"><span class={RARITIES.includes(tone) ? `rar-${tone}` : ''}>{label}</span></div>
     {#each LINES as l (l.s)}
       <button class="rk" class:on={sort === l.s} aria-pressed={sort === l.s} title={t('hex.sortBy', l.label)} onclick={() => (sort = l.s)}>{l.label}</button>
     {/each}
@@ -101,13 +103,20 @@
     --tone: var(--text-2);
   }
   .lab.prismatic {
-    --tone: var(--assist);
+    --tone: var(--rar-prismatic);
   }
   .lab.gold {
-    --tone: var(--objective);
+    --tone: var(--rar-gold);
   }
   .lab.silver {
-    --tone: var(--text-2);
+    --tone: var(--rar-silver);
+  }
+  /* Prismatic: the side bar is the rainbow too. */
+  .lab.prismatic .nm {
+    box-shadow: none;
+    background:
+      var(--rar-prismatic-bar) left / 3px 100% no-repeat,
+      color-mix(in oklab, var(--tone) 16%, var(--panel-3));
   }
   .lab.items,
   .lab.boots,

@@ -29,12 +29,23 @@
     background: var(--bg-sunk);
   }
   .silver {
-    box-shadow: 0 0 0 1.5px color-mix(in oklab, var(--text-2) 70%, transparent);
+    box-shadow: 0 0 0 1.5px var(--rar-silver);
   }
   .gold {
-    box-shadow: 0 0 0 1.5px var(--objective);
+    box-shadow: 0 0 0 1.5px var(--rar-gold);
   }
+  /* The rainbow ring: the gradient behind the icon, showing 1.5px around it. */
   .prismatic {
-    box-shadow: 0 0 0 1.5px var(--assist);
+    position: relative;
+    isolation: isolate;
+    box-shadow: none;
+  }
+  .prismatic::before {
+    content: '';
+    position: absolute;
+    inset: -1.5px;
+    z-index: -1;
+    border-radius: calc(var(--r-md) + 1.5px);
+    background: var(--rar-prismatic-grad);
   }
 </style>

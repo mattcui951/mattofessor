@@ -33,6 +33,14 @@
   --warn: #ff9f45;       /* warnings */
   --mark: #e8e4ff;       /* bookmarks, manual */
 
+  /* Augment rarities: the game's silver, gold and prismatic rainbow, not theme accents
+     (`rarityColors` in themes.ts). --rar-prismatic is the rainbow's middle, for one-color uses. */
+  --rar-silver: #c3cad3;
+  --rar-gold: #ffc61a;
+  --rar-prismatic: #9b7bff;
+  --rar-prismatic-grad: linear-gradient(100deg, #ff6bd6, #9b7bff, #3fd4ff);
+  --rar-prismatic-bar: linear-gradient(180deg, #ff6bd6, #9b7bff, #3fd4ff);
+
   /* Set for the UI language (`locales.ts`): which CJK font draws Chinese, Japanese or Korean. */
   --font-cjk: 'Microsoft YaHei UI';
   --font-ui: 'Segoe UI Variable Text', 'Segoe UI', var(--font-cjk), system-ui, sans-serif;
@@ -317,4 +325,19 @@ p {
   .icon-btn:active {
     transform: none;
   }
+}
+
+/* Augment rarity names, on an inline element (a block would stretch the rainbow past the text). */
+.rar-silver {
+  color: var(--rar-silver);
+}
+.rar-gold {
+  color: var(--rar-gold);
+}
+.rar-prismatic {
+  color: var(--rar-prismatic);
+  background: var(--rar-prismatic-grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }

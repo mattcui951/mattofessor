@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { ACCENT_KEYS, BUILT_IN, contrast, copyOf, cssVars, ensureContrast, inkOn, mix, resolve, sanitize } from '../themes';
+import { ACCENT_KEYS, BUILT_IN, contrast, copyOf, cssVars, ensureContrast, inkOn, mix, parseHex, rarityColors, resolve, sanitize, toHsl } from '../themes';
+
+/** Hue (0-360) and saturation (0-1) of a hex color. */
+const hs = (hex: string) => toHsl(hex).slice(0, 2) as [number, number];
+
+const dist = (a: string, b: string) => Math.hypot(...parseHex(a)!.map((v, i) => v - parseHex(b)![i]));
 
 describe('color math', () => {
   it('computes WCAG contrast', () => {
@@ -44,6 +49,27 @@ describe('built-in themes', () => {
       expect(c.panel3).not.toBe(c.bg);
       const vars = cssVars(t);
       expect(vars['color-scheme']).toBe(t.dark ? 'dark' : 'light');
+    });
+
+    it(`${t.name} shows silver, gold and prismatic as themselves`, () => {
+      const c = resolve(t);
+      const r = rarityColors(t);
+      for (const surface of [c.bg, c.panel, c.panel3]) {
+        for (const hex of [r.silver, r.gold, ...r.prismaticStops]) expect(contrast(hex, surface)).toBeGreaterThanOrEqual(3);
+      }
+      expect(hs(r.silver)[1], 'silver is grey').toBeLessThan(0.2);
+      const [goldHue, goldSat] = hs(r.gold);
+      expect(goldHue, 'gold hue').toBeGreaterThanOrEqual(38);
+      expect(goldHue, 'gold hue').toBeLessThanOrEqual(50);
+      expect(goldSat, 'gold is saturated').toBeGreaterThan(0.6);
+      // The rainbow runs pink, violet, blue.
+      const hues = r.prismaticStops.map((x) => hs(x)[0]);
+      expect(hues[0]).toBeGreaterThan(300);
+      expect(hues[1]).toBeGreaterThan(240);
+      expect(hues[2]).toBeLessThan(210);
+      // Silver is grey and the other two are vivid, so silver never passes for either.
+      for (const x of r.prismaticStops) expect(hs(x)[1], `${x} is vivid`).toBeGreaterThan(0.6);
+      for (const x of [r.silver, ...r.prismaticStops]) expect(dist(r.gold, x), `gold vs ${x}`).toBeGreaterThan(90);
     });
   }
 });

@@ -70,7 +70,7 @@
 
   <div class="board" role="table" aria-label={t('hex.augBoard')}>
     <div class="hd corner" role="columnheader">{t('hex.lift')}</div>
-    {#each RARITIES as r (r)}<div class="hd {r}" role="columnheader">{t(`aug.${r}`)}</div>{/each}
+    {#each RARITIES as r (r)}<div class="hd" role="columnheader"><span class="rar-{r}">{t(`aug.${r}`)}</span></div>{/each}
     {#each rows as row (row.min)}
       <div class="band {row.tone}" role="rowheader"><b class="num">{range(row.min, row.max)}</b></div>
       {#each row.cells as cell, ci (ci)}
@@ -134,12 +134,6 @@
     font: 600 12px var(--font-score);
     letter-spacing: 0.06em;
     color: var(--text-2);
-  }
-  .hd.prismatic {
-    color: var(--assist);
-  }
-  .hd.gold {
-    color: var(--objective);
   }
   .band {
     display: grid;

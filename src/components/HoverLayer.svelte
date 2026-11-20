@@ -26,7 +26,7 @@
       {#if i.icon !== undefined}<Img src={i.icon} size={34} round={i.round} />{/if}
       <div class="ttl">
         <b>{i.title}</b>
-        {#if i.sub}<small class={i.subTone}>{i.sub}</small>{/if}
+        {#if i.sub}<small><span class={i.subTone ? `rar-${i.subTone}` : ''}>{i.sub}</span></small>{/if}
       </div>
     </div>
     {#if i.body}<div class="body"><RichText text={i.body} /></div>{/if}
@@ -84,15 +84,6 @@
     font: 600 11px var(--font-score);
     letter-spacing: 0.06em;
     text-transform: uppercase;
-  }
-  .ttl small.prismatic {
-    color: var(--assist);
-  }
-  .ttl small.gold {
-    color: var(--objective);
-  }
-  .ttl small.silver {
-    color: var(--text-2);
   }
   dl {
     display: grid;
