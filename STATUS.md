@@ -1,7 +1,7 @@
 # Status
 
 Updated: 2026-11-19
-Version: 1.0.21
+Version: 1.0.22
 
 ## In progress
 
@@ -82,7 +82,7 @@ Version: 1.0.21
 
 ## Recently done
 
-- Not released yet (after 1.0.21): no browser right-click menu (Back, Refresh, Print...). A
+- 1.0.22 (2026-11-19): no browser right-click menu (Back, Refresh, Print...). A
   right-click meant to move the champion that landed on an in-game window opened it.
   `src/lib/contextmenu.ts`: in-game windows never show it; the main window shows it only on text
   fields (cut, copy, paste). The spell timers' right-click reset still works. Verified in the real
