@@ -2,8 +2,8 @@
   import Icon from '../components/Icon.svelte';
   import AramPicks from '../components/AramPicks.svelte';
   import AugmentPicks from '../components/AugmentPicks.svelte';
-  import MayhemBuild from '../components/MayhemBuild.svelte';
-  import { content, loadContent } from '../lib/content.svelte';
+  import IngameBuild from '../components/IngameBuild.svelte';
+  import { loadContent } from '../lib/content.svelte';
   import FullscreenNotice from '../components/FullscreenNotice.svelte';
   import Teams from '../components/Teams.svelte';
   import { api } from '../lib/api';
@@ -69,7 +69,7 @@
         <div class="picks"><AramPicks onpick={(id) => api.openBuild(id, 'aram')} /></div>
       {:else if hasTeams && app.live.mode === 'KIWI' && me && me.championId > 0}
         <AugmentPicks championId={me.championId} compact />
-        {#if content.data.builds[me.championId]}<div class="mine"><MayhemBuild build={content.data.builds[me.championId]} compact /></div>{/if}
+        <IngameBuild championId={me.championId} />
       {/if}
       {#if hasTeams}
         <Teams live={app.live} onprofile={(puuid) => api.openProfile(puuid)} />
@@ -205,10 +205,6 @@
   }
   .fs :global(.callout) {
     margin: 8px 8px 0;
-  }
-  .mine {
-    padding: 8px 12px 10px;
-    border-bottom: 1px solid var(--seam);
   }
   .picks {
     padding: 8px 8px 0;

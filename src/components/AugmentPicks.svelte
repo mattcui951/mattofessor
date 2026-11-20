@@ -1,7 +1,8 @@
 <script lang="ts">
   /**
    * Hextech ARAM augment recommendations for one champion: by rarity, the augments that raise its
-   * win rate the most (take) and lower it the most (avoid). `compact` is the in-game overlay form.
+   * win rate the most (take) and lower it the most (avoid). `compact` is the in-game overlay form:
+   * the four best of each rarity, nothing to avoid.
    */
   import Img from './Img.svelte';
   import { num } from '../lib/format';
@@ -42,14 +43,13 @@
 
 </script>
 
-<!-- The in-game panel's form: rows only as wide as their text, the number right after the name,
-     and the augments to avoid beside the ones to take. -->
-{#snippet line(a: AugRow, bad: boolean)}
+<!-- The in-game panel's form: rows only as wide as their text, the number right after the name. -->
+{#snippet line(a: AugRow)}
   {@const info = augment(a.id)}
-  <div class="ln" class:bad title={t('recs.games', num(a.games))}>
+  <div class="ln" title={t('recs.games', num(a.games))}>
     <Img src={info?.icon ?? null} size={20} />
     <span class="nm">{info?.name ?? `#${a.id}`}</span>
-    <b class="num" class:hi={!bad} class:lo={bad}>{delta(a.delta)}</b>
+    <b class="num hi">{delta(a.delta)}</b>
     <small class="num">{pct1(a.winRate)}%</small>
   </div>
 {/snippet}
@@ -78,7 +78,7 @@
   {:else if !data}
     <!-- Three rarities of rows, as the list will be. -->
     <div class="wait" aria-busy="true" aria-label={t('common.loading')}>
-      {#each Array(3) as _, i (i)}<div>{#each Array(compact ? 3 : 4) as _, j (j)}<span class="skel" style="height:{compact ? 24 : 34}px"></span>{/each}</div>{/each}
+      {#each Array(3) as _, i (i)}<div>{#each Array(4) as _, j (j)}<span class="skel" style="height:{compact ? 24 : 34}px"></span>{/each}</div>{/each}
     </div>
   {:else if data.rarities.every((r) => !r.take.length && !r.avoid.length)}
     <p class="dim">{t('meta.noAugments')}</p>
@@ -87,14 +87,10 @@
       {#each data.rarities as r (r.rarity)}
         <div class="rcol">
           <h4><span class="rar-{r.rarity}">{t(`aug.${r.rarity}`)}</span></h4>
-          {#if r.avoid.length}<h4 class="sub">{t('recs.avoid')}</h4>{/if}
-          <div class="list take">
-            {#each r.take.slice(0, 3) as a (a.id)}{@render line(a, false)}{/each}
+          <div class="list">
+            {#each r.take.slice(0, 4) as a (a.id)}{@render line(a)}{/each}
             {#if !r.take.length}<p class="dim small">{t('recs.noneTake')}</p>{/if}
           </div>
-          {#if r.avoid.length}
-            <div class="list avoid">{#each r.avoid.slice(0, 3) as a (a.id)}{@render line(a, true)}{/each}</div>
-          {/if}
         </div>
       {/each}
     </div>
@@ -103,16 +99,16 @@
       {#each data.rarities as r (r.rarity)}
         <div class="col">
           <h4><span class="rar-{r.rarity}">{t(`aug.${r.rarity}`)}</span></h4>
-          {#each r.take.slice(0, compact ? 3 : 4) as a (a.id)}{@render row(a, false)}{/each}
+          {#each r.take.slice(0, 4) as a (a.id)}{@render row(a, false)}{/each}
           {#if !r.take.length}<p class="dim small">{t('recs.noneTake')}</p>{/if}
-          {#if r.avoid.length && !compact}
+          {#if r.avoid.length}
             <div class="sub">{t('recs.avoid')}</div>
             {#each r.avoid as a (a.id)}{@render row(a, true)}{/each}
           {/if}
         </div>
       {/each}
     </div>
-    {#if !compact}<p class="note">{t('recs.hint')} · {ARAM_CREDIT}</p>{/if}
+    <p class="note">{t('recs.hint')} · {ARAM_CREDIT}</p>
   {/if}
 </section>
 
@@ -214,7 +210,7 @@
     color: var(--text-3);
     font-size: 11px;
   }
-  /* Compact (in-game): each rarity is a take list and an avoid list side by side. */
+  /* Compact (in-game): a column of the best augments per rarity. */
   .tight {
     display: flex;
     flex-wrap: wrap;
@@ -222,21 +218,8 @@
   }
   .rcol {
     display: grid;
-    grid-template-columns: auto auto;
-    grid-template-rows: auto auto;
-    gap: 3px 14px;
+    gap: 3px;
     align-content: start;
-  }
-  .rcol h4.sub {
-    grid-area: 1 / 2;
-    margin: 0 0 2px;
-    color: var(--text-3);
-  }
-  .rcol .take {
-    grid-area: 2 / 1;
-  }
-  .rcol .avoid {
-    grid-area: 2 / 2;
   }
   .list {
     display: grid;
@@ -254,10 +237,6 @@
     border-radius: var(--r-md);
     background: var(--panel-2);
   }
-  .ln.bad {
-    background: transparent;
-    box-shadow: inset 0 0 0 1px var(--seam);
-  }
   .ln .nm {
     font-size: 12.5px;
     white-space: nowrap;
@@ -272,9 +251,6 @@
     font-size: 11px;
     color: var(--text-3);
     text-align: right;
-  }
-  .ln.bad .nm {
-    color: var(--text-2);
   }
   .hi {
     color: var(--win);
