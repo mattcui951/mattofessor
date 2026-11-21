@@ -43,8 +43,11 @@ jobs:
 
           Already have Mattofessor? It offers this update by itself. Needs the League of Legends client.
           EOF
-          gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --draft --title "Mattofessor $GITHUB_REF_NAME" --notes-file notes.md --verify-tag
-          id=$(gh api "repos/$GITHUB_REPOSITORY/releases" --jq ".[] | select(.tag_name == \"$GITHUB_REF_NAME\") | .id" | head -n1)
+          # The id comes from the create call itself: a fresh draft can be missing from the release
+          # list for a while, and without an id the builds upload nothing.
+          id=$(jq -n --arg tag "$GITHUB_REF_NAME" --rawfile body notes.md '{tag_name: $tag, name: "Mattofessor \($tag)", body: $body, draft: true}' \
+            | gh api -X POST "repos/$GITHUB_REPOSITORY/releases" --input - --jq .id)
+          test -n "$id" || { echo "::error::no release id"; exit 1; }
           echo "id=$id" >> "$GITHUB_OUTPUT"
 
   build:

@@ -1,11 +1,11 @@
 # Status
 
 Updated: 2026-11-20
-Version: 1.0.26
+Version: 1.0.27
 
 ## In progress
 
-- macOS support (2026-11-20, released in 1.0.26). The system code is split per system: `os/`
+- macOS support (2026-11-20, released in 1.0.27). The system code is split per system: `os/`
   (processes via libproc, other windows via the Quartz window list, the in-game windows as
   non-activating AppKit panels at pop-up-menu level on every space, screen captures via
   ScreenCaptureKit without the app's own windows), `ocr/` (Vision, read in 1024 px tiles: a
@@ -107,8 +107,10 @@ Version: 1.0.26
 
 ## Recently done
 
-- 1.0.26 (2026-11-20): macOS support (see In progress for what is still unverified); CI on both
-  systems for every push and PR (`ci.yml`).
+- 1.0.27 (2026-11-20): macOS support (see In progress for what is still unverified); CI on both
+  systems for every push and PR (`ci.yml`). The v1.0.26 tag build uploaded nothing (the
+  fresh draft was not in the release list yet, so its id was empty); the draft id now comes from
+  the create call.
 
 - 1.0.25 (2026-11-20): a game that just ended shows up in the profile by itself.
   Right after a game the client answers 500 for a while, then lists the game only minutes
