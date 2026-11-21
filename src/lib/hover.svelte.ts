@@ -7,6 +7,8 @@ export type HoverStat = { label: string; value: string; tone?: 'up' | 'down' | '
 export type HoverInfo = {
   icon?: string | null;
   round?: boolean;
+  /** White artwork (augments): `Img`'s dark plate. */
+  plate?: boolean;
   title: string;
   /** A short line under the title (rarity, kind). */
   sub?: string;

@@ -29,7 +29,7 @@
     {@const info = augment(id)}
     {@const vals = bands.map((b) => of(b, id))}
     <div class="row">
-      <span class="aug"><Img src={info?.icon ?? null} size={22} round /><span>{info?.name ?? `#${id}`}</span></span>
+      <span class="aug"><Img src={info?.icon ?? null} size={22} round plate /><span>{info?.name ?? `#${id}`}</span></span>
       <span class="track">
         <span class="span" style="left:{at(Math.min(...vals))};width:calc({at(Math.max(...vals))} - {at(Math.min(...vals))})"></span>
         {#each bands as b (b.bracket)}

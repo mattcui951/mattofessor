@@ -39,7 +39,7 @@
           <span class="pair">
             <span class="who"><Img src={champIcon(c.championId)} size={28} />{champName(c.championId)}</span>
             <span class="x">×</span>
-            <span class="who" use:tip={() => augmentTip(c.augmentId, [{ label: t('hex.win'), value: `${pct1(c.winRate)}%` }, { label: t('hex.deltaLong'), value: delta(c.delta) }, { label: t('hex.games'), value: num(c.games) }])}><Img src={a?.icon ?? null} size={28} round /><span>{a?.name ?? `#${c.augmentId}`}</span></span>
+            <span class="who" use:tip={() => augmentTip(c.augmentId, [{ label: t('hex.win'), value: `${pct1(c.winRate)}%` }, { label: t('hex.deltaLong'), value: delta(c.delta) }, { label: t('hex.games'), value: num(c.games) }])}><Img src={a?.icon ?? null} size={28} round plate /><span>{a?.name ?? `#${c.augmentId}`}</span></span>
           </span>
         </td>
         <td class="num r">{pct1(c.winRate)}%</td>

@@ -32,6 +32,7 @@
   --assist: #7cb4ff;     /* assists, premades */
   --warn: #ff9f45;       /* warnings */
   --mark: #e8e4ff;       /* bookmarks, manual */
+  --art-plate: #0b0d10;  /* behind white artwork (augment icons), dark in every theme */
 
   /* Augment rarities: the game's silver, gold and prismatic rainbow, not theme accents
      (`rarityColors` in themes.ts). --rar-prismatic is the rainbow's middle, for one-color uses. */

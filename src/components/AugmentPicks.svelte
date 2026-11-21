@@ -47,7 +47,7 @@
 {#snippet line(a: AugRow)}
   {@const info = augment(a.id)}
   <div class="ln" title={t('recs.games', num(a.games))}>
-    <Img src={info?.icon ?? null} size={20} />
+    <Img src={info?.icon ?? null} size={20} plate />
     <span class="nm">{info?.name ?? `#${a.id}`}</span>
     <b class="num hi">{delta(a.delta)}</b>
     <small class="num">{pct1(a.winRate)}%</small>
@@ -57,7 +57,7 @@
 {#snippet row(a: AugRow, bad: boolean)}
   {@const info = augment(a.id)}
   <div class="aug" class:bad>
-    <Img src={info?.icon ?? null} size={compact ? 22 : 26} />
+    <Img src={info?.icon ?? null} size={compact ? 22 : 26} plate />
     <span class="nm">{info?.name ?? `#${a.id}`}</span>
     <span class="st num" title={t('recs.games', num(a.games))}>
       <b class:hi={!bad} class:lo={bad}>{delta(a.delta)}</b>

@@ -60,7 +60,7 @@
       <div class="tiles">
         {#each board.removed as a (a.id)}
           <span class="pt gone" use:tip={() => hoverOf(a, true)} role="img" aria-label={augment(a.id)?.name ?? ''}>
-            <Img src={augment(a.id)?.icon ?? null} size={34} round />
+            <Img src={augment(a.id)?.icon ?? null} size={34} round plate />
             <span class="v num">{pct1(a.winRate)}</span>
           </span>
         {/each}
@@ -77,7 +77,7 @@
         <div class="cell" role="cell">
           {#each cell as a (a.id)}
             <button class="pt {row.tone}" class:dim={matches && !matches.has(a.id)} class:low={a.lowSample} aria-label={augment(a.id)?.name ?? ''} use:tip={() => hoverOf(a)} onclick={() => onpick(a.id)}>
-              <Img src={augment(a.id)?.icon ?? null} size={34} round />
+              <Img src={augment(a.id)?.icon ?? null} size={34} round plate />
               <span class="v num">{delta(a.delta)}</span>
             </button>
           {/each}

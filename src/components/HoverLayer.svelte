@@ -23,7 +23,7 @@
   {@const i = hover.info}
   <div class="hc" class:wide={Boolean(i.body)} role="tooltip" bind:offsetWidth={w} bind:offsetHeight={h} style="left:{pos.left}px;top:{pos.top}px">
     <div class="top">
-      {#if i.icon !== undefined}<Img src={i.icon} size={34} round={i.round} />{/if}
+      {#if i.icon !== undefined}<Img src={i.icon} size={34} round={i.round} plate={i.plate} />{/if}
       <div class="ttl">
         <b>{i.title}</b>
         {#if i.sub}<small><span class={i.subTone ? `rar-${i.subTone}` : ''}>{i.sub}</span></small>{/if}

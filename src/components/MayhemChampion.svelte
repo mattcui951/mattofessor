@@ -84,6 +84,7 @@
       key: a.id,
       icon: info?.icon ?? null,
       round: true,
+      plate: true,
       name,
       winRate: a.winRate,
       delta: a.delta,

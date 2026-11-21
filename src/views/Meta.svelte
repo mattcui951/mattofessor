@@ -278,7 +278,7 @@
         {#if comboAug}
           {@const a = augment(comboAug)}
           <button class="chip" onclick={() => (comboAug = null)} title={t('hex.clearFilter')}>
-            <Img src={a?.icon ?? null} size={18} round />{a?.name ?? `#${comboAug}`}<Icon name="close" size={12} />
+            <Img src={a?.icon ?? null} size={18} round plate />{a?.name ?? `#${comboAug}`}<Icon name="close" size={12} />
           </button>
         {/if}
       {:else}
@@ -393,7 +393,7 @@
               {@const info = augment(a.id)}
               <tr onclick={() => { comboAug = a.id; aramView = 'combos'; query = ''; }}>
                 <td class="n num">{i + 1}</td>
-                <td><span class="champ" use:tip={() => augmentTip(a.id)}><Img src={info?.icon ?? null} size={28} round />{info?.name}</span></td>
+                <td><span class="champ" use:tip={() => augmentTip(a.id)}><Img src={info?.icon ?? null} size={28} round plate />{info?.name}</span></td>
                 <td><span class="rar {info?.rarity ? `rar-${info.rarity}` : ''}">{info?.rarity ? t(`aug.${info.rarity}`) : ''}</span></td>
                 <td class="num">{pct1(a.winRate)}%</td>
                 <td class="num" class:hi={a.delta > 0.01} class:lo={a.delta < -0.01}>{delta(a.delta)}</td>

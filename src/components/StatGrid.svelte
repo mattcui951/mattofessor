@@ -9,6 +9,8 @@
     /** Shown in the icon's place (no boots). */
     glyph?: string;
     round?: boolean;
+    /** White artwork (augments): `Img`'s dark plate. */
+    plate?: boolean;
     name: string;
     winRate: number;
     delta: number;
@@ -72,7 +74,7 @@
         use:tip={() => c.hover ?? null}
       >
         <div class="id">
-          <span class="icons">{#if c.glyph}<span class="glyph" aria-hidden="true">{c.glyph}</span>{:else}<Img src={c.icon} size={30} round={c.round} />{/if}{#if c.icon2 !== undefined}<Img src={c.icon2} size={30} round={c.round} />{/if}</span>
+          <span class="icons">{#if c.glyph}<span class="glyph" aria-hidden="true">{c.glyph}</span>{:else}<Img src={c.icon} size={30} round={c.round} plate={c.plate} />{/if}{#if c.icon2 !== undefined}<Img src={c.icon2} size={30} round={c.round} />{/if}</span>
           <span class="name">{c.name}</span>
         </div>
         <div class="v num" class:up={c.winRate >= base + 0.005} class:down={c.winRate <= base - 0.005}>{pct1(c.winRate)}%</div>

@@ -328,6 +328,8 @@ export function cssVars(t: Theme): Record<string, string> {
   for (const k of COLOR_KEYS) vars[CSS_VARS[k]] = col[k];
   vars['--you-ink'] = inkOn(col.you);
   vars['--mark'] = col.text;
+  // Augment icons are white art: a dark plate behind them in light themes too.
+  vars['--art-plate'] = t.dark ? col.bgSunk : mix(col.text, col.panel, 0.12);
   const rar = rarityColors(t);
   vars['--rar-silver'] = rar.silver;
   vars['--rar-gold'] = rar.gold;

@@ -35,6 +35,7 @@ export function augmentTip(id: number, stats: HoverInfo['stats'] = [], more: Par
   return {
     icon: a?.icon ?? null,
     round: true,
+    plate: true,
     title: a?.name ?? `#${id}`,
     sub: a?.rarity ? t(`aug.${a.rarity}`) : '',
     subTone: a?.rarity || '',

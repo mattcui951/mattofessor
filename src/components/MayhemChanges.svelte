@@ -52,7 +52,7 @@
       {@const v = noteVerdict(c.e)}
       <div class="ch">
         <div class="hd">
-          <Img src={c.icon} size={30} round={Boolean(c.e.augmentId)} />
+          <Img src={c.icon} size={30} round={Boolean(c.e.augmentId)} plate={Boolean(c.e.augmentId)} />
           <b>{c.name}</b>
           <span class="tag {v || (c.e.isNew ? 'new' : 'changed')}">{v ? t(`patches.${v}`) : c.e.isNew ? t('patches.new') : t('hex.changed')} {c.patch}</span>
         </div>

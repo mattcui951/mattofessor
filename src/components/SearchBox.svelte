@@ -156,7 +156,7 @@
               <span class="go">{t('search.builds')}</span>
             {:else if row.kind === 'aug'}
               {@const a = augs.byId[String(row.id)]}
-              <Img src={a?.icon ?? null} size={30} round alt={a?.name} />
+              <Img src={a?.icon ?? null} size={30} round plate alt={a?.name} />
               <span class="text"><b>{a?.name}</b><small>{a?.rarity ? `${t('meta.augment')} · ${t(`aug.${a.rarity}`)}` : t('meta.augment')}</small></span>
               <span class="go">{t('search.combos')}</span>
             {:else}

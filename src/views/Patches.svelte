@@ -112,7 +112,7 @@
   {#if jumps.length > 6}
     <nav class="jumps" aria-label={t('patches.jump')}>
       {#each jumps as j (j.id)}
-        <button class="jp" title={name(j.e)} aria-label={name(j.e)} onclick={() => jump(j.id)}><Img src={icon(j.e)} size={26} /></button>
+        <button class="jp" title={name(j.e)} aria-label={name(j.e)} onclick={() => jump(j.id)}><Img src={icon(j.e)} size={26} plate={Boolean(j.e.augmentId)} /></button>
       {/each}
     </nav>
   {/if}
@@ -146,7 +146,7 @@
             <div class="entry" class:named={Boolean(e.name)} id="e-{si}-{ei}">
               {#if e.name}
                 <button class="pic" disabled={!e.championId} onclick={() => open(e)}>
-                  {#if icon(e)}<Img src={icon(e)} size={36} />{:else}<span class="blank"><Icon name="flag" size={16} /></span>{/if}
+                  {#if icon(e)}<Img src={icon(e)} size={36} plate={Boolean(e.augmentId)} />{:else}<span class="blank"><Icon name="flag" size={16} /></span>{/if}
                 </button>
               {/if}
               <div class="body">

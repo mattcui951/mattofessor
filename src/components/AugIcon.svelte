@@ -15,7 +15,7 @@
 </script>
 
 <span class="aug {info?.rarity ?? ''}" {title}>
-  <Img src={info?.icon ?? null} {size} alt={info?.name ?? ''} />
+  <Img src={info?.icon ?? null} {size} alt={info?.name ?? ''} plate />
 </span>
 
 <style>
@@ -24,9 +24,6 @@
     flex: none;
     border-radius: var(--r-md);
     box-shadow: 0 0 0 1.5px var(--seam);
-  }
-  .aug :global(.img) {
-    background: var(--bg-sunk);
   }
   .silver {
     box-shadow: 0 0 0 1.5px var(--rar-silver);
