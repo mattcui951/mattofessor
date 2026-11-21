@@ -13,8 +13,10 @@ use crate::os;
 use parking_lot::Mutex;
 use serde::Serialize;
 use std::collections::HashSet;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
-use std::time::Duration;
+use std::time::{Duration, Instant};
+use tauri::Emitter;
 
 /// The band of the game window that is read (fractions of its height). Card titles sit at 41% of
 /// a 3440x1440 window; the cards are sized by the HUD scale, so other setups may move them.
@@ -62,6 +64,183 @@ static OFFER: Mutex<Option<Offer>> = Mutex::new(None);
 /// The cards on screen now, if any (the window asks when it opens).
 pub fn current() -> Option<Offer> {
     OFFER.lock().clone()
+}
+
+// ---------------------------------------------------------------------------------------------
+// The augment you took
+//
+// Which card was taken is not on screen once the cards close, and the game does not say during a
+// match. While cards are shown the left button is watched (asked every `CLICK_EVERY`, no hook);
+// when the cards close, the last click on a card (its face, not the reroll button under it)
+// names the augment taken.
+
+/// Cards as last shown: each augment and the part of the screen it is clicked on.
+struct Shown {
+    cards: Vec<(i32, os::Rect)>,
+    since: Instant,
+}
+
+static SHOWN: Mutex<Option<Shown>> = Mutex::new(None);
+/// Left button presses while cards were shown: when and where (screen units).
+static CLICKS: Mutex<Vec<(Instant, i32, i32)>> = Mutex::new(Vec::new());
+/// The augments taken this game, in order.
+static TAKEN: Mutex<Vec<i32>> = Mutex::new(Vec::new());
+static WATCH: AtomicBool = AtomicBool::new(false);
+/// Debug builds: a demo pick is shown (`demo_pick`); the reader leaves it until `demo_close`.
+static DEMO: AtomicBool = AtomicBool::new(false);
+
+const CLICK_EVERY: Duration = Duration::from_millis(15);
+/// Only a click this recent picks a card (a pick closes the cards within a second or so).
+const CLICK_RECENT: Duration = Duration::from_secs(10);
+/// A card's face around its title, in card spacings: 0.89 wide (gaps between cards are left
+/// out), from its top edge (`TITLE_TO_TOP` above the title) to 0.55 under the title, short of
+/// the reroll button below the card. Not measured on a real pick yet.
+const CARD_W: f64 = 0.89;
+const CARD_BELOW_TITLE: f64 = 0.55;
+
+/// The augments taken this game, in order.
+pub fn taken() -> Vec<i32> {
+    TAKEN.lock().clone()
+}
+
+/// A new game: nothing taken yet.
+pub fn new_game() {
+    TAKEN.lock().clear();
+    *SHOWN.lock() = None;
+    CLICKS.lock().clear();
+    if let Some(core) = crate::core::get() {
+        let _ = core.app.emit("taken-augments", Vec::<i32>::new());
+    }
+}
+
+/// Where each card is clicked (screen units), from where its title is.
+pub fn card_rects(band: os::Rect, found: &[(i32, Line)]) -> Vec<(i32, os::Rect)> {
+    let unit = spacing(found);
+    found
+        .iter()
+        .map(|(id, l)| {
+            let x = band.x as f64 + (l.x + l.w / 2.0) as f64;
+            let title = band.y as f64 + (l.y + l.h / 2.0) as f64;
+            let top = title - TITLE_TO_TOP * unit;
+            let rect = os::Rect {
+                x: (x - CARD_W * unit / 2.0).round() as i32,
+                y: top.round() as i32,
+                w: (CARD_W * unit).round() as i32,
+                h: ((TITLE_TO_TOP + CARD_BELOW_TITLE) * unit).round() as i32,
+            };
+            (*id, rect)
+        })
+        .collect()
+}
+
+/// The card the last click landed on, of clicks made while these cards were shown.
+pub fn clicked(cards: &[(i32, os::Rect)], clicks: &[(Instant, i32, i32)], since: Instant, now: Instant) -> Option<i32> {
+    let inside = |r: &os::Rect, x: i32, y: i32| x >= r.x && x < r.x + r.w && y >= r.y && y < r.y + r.h;
+    clicks
+        .iter()
+        .rev()
+        .filter(|(t, _, _)| *t >= since && now.duration_since(*t) <= CLICK_RECENT)
+        .find_map(|(_, x, y)| cards.iter().find(|(_, r)| inside(r, *x, *y)).map(|(id, _)| *id))
+}
+
+/// New cards are shown: a different set (not a reroll of one card) means the last set closed.
+fn shown(core: &Core, cards: Vec<(i32, os::Rect)>) {
+    let mut s = SHOWN.lock();
+    let same_pick = s.as_ref().is_some_and(|old| old.cards.iter().any(|(id, _)| cards.iter().any(|(n, _)| n == id)));
+    if same_pick {
+        // A reroll, or the cards settling: the same pick, its clicks kept.
+        if let Some(old) = s.as_mut() {
+            old.cards = cards;
+        }
+    } else {
+        let old = s.replace(Shown { cards, since: Instant::now() });
+        drop(s);
+        if let Some(old) = old {
+            resolve(core, old);
+        }
+    }
+    WATCH.store(true, Ordering::Relaxed);
+}
+
+/// The cards closed: which one was taken.
+fn closed(core: &Core) {
+    WATCH.store(false, Ordering::Relaxed);
+    if let Some(old) = SHOWN.lock().take() {
+        resolve(core, old);
+    }
+}
+
+fn resolve(core: &Core, s: Shown) {
+    let clicks = std::mem::take(&mut *CLICKS.lock());
+    match clicked(&s.cards, &clicks, s.since, Instant::now()) {
+        Some(id) => {
+            let all = {
+                let mut t = TAKEN.lock();
+                t.push(id);
+                t.clone()
+            };
+            log::info!("augment taken: {id} (of {})", s.cards.iter().map(|(id, _)| id.to_string()).collect::<Vec<_>>().join(", "));
+            let _ = core.app.emit("taken-augments", all);
+        }
+        None => log::info!("augment taken: not seen ({} clicks while the cards were open)", clicks.len()),
+    }
+}
+
+/// Debug builds: an offer shown over `band` as a read would show them (each a third of its
+/// width, with the click watch on), to check a pick with a real click and no game.
+#[cfg(debug_assertions)]
+pub fn demo_pick(core: &Core, band: os::Rect, offer: Offer) {
+    DEMO.store(true, Ordering::Relaxed);
+    let n = offer.cards.len().max(1) as i32;
+    let cards: Vec<(i32, os::Rect)> = offer.cards.iter().enumerate().map(|(i, c)| (c.id, os::Rect { x: band.x + band.w * i as i32 / n, y: band.y, w: band.w / n, h: band.h })).collect();
+    *OFFER.lock() = Some(offer.clone());
+    core.show_cards(os::Rect { y: band.y - band.h / 5, h: band.h / 5, ..band }, &offer);
+    shown(core, cards);
+}
+
+/// Debug builds: a left click at a place (screen units), recorded as the click watch records one.
+#[cfg(debug_assertions)]
+pub fn demo_click(x: i32, y: i32) {
+    if WATCH.load(Ordering::Relaxed) {
+        CLICKS.lock().push((Instant::now(), x, y));
+    }
+}
+
+/// Debug builds: the demo cards close (as after a pick).
+#[cfg(debug_assertions)]
+pub fn demo_close(core: &Core) {
+    DEMO.store(false, Ordering::Relaxed);
+    clear(core);
+}
+
+/// Watches the left button while cards are shown.
+fn watch_clicks() {
+    std::thread::Builder::new()
+        .name("card clicks".into())
+        .spawn(|| {
+            let mut was_down = false;
+            loop {
+                if !WATCH.load(Ordering::Relaxed) {
+                    was_down = false;
+                    std::thread::sleep(Duration::from_millis(100));
+                    continue;
+                }
+                let down = os::left_button_down();
+                if down && !was_down {
+                    if let Some((x, y)) = os::cursor_pos() {
+                        let mut c = CLICKS.lock();
+                        c.push((Instant::now(), x, y));
+                        // Only the last few matter.
+                        if c.len() > 32 {
+                            c.remove(0);
+                        }
+                    }
+                }
+                was_down = down;
+                std::thread::sleep(CLICK_EVERY);
+            }
+        })
+        .expect("card click thread");
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -505,6 +684,7 @@ fn my_hextech_champion(core: &Core) -> Option<i32> {
 fn clear(core: &Core) {
     if OFFER.lock().take().is_some() {
         core.hide_cards();
+        closed(core);
     }
 }
 
@@ -650,15 +830,21 @@ async fn step(core: &Arc<Core>, r: &mut Reader) -> bool {
         log::info!("card win rates shown: {} ({after} ms after the cards were first seen; a read takes {} ms)", describe(&xs), r.read_time.as_millis());
         *OFFER.lock() = Some(o.clone());
         core.show_cards(rect, &o);
+        shown(core, card_rects(band, &found));
     }
     true
 }
 
 pub fn spawn(core: Arc<Core>) {
+    watch_clicks();
     tauri::async_runtime::spawn(async move {
         let mut r = Reader::new();
         loop {
             r.next = EVERY;
+            if DEMO.load(Ordering::Relaxed) {
+                tokio::time::sleep(IDLE).await;
+                continue;
+            }
             let active = core.settings().card_reader && step(&core, &mut r).await;
             if !active {
                 clear(&core);
@@ -946,6 +1132,35 @@ mod tests {
             98,
             "two outer cards give the same spacing"
         );
+    }
+
+    #[test]
+    fn the_card_clicked_last_is_the_one_taken() {
+        // Three cards 489 px apart, titles at y 593 of the screen (band from y 432).
+        let found: Vec<(i32, Line)> = [(11, 1231.0), (22, 1720.0), (33, 2209.0)]
+            .iter()
+            .map(|(id, x)| (*id, Line { text: String::new(), x: x - 60.0, y: 151.0, w: 120.0, h: 20.0, words: Vec::new() }))
+            .collect();
+        let band = os::Rect { x: 0, y: 432, w: 3440, h: 461 };
+        let rects = card_rects(band, &found);
+        let r = rects[1].1;
+        assert_eq!((r.x, r.y, r.w), (1502, 259, 435), "the middle card's face, from its top edge");
+        assert_eq!(r.y + r.h, 862, "short of the reroll button under the card");
+
+        let start = Instant::now();
+        let at = |ms: u64, x: i32, y: i32| (start + Duration::from_millis(ms), x, y);
+        let now = start + Duration::from_secs(3);
+        // A reroll under the left card, then a click on the right card.
+        let clicks = [at(100, 1231, 900), at(1500, 2209, 600)];
+        assert_eq!(clicked(&rects, &clicks, start, now), Some(33));
+        assert_eq!(clicked(&rects, &clicks[..1], start, now), None, "a reroll is not a pick");
+        // A click between two cards, or from before these cards were shown, picks nothing.
+        assert_eq!(clicked(&rects, &[at(100, 1475, 600)], start, now), None);
+        assert_eq!(clicked(&rects, &[at(100, 1720, 600)], start + Duration::from_millis(500), now), None);
+        // The last click on a card wins.
+        assert_eq!(clicked(&rects, &[at(100, 1231, 600), at(200, 1720, 600)], start, now), Some(22));
+        // Too long ago.
+        assert_eq!(clicked(&rects, &[at(100, 1720, 600)], start, start + Duration::from_secs(30)), None);
     }
 
     /// The real cards from a Hextech ARAM game: the title row of a 3440x1440 screen (its left

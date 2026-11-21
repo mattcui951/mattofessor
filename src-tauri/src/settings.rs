@@ -44,6 +44,14 @@ pub struct Settings {
     pub overlay_size: String,
     /// Shows the Hextech ARAM build editor on the Builds page.
     pub admin: bool,
+    /// Accept the ready check by itself: "off", "hextech" (Hextech ARAM queues only) or "all".
+    pub auto_accept: String,
+    /// Opacity of the in-game windows' backgrounds, 0.3-1; 0 uses the theme's own.
+    pub overlay_opacity: f64,
+    /// The spell timers stay where they are (no dragging by their header).
+    pub lock_spells: bool,
+    /// While Tab is held in a game, show each team's item value and the gap at the top.
+    pub gold_diff: bool,
 }
 
 impl Default for Settings {
@@ -69,6 +77,10 @@ impl Default for Settings {
             match_view: "overview".into(),
             overlay_size: "regular".into(),
             admin: false,
+            auto_accept: "off".into(),
+            overlay_opacity: 0.0,
+            lock_spells: false,
+            gold_diff: true,
         }
     }
 }
@@ -105,5 +117,8 @@ mod tests {
         assert_eq!(s.ui_scale, 1.0);
         assert_eq!(s.match_view, "overview");
         assert_eq!(s.overlay_size, "regular");
+        assert_eq!(s.auto_accept, "off", "never accepts a game unless asked");
+        assert!(s.gold_diff && !s.lock_spells);
+        assert_eq!(s.overlay_opacity, 0.0, "the theme's opacity");
     }
 }

@@ -32,6 +32,17 @@ pub struct RunePage {
     pub shards: Vec<i32>,
 }
 
+/// A three-item build: its items in the order made, its games and wins, and the share of the
+/// champion's players who made it.
+#[derive(Clone, Debug, Default, Serialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct Route {
+    pub items: Vec<i32>,
+    pub games: u32,
+    pub wins: u32,
+    pub share: f64,
+}
+
 #[derive(Clone, Debug, Default, Serialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct Build {
@@ -63,6 +74,9 @@ pub struct Build {
     pub mine: Option<crate::content::MayhemBuild>,
     /// Where the spells, boots and items are from: "opgg" or "aramhex".
     pub item_source: String,
+    /// Hextech ARAM: the most made three-item builds (AramHex), most made first. Each first item
+    /// is a style of its own (`styles`), imported as an item set of its own.
+    pub routes: Vec<Route>,
 }
 
 /// Never part of a recommended build (the user's rule): potions, wards, elixirs, trinkets and
@@ -201,6 +215,7 @@ pub fn from_analysis(champion_id: i32, mode: &str, role: &str, a: &Value) -> Opt
         rare: false,
         mine: None,
         item_source: "opgg".into(),
+        routes: Vec::new(),
     })
 }
 
@@ -215,6 +230,7 @@ pub fn apply_aram(b: &mut Build, a: &crate::hexstats::AramBuild) {
     b.boots = a.boots.iter().copied().map(pick).collect();
     b.items = a.items.iter().copied().map(pick).collect();
     b.core = a.core.len().min(b.items.len()) as u32;
+    b.routes = a.routes.iter().map(|(items, g, w, share)| Route { items: items.clone(), games: (*g).min(u32::MAX as u64) as u32, wins: (*w).min(u32::MAX as u64) as u32, share: *share }).collect();
     b.item_source = "aramhex".into();
 }
 
@@ -365,47 +381,245 @@ pub async fn import(champion_id: i32, role: &str, mode: &str, runes: bool, items
         let me = crate::players::me(&lcu).await?;
         let path = format!("/lol-item-sets/v1/item-sets/{}/sets", me.summoner_id);
         let mut sets = lcu.get_value(&path).await?;
-        let uid = format!("mattofessor-{champion_id}");
-        let title = format!("Mattofessor {} {role_name}", champ.name).trim().to_string();
-        let pct = |p: &Pick<i32>| p.games as f64 * 100.0 / b.games.max(1) as f64;
-        let block = |name: String, ids: Vec<i32>| {
-            json!({ "type": name, "hideIfSummonerSpell": "", "showIfSummonerSpell": "",
-                    "items": ids.iter().map(|i| json!({"id": i.to_string(), "count": 1})).collect::<Vec<_>>() })
-        };
+        // The sets are read in the game's shop: in the client's language, with its item names.
+        let lang = crate::core::get().and_then(|c| c.client_locale.read().clone()).map(|l| crate::lang::from_client(&l)).unwrap_or_else(crate::lang::english);
+        let local = crate::dd::get(lang.id).await.unwrap_or_else(|_| dd.clone());
+        let champ_name = local.champions.get(&champion_id).map(|c| c.name.clone()).unwrap_or_else(|| champ.name.clone());
+        let item_name = |id: i32| local.items.get(&id).or_else(|| dd.items.get(&id)).map(|i| i.name.clone()).unwrap_or_else(|| id.to_string());
         let valid = |id: &i32| dd.items.contains_key(id) && !junk(*id);
-        let mut blocks = Vec::new();
-        if let Some(m) = &b.mine {
-            blocks.push(block("Starting items".into(), m.starters.iter().copied().filter(valid).collect()));
-            blocks.push(block("Build order".into(), m.order.iter().copied().filter(valid).collect()));
-            if !m.situational.is_empty() {
-                blocks.push(block("Situational".into(), m.situational.iter().copied().filter(valid).collect()));
-            }
-        } else if let Some(s) = b.starters.first() {
-            blocks.push(block("Starting items".into(), s.value.iter().copied().filter(valid).collect()));
-        }
-        let core: Vec<&Pick<i32>> = if b.mine.is_some() { Vec::new() } else { b.items.iter().take(b.core as usize).collect() };
-        if let Some(first) = core.first() {
-            blocks.push(block(format!("Core items ({:.0}% of games)", pct(first)), core.iter().map(|p| p.value).filter(valid).collect()));
-        }
-        if b.mine.is_none() && !b.boots.is_empty() {
-            blocks.push(block("Boots".into(), b.boots.iter().map(|p| p.value).filter(valid).collect()));
-        }
-        if b.mine.is_none() && b.items.len() > b.core as usize {
-            blocks.push(block("More options".into(), b.items.iter().skip(b.core as usize).map(|p| p.value).filter(valid).collect()));
-        }
-        let map = if b.mode == "aram" { 12 } else { 11 };
-        let new_set = json!({
-            "uid": uid, "title": title, "type": "custom", "map": "any", "mode": "any", "sortrank": 0, "startedFrom": "blank",
-            "associatedChampions": [champion_id], "associatedMaps": [map], "preferredItemSlots": [], "blocks": blocks,
-        });
+        let new_sets = item_sets(&b, champion_id, &champ_name, words(lang.id), item_name, valid);
+        let title = new_sets[0]["title"].as_str().unwrap_or_default().to_string();
         let list = sets.get_mut("itemSets").and_then(Value::as_array_mut).ok_or_else(|| anyhow!("Item sets not available"))?;
-        list.retain(|s| s.get("uid").and_then(Value::as_str) != Some(uid.as_str()));
-        list.insert(0, new_set);
+        // This champion's sets from an earlier import go (their styles may have changed).
+        list.retain(|s| !ours(s.get("uid").and_then(Value::as_str).unwrap_or(""), champion_id));
+        for (i, s) in new_sets.into_iter().enumerate() {
+            list.insert(i, s);
+        }
         sets["timestamp"] = json!(crate::players::now_ms());
         lcu.put(&path, &sets).await?;
         out.item_set = Some(title);
     }
     Ok(out)
+}
+
+/// An item set Mattofessor imported for this champion: the build's set or one of its styles.
+fn ours(uid: &str, champion_id: i32) -> bool {
+    let base = format!("mattofessor-{champion_id}");
+    uid == base || uid.strip_prefix(&base).is_some_and(|rest| rest.starts_with("-style-"))
+}
+
+/// What the item sets say, in one language (`lang` id). `{0}` stands for a number or a name.
+pub struct SetWords {
+    pub starting: &'static str,
+    pub order: &'static str,
+    pub situational: &'static str,
+    pub core: &'static str,
+    /// After the core items: how many of the champion's games made them.
+    pub share: &'static str,
+    pub boots: &'static str,
+    pub more: &'static str,
+    /// A style: the build around an item ("{0} build").
+    pub style: &'static str,
+    pub aram: &'static str,
+    /// Top, jungle, mid, bot, support.
+    pub roles: [&'static str; 5],
+}
+
+pub fn words(lang: &str) -> &'static SetWords {
+    const EN: SetWords = SetWords {
+        starting: "Starting items",
+        order: "Build order",
+        situational: "Situational",
+        core: "Core items",
+        share: "{0}% of games",
+        boots: "Boots",
+        more: "More options",
+        style: "{0} build",
+        aram: "ARAM",
+        roles: ["Top", "Jungle", "Mid", "Bot", "Support"],
+    };
+    const ZH: SetWords = SetWords {
+        starting: "出门装",
+        order: "出装顺序",
+        situational: "备选",
+        core: "核心装备",
+        share: "{0}% 的对局",
+        boots: "鞋子",
+        more: "其他选择",
+        style: "{0}流",
+        aram: "大乱斗",
+        roles: ["上单", "打野", "中单", "下路", "辅助"],
+    };
+    const ZH_TW: SetWords = SetWords {
+        starting: "出門裝",
+        order: "出裝順序",
+        situational: "備選",
+        core: "核心道具",
+        share: "{0}% 的對戰",
+        boots: "鞋子",
+        more: "其他選擇",
+        style: "{0}流",
+        aram: "隨機單中",
+        roles: ["上單", "打野", "中單", "下路", "輔助"],
+    };
+    const JA: SetWords = SetWords {
+        starting: "初期アイテム",
+        order: "購入順",
+        situational: "状況次第",
+        core: "コアアイテム",
+        share: "{0}% の試合",
+        boots: "ブーツ",
+        more: "その他の候補",
+        style: "{0}型",
+        aram: "ARAM",
+        roles: ["トップ", "ジャングル", "ミッド", "ボット", "サポート"],
+    };
+    const KO: SetWords = SetWords {
+        starting: "시작 아이템",
+        order: "구매 순서",
+        situational: "상황별",
+        core: "핵심 아이템",
+        share: "게임의 {0}%",
+        boots: "장화",
+        more: "그 밖의 선택",
+        style: "{0} 빌드",
+        aram: "칼바람",
+        roles: ["탑", "정글", "미드", "바텀", "서포터"],
+    };
+    const ES: SetWords = SetWords {
+        starting: "Objetos iniciales",
+        order: "Orden de compra",
+        situational: "Situacional",
+        core: "Objetos clave",
+        share: "{0}% de las partidas",
+        boots: "Botas",
+        more: "Más opciones",
+        style: "Build de {0}",
+        aram: "ARAM",
+        roles: ["Superior", "Jungla", "Central", "Inferior", "Apoyo"],
+    };
+    const FR: SetWords = SetWords {
+        starting: "Objets de départ",
+        order: "Ordre d'achat",
+        situational: "Selon la situation",
+        core: "Objets principaux",
+        share: "{0} % des parties",
+        boots: "Bottes",
+        more: "Autres options",
+        style: "Build {0}",
+        aram: "ARAM",
+        roles: ["Haut", "Jungle", "Milieu", "Bas", "Support"],
+    };
+    const RU: SetWords = SetWords {
+        starting: "Стартовые предметы",
+        order: "Порядок сборки",
+        situational: "По ситуации",
+        core: "Основные предметы",
+        share: "{0}% игр",
+        boots: "Ботинки",
+        more: "Другие варианты",
+        style: "Сборка через {0}",
+        aram: "ARAM",
+        roles: ["Верх", "Лес", "Центр", "Низ", "Поддержка"],
+    };
+    match lang {
+        "zh" => &ZH,
+        "zh-TW" => &ZH_TW,
+        "ja" => &JA,
+        "ko" => &KO,
+        "es" => &ES,
+        "fr" => &FR,
+        "ru" => &RU,
+        _ => &EN,
+    }
+}
+
+/// Styles of a Hextech ARAM build: its three-item builds grouped by their first item, each with
+/// its most made build (routes come most made first). As the Builds page groups them.
+fn styles(b: &Build) -> Vec<(i32, &Route)> {
+    let mut out: Vec<(i32, &Route)> = Vec::new();
+    for r in &b.routes {
+        if let Some(first) = r.items.first() {
+            if !out.iter().any(|(f, _)| f == first) {
+                out.push((*first, r));
+            }
+        }
+    }
+    out
+}
+
+/// The item sets for a build, its own first: the build (the hand-written one when there is one),
+/// then, for Hextech ARAM builds with two or more styles, one set per other style so the shop's
+/// set list offers each; the build's own style is named in its title instead of a copy of it
+/// (`item_name` names a style's item; `valid` keeps items the shop sells).
+pub fn item_sets(b: &Build, champion_id: i32, champ_name: &str, w: &SetWords, item_name: impl Fn(i32) -> String, valid: impl Fn(&i32) -> bool) -> Vec<Value> {
+    let role = match b.role.as_str() {
+        "top" => w.roles[0],
+        "jungle" => w.roles[1],
+        "mid" => w.roles[2],
+        "adc" => w.roles[3],
+        "support" => w.roles[4],
+        _ if b.mode == "aram" => w.aram,
+        _ => "",
+    };
+    let share = |rate: f64| w.share.replace("{0}", &format!("{:.0}", rate * 100.0));
+    let block = |name: String, ids: Vec<i32>| {
+        json!({ "type": name, "hideIfSummonerSpell": "", "showIfSummonerSpell": "",
+                "items": ids.iter().map(|i| json!({"id": i.to_string(), "count": 1})).collect::<Vec<_>>() })
+    };
+    let starting = || b.starters.first().map(|s| block(w.starting.into(), s.value.iter().copied().filter(&valid).collect()));
+    let boots = || (!b.boots.is_empty()).then(|| block(w.boots.into(), b.boots.iter().map(|p| p.value).filter(&valid).collect()));
+    let set = |uid: String, title: String, blocks: Vec<Value>| {
+        let map = if b.mode == "aram" { 12 } else { 11 };
+        json!({
+            "uid": uid, "title": title, "type": "custom", "map": "any", "mode": "any", "sortrank": 0, "startedFrom": "blank",
+            "associatedChampions": [champion_id], "associatedMaps": [map], "preferredItemSlots": [], "blocks": blocks,
+        })
+    };
+    let style_name = |first: i32| w.style.replace("{0}", &item_name(first));
+
+    let core: Vec<i32> = if b.mine.is_some() { Vec::new() } else { b.items.iter().take(b.core as usize).map(|p| p.value).collect() };
+    // The build's core is one of the styles' routes (AramHex's most made one): its own share.
+    let own_route = b.routes.iter().find(|r| !core.is_empty() && r.items == core);
+    let mut blocks = Vec::new();
+    if let Some(m) = &b.mine {
+        blocks.push(block(w.starting.into(), m.starters.iter().copied().filter(&valid).collect()));
+        blocks.push(block(w.order.into(), m.order.iter().copied().filter(&valid).collect()));
+        if !m.situational.is_empty() {
+            blocks.push(block(w.situational.into(), m.situational.iter().copied().filter(&valid).collect()));
+        }
+    } else {
+        blocks.extend(starting());
+        if let Some(first) = b.items.first().filter(|_| b.core > 0) {
+            let rate = own_route.map(|r| r.share).unwrap_or(first.games as f64 / b.games.max(1) as f64);
+            blocks.push(block(format!("{} ({})", w.core, share(rate)), core.iter().copied().filter(&valid).collect()));
+        }
+        blocks.extend(boots());
+        if b.items.len() > b.core as usize {
+            blocks.push(block(w.more.into(), b.items.iter().skip(b.core as usize).map(|p| p.value).filter(&valid).collect()));
+        }
+    }
+    let styles = styles(b);
+    let several = styles.len() >= 2;
+    let mut title = format!("Mattofessor {champ_name} {role}").trim().to_string();
+    if let (true, Some(first)) = (several, own_route.and_then(|r| r.items.first())) {
+        title = format!("{title} · {}", style_name(*first));
+    }
+    let mut out = vec![set(format!("mattofessor-{champion_id}"), title, blocks)];
+
+    if several {
+        for (first, route) in styles.into_iter().filter(|(_, r)| Some(*r) != own_route) {
+            let mut blocks: Vec<Value> = starting().into_iter().collect();
+            blocks.push(block(format!("{} ({})", w.core, share(route.share)), route.items.iter().copied().filter(&valid).collect()));
+            blocks.extend(boots());
+            let others: Vec<i32> = b.items.iter().map(|p| p.value).filter(|i| !route.items.contains(i)).filter(&valid).collect();
+            if !others.is_empty() {
+                blocks.push(block(w.more.into(), others));
+            }
+            out.push(set(format!("mattofessor-{champion_id}-style-{first}"), format!("MF {champ_name}: {}", style_name(first)), blocks));
+        }
+    }
+    out
 }
 
 #[cfg(test)]
@@ -446,6 +660,55 @@ mod tests {
         assert_eq!((b.games, b.wins, b.rare), (45548, 21825, true), "the rune page's games, not the champion's");
     }
 
+    #[test]
+    fn item_sets_one_per_style_in_the_clients_language() {
+        let p = |value: i32, games: u32| Pick { value, games, wins: games / 2 };
+        let route = |items: [i32; 3], share: f64| Route { items: items.to_vec(), games: 100, wins: 50, share };
+        let mut b = Build {
+            champion_id: 24,
+            mode: "aram".into(),
+            games: 1000,
+            wins: 520,
+            starters: vec![Pick { value: vec![1055, 2003], games: 900, wins: 450 }],
+            boots: vec![p(3047, 600)],
+            items: vec![p(3078, 400), p(3153, 380), p(6333, 300), p(3053, 200), p(2003, 100)],
+            core: 3,
+            // Two routes start with Trinity Force: one style, its most made route (the build's own).
+            routes: vec![route([3078, 3153, 6333], 0.30), route([3153, 3078, 6333], 0.20), route([3078, 6333, 3053], 0.10)],
+            item_source: "aramhex".into(),
+            ..Default::default()
+        };
+        let names = |id: i32| match id {
+            3078 => "三相之力".to_string(),
+            3153 => "破败王者之刃".to_string(),
+            _ => id.to_string(),
+        };
+        let valid = |id: &i32| *id != 2003;
+        let sets = item_sets(&b, 24, "贾克斯", words("zh"), names, valid);
+        let titles: Vec<&str> = sets.iter().map(|s| s["title"].as_str().unwrap()).collect();
+        assert_eq!(titles, ["Mattofessor 贾克斯 大乱斗 · 三相之力流", "MF 贾克斯: 破败王者之刃流"], "the build's own style is named, not copied");
+        let uids: Vec<&str> = sets.iter().map(|s| s["uid"].as_str().unwrap()).collect();
+        assert_eq!(uids, ["mattofessor-24", "mattofessor-24-style-3153"]);
+        let block_names = |s: &Value| s["blocks"].as_array().unwrap().iter().map(|b| b["type"].as_str().unwrap().to_string()).collect::<Vec<_>>();
+        assert_eq!(block_names(&sets[0]), ["出门装", "核心装备 (30% 的对局)", "鞋子", "其他选择"], "the route's own share of players");
+        assert_eq!(block_names(&sets[1]), ["出门装", "核心装备 (20% 的对局)", "鞋子", "其他选择"]);
+        let ids = |s: &Value, i: usize| s["blocks"][i]["items"].as_array().unwrap().iter().map(|x| x["id"].as_str().unwrap().to_string()).collect::<Vec<_>>();
+        assert_eq!(ids(&sets[0], 0), ["1055"], "no potion");
+        assert_eq!(ids(&sets[1], 1), ["3153", "3078", "6333"], "the style's own route");
+        assert_eq!(ids(&sets[1], 3), ["3053"], "the other items, without the route's");
+
+        // One style only: the build's own set, no style in its title.
+        b.routes = vec![route([3078, 3153, 6333], 0.3), route([3078, 6333, 3153], 0.1)];
+        let one = item_sets(&b, 24, "Jax", words("en"), names, valid);
+        assert_eq!((one.len(), one[0]["title"].as_str().unwrap()), (1, "Mattofessor Jax ARAM"));
+        // A Rift build keeps its lane; OP.GG's core share is its first item's games.
+        let rift = Build { mode: "rift".into(), role: "top".into(), routes: Vec::new(), ..b };
+        let sets = item_sets(&rift, 24, "Jax", words("en"), names, valid);
+        assert_eq!(sets[0]["title"], "Mattofessor Jax Top");
+        assert_eq!(sets[0]["blocks"][1]["type"], "Core items (40% of games)");
+        assert!(ours("mattofessor-24", 24) && ours("mattofessor-24-style-3078", 24));
+        assert!(!ours("mattofessor-245", 24) && !ours("mattofessor-245-style-1", 24) && !ours("my-own-set", 24));
+    }
     #[test]
     fn aram_build_has_no_lane() {
         let a = opgg::parse(JAX).unwrap();

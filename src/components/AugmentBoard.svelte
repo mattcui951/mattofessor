@@ -10,15 +10,15 @@
   import { loadGameData } from '../lib/gamedata.svelte';
   import { augmentTip } from '../lib/tips.svelte';
   import { t } from '../lib/i18n.svelte';
-  import { augment, delta, pct1, share } from '../lib/meta.svelte';
+  import { AUG_LINES, augment, delta, pct1, share } from '../lib/meta.svelte';
   import type { AugBoard, AugStat } from '../lib/types';
 
   let { board, matches = null, onpick }: { board: AugBoard; matches?: Set<number> | null; onpick: (id: number) => void } = $props();
 
   const RARITIES = ['prismatic', 'gold', 'silver'] as const;
-  /** Lift lines in points, best first. */
-  const LINES = [0.04, 0.02, 0, -0.02, -Infinity];
-  const TONES = ['tS', 'tA', 'tB', 'tC', 'tD'];
+  /** Lift lines in points, best first: the augment tiers (`AUG_LINES`). */
+  const LINES = AUG_LINES.map((l) => l.min);
+  const TONES = AUG_LINES.map((l) => `t${l.tier}`);
 
   let showRemoved = $state(false);
 

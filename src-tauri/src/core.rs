@@ -88,7 +88,15 @@ impl Core {
 
     pub fn set_settings(&self, s: Settings) -> anyhow::Result<()> {
         s.save()?;
+        let reset_spells = s.spells_pos.is_none() && self.settings.read().spells_pos.is_some();
         *self.settings.write() = s;
+        // "Reset their position": open spell timers go back to their first place at once.
+        if reset_spells && self.spells_visible() {
+            self.show_spells();
+        }
+        if !self.settings.read().gold_diff {
+            self.hide_gold();
+        }
         self.reregister_hotkeys();
         // A new panel size shows at once.
         if self.overlay_visible() {
@@ -375,6 +383,30 @@ impl Core {
         self.hide_window("cards");
     }
 
+    /// The team gold strip (`gold`): at the top of the game while Tab is held, click-through.
+    pub fn show_gold(&self) {
+        if self.held_back() {
+            return;
+        }
+        let Some(game) = os::game_window().and_then(os::window_rect) else { return };
+        self.show_gold_at(gold_rect(game));
+    }
+
+    pub fn show_gold_at(&self, r: os::Rect) {
+        let Some(w) = self.overlay_window("gold") else { return };
+        let _ = w.set_ignore_cursor_events(true);
+        os::show_topmost(&w, r);
+    }
+
+    pub fn hide_gold(&self) {
+        self.hide_window("gold");
+    }
+
+    /// The gold strip setting (read many times a second: no copy of all settings).
+    pub fn gold_diff_on(&self) -> bool {
+        self.settings.read().gold_diff
+    }
+
     pub fn spells_visible(&self) -> bool {
         self.visible("spells")
     }
@@ -504,9 +536,37 @@ pub fn overlay_zoom(size: &str, game_width: f64) -> f64 {
     wanted.min(fits).clamp(0.5, 3.0)
 }
 
+/// The team gold strip's place, in 1080-high game pixels (the HUD scales with the game's height).
+/// Hextech ARAM has a timer at the top middle, 298 wide and 23 right of the middle (measured by
+/// Huya's helper on real games, 720p and 1080p); the two teams' panels sit on each side of it.
+const GOLD_TIMER: f64 = 298.0;
+const GOLD_SHIFT: f64 = 23.0;
+/// Each team's panel, and the strip's height.
+pub const GOLD_PANEL: f64 = 170.0;
+const GOLD_HEIGHT: f64 = 44.0;
+
+/// Where the gold strip goes over a game window (the same units as the window's).
+pub fn gold_rect(game: os::Rect) -> os::Rect {
+    let f = game.h as f64 / 1080.0;
+    let half = (GOLD_TIMER / 2.0 + GOLD_PANEL) * f;
+    let middle = game.x as f64 + game.w as f64 / 2.0 + GOLD_SHIFT * f;
+    os::Rect { x: (middle - half).round() as i32, y: game.y, w: (2.0 * half).round() as i32, h: (GOLD_HEIGHT * f).round() as i32 }
+}
+
 #[cfg(test)]
 mod tests {
-    use super::overlay_zoom;
+    use super::{gold_rect, overlay_zoom};
+    use crate::os::Rect;
+
+    #[test]
+    fn gold_strip_sits_around_the_timer() {
+        let r = gold_rect(Rect { x: 0, y: 0, w: 1920, h: 1080 });
+        assert_eq!((r.x, r.y, r.w, r.h), (664, 0, 638, 44), "centred 23 px right of the middle, at the top");
+        // A 1440-high ultrawide on a second screen: the same strip, a third larger.
+        let r = gold_rect(Rect { x: 3440, y: 0, w: 3440, h: 1440 });
+        assert_eq!((r.w, r.h), (851, 59));
+        assert!((r.x + r.w / 2 - (3440 + 1720 + 31)).abs() <= 1, "follows the game window, not the screen");
+    }
 
     #[test]
     fn panel_zoom_follows_the_size_and_fits_the_game() {

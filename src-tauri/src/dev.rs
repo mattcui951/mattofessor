@@ -102,14 +102,19 @@ async fn route(core: &Core, path: &str, p: &HashMap<String, String>) -> Result<V
         "/show_cards" => {
             let r = crate::os::Rect { x: num("x") as i32, y: num("y") as i32, w: num("w") as i32, h: num("h") as i32 };
             let xs: Vec<f64> = arg("xs").split(',').filter_map(|s| s.parse().ok()).collect();
+            // `deltas`: each card's lift (points over the champion), for the tier letters.
+            let deltas: Vec<f64> = arg("deltas").split(',').filter_map(|s| s.parse().ok()).collect();
             let cards = xs
                 .iter()
                 .enumerate()
-                .map(|(i, x)| crate::cards::OfferCard {
-                    id: i as i32 + 1,
-                    x: *x,
-                    stat: Some(crate::aramhex::AugRow { id: i as i32 + 1, games: 1000, win_rate: 0.5, smoothed: 0.5, delta: 0.0, low_sample: false }),
-                    best: i == 0,
+                .map(|(i, x)| {
+                    let d = deltas.get(i).copied().unwrap_or(0.0);
+                    crate::cards::OfferCard {
+                        id: i as i32 + 1,
+                        x: *x,
+                        stat: Some(crate::aramhex::AugRow { id: i as i32 + 1, games: 1000, win_rate: 0.5 + d, smoothed: 0.5 + d, delta: d, low_sample: false }),
+                        best: i == 0,
+                    }
                 })
                 .collect();
             core.show_cards(r, &crate::cards::Offer { champion_id: 1, base: Some(0.5), cards });
@@ -137,6 +142,11 @@ async fn route(core: &Core, path: &str, p: &HashMap<String, String>) -> Result<V
             }
             let _ = core.app.emit("live", &state);
             *core.live.lock() = state;
+            if arg("phase") != "ChampSelect" {
+                let game = demo_ingame(core, num("gameId") as u64).await.map_err(e)?;
+                let _ = core.app.emit("ingame", &game);
+                *core.ingame.lock() = Some(game);
+            }
             crate::game::DEMO.store(true, std::sync::atomic::Ordering::Relaxed);
             Ok(Value::Null)
         }
@@ -144,8 +154,73 @@ async fn route(core: &Core, path: &str, p: &HashMap<String, String>) -> Result<V
             core.hide_cards();
             Ok(Value::Null)
         }
+        "/taken_augments" => Ok(json!(crate::cards::taken())),
+        // Augment cards `ids` shown over a band (physical pixels) as the reader would: the card
+        // win rates above it and the click watch on, each card a third of the band wide. A real
+        // click on one, then `/demo_close`, takes it like a real pick.
+        "/demo_pick" => {
+            let band = crate::os::Rect { x: num("x") as i32, y: num("y") as i32, w: num("w") as i32, h: num("h") as i32 };
+            let ids: Vec<i32> = arg("ids").split(',').filter_map(|s| s.parse().ok()).collect();
+            // Your champion's numbers with each, as a real read shows them (`champion` picks one).
+            let champion = match num("championId") as i32 {
+                0 => core.live.lock().teams.iter().flat_map(|t| &t.players).find(|p| p.me).map(|p| p.champion_id).unwrap_or(0),
+                c => c,
+            };
+            let bracket = core.settings().aram_bracket;
+            let (info, b) = crate::aramhex::bracket(&bracket).await.map_err(e)?;
+            let champ = crate::aramhex::champion(&info, &bracket, &b, champion);
+            let n = ids.len().max(1) as f64;
+            let xs: Vec<(i32, f64)> = ids.iter().enumerate().map(|(i, id)| (*id, (i as f64 + 0.5) / n)).collect();
+            crate::cards::demo_pick(core, band, crate::cards::offer(champion, &champ, &xs));
+            Ok(Value::Null)
+        }
+        "/demo_click" => {
+            crate::cards::demo_click(num("x") as i32, num("y") as i32);
+            Ok(Value::Null)
+        }
+        "/demo_close" => {
+            crate::cards::demo_close(core);
+            Ok(json!(crate::cards::taken()))
+        }
+        // The team gold strip at a given place (physical pixels): the strip's `gold_rect` over a
+        // stand-in game window there.
+        "/show_gold" => {
+            let game = crate::os::Rect { x: num("x") as i32, y: num("y") as i32, w: num("w") as i32, h: num("h") as i32 };
+            core.show_gold_at(crate::core::gold_rect(game));
+            Ok(json!(crate::core::gold_rect(game).w))
+        }
+        "/hide_gold" => {
+            core.hide_gold();
+            Ok(Value::Null)
+        }
         _ => Err(format!("unknown {path}")),
     }
+}
+
+/// The game's own live data for the stand-in game: everyone's champion, side and final items.
+async fn demo_ingame(core: &Core, game_id: u64) -> anyhow::Result<crate::live::InGame> {
+    let me = commands::saved_profile(core, None).ok_or_else(|| anyhow::anyhow!("no saved profile of yours"))?;
+    let game_id = if game_id > 0 { game_id } else { me.history.first().ok_or_else(|| anyhow::anyhow!("no cached games"))?.game_id };
+    let g = crate::players::game(game_id).await?;
+    let champs = dd::get("en").await?;
+    let ids = g["participantIdentities"].as_array().cloned().unwrap_or_default();
+    let mut players = Vec::new();
+    for p in g["participants"].as_array().cloned().unwrap_or_default() {
+        let pid = p["participantId"].as_i64().unwrap_or(0);
+        let who = ids.iter().find(|i| i["participantId"].as_i64() == Some(pid)).map(|i| i["player"].clone()).unwrap_or_default();
+        let champion = champs.champions.get(&(p["championId"].as_i64().unwrap_or(0) as i32)).map(|c| c.key.clone()).unwrap_or_default();
+        players.push(crate::live::LivePlayer {
+            riot_id: format!("{}#{}", who["gameName"].as_str().unwrap_or_default(), who["tagLine"].as_str().unwrap_or_default()),
+            champion,
+            team: if p["teamId"].as_i64() == Some(200) { "CHAOS" } else { "ORDER" }.into(),
+            level: p["stats"]["champLevel"].as_u64().unwrap_or(1) as u32,
+            items: (0..7).filter_map(|i| p["stats"][format!("item{i}")].as_i64()).filter(|i| *i > 0).map(|i| i as i32).collect(),
+            me: who["puuid"].as_str() == Some(me.card.summoner.puuid.as_str()),
+            ..Default::default()
+        });
+    }
+    let my_team = players.iter().find(|p| p.me).map(|p| p.team.clone()).unwrap_or_else(|| "ORDER".into());
+    Ok(crate::live::InGame { game_time: 900.0, mode: "KIWI".into(), my_team, players })
 }
 
 async fn demo_game(core: &Core, game_id: u64) -> anyhow::Result<crate::game::LiveState> {

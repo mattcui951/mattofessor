@@ -21,7 +21,16 @@ export type Settings = {
   matchView: 'overview' | 'combat';
   overlaySize: OverlaySize;
   admin: boolean;
+  /** Accept the ready check by itself. */
+  autoAccept: AutoAccept;
+  /** In-game windows' background opacity, 0.3-1; 0 is the theme's own. */
+  overlayOpacity: number;
+  lockSpells: boolean;
+  /** Team item values at the top of the game while Tab is held. */
+  goldDiff: boolean;
 };
+
+export type AutoAccept = 'off' | 'hextech' | 'all';
 
 export type OverlaySize = 'small' | 'medium' | 'regular' | 'large' | 'xlarge';
 
@@ -224,6 +233,8 @@ export type Build = {
   mine: MayhemBuild | null;
   /** Where the spells, boots and items are from. */
   itemSource: 'opgg' | 'aramhex';
+  /** Hextech ARAM: the most made three-item builds, most made first. */
+  routes: { items: number[]; games: number; wins: number; share: number }[];
 };
 export type TierRow = {
   championId: number;

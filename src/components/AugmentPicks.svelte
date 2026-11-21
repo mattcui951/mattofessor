@@ -4,13 +4,15 @@
    * win rate the most (take) and lower it the most (avoid). `compact` is the in-game overlay form:
    * the four best of each rarity, nothing to avoid.
    */
+  import Grade from './Grade.svelte';
   import Img from './Img.svelte';
   import { num } from '../lib/format';
   import { api } from '../lib/api';
   import { HEX_TTL, show } from '../lib/cache';
   import { champName } from '../lib/dd.svelte';
   import { t } from '../lib/i18n.svelte';
-  import { ARAM_CREDIT, augment, bracket, delta, loadAugments, pct1 } from '../lib/meta.svelte';
+  import { ARAM_CREDIT, augTier, augment, bracket, delta, loadAugments, pct1 } from '../lib/meta.svelte';
+  import { followTaken, taken } from '../lib/taken.svelte';
   import type { AramPicks, AugRow } from '../lib/types';
 
   let { championId, compact = false }: { championId: number; compact?: boolean } = $props();
@@ -21,6 +23,10 @@
   // once a second): a derived only changes when the id does, so the list is not refetched (and
   // shown as loading) every second.
   const champ = $derived(championId);
+
+  // The augments you took this game (the card reader saw the click), marked in the lists too.
+  followTaken();
+  const took = $derived(new Set(taken.ids));
 
   $effect(() => {
     const id = champ;
@@ -46,7 +52,9 @@
 <!-- The in-game panel's form: rows only as wide as their text, the number right after the name. -->
 {#snippet line(a: AugRow)}
   {@const info = augment(a.id)}
-  <div class="ln" title={t('recs.games', num(a.games))}>
+  {@const tier = augTier(a)}
+  <div class="ln" class:took={took.has(a.id)} title={t('recs.games', num(a.games))}>
+    {#if tier}<Grade {tier} size={16} />{:else}<span></span>{/if}
     <Img src={info?.icon ?? null} size={20} plate />
     <span class="nm">{info?.name ?? `#${a.id}`}</span>
     <b class="num hi">{delta(a.delta)}</b>
@@ -56,7 +64,9 @@
 
 {#snippet row(a: AugRow, bad: boolean)}
   {@const info = augment(a.id)}
-  <div class="aug" class:bad>
+  {@const tier = augTier(a)}
+  <div class="aug" class:bad class:took={took.has(a.id)}>
+    {#if tier}<Grade {tier} size={compact ? 16 : 18} />{:else}<span></span>{/if}
     <Img src={info?.icon ?? null} size={compact ? 22 : 26} plate />
     <span class="nm">{info?.name ?? `#${a.id}`}</span>
     <span class="st num" title={t('recs.games', num(a.games))}>
@@ -71,6 +81,15 @@
     <b>{t('recs.title')}</b>
     {#if data?.champion}
       <span class="hint">{champName(championId)} · {t('recs.base', pct1(data.champion.winRate))}</span>
+    {/if}
+    {#if taken.ids.length}
+      <span class="taken">
+        <span class="lbl">{t('taken.title')}</span>
+        {#each taken.ids as id, i (i)}
+          {@const info = augment(id)}
+          <span class="tk" title={info?.name}><Img src={info?.icon ?? null} size={compact ? 18 : 20} plate /><span class="tn">{info?.name ?? `#${id}`}</span></span>
+        {/each}
+      </span>
     {/if}
   </div>
   {#if error}
@@ -151,6 +170,39 @@
     color: var(--text-2);
     font-size: 13px;
   }
+  .taken {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    margin-left: auto;
+  }
+  .lbl {
+    font: 600 11px var(--font-score);
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+  .tk {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 8px 2px 3px;
+    border-radius: var(--r-md);
+    background: color-mix(in oklab, var(--you) 12%, var(--panel-2));
+    box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--you) 35%, transparent);
+    font-size: 12px;
+  }
+  .tn {
+    max-width: 11em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  /* Taken this game: already yours, so it steps back in the list. */
+  .took {
+    opacity: 0.45;
+  }
   .rar {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -180,7 +232,7 @@
   }
   .aug {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-columns: auto auto minmax(0, 1fr) auto;
     gap: 8px;
     align-items: center;
     padding: 4px 6px;
@@ -223,7 +275,7 @@
   }
   .list {
     display: grid;
-    grid-template-columns: 20px fit-content(9.5em) auto auto;
+    grid-template-columns: 16px 20px fit-content(9.5em) auto auto;
     gap: 3px 0;
     align-content: start;
   }

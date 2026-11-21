@@ -1,7 +1,7 @@
 # Status
 
-Updated: 2026-11-20
-Version: 1.0.27
+Updated: 2026-11-21
+Version: 1.0.28
 
 ## In progress
 
@@ -106,6 +106,34 @@ Version: 1.0.27
 - Match history from the LCU is limited to 40 games and the first lookup takes about 5 s.
 
 ## Recently done
+
+- 1.0.28 (2026-11-21): ideas from Huya's Hextech ARAM helper (虎牙英雄联盟助手 / 海斗工具,
+  installed and read: Electron plus a DirectX hook that draws inside the game; augment cards are
+  read on Huya's servers from the uploaded game video). Not copied: injection, cloud reading.
+  - Tier letters for augments (`augTier`, the augment board's lift lines 4/2/0/-2; none for a
+    small sample): on the card win rates, the in-game panel, Live and the Builds page (`Grade`).
+  - Item sets per style (`builds::item_sets`): Hextech ARAM builds with 2+ styles (three-item
+    builds by first item) import one set per other style; the main set names its own style; titles
+    and blocks in the client's language (`words`, were English only); shares are each route's
+    share of players. Re-import replaces this champion's sets only (`ours`).
+  - Auto-accept (Settings > Behavior: off / Hextech ARAM / every queue; default off).
+  - Team gold while Tab is held (`gold.rs`, `overlay/Gold.svelte`, `core::gold_rect`): Tab read
+    by polling (no hook), only while the game has focus; items x Data Dragon gold; placed beside
+    Hextech ARAM's top timer per Huya's measurements.
+  - Augments you took (`cards.rs`): the left button is polled while cards show; the last click on
+    a card's face when they close names the pick. Shown in the panel, taken ones dimmed.
+  - Champ select: each champion's best build style (`Board.best`), your 3 best augments; tier D
+    had no colour.
+  - In-game windows' opacity setting over the theme's; spell timers lock (header button too) and
+    reset. Mock: `--ready-check`. Dev bridge: `/demo_pick`, `/demo_click`, `/demo_close`,
+    `/show_gold`; `/demo_game` also sets the game's live data.
+  - Verified with the dev app: auto-accept against a stand-in client (accepted 0.5-1.2 s after
+    the check opened), item sets written to a stand-in zh_CN client (Jax: 2 sets, Chinese, re-import
+    keeps 2), a demo pick taken from a click (a click under the card ignored), every view in the
+    browser preview. Not verified: a real game (Tab polling and focus, the gold strip's place
+    over the real HUD, a real click on real cards and the card face bounds `CARD_W` /
+    `CARD_BELOW_TITLE`), macOS (Quartz key/button state may need Input Monitoring), the real
+    shop's item set list. The README feature list does not mention these yet.
 
 - 1.0.27 (2026-11-20): macOS support (see In progress for what is still unverified); CI on both
   systems for every push and PR (`ci.yml`). The v1.0.26 tag build uploaded nothing (the

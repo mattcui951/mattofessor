@@ -6,7 +6,7 @@
   import { invoke } from '@tauri-apps/api/core';
   import { listen } from '@tauri-apps/api/event';
   import { t } from '../lib/i18n.svelte';
-  import { delta, pct1 } from '../lib/meta.svelte';
+  import { augTier, delta, pct1 } from '../lib/meta.svelte';
   import type { CardOffer } from '../lib/types';
 
   let offer = $state<CardOffer | null>(null);
@@ -42,6 +42,7 @@
   {#each offer.cards as c (c.id)}
     <div class="badge {c.stat ? tone(c.stat.delta) : 'none'}" class:best={c.best} style:left="{c.x * 100}%">
       {#if c.best}<span class="tag">{t('cards.best')}</span>{/if}
+      {#if c.stat && augTier(c.stat)}<span class="g t{augTier(c.stat)}">{augTier(c.stat)}</span>{/if}
       {#if c.stat}
         <b class="num">{pct1(c.stat.winRate)}%</b>
         <span class="d num">{delta(c.stat.delta)}</span>
@@ -109,6 +110,35 @@
   .best {
     border-color: var(--win);
     box-shadow: 0 0 18vh color-mix(in srgb, var(--win) 55%, transparent);
+  }
+  /* The tier letter: the first thing to read on a card. */
+  .g {
+    align-self: center;
+    width: 46vh;
+    height: 46vh;
+    display: grid;
+    place-items: center;
+    border-radius: 10vh;
+    font-size: 34vh;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--bg);
+    background: var(--text-3);
+  }
+  .g.tS {
+    background: var(--tier-S);
+  }
+  .g.tA {
+    background: var(--tier-A);
+  }
+  .g.tB {
+    background: var(--tier-B);
+  }
+  .g.tC {
+    background: var(--tier-C);
+  }
+  .g.tD {
+    background: var(--tier-D);
   }
   .tag {
     align-self: center;

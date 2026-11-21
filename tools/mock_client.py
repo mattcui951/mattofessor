@@ -126,6 +126,9 @@ class Script:
         self.deaths = False
         self.summoner_down = 0.0
         self.history_lag = 0.0
+        # Seconds of ready check after the lobby (--ready-check), and when the app accepted it.
+        self.ready_check = 0.0
+        self.accepted_at = None
         self.game_id = game["gameId"]
         self.start = time.time()
         self.cs = champ_select
@@ -156,21 +159,27 @@ class Script:
     def t(self):
         return time.time() - self.start
 
+    def lobby(self):
+        """Seconds from the start to champ select: the lobby, then the ready check."""
+        return 4 + self.ready_check
+
     def phase(self):
         t = self.t()
         if t < 4:
             return "Lobby"
-        if t < 4 + self.cs:
+        if t < self.lobby():
+            return "ReadyCheck"
+        if t < self.lobby() + self.cs:
             return "ChampSelect"
-        if t < 4 + self.cs + self.length:
+        if t < self.lobby() + self.cs + self.length:
             return "InProgress"
-        if t < 4 + self.cs + self.length + 10:
+        if t < self.lobby() + self.cs + self.length + 10:
             return "EndOfGame"
         return "None"
 
     def ended(self):
         """Seconds since the game ended (negative before)."""
-        return self.t() - 4 - self.cs - self.length
+        return self.t() - self.lobby() - self.cs - self.length
 
     def history_reply(self, path, real_reply):
         """With --history-lag: the client's match history right after a game. The list answers 500
@@ -197,10 +206,10 @@ class Script:
 
     def in_game_time(self):
         """Seconds since the game process started (loading screen included)."""
-        return self.t() - 4 - self.cs
+        return self.t() - self.lobby() - self.cs
 
     def champ_select(self):
-        t = self.t() - 4
+        t = self.t() - self.lobby()
         mine = [p for p in self.players if p["team"] == self.my_team]
         theirs = [p for p in self.players if p["team"] != self.my_team]
         my_team = []
@@ -305,7 +314,21 @@ def client_handler(real, script, password):
             if path == "/lol-gameflow/v1/gameflow-phase":
                 return self.reply(200, phase)
             if path == "/lol-gameflow/v1/session":
-                return self.reply(200, script.session()) if phase in ("ChampSelect", "InProgress", "EndOfGame") else self.reply(404, {"message": "No gameflow session exists."})
+                return self.reply(200, script.session()) if phase in ("ReadyCheck", "ChampSelect", "InProgress", "EndOfGame") else self.reply(404, {"message": "No gameflow session exists."})
+            if path == "/lol-matchmaking/v1/ready-check":
+                if phase != "ReadyCheck":
+                    return self.reply(404, {"message": "Not in a ready check"})
+                answer = "Accepted" if script.accepted_at is not None else "None"
+                return self.reply(200, {"state": "InProgress", "playerResponse": answer, "timer": script.t() - 4})
+            if path == "/lol-matchmaking/v1/ready-check/accept" and method == "POST":
+                # Never reaches the real client (it has no ready check to accept).
+                self.rfile.read(int(self.headers.get("Content-Length") or 0))
+                if phase != "ReadyCheck":
+                    return self.reply(404, {"message": "Not in a ready check"})
+                if script.accepted_at is None:
+                    script.accepted_at = script.t()
+                    print(f"{script.t():6.1f}s ready check accepted ({script.accepted_at - 4:.1f} s after it opened)", flush=True)
+                return self.reply(204, raw=b"")
             if path == "/lol-champ-select/v1/session":
                 return self.reply(200, script.champ_select()) if phase == "ChampSelect" else self.reply(404, {"message": "No active delegate"})
             length = int(self.headers.get("Content-Length") or 0)
@@ -396,6 +419,7 @@ def main():
     ap.add_argument("--at", default="0,0", help="where the stand-in game window opens with --screen (x,y; e.g. 3440,0 for a second monitor)")
     ap.add_argument("--screen", help="an image the stand-in game window shows at its own size from the top-left corner (e.g. a frame with augment cards), instead of a test pattern")
     ap.add_argument("--summoner-down", type=float, default=0, help="seconds the signed-in account is not answered yet (a client still starting)")
+    ap.add_argument("--ready-check", type=float, default=0, help="seconds of ready check between the lobby and champ select (the app's auto-accept answers it)")
     ap.add_argument("--history-lag", type=float, default=0, help="seconds after the game before your match history lists it, like the real client (500 errors for the first quarter, the full game readable from half way)")
     args = ap.parse_args()
 
@@ -416,6 +440,7 @@ def main():
     script.deaths = args.deaths
     script.summoner_down = args.summoner_down
     script.history_lag = args.history_lag
+    script.ready_check = args.ready_check
 
     ctx = ensure_cert()
     password = secrets.token_urlsafe(16)

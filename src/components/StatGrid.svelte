@@ -1,5 +1,6 @@
 <script lang="ts" module>
   import type { HoverInfo } from '../lib/hover.svelte';
+  import type { Tier } from '../lib/types';
 
   export type StatCard = {
     key: string | number;
@@ -16,6 +17,8 @@
     delta: number;
     pickRate: number;
     hover?: HoverInfo;
+    /** Its tier letter (augments). */
+    grade?: Tier | null;
     /** Picked (a build style's item). */
     on?: boolean;
     onclick?: () => void;
@@ -28,6 +31,7 @@
    * A row of stat cards with three lines each (win rate, difference from the champion, share
    * of its players), headed by a label column whose line names sort the row.
    */
+  import Grade from './Grade.svelte';
   import Img from './Img.svelte';
   import { tip } from '../lib/hover.svelte';
   import { t } from '../lib/i18n.svelte';
@@ -73,6 +77,7 @@
         onclick={c.onclick}
         use:tip={() => c.hover ?? null}
       >
+        {#if c.grade}<span class="gr"><Grade tier={c.grade} size={16} /></span>{/if}
         <div class="id">
           <span class="icons">{#if c.glyph}<span class="glyph" aria-hidden="true">{c.glyph}</span>{:else}<Img src={c.icon} size={30} round={c.round} plate={c.plate} />{/if}{#if c.icon2 !== undefined}<Img src={c.icon2} size={30} round={c.round} />{/if}</span>
           <span class="name">{c.name}</span>
@@ -169,6 +174,7 @@
     gap: 4px;
   }
   .sc {
+    position: relative;
     min-width: 0;
     display: grid;
     /* One height for the label column and every card, so the three lines line up. */
@@ -201,6 +207,12 @@
     align-content: start;
     gap: 4px;
     padding: 7px 4px 5px;
+  }
+  .gr {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    display: flex;
   }
   .icons {
     display: flex;

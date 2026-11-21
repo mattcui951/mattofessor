@@ -198,6 +198,12 @@ pub fn card_offer() -> Option<crate::cards::Offer> {
     crate::cards::current()
 }
 
+/// The augments you took this game, in the order taken (Hextech ARAM, from the card reader).
+#[tauri::command]
+pub fn taken_augments() -> Vec<i32> {
+    crate::cards::taken()
+}
+
 /// Augment names, rarity and icons in a language (`lang` id).
 #[tauri::command]
 pub async fn augment_names(lang: String) -> Res<crate::augments::Augments> {

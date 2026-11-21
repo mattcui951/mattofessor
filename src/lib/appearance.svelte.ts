@@ -24,9 +24,21 @@ export function applyTheme(t: Theme) {
   }
 }
 
+/** The lowest opacity the in-game windows go to: below it their text is lost over the game. */
+export const MIN_OVERLAY_OPACITY = 0.3;
+
+/** The opacity setting as a fraction, or null for the theme's own (0, missing or not a number). */
+export function overlayOpacity(v: number | undefined): number | null {
+  if (!v || !Number.isFinite(v)) return null;
+  return Math.max(MIN_OVERLAY_OPACITY, Math.min(1, v));
+}
+
 export function applySettings(s: Settings) {
   appearance.custom = (s.customThemes ?? []).map(sanitize).filter((t): t is Theme => t !== null);
   applyTheme(findTheme(s.theme, appearance.custom));
+  // The in-game windows' opacity setting goes over the theme's own (0: the theme's).
+  const opacity = overlayOpacity(s.overlayOpacity);
+  if (opacity !== null) document.documentElement.style.setProperty('--overlay-alpha', `${Math.round(opacity * 100)}%`);
   const scale = Math.max(0.8, Math.min(1.4, s.uiScale || 1));
   appearance.scale = scale;
   // The in-game panel has its own size setting; the app zooms that window itself.

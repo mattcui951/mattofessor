@@ -465,6 +465,7 @@ fn on_phase_change(core: &Core, w: &mut Watch, old: &str, new: &str) {
     }
     if in_game_phase(new) && !in_game_phase(old) {
         w.loading_handled = false;
+        crate::cards::new_game();
         // Full screen hides every Mattofessor window: worth a line in a bug report.
         tauri::async_runtime::spawn(async {
             if let Some(m) = crate::display::window_mode().await {
@@ -544,6 +545,45 @@ async fn auto_import(core: &Core, w: &mut Watch, cs: &Value) {
             core.toast(format!("[imported:{what}] Imported {what}"), "good");
         }
         Err(e) => core.toast(format!("{e:#}"), "error"),
+    }
+}
+
+/// Whether to accept a ready check by itself: the setting ("off", "hextech", "all") and the queue's
+/// game mode ("KIWI" is Hextech ARAM; "" when the client did not say).
+pub fn should_accept(setting: &str, mode: &str) -> bool {
+    match setting {
+        "all" => true,
+        "hextech" => mode == "KIWI",
+        _ => false,
+    }
+}
+
+/// The ready check (`/lol-matchmaking/v1/ready-check`) is open and not answered yet.
+fn ready_check_open(rc: &Value) -> bool {
+    rc.get("state").and_then(Value::as_str) == Some("InProgress") && rc.get("playerResponse").and_then(Value::as_str) == Some("None")
+}
+
+/// Accepts the ready check for the player when the setting says so (once per check: a declined
+/// or accepted check is left alone).
+async fn auto_accept(core: &Core, lcu: &lcu::Lcu) {
+    let setting = core.settings().auto_accept;
+    if setting == "off" {
+        return;
+    }
+    let Ok(Some(rc)) = lcu.get_opt("/lol-matchmaking/v1/ready-check").await else { return };
+    if !ready_check_open(&rc) {
+        return;
+    }
+    let mode = match lcu.get_opt("/lol-gameflow/v1/session").await {
+        Ok(Some(gs)) => queue_of(&gs).1,
+        _ => String::new(),
+    };
+    if !should_accept(&setting, &mode) {
+        return;
+    }
+    match lcu.post("/lol-matchmaking/v1/ready-check/accept", &json!({})).await {
+        Ok(_) => log::info!("ready check accepted by itself ({setting}, mode {mode})"),
+        Err(e) => log::warn!("accepting the ready check: {e:#}"),
     }
 }
 
@@ -629,6 +669,11 @@ async fn tick(core: &Arc<Core>, w: &mut Watch) {
     }
     let me = core.me.read().as_ref().map(|m| m.puuid.clone()).unwrap_or_default();
 
+    if phase == "ReadyCheck" {
+        if let Some(l) = &lcu {
+            auto_accept(core, l).await;
+        }
+    }
     if phase == "ChampSelect" {
         if let Some(l) = &lcu {
             if let Ok(Some(cs)) = l.get_opt("/lol-champ-select/v1/session").await {
@@ -742,6 +787,21 @@ pub fn spawn(core: Arc<Core>) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn auto_accept_follows_the_setting() {
+        assert!(!should_accept("off", "KIWI"));
+        assert!(should_accept("hextech", "KIWI"));
+        assert!(!should_accept("hextech", "CLASSIC"));
+        assert!(!should_accept("hextech", ""), "a queue the client did not name is not Hextech ARAM");
+        assert!(should_accept("all", "CLASSIC") && should_accept("all", ""));
+        assert!(!should_accept("something", "KIWI"), "an unknown setting is off");
+        let rc = |state: &str, answer: &str| json!({"state": state, "playerResponse": answer});
+        assert!(ready_check_open(&rc("InProgress", "None")));
+        assert!(!ready_check_open(&rc("InProgress", "Accepted")), "already accepted");
+        assert!(!ready_check_open(&rc("InProgress", "Declined")), "the player declined: left alone");
+        assert!(!ready_check_open(&rc("Invalid", "None")));
+    }
 
     #[test]
     fn champ_select_roster() {

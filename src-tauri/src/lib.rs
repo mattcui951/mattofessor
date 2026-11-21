@@ -14,6 +14,7 @@ mod dev;
 pub mod dd;
 pub mod display;
 pub mod game;
+pub mod gold;
 pub mod hexstats;
 pub mod hotkeys;
 pub mod keywords;
@@ -164,6 +165,7 @@ pub fn run() {
             content::spawn();
             data::spawn();
             cards::spawn(core.clone());
+            gold::spawn(core.clone());
             update::spawn(core.clone());
             warm::spawn(core.clone());
             if !started_minimized {
@@ -187,6 +189,7 @@ pub fn run() {
             commands::aram_champion,
             commands::aram_picks,
             commands::card_offer,
+            commands::taken_augments,
             commands::augment_names,
             commands::import_build,
             commands::save_settings,

@@ -27,7 +27,7 @@
   import { augmentTip, itemText } from '../lib/tips.svelte';
   import { loadGameData } from '../lib/gamedata.svelte';
   import { i18n, t } from '../lib/i18n.svelte';
-  import { ARAM_CREDIT, augment, bracket, delta, hex, loadAugments, notePatches, pct1, share } from '../lib/meta.svelte';
+  import { ARAM_CREDIT, augTier, augment, bracket, delta, hex, loadAugments, notePatches, pct1, share } from '../lib/meta.svelte';
   import { errorText } from '../lib/state.svelte';
   import type { AugStat, ChampionPage, Core, ItemStat, SpellStat } from '../lib/types';
   import TrendChart from './TrendChart.svelte';
@@ -89,6 +89,7 @@
       winRate: a.winRate,
       delta: a.delta,
       pickRate: a.pickRate,
+      grade: augTier(a),
       hover: augmentTip(a.id, stats(a, t('hex.held')), { title: name, note: small(a.lowSample) }),
     };
   }

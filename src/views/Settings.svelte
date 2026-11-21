@@ -15,13 +15,16 @@
   import Icon from '../components/Icon.svelte';
   import ThemeCard from '../components/ThemeCard.svelte';
   import FullscreenNotice from '../components/FullscreenNotice.svelte';
-  import type { OverlaySize, Settings } from '../lib/types';
-  import { OVERLAY_SIZES } from '../lib/appearance.svelte';
+  import type { AutoAccept, OverlaySize, Settings } from '../lib/types';
+  import { MIN_OVERLAY_OPACITY, OVERLAY_SIZES, overlayOpacity } from '../lib/appearance.svelte';
   import { content, loadContent } from '../lib/content.svelte';
 
   loadContent();
 
   const s = $derived(app.settings);
+  /** The in-game windows' opacity setting (null: the theme's, `themeOpacity`). */
+  const opacity = $derived(overlayOpacity(s?.overlayOpacity));
+  const themeOpacity = $derived(appearance.theme.overlayOpacity);
 
   // The section list beside the page: one entry per titled section, the admin one only for admins.
   let pageEl = $state<HTMLElement>();
@@ -202,6 +205,29 @@
           />
         </div>
         <p class="note">{t('panel.sizeNote')}</p>
+        <div class="row">
+          <span>{t('panel.opacity')}</span>
+          <span class="opacity">
+            <input
+              type="range"
+              min={MIN_OVERLAY_OPACITY * 100}
+              max="100"
+              step="5"
+              value={Math.round((opacity ?? themeOpacity) * 100)}
+              aria-label={t('panel.opacity')}
+              oninput={(e) => updateSettings({ overlayOpacity: Number(e.currentTarget.value) / 100 }, { debounce: true })}
+            />
+            <span class="num val">{Math.round((opacity ?? themeOpacity) * 100)}%</span>
+            <button class="btn sm ghost" disabled={opacity === null} onclick={() => updateSettings({ overlayOpacity: 0 })}>{t('panel.opacityTheme')}</button>
+          </span>
+        </div>
+        <p class="note">{t('panel.opacityNote')}</p>
+        {@render toggleRow(t('panel.lockSpells'), 'lockSpells')}
+        <div class="how-actions">
+          <button class="btn sm" disabled={!s.spellsPos} onclick={() => updateSettings({ spellsPos: null })}>{t('panel.resetSpells')}</button>
+        </div>
+        {@render toggleRow(t('panel.goldDiff'), 'goldDiff')}
+        <p class="note">{t('panel.goldDiffNote')}</p>
         <FullscreenNotice always />
       </section>
 
@@ -211,6 +237,16 @@
         {@render toggleRow(t('settings.showDuringLoading'), 'showDuringLoading')}
         {@render toggleRow(t('settings.spellsOnStart'), 'spellsOnStart')}
         {@render toggleRow(t(isMac ? 'settings.startAtLogin' : 'settings.startWithWindows'), 'startWithWindows')}
+        <div class="row">
+          <span>{t('settings.autoAccept')}</span>
+          <Segmented
+            label={t('settings.autoAccept')}
+            value={s.autoAccept ?? 'off'}
+            options={(['off', 'hextech', 'all'] as const).map((v) => ({ value: v, label: t(`settings.autoAccept.${v}`) }))}
+            onchange={(v) => updateSettings({ autoAccept: v as AutoAccept })}
+          />
+        </div>
+        <p class="note">{t('settings.autoAcceptNote')}</p>
       </section>
 
       {#if content.status.canEdit}
@@ -462,5 +498,19 @@
   }
   .lang {
     max-width: 260px;
+  }
+  .opacity {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .opacity input {
+    width: 160px;
+  }
+  .val {
+    min-width: 3em;
+    text-align: right;
+    color: var(--text-2);
+    font-size: 12.5px;
   }
 </style>

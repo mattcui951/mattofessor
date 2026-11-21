@@ -5,7 +5,7 @@
   import { champIconByKey, spellByKey, spellIcon } from '../lib/dd.svelte';
   import { t } from '../lib/i18n.svelte';
   import { appearance } from '../lib/appearance.svelte';
-  import { app } from '../lib/state.svelte';
+  import { app, updateSettings } from '../lib/state.svelte';
   import { cooldownFor } from './spells';
 
   /** Ready-at game time per "riotId|spellKey". */
@@ -49,6 +49,9 @@
     return () => ro.disconnect();
   });
 
+  /** Locked (Settings, or the lock in the header): the header no longer moves the window. */
+  const locked = $derived(Boolean(app.settings?.lockSpells));
+
   function fmt(s: number) {
     const m = Math.floor(s / 60);
     const r = Math.ceil(s % 60);
@@ -57,9 +60,17 @@
 </script>
 
 <div class="panel" bind:this={panel}>
-  <header data-tauri-drag-region>
+  <header class:locked data-tauri-drag-region={locked ? undefined : ''}>
     <Icon name="timer" size={15} />
-    <span data-tauri-drag-region>{t('spells.title')}</span>
+    <span data-tauri-drag-region={locked ? undefined : ''}>{t('spells.title')}</span>
+    <button
+      class="x"
+      class:on={locked}
+      aria-pressed={locked}
+      aria-label={t(locked ? 'spells.unlock' : 'spells.lock')}
+      title={t(locked ? 'spells.unlock' : 'spells.lock')}
+      onclick={() => updateSettings({ lockSpells: !locked })}><Icon name={locked ? 'lock' : 'unlock'} size={13} /></button
+    >
     <button class="x" aria-label={t('common.close')} onclick={() => api.hideSpells()}><Icon name="close" size={14} /></button>
   </header>
   {#if enemies.length === 0}
@@ -119,6 +130,9 @@
     cursor: move;
     flex: none;
   }
+  header.locked {
+    cursor: default;
+  }
   header span {
     flex: 1;
   }
@@ -129,6 +143,12 @@
     place-items: center;
     border-radius: var(--r-sm);
     color: var(--text-3);
+  }
+  .x.on {
+    color: var(--objective);
+  }
+  .x.on {
+    color: var(--objective);
   }
   .x:hover {
     background: var(--panel-2);

@@ -1,6 +1,6 @@
 // Dev-only: lets the UI run in a plain browser tab for visual checks, against the running
 // debug app's JSON bridge (src-tauri/src/dev.rs). Open http://localhost:1431/ (main window),
-// /#overlay or /#spells. Writes are no-ops except the few the bridge allows.
+// /#overlay, /#spells, /#cards or /#gold. Writes are no-ops except the few the bridge allows.
 import { emit } from '@tauri-apps/api/event';
 import { mockIPC, mockWindows } from '@tauri-apps/api/mocks';
 
@@ -14,7 +14,7 @@ async function call(path: string, args: Record<string, unknown> = {}) {
   return body;
 }
 
-const label = location.hash === '#overlay' ? 'overlay' : location.hash === '#spells' ? 'spells' : 'main';
+const label = ['#overlay', '#spells', '#cards', '#gold'].includes(location.hash) ? location.hash.slice(1) : 'main';
 mockWindows(label);
 mockIPC(
   async (cmd, args) => {
@@ -30,6 +30,8 @@ mockIPC(
           }
         }
       case 'live_state':
+      case 'taken_augments':
+      case 'card_offer':
       case 'rift_tiers':
       case 'toggle_overlay':
       case 'toggle_spells':

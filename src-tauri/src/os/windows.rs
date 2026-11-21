@@ -170,6 +170,40 @@ pub fn restore_if_minimized(hwnd: WindowId) {
     }
 }
 
+// ---------------------------------------------------------------------------------------------
+// Keyboard and mouse, read by asking (no hook): Tab for the team gold strip, the left button and
+// the pointer for which augment card was taken. Nothing is kept from the game.
+
+fn key_down(vk: u16) -> bool {
+    use windows::Win32::UI::Input::KeyboardAndMouse::GetAsyncKeyState;
+    unsafe { GetAsyncKeyState(vk as i32) as u16 & 0x8000 != 0 }
+}
+
+/// The Tab key is held.
+pub fn tab_down() -> bool {
+    key_down(windows::Win32::UI::Input::KeyboardAndMouse::VK_TAB.0)
+}
+
+/// The left mouse button is held.
+pub fn left_button_down() -> bool {
+    key_down(windows::Win32::UI::Input::KeyboardAndMouse::VK_LBUTTON.0)
+}
+
+/// Where the pointer is (physical pixels).
+pub fn cursor_pos() -> Option<(i32, i32)> {
+    use windows::Win32::Foundation::POINT;
+    use windows::Win32::UI::WindowsAndMessaging::GetCursorPos;
+    let mut p = POINT::default();
+    unsafe { GetCursorPos(&mut p).ok()? };
+    Some((p.x, p.y))
+}
+
+/// The window is the one the keyboard goes to.
+pub fn has_focus(hwnd: WindowId) -> bool {
+    use windows::Win32::UI::WindowsAndMessaging::GetForegroundWindow;
+    unsafe { GetForegroundWindow().0 as isize == hwnd }
+}
+
 /// Windows lets every program read the screen.
 pub fn screen_capture_allowed() -> bool {
     true

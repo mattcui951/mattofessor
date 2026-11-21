@@ -639,6 +639,9 @@ async fn champion_once(champion_id: i32, patch: &str, bracket: &str) -> Result<C
 /// taken summoner spells. All players, current patch. None when AramHex has no item data.
 pub struct AramBuild {
     pub core: Vec<i32>,
+    /// The (up to three) most made three-item builds, most made first: items, games, wins and the
+    /// share of the champion's players who made it.
+    pub routes: Vec<(Vec<i32>, u64, u64, f64)>,
     pub items: Vec<(i32, u64, u64)>,
     pub boots: Vec<(i32, u64, u64)>,
     pub spells: Vec<([i32; 2], u64, u64)>,
@@ -659,6 +662,7 @@ pub async fn aram_build(champion_id: i32) -> Result<Option<AramBuild>> {
         .collect();
     items.extend(page.items.iter().filter(|i| !core.contains(&i.id) && !i.low_sample).take(6).map(|i| (i.id, i.games, wins(i.win_rate, i.games))));
     Ok(Some(AramBuild {
+        routes: page.cores.iter().map(|c| (c.items.clone(), c.games, wins(c.win_rate, c.games), c.pick_rate)).collect(),
         core,
         items,
         boots: page.boots.iter().filter(|b| b.id != 0 && !b.low_sample).take(2).map(|b| (b.id, b.games, wins(b.win_rate, b.games))).collect(),

@@ -3,7 +3,7 @@ import { api } from './api';
 import { dec } from './format';
 import { i18n } from './i18n.svelte';
 import { app, updateSettings } from './state.svelte';
-import type { AramBracket, Augment, PatchInfo } from './types';
+import type { AramBracket, Augment, PatchInfo, Tier } from './types';
 
 /** Required by the data's license (CC BY-NC 4.0) wherever its numbers show. */
 export const ARAM_CREDIT = '海克斯大乱斗统计数据 (github.com/czgreat/aramhex-data), CC BY-NC 4.0';
@@ -76,7 +76,24 @@ export function aramTier(winRate: number): 'S' | 'A' | 'B' | 'C' | 'D' {
   return TIER_LINES.find((l) => winRate >= l.min)!.tier;
 }
 
-/** OP.GG tier as a letter: 0 is its OP tier (above tier 1), then 1 to 5 as S to D. */
+/**
+ * Lift lines of the augment tiers, best first: how many points an augment adds to its champion's
+ * own win rate (`delta`, smoothed so small samples count less). The augment board's rows too.
+ */
+export const AUG_LINES: { tier: Tier; min: number }[] = [
+  { tier: 'S', min: 0.04 },
+  { tier: 'A', min: 0.02 },
+  { tier: 'B', min: 0 },
+  { tier: 'C', min: -0.02 },
+  { tier: 'D', min: -Infinity },
+];
+
+/** An augment's tier for a champion (`AUG_LINES`); none for a small sample (a guess, not a grade). */
+export function augTier(a: { delta: number; lowSample: boolean }): Tier | null {
+  return a.lowSample ? null : AUG_LINES.find((l) => a.delta >= l.min)!.tier;
+}
+
+/** OP.GG tier as a letter:0 is its OP tier (above tier 1), then 1 to 5 as S to D. */
 export function riftTier(tier: number): string {
   return ['OP', 'S', 'A', 'B', 'C', 'D'][tier] ?? '';
 }

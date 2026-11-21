@@ -265,6 +265,64 @@ pub fn is_visible(w: &WebviewWindow) -> bool {
 }
 
 // ---------------------------------------------------------------------------------------------
+// Keyboard and mouse, read by asking Quartz for their state (no event tap): Tab for the team gold
+// strip, the left button and the pointer for which augment card was taken.
+
+/// Quartz's CGPoint, as `CGEventGetLocation` returns it.
+#[repr(C)]
+struct QuartzPoint {
+    x: f64,
+    y: f64,
+}
+
+#[link(name = "CoreGraphics", kind = "framework")]
+extern "C" {
+    fn CGEventSourceKeyState(state: i32, key: u16) -> bool;
+    fn CGEventSourceButtonState(state: i32, button: u32) -> bool;
+    fn CGEventCreate(source: *const c_void) -> *mut c_void;
+    fn CGEventGetLocation(event: *const c_void) -> QuartzPoint;
+}
+
+#[link(name = "CoreFoundation", kind = "framework")]
+extern "C" {
+    fn CFRelease(cf: *const c_void);
+}
+
+/// kCGEventSourceStateCombinedSessionState: what every app in the session sees.
+const COMBINED_SESSION: i32 = 0;
+/// kVK_Tab.
+const KEY_TAB: u16 = 0x30;
+
+/// The Tab key is held.
+pub fn tab_down() -> bool {
+    unsafe { CGEventSourceKeyState(COMBINED_SESSION, KEY_TAB) }
+}
+
+/// The left mouse button is held.
+pub fn left_button_down() -> bool {
+    unsafe { CGEventSourceButtonState(COMBINED_SESSION, 0) }
+}
+
+/// Where the pointer is (points from the top left of the main display, as `Rect`s are).
+pub fn cursor_pos() -> Option<(i32, i32)> {
+    unsafe {
+        let event = CGEventCreate(std::ptr::null());
+        if event.is_null() {
+            return None;
+        }
+        let p = CGEventGetLocation(event);
+        CFRelease(event);
+        Some((p.x.round() as i32, p.y.round() as i32))
+    }
+}
+
+/// The window is in front of every other app's (the app's own panels float above all and do not
+/// count: they never take the keyboard).
+pub fn has_focus(id: WindowId) -> bool {
+    windows_list(ON_SCREEN_ONLY | EXCLUDE_DESKTOP, 0).into_iter().find(|w| w.layer == 0).is_some_and(|w| w.id as WindowId == id)
+}
+
+// ---------------------------------------------------------------------------------------------
 // Screen capture
 
 /// Whether the user let Mattofessor record the screen (System Settings > Privacy & Security >

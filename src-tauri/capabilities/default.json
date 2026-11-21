@@ -1,8 +1,8 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Main, overlay, spell timer and augment card windows",
-  "windows": ["main", "overlay", "spells", "cards"],
+  "description": "Main, overlay, spell timer, augment card and team gold windows",
+  "windows": ["main", "overlay", "spells", "cards", "gold"],
   "permissions": [
     "core:default",
     "core:window:allow-minimize",
