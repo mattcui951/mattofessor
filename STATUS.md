@@ -1,7 +1,7 @@
 # Status
 
 Updated: 2026-11-19
-Version: 1.0.24
+Version: 1.0.25
 
 ## In progress
 
@@ -82,7 +82,7 @@ Version: 1.0.24
 
 ## Recently done
 
-- Not released yet (after 1.0.24): a game that just ended shows up in the profile by itself.
+- 1.0.25 (2026-11-20): a game that just ended shows up in the profile by itself.
   Right after a game the client answers 500 for a while, then lists the game only minutes
   later; the refresh at the end of the game came too early and the app quietly fell back to
   the saved games while still saying "updated just now" (seen in the user's log, 2026-11-20).
@@ -92,7 +92,7 @@ Version: 1.0.24
   so ("Games not updated yet, retrying...") and tries again after 30 s. Verified with the new
   mock option `--history-lag 120` and a fresh data folder: 500 at the end of the game, the game
   in the profile 60 s later without a click.
-- Not released yet: augment icons (white art) sit on a dark plate in every theme
+- 1.0.25: augment icons (white art) sit on a dark plate in every theme
   (`Img plate`, `--art-plate`); on light themes they were nearly invisible.
 
 - 1.0.24 (2026-11-19): the in-game panel (Hextech ARAM) shows what to take, not
