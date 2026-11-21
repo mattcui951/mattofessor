@@ -636,7 +636,8 @@
        "name": "Slime Time",
        "isNew": true,
        "summary": "Every few seconds, Autocast a burst of slime from your body, dealing magic damage to nearby enemies. If you hit a champion, secrete a blob that heals you when walked over.",
-       "parts": []
+       "parts": [],
+       "augmentId": 3262
       },
       {
        "group": "Augments",
@@ -14616,7 +14617,8 @@
         "name": "スライムタイム",
         "isNew": true,
         "summary": "数秒ごとに自身の体からスライムの爆発を自動発動し、近くの敵に魔法ダメージを与える。チャンピオンに当たると、近くに上を通過すると回復するスライムが1体分泌される。",
-        "parts": []
+        "parts": [],
+        "augmentId": 3262
        },
        {
         "group": "オーグメント",
