@@ -2,7 +2,7 @@
 
 [English](README.md) · **简体中文** · [繁體中文](README.zh-TW.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [Español](README.es.md) · [Français](README.fr.md) · [Русский](README.ru.md)
 
-一款在 Windows 本地运行的英雄联盟助手，可以替代 Porofessor：不需要 Overwolf，没有广告，也不用注册账号。支持简体中文、繁体中文、英语、日语、韩语、西班牙语、法语和俄语。
+一款在 Windows 和 macOS 本地运行的英雄联盟助手，可以替代 Porofessor：不需要 Overwolf，没有广告，也不用注册账号。支持简体中文、繁体中文、英语、日语、韩语、西班牙语、法语和俄语。
 
 > 本页介绍怎么安装和使用。开发、构建和发布的说明见英文版 [README](README.md)。
 
@@ -27,6 +27,13 @@
 ### 杀毒软件报毒
 
 火绒、360 等杀毒软件可能会拦截或隔离安装包，报成"木马"或"盗号程序"。这是误报，原因有两个：一是安装包没有代码签名，二是这个应用确实会读取英雄联盟客户端本地的登录文件（lockfile）和屏幕画面，而这些正是杀毒软件重点盯的行为。请只从本仓库的 Releases 页面下载，然后在杀毒软件里恢复被隔离的文件，并把它和 `C:\Program Files\Mattofessor` 加入信任区。
+
+### macOS
+
+1. 从最新版本下载 `Mattofessor_x.y.z_universal.dmg`（Apple 芯片和 Intel 通用），打开后把 Mattofessor 拖到“应用程序”。
+2. 想在海克斯卡片上看到胜率，请在 **系统设置 > 隐私与安全性 > 录屏与系统录音** 中允许 Mattofessor（设置 > 海克斯识别里有按钮），然后重启 Mattofessor。
+
+需要 macOS 13 或更新版本（卡片胜率需要 macOS 14）。Mattofessor 常驻菜单栏；设置保存在 `~/Library/Application Support/Mattofessor`，Riot 密钥保存在钥匙串中。
 
 ## 更新
 

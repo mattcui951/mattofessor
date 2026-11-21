@@ -2,7 +2,8 @@
 //!
 //! The port and password come from the `lockfile` in the League install folder, which the
 //! client writes while it runs (`LeagueClient:<pid>:<port>:<password>:https`). The install
-//! folder is found from the running client's executable path. `MATTOFESSOR_LOCKFILE` points
+//! folder is found above the running client's executable (next to it on Windows, a few folders
+//! up inside the app bundle on macOS). `MATTOFESSOR_LOCKFILE` points
 //! at another lockfile (the mock client in `tools/`).
 
 use anyhow::{anyhow, bail, Context, Result};
@@ -136,13 +137,8 @@ fn lockfile_path() -> Option<PathBuf> {
     if let Ok(p) = std::env::var("MATTOFESSOR_LOCKFILE") {
         return Some(p.into());
     }
-    let procs = crate::win::processes();
-    ["LeagueClientUx.exe", "LeagueClient.exe"]
-        .iter()
-        .filter_map(|n| crate::win::find_process(&procs, n))
-        .filter_map(crate::win::process_path)
-        .filter_map(|exe| exe.parent().map(|d| d.join("lockfile")))
-        .find(|p| p.exists())
+    let exe = crate::os::client_exe()?;
+    crate::os::folder_above_with(&exe, "lockfile").map(|d| d.join("lockfile"))
 }
 
 fn parse_lockfile(text: &str) -> Result<(u16, String)> {

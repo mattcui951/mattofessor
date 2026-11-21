@@ -8,7 +8,7 @@ use crate::analysis::{self, Context, PlayerCard, Tag};
 use crate::core::Core;
 use crate::lcu;
 use crate::players::{self, Inputs};
-use crate::{builds, dd, live, win};
+use crate::{builds, dd, live, os};
 use parking_lot::Mutex;
 use serde::Serialize;
 use serde_json::{json, Value};
@@ -618,7 +618,7 @@ async fn tick(core: &Arc<Core>, w: &mut Watch) {
         Some(l) => l.get_value("/lol-gameflow/v1/gameflow-phase").await.ok().and_then(|v| v.as_str().map(str::to_string)).unwrap_or_default(),
         None => String::new(),
     };
-    let game_running = win::game_running();
+    let game_running = os::game_running();
     if phase.is_empty() && game_running {
         // Client closed during the game: the game itself still answers.
         phase = "InProgress".into();
@@ -689,7 +689,7 @@ async fn tick(core: &Arc<Core>, w: &mut Watch) {
         // Loading screen: show the panel by itself until the match starts.
         let game_time = game.as_ref().map(|g| g.game_time).unwrap_or(0.0);
         let s = core.settings();
-        if !w.loading_handled && win::game_window().is_some() {
+        if !w.loading_handled && os::game_window().is_some() {
             w.loading_handled = true;
             if s.show_during_loading && game_time < LOADING_DONE {
                 core.overlay_auto.store(true, Ordering::Relaxed);

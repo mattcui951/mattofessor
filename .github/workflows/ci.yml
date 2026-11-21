@@ -1,0 +1,83 @@
+# Checks every change on both systems: the app is mostly developed on Windows, and this is what
+# tells whether a change still builds and passes on macOS (and the other way round).
+#
+# On every push to main and every pull request: the frontend tests and type check, clippy with
+# warnings as errors, the Rust tests (the macOS run reads the saved augment card sample with
+# Vision), then a build. The macOS build is a universal app (Apple Silicon and Intel), signed ad
+# hoc, attached to the run as an artifact for trying a change on a Mac; releases (release.yml)
+# are the signed and notarized ones.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            targets: ''
+          - os: macos-latest
+            targets: aarch64-apple-darwin,x86_64-apple-darwin
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+          targets: ${{ matrix.targets }}
+
+      # Its own cache per system, saved from main only (a branch reuses main's).
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+          shared-key: ci-${{ matrix.os }}
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      - run: npm ci
+
+      - name: Frontend tests and type check
+        run: |
+          npx vitest run
+          npx svelte-check --tsconfig ./tsconfig.json
+
+      - name: Clippy
+        run: cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings
+
+      - name: Rust tests
+        run: cargo test --manifest-path src-tauri/Cargo.toml
+
+      - name: Build (Windows)
+        if: runner.os == 'Windows'
+        run: npx tauri build --no-bundle
+
+      # Ad hoc signed (no certificate in CI runs) and without update files (no signing key).
+      - name: Build (macOS app)
+        if: runner.os == 'macOS'
+        run: npx tauri build --target universal-apple-darwin --bundles app --config '{"bundle":{"createUpdaterArtifacts":false,"macOS":{"signingIdentity":"-"}}}'
+
+      - name: Pack the macOS app
+        if: runner.os == 'macOS'
+        run: ditto -c -k --keepParent src-tauri/target/universal-apple-darwin/release/bundle/macos/Mattofessor.app Mattofessor-macos.zip
+
+      - uses: actions/upload-artifact@v4
+        if: runner.os == 'macOS'
+        with:
+          name: Mattofessor-macos-${{ github.sha }}
+          path: Mattofessor-macos.zip
+          retention-days: 14

@@ -1,9 +1,34 @@
 # Status
 
-Updated: 2026-11-19
+Updated: 2026-11-20
 Version: 1.0.25
 
 ## In progress
+
+- macOS support (2026-11-20, not released yet). The system code is split per system: `os/`
+  (processes via libproc, other windows via the Quartz window list, the in-game windows as
+  non-activating AppKit panels at pop-up-menu level on every space, screen captures via
+  ScreenCaptureKit without the app's own windows), `ocr/` (Vision, read in 1024 px tiles: a
+  wide band lost its titles), `hotkeys/` (system hotkeys through tauri-plugin-global-shortcut, no
+  permission needed), `secret.rs` (login keychain). Native window buttons on the main window,
+  a template menu bar icon, Command shortcuts (zoom, search, hotkey recorder), macOS strings in
+  all eight languages, Dock click reopens the window, the updater restarts the app itself.
+  Release: `release.yml` drafts, builds Windows and a universal macOS app in parallel, then
+  writes `latest.json` (windows-x86_64, darwin-aarch64, darwin-x86_64) and publishes.
+  - Verified on this Mac (macOS 26, real client on an external drive): lockfile, client and game
+    found, game.cfg read, profile and live game with real data, a mock game end to end
+    (`tools/dev-mock.sh`), overlay and spell timers placed over the screen at the right level,
+    window lookup and display bounds, ScreenCaptureKit captures (~60 ms), Vision reads the
+    saved 3440 px card sample (`reads_real_cards`), local `tauri build` of the app and dmg.
+  - Not verified yet: a click on the panel leaves a real game focused (panel class swap, like
+    tauri-nspanel); the hotkeys reach the app while the real game has focus; the panels show
+    over League's own Full screen on macOS; the card reader in a real Hextech game, on a Retina
+    display (captures at 2x, lines scaled back); the first CI release run (`release.yml` and the
+    mac `warm-cache` job are new) and an update from one mac release to the next.
+  - Signed with the Developer ID certificate (team 225L3H4Y2X, valid to 2027-12-21) and
+    notarized. The certificate's key and .p12 are in `~/Documents/mattofessor-signing` on the
+    Mac mini (not in git); notarization uses the keychain profile `mattofessor-notary` locally and
+    the APPLE_* secrets in CI.
 
 - Card reader (`cards.rs`, `ocr.rs`, `overlay/Cards.svelte`), fixed in 1.0.1 after the first
   real game showed two labels in the wrong places with stale numbers. Three causes, all fixed:

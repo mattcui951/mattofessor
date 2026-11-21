@@ -25,7 +25,6 @@ parking_lot = "0.12"
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "time", "sync", "net", "io-util"] }
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
 rusqlite = { version = "0.41", features = ["bundled"] }
-futures = "0.3"
 urlencoding = "2"
 base64 = "0.22"
 chrono = "0.4"
@@ -35,7 +34,7 @@ tauri-plugin-updater = "2"
 sha2 = "0.10"
 png = "0.17"
 
-[dependencies.windows]
+[target.'cfg(windows)'.dependencies.windows]
 version = "0.62"
 features = [
   "Win32_Foundation",
@@ -53,6 +52,19 @@ features = [
   "Media_Ocr",
   "Storage_Streams",
 ]
+
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2 = "0.6"
+block2 = "0.6"
+libc = "0.2"
+objc2-foundation = { version = "0.3", features = ["NSArray", "NSDictionary", "NSString", "NSValue", "NSRange", "NSError", "NSGeometry", "NSRunLoop", "NSDate", "block2"] }
+objc2-app-kit = { version = "0.3", features = ["NSWindow", "NSPanel", "NSResponder", "NSScreen", "NSRunningApplication", "NSGraphics", "NSApplication"] }
+objc2-core-foundation = { version = "0.3", features = ["CFArray", "CFDictionary", "CFNumber", "CFString", "CFCGTypes"] }
+objc2-core-graphics = { version = "0.3", features = ["CGWindow", "CGImage", "CGDirectDisplay", "CGColorSpace", "CGContext", "CGBitmapContext", "CGGeometry", "CGDisplayConfiguration"] }
+objc2-vision = { version = "0.3", features = ["VNRequest", "VNRecognizeTextRequest", "VNObservation", "VNRequestHandler", "VNTypes", "objc2-core-graphics"] }
+objc2-screen-capture-kit = { version = "0.3", features = ["SCShareableContent", "SCStream", "SCScreenshotManager", "block2", "objc2-core-graphics"] }
+security-framework = "3"
+tauri-plugin-global-shortcut = "2"
 
 [profile.release]
 codegen-units = 1

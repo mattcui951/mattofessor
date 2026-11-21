@@ -1,8 +1,15 @@
-# Builds the Windows installer and publishes it as a GitHub Release when a version tag is pushed.
-# The annotated tag's message becomes the release notes:
+# Builds the Windows installer and the macOS app and publishes them as a GitHub Release when a
+# version tag is pushed. The annotated tag's message becomes the release notes:
 #   git tag -a v0.2.0 -m "What changed" && git push origin v0.2.0
-# The release also carries latest.json and the installer's signature, which installed apps read
+# The release also carries latest.json and each update's signature, which installed apps read
 # to offer the update (needs the TAURI_SIGNING_PRIVATE_KEY and _PASSWORD repository secrets).
+# The macOS app is signed with the Developer ID certificate and notarized by Apple (secrets
+# APPLE_CERTIFICATE: the .p12 in base64, APPLE_CERTIFICATE_PASSWORD, APPLE_ID, APPLE_PASSWORD: an
+# app-specific password, APPLE_TEAM_ID).
+#
+# Order: one job makes the release as a draft, the two builds attach their files to it, the last
+# job writes latest.json from both builds' signatures and publishes. "latest" keeps pointing at
+# the previous release until then, so downloads and update checks never see a half-built one.
 name: Release
 
 on:
@@ -13,22 +20,48 @@ permissions:
   contents: write
 
 jobs:
-  windows:
-    runs-on: windows-latest
+  draft:
+    runs-on: ubuntu-latest
+    outputs:
+      id: ${{ steps.draft.outputs.id }}
     steps:
       - uses: actions/checkout@v5
 
-      - name: Release notes from the tag message
-        id: notes
-        shell: bash
+      - name: Draft release with the tag message as notes
+        id: draft
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git fetch --depth=1 origin "+refs/tags/${GITHUB_REF_NAME}:refs/tags/${GITHUB_REF_NAME}"
           notes=$(git tag -l --format='%(contents)' "$GITHUB_REF_NAME")
-          {
-            echo 'text<<NOTES_EOF'
-            echo "$notes"
-            echo 'NOTES_EOF'
-          } >> "$GITHUB_OUTPUT"
+          cat > notes.md <<EOF
+          $notes
+
+          **Install on Windows:** download \`Mattofessor_*_x64-setup.exe\` below and run it. Windows may say "Windows protected your PC" because the installer is not code-signed: click **More info**, then **Run anyway**. Needs Windows 10 or 11.
+
+          **Install on macOS:** download \`Mattofessor_*_universal.dmg\` below, open it and drag Mattofessor to Applications. Needs macOS 13 or later (the augment card win rates need 14).
+
+          Already have Mattofessor? It offers this update by itself. Needs the League of Legends client.
+          EOF
+          gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --draft --title "Mattofessor $GITHUB_REF_NAME" --notes-file notes.md --verify-tag
+          id=$(gh api "repos/$GITHUB_REPOSITORY/releases" --jq ".[] | select(.tag_name == \"$GITHUB_REF_NAME\") | .id" | head -n1)
+          echo "id=$id" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: draft
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - os: windows-latest
+            args: ''
+            targets: ''
+          - os: macos-latest
+            args: --target universal-apple-darwin
+            targets: aarch64-apple-darwin,x86_64-apple-darwin
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
 
       - uses: actions/setup-node@v5
         with:
@@ -36,44 +69,70 @@ jobs:
           cache: npm
 
       - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.targets }}
 
       # Restores what warm-cache.yml saved on main (a tag build can only restore caches saved on
       # the default branch). A tag's own cache could never be reused, so it saves none.
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: src-tauri
-          shared-key: release
+          shared-key: release-${{ matrix.os }}
           save-if: false
 
       - run: npm ci
 
       - name: Test
+        shell: bash
         run: |
           npx vitest run
           npx svelte-check --tsconfig ./tsconfig.json
           cargo test --manifest-path src-tauri/Cargo.toml
 
-      - name: Build installer and publish the release
+      - name: Build and attach to the draft release
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          # macOS only: tauri-action imports the certificate into a temporary keychain.
+          APPLE_CERTIFICATE: ${{ runner.os == 'macOS' && secrets.APPLE_CERTIFICATE || '' }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ runner.os == 'macOS' && secrets.APPLE_CERTIFICATE_PASSWORD || '' }}
+          APPLE_ID: ${{ runner.os == 'macOS' && secrets.APPLE_ID || '' }}
+          APPLE_PASSWORD: ${{ runner.os == 'macOS' && secrets.APPLE_PASSWORD || '' }}
+          APPLE_TEAM_ID: ${{ runner.os == 'macOS' && secrets.APPLE_TEAM_ID || '' }}
         with:
-          tagName: ${{ github.ref_name }}
-          releaseName: Mattofessor ${{ github.ref_name }}
-          releaseBody: |
-            ${{ steps.notes.outputs.text }}
+          releaseId: ${{ needs.draft.outputs.id }}
+          args: ${{ matrix.args }}
+          # Written once, from both builds, by the publish job (two jobs merging it would race).
+          uploadUpdaterJson: false
 
-            **Install:** download `Mattofessor_*_x64-setup.exe` below and run it. Already have Mattofessor? It offers this update by itself.
-            Windows may say "Windows protected your PC" because the installer is not code-signed: click **More info**, then **Run anyway**.
-            Needs Windows 10 or 11 and the League of Legends client.
-          # A draft until every file is attached: "latest" keeps pointing at the previous
-          # release meanwhile, so downloads and update checks never see a half-built one.
-          releaseDraft: true
-          prerelease: false
-
-      - name: Publish the release
+  publish:
+    needs: [draft, build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Write latest.json and publish the release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release edit "${{ github.ref_name }}" --repo "${{ github.repository }}" --draft=false --latest
+        run: |
+          set -euo pipefail
+          tag="$GITHUB_REF_NAME"
+          mkdir sigs && cd sigs
+          gh release download "$tag" --repo "$GITHUB_REPOSITORY" --pattern '*.sig'
+          win=$(ls *-setup.exe.sig)
+          mac=$(ls *.app.tar.gz.sig)
+          url="https://github.com/$GITHUB_REPOSITORY/releases/download/$tag"
+          notes=$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json body --jq .body)
+          jq -n \
+            --arg version "${tag#v}" \
+            --arg notes "$notes" \
+            --arg date "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --arg winSig "$(cat "$win")" --arg winUrl "$url/${win%.sig}" \
+            --arg macSig "$(cat "$mac")" --arg macUrl "$url/${mac%.sig}" \
+            '{version: $version, notes: $notes, pub_date: $date, platforms: {
+              "windows-x86_64": {signature: $winSig, url: $winUrl},
+              "darwin-aarch64": {signature: $macSig, url: $macUrl},
+              "darwin-x86_64": {signature: $macSig, url: $macUrl}}}' > latest.json
+          cat latest.json
+          gh release upload "$tag" latest.json --repo "$GITHUB_REPOSITORY" --clobber
+          gh release edit "$tag" --repo "$GITHUB_REPOSITORY" --draft=false --latest

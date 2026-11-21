@@ -1,9 +1,10 @@
 /**
- * Zoom shortcuts for the main window: Ctrl + / Ctrl - / Ctrl 0 and Ctrl + mouse wheel (or a
- * touchpad pinch). They step the saved text size (`uiScale`), so the zoom is remembered and the
+ * Zoom shortcuts for the main window: Ctrl + / Ctrl - / Ctrl 0 (Command on macOS) and Ctrl +
+ * mouse wheel (or a touchpad pinch). They step the saved text size (`uiScale`), so the zoom is remembered and the
  * Appearance slider follows.
  */
 import { appearance } from './appearance.svelte';
+import { modKey } from './platform';
 import { updateSettings } from './state.svelte';
 
 export const MIN_SCALE = 0.8;
@@ -18,8 +19,8 @@ export function stepScale(current: number, dir: 1 | -1): number {
 }
 
 /** What a key press asks for: 1 bigger, -1 smaller, 0 reset, null not a zoom key. */
-export function zoomKey(e: Pick<KeyboardEvent, 'key' | 'code' | 'ctrlKey' | 'altKey' | 'metaKey'>): 1 | -1 | 0 | null {
-  if (!e.ctrlKey || e.altKey || e.metaKey) return null;
+export function zoomKey(e: Pick<KeyboardEvent, 'key' | 'code' | 'ctrlKey' | 'altKey' | 'metaKey'>, mac?: boolean): 1 | -1 | 0 | null {
+  if (!modKey(e, mac) || e.altKey) return null;
   if (e.key === '=' || e.key === '+' || e.code === 'NumpadAdd') return 1;
   if (e.key === '-' || e.key === '_' || e.code === 'NumpadSubtract') return -1;
   if (e.key === '0' || e.code === 'Numpad0') return 0;
@@ -68,6 +69,7 @@ export function installZoom(target: Window = window): () => void {
     zoom(dir);
   };
   const onWheel = (e: WheelEvent) => {
+    // Ctrl with the wheel on every system: it is also what a touchpad pinch sends.
     if (!e.ctrlKey) return;
     e.preventDefault();
     const delta = e.deltaMode === WheelEvent.DOM_DELTA_PIXEL ? e.deltaY : e.deltaY * NOTCH;

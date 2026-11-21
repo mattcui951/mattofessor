@@ -5,7 +5,7 @@ use crate::hotkeys::{self, Action};
 use crate::live::InGame;
 use crate::model::Summoner;
 use crate::settings::Settings;
-use crate::win;
+use crate::os;
 use parking_lot::{Mutex, RwLock};
 use serde::Serialize;
 use std::sync::atomic::{AtomicBool, AtomicU32, AtomicU64, Ordering};
@@ -173,13 +173,16 @@ impl Core {
             *self.main_route.lock() = None;
             let hash = route.map(|r| format!("#/{r}")).unwrap_or_default();
             let built = WebviewWindowBuilder::new(&self.app, "main", WebviewUrl::App(format!("index.html{hash}").into()));
-            let built = dev_data(built)
-                .title("Mattofessor")
-                .inner_size(1320.0, 860.0)
-                .min_inner_size(1040.0, 680.0)
-                .decorations(false)
-                .center()
-                .build();
+            let built = dev_data(built).title("Mattofessor").inner_size(1320.0, 860.0).min_inner_size(1040.0, 680.0).center();
+            // The page draws its own title bar: on macOS around the system's window buttons.
+            #[cfg(target_os = "macos")]
+            let built = built
+                .title_bar_style(tauri::TitleBarStyle::Overlay)
+                .hidden_title(true)
+                .traffic_light_position(tauri::LogicalPosition::new(14.0, 22.0));
+            #[cfg(not(target_os = "macos"))]
+            let built = built.decorations(false);
+            let built = built.build();
             if let Err(e) = built {
                 log::error!("main window: {e}");
             }
@@ -215,49 +218,43 @@ impl Core {
             .skip_taskbar(true)
             .resizable(false)
             .focused(false)
+            .accept_first_mouse(true)
             .visible(false)
             .inner_size(400.0, 300.0)
             .build()
             .map_err(|e| log::error!("{label} window: {e}"))
             .ok()?;
-        if let Some(h) = hwnd(&w) {
-            win::set_no_activate(h);
-        }
+        os::prepare_overlay(&w);
         Some(w)
     }
 
     /// Screen area to cover: the game window, or the main monitor when there is no game.
-    fn game_area(&self) -> win::Rect {
-        if let Some(r) = win::game_window().and_then(win::window_rect) {
+    fn game_area(&self) -> os::Rect {
+        if let Some(r) = os::game_window().and_then(os::window_rect) {
             return r;
         }
         // Champ select: the screen the League client is on.
-        if let Some(r) = win::client_window().and_then(win::monitor_rect) {
+        if let Some(r) = os::client_window().and_then(os::monitor_rect) {
             return r;
         }
         if let Some(m) = self.app.primary_monitor().ok().flatten() {
-            let (p, s) = (m.position(), m.size());
-            return win::Rect { x: p.x, y: p.y, w: s.width as i32, h: s.height as i32 };
+            return os::tauri_monitor_rect(&m);
         }
-        win::Rect { x: 0, y: 0, w: 1920, h: 1080 }
+        os::Rect { x: 0, y: 0, w: 1920, h: 1080 }
     }
 
-    fn scale_at(&self, r: win::Rect) -> f64 {
-        self.app
-            .monitor_from_point((r.x + r.w / 2) as f64, (r.y + r.h / 2) as f64)
-            .ok()
-            .flatten()
-            .map(|m| m.scale_factor())
-            .unwrap_or(1.0)
+    /// Screen units per CSS pixel at `r`.
+    fn scale_at(&self, r: os::Rect) -> f64 {
+        os::screen_scale(&self.app, r)
     }
 
     fn visible(&self, label: &str) -> bool {
-        self.app.get_webview_window(label).as_ref().and_then(hwnd).is_some_and(win::is_visible)
+        self.app.get_webview_window(label).as_ref().is_some_and(os::is_visible)
     }
 
     fn hide_window(&self, label: &str) {
-        if let Some(h) = self.app.get_webview_window(label).as_ref().and_then(hwnd) {
-            win::hide(h);
+        if let Some(w) = self.app.get_webview_window(label) {
+            os::hide(&w);
         }
     }
 
@@ -267,14 +264,14 @@ impl Core {
 
     /// Centered on the game, as tall as its content (within the game area), and the zoom its
     /// page is drawn at.
-    fn overlay_layout(&self) -> (win::Rect, f64) {
+    fn overlay_layout(&self) -> (os::Rect, f64) {
         let area = self.game_area();
         let dpi = self.scale_at(area);
         let zoom = overlay_zoom(&self.settings.read().overlay_size, area.w as f64 / dpi);
         let width = ((OVERLAY_WIDTH * zoom * dpi) as i32).min(area.w);
         let content = self.overlay_content.load(Ordering::Relaxed) as f64;
         let height = ((content * zoom * dpi) as i32).min(area.h - (40.0 * dpi) as i32);
-        (win::Rect { x: area.x + (area.w - width) / 2, y: area.y + (area.h - height) / 2, w: width, h: height }, zoom)
+        (os::Rect { x: area.x + (area.w - width) / 2, y: area.y + (area.h - height) / 2, w: width, h: height }, zoom)
     }
 
     /// Size, place and zoom the panel (shown).
@@ -284,9 +281,7 @@ impl Core {
             self.overlay_zoom.store(zoom.to_bits(), Ordering::Relaxed);
             let _ = w.set_zoom(zoom);
         }
-        if let Some(h) = hwnd(w) {
-            win::show_topmost(h, rect);
-        }
+        os::show_topmost(w, rect);
     }
 
     /// In-game windows stay closed over a Full screen game (it would minimize).
@@ -342,8 +337,8 @@ impl Core {
     /// stepped aside (minimized) when the panel showed.
     pub fn close_overlay(&self) {
         self.hide_overlay();
-        if let Some(g) = win::game_window() {
-            win::restore_if_minimized(g);
+        if let Some(g) = os::game_window() {
+            os::restore_if_minimized(g);
         }
     }
 
@@ -358,17 +353,15 @@ impl Core {
         }
     }
 
-    /// Show the augment card win rates over `r` (physical pixels), click-through.
-    pub fn show_cards(&self, r: win::Rect, offer: &crate::cards::Offer) {
+    /// Show the augment card win rates over `r` (screen units), click-through.
+    pub fn show_cards(&self, r: os::Rect, offer: &crate::cards::Offer) {
         if self.held_back() {
             return;
         }
         let Some(w) = self.overlay_window("cards") else { return };
         let _ = w.set_ignore_cursor_events(true);
         let _ = self.app.emit_to("cards", "offer", offer);
-        if let Some(h) = hwnd(&w) {
-            win::show_topmost(h, r);
-        }
+        os::show_topmost(&w, r);
     }
 
     /// The card win-rate window, made ahead and hidden (`cards::prepare`).
@@ -395,9 +388,7 @@ impl Core {
         let scale = self.scale_at(area);
         let (width, height) = ((236.0 * scale * self.ui_scale()) as i32, (self.spells_content.load(Ordering::Relaxed) as f64 * scale) as i32);
         let (x, y) = self.settings().spells_pos.unwrap_or((area.x + (12.0 * scale) as i32, area.y + area.h / 2 - height / 2));
-        if let Some(h) = hwnd(&w) {
-            win::show_topmost(h, win::Rect { x, y, w: width, h: height });
-        }
+        os::show_topmost(&w, os::Rect { x, y, w: width, h: height });
         *self.spells_placed.lock() = Some((x, y));
     }
 
@@ -407,16 +398,16 @@ impl Core {
             return;
         }
         if let Some(w) = self.app.get_webview_window("spells") {
-            if let (Some(hw), Ok(p), Ok(s)) = (hwnd(&w), w.outer_position(), w.outer_size()) {
-                let scale = w.scale_factor().unwrap_or(1.0);
-                win::show_topmost(hw, win::Rect { x: p.x, y: p.y, w: s.width as i32, h: (h as f64 * scale) as i32 });
+            if let Some(r) = os::own_rect(&w) {
+                let scale = self.scale_at(r);
+                os::show_topmost(&w, os::Rect { h: (h as f64 * scale) as i32, ..r });
             }
         }
     }
 
     pub fn hide_spells(&self) {
         if let Some(w) = self.app.get_webview_window("spells") {
-            if let Ok(p) = w.outer_position() {
+            if let Some(p) = os::own_rect(&w) {
                 // Remember the position only when the user dragged the window somewhere.
                 let mut s = self.settings();
                 let moved = *self.spells_placed.lock() != Some((p.x, p.y));
@@ -494,10 +485,6 @@ fn dev_data<'a>(b: WebviewWindowBuilder<'a, tauri::Wry, AppHandle>) -> WebviewWi
     }
 }
 
-/// A window's handle, for the `win` calls.
-fn hwnd(w: &WebviewWindow) -> Option<isize> {
-    w.hwnd().ok().map(|h| h.0 as isize)
-}
 
 /// Width the in-game panel is laid out at (CSS pixels): both teams side by side with their last
 /// games. The size setting zooms it as a whole, so nothing stretches or leaves gaps.

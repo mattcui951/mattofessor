@@ -2,7 +2,7 @@
 
 [English](README.md) · [简体中文](README.zh-CN.md) · [繁體中文](README.zh-TW.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [Español](README.es.md) · **Français** · [Русский](README.ru.md)
 
-Un assistant local pour League of Legends sous Windows qui remplace Porofessor, sans Overwolf, sans publicité et sans compte. En français, anglais, chinois simplifié et traditionnel, japonais, coréen, espagnol et russe.
+Un assistant local pour League of Legends sous Windows et macOS qui remplace Porofessor, sans Overwolf, sans publicité et sans compte. En français, anglais, chinois simplifié et traditionnel, japonais, coréen, espagnol et russe.
 
 > Cette page explique comment l'installer et l'utiliser. Pour développer, compiler ou publier une version, voir le [README](README.md) en anglais.
 
@@ -27,6 +27,13 @@ Nécessite Windows 10 ou 11 (WebView2 s'installe tout seul s'il manque). Pour qu
 ### Si l'antivirus le bloque
 
 Certains antivirus bloquent ou mettent en quarantaine l'installateur en le qualifiant de cheval de Troie ou de voleur de données. C'est un faux positif, pour deux raisons : l'installateur n'a pas de signature de code, et l'application lit le fichier de connexion local du client League (lockfile) ainsi que l'écran, exactement ce que ces logiciels surveillent. Téléchargez-le uniquement depuis la page Releases de ce dépôt, puis restaurez le fichier et ajoutez-le, avec `C:\Program Files\Mattofessor`, à la liste de confiance (exclusions) de l'antivirus.
+
+### macOS
+
+1. Téléchargez `Mattofessor_x.y.z_universal.dmg` depuis la dernière version (Apple Silicon et Intel), ouvrez-le et glissez Mattofessor dans Applications.
+2. Pour les victoires sur les cartes d'optimisation, autorisez Mattofessor dans **Réglages Système > Confidentialité et sécurité > Enregistrement de l'écran et de l'audio du système** (Réglages > Lecteur d'optimisations a un bouton), puis redémarrez Mattofessor.
+
+Nécessite macOS 13 ou plus récent (les victoires sur les cartes : macOS 14). Mattofessor vit dans la barre des menus ; les réglages sont dans `~/Library/Application Support/Mattofessor`, la clé Riot dans votre trousseau.
 
 ## Mises à jour
 

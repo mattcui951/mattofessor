@@ -65,7 +65,9 @@ export const api = {
   aramCombos: (patch: string, bracket: AramBracket, minGames: number, sort: 'win' | 'delta' | 'games', champions: number[], augments: number[]) =>
     invoke<Combos>('aram_combos', { patch, bracket, minGames, sort, champions, augments }),
   aramChampionPage: (championId: number, patch: string, bracket: AramBracket) => invoke<ChampionPage>('aram_champion_page', { championId, patch, bracket }),
-  cardReaderStatus: () => invoke<{ gameLang: LangId | null; missing: boolean }>('card_reader_status'),
+  cardReaderStatus: () => invoke<{ gameLang: LangId | null; missing: boolean; screenBlocked: boolean }>('card_reader_status'),
+  /** macOS: ask for screen recording and open its page in System Settings. */
+  allowScreenCapture: () => invoke<void>('allow_screen_capture'),
   setRiotKey: (key: string) => invoke<RiotStatus>('set_riot_key', { key }),
   checkUpdate: () => invoke<UpdateState>('check_update'),
   installUpdate: () => invoke<void>('install_update'),

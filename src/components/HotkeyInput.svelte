@@ -1,5 +1,6 @@
 <script lang="ts">
   import { t } from '../lib/i18n.svelte';
+  import { isMac } from '../lib/platform';
   let { value, onchange, label, single = false }: { value: string; onchange: (v: string) => void; label: string; single?: boolean } = $props();
   let listening = $state(false);
 
@@ -23,7 +24,8 @@
     if (single) {
       onchange(key);
     } else {
-      const mods = [e.ctrlKey && 'Ctrl', e.altKey && 'Alt', e.shiftKey && 'Shift'].filter(Boolean);
+      // Command counts on macOS only: Windows keeps the Windows key for itself.
+      const mods = [e.ctrlKey && 'Ctrl', e.altKey && 'Alt', e.shiftKey && 'Shift', isMac && e.metaKey && 'Cmd'].filter(Boolean);
       onchange([...mods, key].join('+'));
     }
     listening = false;

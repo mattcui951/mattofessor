@@ -9,7 +9,7 @@
 use crate::aramhex::{self, AugRow};
 use crate::core::Core;
 use crate::ocr::{self, Line, Word};
-use crate::win;
+use crate::os;
 use parking_lot::Mutex;
 use serde::Serialize;
 use std::collections::HashSet;
@@ -349,7 +349,7 @@ fn spacing(found: &[(i32, Line)]) -> f64 {
 }
 
 /// Where the win rates go (physical pixels): across the game, just above the cards.
-pub fn strip(game: win::Rect, band_y: i32, found: &[(i32, Line)]) -> win::Rect {
+pub fn strip(game: os::Rect, band_y: i32, found: &[(i32, Line)]) -> os::Rect {
     let unit = spacing(found);
     let title_mid = found
         .iter()
@@ -359,7 +359,7 @@ pub fn strip(game: win::Rect, band_y: i32, found: &[(i32, Line)]) -> win::Rect {
     let card_top = band_y as f64 + title_mid - TITLE_TO_TOP * unit;
     let h = (STRIP * unit).round() as i32;
     let y = ((card_top - GAP * unit) as i32 - h).max(game.y);
-    win::Rect {
+    os::Rect {
         x: game.x,
         y,
         w: game.w,
@@ -382,6 +382,8 @@ struct Reader {
     told: bool,
     /// A black screen capture was logged this game.
     told_black: bool,
+    /// Asked for screen recording (macOS), once a game.
+    asked_screen: bool,
     /// The card window and the bracket's numbers are ready for this game (`prepare`).
     prepared: bool,
     /// When the read that first saw these cards started (for the log).
@@ -401,6 +403,7 @@ impl Reader {
             last: Vec::new(),
             told: false,
             told_black: false,
+            asked_screen: false,
             prepared: false,
             seen_at: None,
             read_time: Duration::ZERO,
@@ -425,21 +428,28 @@ async fn prepare(core: &Arc<Core>, r: &mut Reader) {
     log::info!("card reader ready in {} ms", started.elapsed().as_millis());
 }
 
-/// Whether Windows can read the game's text, for the game's language ("zh_CN", "en_US"...).
+/// Whether the system can read the game's text: its language ("zh_CN", "en_US"...), the screen.
 #[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ReaderStatus {
     /// The League client's language (`lang` id); none before it connected once.
     pub game_lang: Option<&'static str>,
-    /// Windows OCR's tag for it ("ja-JP"...), for installing it.
+    /// The OCR language tag for it ("ja-JP"...), for installing it on Windows.
     pub ocr_tag: Option<&'static str>,
-    /// The game's language cannot be read on this PC (its OCR language is not installed).
+    /// The game's language cannot be read on this computer (its OCR language is not installed).
     pub missing: bool,
+    /// macOS has not let the app record the screen.
+    pub screen_blocked: bool,
 }
 
 pub fn status(core: &Core) -> ReaderStatus {
     let game = core.client_locale.read().as_deref().map(crate::lang::from_client);
-    ReaderStatus { game_lang: game.map(|l| l.id), ocr_tag: game.map(|l| l.ocr), missing: game.is_some_and(|l| !ocr::available(l.id)) }
+    ReaderStatus {
+        game_lang: game.map(|l| l.id),
+        ocr_tag: game.map(|l| l.ocr),
+        missing: game.is_some_and(|l| !ocr::available(l.id)),
+        screen_blocked: !os::screen_capture_allowed(),
+    }
 }
 
 /// Mostly black: what a screen capture of a game in exclusive Full screen gives.
@@ -503,7 +513,7 @@ async fn step(core: &Arc<Core>, r: &mut Reader) -> bool {
     let Some(champion_id) = my_hextech_champion(core) else {
         return false;
     };
-    let Some(game) = win::game_window().and_then(win::window_rect) else {
+    let Some(game) = os::game_window().and_then(os::window_rect) else {
         return false;
     };
     if r.names.is_none() {
@@ -519,6 +529,15 @@ async fn step(core: &Arc<Core>, r: &mut Reader) -> bool {
     if !r.prepared {
         prepare(core, r).await;
     }
+    // macOS shows nothing of other apps to an app the user did not let record the screen.
+    if !os::screen_capture_allowed() {
+        if !r.asked_screen {
+            r.asked_screen = true;
+            log::warn!("card reader: not allowed to record the screen (macOS privacy settings)");
+            os::request_screen_capture();
+        }
+        return true;
+    }
     // Mattofessor's own panel covers the cards and lists augments by name in columns: read
     // through it, its names look like cards in the wrong places. Wait until it closes.
     if core.overlay_visible() {
@@ -529,7 +548,7 @@ async fn step(core: &Arc<Core>, r: &mut Reader) -> bool {
         }
         return true;
     }
-    let band = win::Rect {
+    let band = os::Rect {
         x: game.x,
         y: game.y + (game.h as f64 * BAND.0) as i32,
         w: game.w,
@@ -544,15 +563,15 @@ async fn step(core: &Arc<Core>, r: &mut Reader) -> bool {
             game.w, game.h, game.x, game.y, st.game_lang.unwrap_or("?"), if st.missing { "missing" } else { "ok" }
         );
         if st.missing {
-            log::warn!("card reader: Windows cannot read {} text (its OCR language is not installed)", st.game_lang.unwrap_or("?"));
+            log::warn!("card reader: the system cannot read {} text (its OCR language is not installed)", st.game_lang.unwrap_or("?"));
         }
     }
     let first = r.lang;
     let tell_black = !r.told_black;
     let read_started = std::time::Instant::now();
     let read = tauri::async_runtime::spawn_blocking(move || {
-        let px = win::capture(band)?;
-        if tell_black && black(&px) {
+        let img = os::capture(band)?;
+        if tell_black && black(&img.rgba) {
             log::warn!("card reader: the game screen captures as black (League in Full screen?)");
             return Some(Err(()));
         }
@@ -564,8 +583,11 @@ async fn step(core: &Arc<Core>, r: &mut Reader) -> bool {
             if !ocr::available(lang) {
                 continue;
             }
-            match ocr::read(&px, band.w as u32, band.h as u32, lang) {
+            match ocr::read(&img.rgba, img.w, img.h, lang) {
                 Ok(lines) => {
+                    // A Retina capture has more pixels than the band has points.
+                    let f = band.w as f32 / img.w as f32;
+                    let lines: Vec<Line> = lines.into_iter().map(|l| l.scaled(f)).collect();
                     let found = cards(&lines, &names);
                     if found.len() >= 2 {
                         return Some(Ok((lang, found)));
@@ -892,7 +914,7 @@ mod tests {
 
     #[test]
     fn strip_sits_above_the_cards() {
-        let game = win::Rect {
+        let game = os::Rect {
             x: 0,
             y: 0,
             w: 3440,

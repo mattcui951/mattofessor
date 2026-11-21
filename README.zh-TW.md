@@ -2,7 +2,7 @@
 
 [English](README.md) · [简体中文](README.zh-CN.md) · **繁體中文** · [日本語](README.ja.md) · [한국어](README.ko.md) · [Español](README.es.md) · [Français](README.fr.md) · [Русский](README.ru.md)
 
-一款在 Windows 本機執行的英雄聯盟助手，可以取代 Porofessor：不需要 Overwolf，沒有廣告，也不用註冊帳號。支援繁體中文、簡體中文、英文、日文、韓文、西班牙文、法文和俄文。
+一款在 Windows 和 macOS 本機執行的英雄聯盟助手，可以取代 Porofessor：不需要 Overwolf，沒有廣告，也不用註冊帳號。支援繁體中文、簡體中文、英文、日文、韓文、西班牙文、法文和俄文。
 
 > 本頁介紹如何安裝和使用。開發、建置和發佈的說明請見英文版 [README](README.md)。
 
@@ -27,6 +27,13 @@
 ### 防毒軟體誤判
 
 有些防毒軟體可能會封鎖或隔離安裝程式，判定為「木馬」或「盜號程式」。這是誤判，原因有兩個：一是安裝程式沒有程式碼簽章，二是這個應用程式確實會讀取英雄聯盟客戶端本機的登入檔（lockfile）和螢幕畫面，而這正是防毒軟體特別注意的行為。請只從本儲存庫的 Releases 頁面下載，然後在防毒軟體裡還原被隔離的檔案，並把它和 `C:\Program Files\Mattofessor` 加入信任清單。
+
+### macOS
+
+1. 從最新版本下載 `Mattofessor_x.y.z_universal.dmg`（Apple 晶片和 Intel 通用），打開後把 Mattofessor 拖到「應用程式」。
+2. 想在增幅裝置卡片上看到勝率，請在 **系統設定 > 隱私權與安全性 > 螢幕與系統錄音** 中允許 Mattofessor（設定 > 增幅裝置識別裡有按鈕），然後重新啟動 Mattofessor。
+
+需要 macOS 13 或更新版本（卡片勝率需要 macOS 14）。Mattofessor 常駐選單列；設定儲存在 `~/Library/Application Support/Mattofessor`，Riot 金鑰儲存在鑰匙圈中。
 
 ## 更新
 

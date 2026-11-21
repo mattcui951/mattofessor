@@ -7,6 +7,7 @@
   import { openUrl } from '@tauri-apps/plugin-opener';
   import { api } from '../lib/api';
   import { t } from '../lib/i18n.svelte';
+  import { isMac } from '../lib/platform';
   import { appearance } from '../lib/appearance.svelte';
   import { app, checkUpdate, errorText, go, inGame, installUpdate, releaseUrl, toast, updateSettings } from '../lib/state.svelte';
   import { ago } from '../lib/format';
@@ -80,7 +81,7 @@
   );
 
   let captures = $state(0);
-  // Whether Windows can read the augment cards in the game's language.
+  // Whether the system can read the augment cards (the game's language, the screen).
   let reader = $state<Awaited<ReturnType<typeof api.cardReaderStatus>> | null>(null);
   $effect(() => {
     app.connected;
@@ -209,7 +210,7 @@
         {@render toggleRow(t('settings.openInChampSelect'), 'openInChampSelect')}
         {@render toggleRow(t('settings.showDuringLoading'), 'showDuringLoading')}
         {@render toggleRow(t('settings.spellsOnStart'), 'spellsOnStart')}
-        {@render toggleRow(t('settings.startWithWindows'), 'startWithWindows')}
+        {@render toggleRow(t(isMac ? 'settings.startAtLogin' : 'settings.startWithWindows'), 'startWithWindows')}
       </section>
 
       {#if content.status.canEdit}
@@ -230,7 +231,14 @@
       <section id="s-capture">
         <h3>{t('capture.title')}</h3>
         {@render toggleRow(t('cards.toggle'), 'cardReader')}
-        <p class="note">{t('cards.note')}</p>
+        <p class="note">{t(isMac ? 'cards.noteMac' : 'cards.note')}</p>
+        {#if s.cardReader && reader?.screenBlocked}
+          <div class="ocr-warn">
+            <b>{t('cards.noScreen')}</b>
+            <span>{t('cards.screenHow')}</span>
+            <button type="button" class="btn sm" onclick={() => api.allowScreenCapture()}>{t('cards.screenOpen')}</button>
+          </div>
+        {/if}
         {#if s.cardReader && reader?.missing}
           {@const game = locale(reader.gameLang ?? 'en')}
           <div class="ocr-warn">
@@ -269,7 +277,7 @@
             <button type="button" class="btn sm" onclick={() => openUrl('https://developer.riotgames.com/')}>{t('riot.open')}</button>
           </div>
         </div>
-        <p class="note">{t('riot.stored')}</p>
+        <p class="note">{t(isMac ? 'riot.storedMac' : 'riot.stored')}</p>
       </section>
 
 
@@ -295,6 +303,10 @@
   }
   .ocr-warn span {
     color: var(--text-2);
+  }
+  .ocr-warn .btn {
+    justify-self: start;
+    margin-top: 4px;
   }
   .ocr-warn code {
     font-size: 11.5px;

@@ -100,7 +100,7 @@ async fn route(core: &Core, path: &str, p: &HashMap<String, String>) -> Result<V
         // The card win rates at a given place (physical pixels) for card middles `xs` (fractions
         // of the width), to check where they land without a game.
         "/show_cards" => {
-            let r = crate::win::Rect { x: num("x") as i32, y: num("y") as i32, w: num("w") as i32, h: num("h") as i32 };
+            let r = crate::os::Rect { x: num("x") as i32, y: num("y") as i32, w: num("w") as i32, h: num("h") as i32 };
             let xs: Vec<f64> = arg("xs").split(',').filter_map(|s| s.parse().ok()).collect();
             let cards = xs
                 .iter()
