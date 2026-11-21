@@ -170,7 +170,13 @@ pub async fn install(core: &Core) -> anyhow::Result<()> {
             || set(core, |s| s.phase = "installing"),
         )
         .await;
-    // On Windows a successful install exits the process before this point.
+    // On Windows a successful install exits the process before this point. On macOS the new app
+    // replaced this one's bundle: start it.
+    #[cfg(target_os = "macos")]
+    if result.is_ok() {
+        let _ = std::fs::write(marker(), core.app.package_info().version.to_string());
+        core.app.restart();
+    }
     if let Err(e) = result {
         log::warn!("update install failed: {e}");
         set(core, |s| {

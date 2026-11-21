@@ -2,7 +2,7 @@
 
 [English](README.md) · [简体中文](README.zh-CN.md) · [繁體中文](README.zh-TW.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · **Español** · [Français](README.fr.md) · [Русский](README.ru.md)
 
-Un asistente local para League of Legends en Windows que sustituye a Porofessor, sin Overwolf, sin anuncios y sin cuentas. Disponible en español, inglés, chino simplificado y tradicional, japonés, coreano, francés y ruso.
+Un asistente local para League of Legends en Windows y macOS que sustituye a Porofessor, sin Overwolf, sin anuncios y sin cuentas. Disponible en español, inglés, chino simplificado y tradicional, japonés, coreano, francés y ruso.
 
 > Esta página explica cómo instalarlo y usarlo. Para desarrollar, compilar o publicar versiones, consulta el [README](README.md) en inglés.
 
@@ -27,6 +27,13 @@ Necesita Windows 10 u 11 (WebView2 se instala solo si falta). Para que el panel 
 ### Si el antivirus lo bloquea
 
 Algunos antivirus bloquean o ponen en cuarentena el instalador y lo llaman troyano o programa de robo de datos. Es un falso positivo, por dos motivos: el instalador no tiene firma de código y la aplicación lee el archivo local de inicio de sesión del cliente de League (lockfile) y la pantalla, justo lo que vigilan esos programas. Descárgalo solo desde la página Releases de este repositorio; después restaura el archivo y añádelo, junto con `C:\Program Files\Mattofessor`, a la lista de confianza (exclusiones) del antivirus.
+
+### macOS
+
+1. Descarga `Mattofessor_x.y.z_universal.dmg` de la última versión (Apple Silicon e Intel), ábrelo y arrastra Mattofessor a Aplicaciones.
+2. Para ver las victorias en las cartas de aumento, permite Mattofessor en **Ajustes del Sistema > Privacidad y seguridad > Grabación de pantalla y audio del sistema** (Ajustes > Lector de aumentos tiene un botón) y reinicia Mattofessor.
+
+Necesita macOS 13 o posterior (las victorias en las cartas, macOS 14). Mattofessor vive en la barra de menús; los ajustes están en `~/Library/Application Support/Mattofessor` y la clave de Riot en tu llavero.
 
 ## Actualizaciones
 

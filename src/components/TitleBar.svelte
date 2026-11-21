@@ -3,6 +3,7 @@
   import Icon from './Icon.svelte';
   import { app, back, forward } from '../lib/state.svelte';
   import { t } from '../lib/i18n.svelte';
+  import { isMac } from '../lib/platform';
 
   const win = getCurrentWindow();
   const phase = $derived(app.live.phase);
@@ -17,7 +18,7 @@
   );
 </script>
 
-<header class="bar" data-tauri-drag-region>
+<header class="bar" class:mac={isMac} data-tauri-drag-region>
   <div class="brand" data-tauri-drag-region>
     <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
       <circle cx="10.5" cy="10.5" r="6" fill="none" stroke="var(--you)" stroke-width="2.6" />
@@ -30,11 +31,14 @@
     </span>
     <span class="status" data-tauri-drag-region><i style="background:{status.color}"></i>{status.text}</span>
   </div>
-  <div class="tools">
-    <button class="win-btn" aria-label={t('common.minimize')} onclick={() => win.minimize()}><Icon name="minimize" size={16} /></button>
-    <button class="win-btn" aria-label={t('common.maximize')} onclick={() => win.toggleMaximize()}><Icon name="maximize" size={14} /></button>
-    <button class="win-btn close" aria-label={t('common.close')} onclick={() => win.hide()}><Icon name="close" size={16} /></button>
-  </div>
+  <!-- macOS draws its own window buttons at the top left. -->
+  {#if !isMac}
+    <div class="tools">
+      <button class="win-btn" aria-label={t('common.minimize')} onclick={() => win.minimize()}><Icon name="minimize" size={16} /></button>
+      <button class="win-btn" aria-label={t('common.maximize')} onclick={() => win.toggleMaximize()}><Icon name="maximize" size={14} /></button>
+      <button class="win-btn close" aria-label={t('common.close')} onclick={() => win.hide()}><Icon name="close" size={16} /></button>
+    </div>
+  {/if}
 </header>
 
 <style>
@@ -47,6 +51,10 @@
     background: var(--bg-sunk);
     border-bottom: 1px solid var(--seam);
     flex: none;
+  }
+  /* Room for the system's window buttons (placed in core.rs: 14 px in, centered on the bar). */
+  .bar.mac {
+    padding-left: 84px;
   }
   .brand {
     display: flex;

@@ -7,6 +7,7 @@
   import { appearance, applySettings } from '../lib/appearance.svelte';
   import { champIcon, tierColor, tierText } from '../lib/dd.svelte';
   import { hasKey, t } from '../lib/i18n.svelte';
+  import { isMac } from '../lib/platform';
   import { app, back, toast, updateSettings } from '../lib/state.svelte';
   import {
     ACCENT_KEYS,
@@ -292,7 +293,7 @@
         <input type="range" min="80" max="140" step="5" value={Math.round(appearance.scale * 100)} oninput={(e) => updateSettings({ uiScale: Number(e.currentTarget.value) / 100 }, { debounce: true })} />
         <span class="num val">{Math.round(appearance.scale * 100)}%</span>
       </div>
-      <p class="note">{t('appearance.zoomKeys')}</p>
+      <p class="note">{t(isMac ? 'appearance.zoomKeysMac' : 'appearance.zoomKeys')}</p>
     </section>
 
     <section>

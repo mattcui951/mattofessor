@@ -6,14 +6,16 @@
   client. So all player lookups (ranks, histories, mastery) are real.
 * A Live Client Data API on https://127.0.0.1:2999 with those players, their spells and items,
   and a game clock (a 10 s loading screen first).
-* A stand-in game window, "Mattofessor Mock Game.exe" (a copy of ffplay, borderless). It is not
-  named "League of Legends.exe", so other League tools on this PC ignore it.
+* A stand-in game window, "Mattofessor Mock Game(.exe)" (a copy of ffplay, borderless). It is not
+  named like League's game, so other League tools on this computer ignore it.
 
-Run the app against it with tools/dev-mock.cmd (sets MATTOFESSOR_LOCKFILE and
-MATTOFESSOR_GAME_EXE). Needs the real League client running and signed in, and ffplay.exe (FFmpeg)
-on PATH or in MATTOFESSOR_FFPLAY.
+Run the app against it with tools/dev-mock.cmd on Windows or tools/dev-mock.sh on macOS (they set
+MATTOFESSOR_LOCKFILE and MATTOFESSOR_GAME_EXE). Needs the real League client running and signed in,
+ffplay (FFmpeg) on PATH or in MATTOFESSOR_FFPLAY, and openssl (Git for Windows has one; macOS has
+its own).
 
     py -I tools/mock_client.py [--game <gameId>] [--champ-select 30] [--length 900]
+    python3 -I tools/mock_client.py ...   (macOS)
 """
 
 import argparse
@@ -34,30 +36,39 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 WORK = HERE / ".mock"
-OPENSSL = Path(os.environ.get("OPENSSL", r"C:\Program Files\Git\usr\bin\openssl.exe"))
+WINDOWS = sys.platform == "win32"
+OPENSSL = Path(os.environ.get("OPENSSL") or (r"C:\Program Files\Git\usr\bin\openssl.exe" if WINDOWS else shutil.which("openssl") or "openssl"))
 
 
 def real_lockfile() -> Path:
     """The running League client's lockfile: MATTOFESSOR_REAL_LOCKFILE, or next to the client's exe."""
     if os.environ.get("MATTOFESSOR_REAL_LOCKFILE"):
         return Path(os.environ["MATTOFESSOR_REAL_LOCKFILE"])
-    out = subprocess.run(
-        ["powershell", "-NoProfile", "-Command", "(Get-Process LeagueClientUx -ErrorAction SilentlyContinue | Select-Object -First 1).Path"],
-        capture_output=True,
-        text=True,
-    ).stdout.strip()
+    if WINDOWS:
+        out = subprocess.run(
+            ["powershell", "-NoProfile", "-Command", "(Get-Process LeagueClientUx -ErrorAction SilentlyContinue | Select-Object -First 1).Path"],
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
+    else:
+        # macOS: the client sits inside League's app bundle, its lockfile a few folders up.
+        ps = subprocess.run(["ps", "-axo", "comm"], capture_output=True, text=True).stdout.splitlines()
+        out = next((p.strip() for p in ps if p.strip().endswith("/LeagueClientUx")), "")
     if not out:
         sys.exit("Start the League client first (or set MATTOFESSOR_REAL_LOCKFILE).")
-    return Path(out).parent / "lockfile"
+    for folder in Path(out).parents:
+        if (folder / "lockfile").exists():
+            return folder / "lockfile"
+    sys.exit(f"No lockfile above {out} (set MATTOFESSOR_REAL_LOCKFILE).")
 
 
 def ffplay() -> Path:
-    """ffplay.exe for the stand-in game window: MATTOFESSOR_FFPLAY, or on PATH."""
+    """ffplay for the stand-in game window: MATTOFESSOR_FFPLAY, or on PATH."""
     found = os.environ.get("MATTOFESSOR_FFPLAY") or shutil.which("ffplay")
     if not found:
-        sys.exit("ffplay.exe is needed for the stand-in game window: put it on PATH or set MATTOFESSOR_FFPLAY.")
+        sys.exit("ffplay is needed for the stand-in game window: put it on PATH or set MATTOFESSOR_FFPLAY.")
     return Path(found)
-GAME_EXE = "Mattofessor Mock Game.exe"
+GAME_EXE = "Mattofessor Mock Game" + (".exe" if WINDOWS else "")
 
 # The game's text key for a champion's name is "game_character_displayname_<key>" except for
 # these, written as the real game reported them (Seraphine: a ranked game on 2026-11-11).
@@ -435,7 +446,7 @@ def main():
                     source, place = ["-f", "lavfi", "-i", "testsrc2=size=1600x900:rate=30"], ["-left", "60", "-top", "60"]
                 game_proc = subprocess.Popen(
                     [str(exe), "-hide_banner", "-loglevel", "error", *source, "-noborder", *place, "-window_title", "Mock League game"],
-                    creationflags=0x08000000,
+                    creationflags=0x08000000 if WINDOWS else 0,
                 )
             if ph != "InProgress" and game_proc is not None:
                 game_proc.terminate()

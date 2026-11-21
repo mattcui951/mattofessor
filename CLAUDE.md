@@ -1,6 +1,6 @@
 # Mattofessor: notes for Claude
 
-A Windows companion app for League of Legends (Tauri 2 + Rust + Svelte 5), a Porofessor replacement
+A Windows and macOS companion app for League of Legends (Tauri 2 + Rust + Svelte 5), a Porofessor replacement
 that reads the League client API (LCU) and public data only. Public repo, released through GitHub.
 
 ## Start here
@@ -14,12 +14,21 @@ that reads the League client API (LCU) and public data only. Public repo, releas
   add what is next, note anything left unverified. Keep it short.
 - Data comes only from the LCU, the Live Client API and the public sources listed in README.
   No scraping of porofessor.gg.
-- Test game flows with the mock (`tools/mock_client.py` + `tools/dev-mock.cmd`). Never import
+- Test game flows with the mock (`tools/mock_client.py` + `tools/dev-mock.cmd`, or `tools/dev-mock.sh`
+  on macOS). Never import
   runes or item sets into the real League client without asking: an import replaces a page.
-- Check `League of Legends.exe` is not running before anything that sends synthetic keys,
+- Check League's game (`League of Legends.exe`, macOS `LeagueofLegends`) is not running before
+  anything that sends synthetic keys,
   restarts the installed app or reinstalls it.
-- Debug builds use `%APPDATA%\Mattofessor-dev`; keep it that way so a dev run never touches the
+- Debug builds use `%APPDATA%\Mattofessor-dev` (macOS `~/Library/Application Support/Mattofessor-dev`);
+  keep it that way so a dev run never touches the
   installed app's database.
+- System-specific code lives behind one interface per concern: `os/`, `ocr/`, `hotkeys/`,
+  `secret.rs` (a `windows.rs` and a `macos.rs` each). A change to one system's file gets the same
+  change in the other's, and UI text that names the system (Windows, Ctrl, PC) gets a macOS
+  variant (`isMac` in `src/lib/platform.ts`, `...Mac` keys). From Windows the macOS code cannot be
+  built locally: after pushing, check the CI run (`.github/workflows/ci.yml`: tests, clippy and a
+  build on both systems; the macOS app is attached to the run) and fix what fails there.
 - Strings exist in every language in `src/lib/locales/` (eight now); add each. README "Languages" says how to add a language.
 
 ## Releasing

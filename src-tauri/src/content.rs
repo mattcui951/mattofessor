@@ -392,11 +392,22 @@ async fn publish() {
     }
 }
 
-const GH_INSTALLED: &str = r"C:\Program Files\GitHub CLI\gh.exe";
+/// Where the GitHub CLI's installers put it. An app started from Finder or the Dock gets a short
+/// PATH without Homebrew's folders.
+#[cfg(windows)]
+const GH_INSTALLED: &[&str] = &[r"C:\Program Files\GitHub CLI\gh.exe"];
+#[cfg(not(windows))]
+const GH_INSTALLED: &[&str] = &["/opt/homebrew/bin/gh", "/usr/local/bin/gh"];
+const GH_EXE: &str = if cfg!(windows) { "gh.exe" } else { "gh" };
 
 /// The GitHub CLI, from PATH or where its installer puts it.
 fn gh() -> std::process::Command {
-    let exe = if which_gh() { PathBuf::from("gh") } else { PathBuf::from(GH_INSTALLED) };
+    let exe = if which_gh() {
+        PathBuf::from("gh")
+    } else {
+        GH_INSTALLED.iter().map(PathBuf::from).find(|p| p.is_file()).unwrap_or_else(|| PathBuf::from(GH_INSTALLED[0]))
+    };
+    #[cfg_attr(not(windows), allow(unused_mut))]
     let mut cmd = std::process::Command::new(exe);
     #[cfg(windows)]
     {
@@ -408,7 +419,7 @@ fn gh() -> std::process::Command {
 }
 
 fn which_gh() -> bool {
-    std::env::var_os("PATH").is_some_and(|p| std::env::split_paths(&p).any(|d| d.join("gh.exe").is_file()))
+    std::env::var_os("PATH").is_some_and(|p| std::env::split_paths(&p).any(|d| d.join(GH_EXE).is_file()))
 }
 
 /// The GitHub CLI cannot act for anyone here: not installed, or signed in to no account.

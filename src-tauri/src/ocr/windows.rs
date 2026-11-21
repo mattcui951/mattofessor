@@ -1,35 +1,12 @@
-//! Text recognition with the OCR engine built into Windows (Windows.Media.Ocr), for reading the
-//! augment cards. Runs on the calling thread and blocks; call it from a blocking task.
+//! Windows: the OCR engine built into Windows (Windows.Media.Ocr).
 
+use super::{tiles, Line, Word};
 use anyhow::{anyhow, Result};
 use windows::core::HSTRING;
 use windows::Globalization::Language;
 use windows::Graphics::Imaging::{BitmapPixelFormat, SoftwareBitmap};
 use windows::Media::Ocr::OcrEngine;
 use windows::Storage::Streams::DataWriter;
-
-/// One line of recognized text and where it is in the image (pixels), with its words.
-#[derive(Clone, Debug, PartialEq)]
-pub struct Line {
-    pub text: String,
-    pub x: f32,
-    pub y: f32,
-    pub w: f32,
-    pub h: f32,
-    /// The words of the line and where each is. The engine's lines are not reliable: it can cut
-    /// one title into two lines ("Infinite" and "Recursion").
-    pub words: Vec<Word>,
-}
-
-/// One recognized word and where it is in the image (pixels).
-#[derive(Clone, Debug, PartialEq)]
-pub struct Word {
-    pub text: String,
-    pub x: f32,
-    pub y: f32,
-    pub w: f32,
-    pub h: f32,
-}
 
 /// A language id to the OCR language tag.
 fn tag(lang: &str) -> &'static str {
@@ -121,30 +98,4 @@ pub fn read(rgba: &[u8], w: u32, h: u32, lang: &str) -> Result<Vec<Line>> {
         }
     }
     Ok(lines)
-}
-
-/// Left edges of tiles at most `max` wide covering `w`, overlapping by a quarter tile.
-fn tiles(w: u32, max: u32) -> Vec<u32> {
-    if w <= max {
-        return vec![0];
-    }
-    let step = max * 3 / 4;
-    let mut out: Vec<u32> = (0..)
-        .map(|i| i * step)
-        .take_while(|x| x + max < w)
-        .collect();
-    out.push(w - max);
-    out
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn tiles_cover_wide_images() {
-        assert_eq!(tiles(1920, 2600), [0]);
-        assert_eq!(tiles(2752, 2600), [0, 152]);
-        assert_eq!(tiles(5120, 2600), [0, 1950, 2520]);
-    }
 }

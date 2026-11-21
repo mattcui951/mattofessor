@@ -2,7 +2,7 @@
 
 [English](README.md) · [简体中文](README.zh-CN.md) · [繁體中文](README.zh-TW.md) · **日本語** · [한국어](README.ko.md) · [Español](README.es.md) · [Français](README.fr.md) · [Русский](README.ru.md)
 
-Windows でローカルに動く League of Legends のアシスタントです。Porofessor の代わりに使えて、Overwolf も広告もアカウント登録もいりません。日本語、英語、簡体字中国語、繁体字中国語、韓国語、スペイン語、フランス語、ロシア語に対応しています。
+Windows と macOS でローカルに動く League of Legends のアシスタントです。Porofessor の代わりに使えて、Overwolf も広告もアカウント登録もいりません。日本語、英語、簡体字中国語、繁体字中国語、韓国語、スペイン語、フランス語、ロシア語に対応しています。
 
 > このページはインストールと使い方の説明です。開発、ビルド、リリースについては英語の [README](README.md) をご覧ください。
 
@@ -27,6 +27,13 @@ Windows 10 または 11 が必要です（WebView2 がなければ自動でイ�
 ### ウイルス対策ソフトに検出された場合
 
 ウイルス対策ソフトがインストーラーをブロックまたは隔離し、「トロイの木馬」や「情報窃取型」と表示することがあります。これは誤検出です。理由は二つあります。インストーラーにコード署名がないことと、このアプリが League クライアントのローカルのログインファイル（lockfile）と画面を読み取ることです。どちらもウイルス対策ソフトが特に注意する動作です。このリポジトリの Releases ページからだけダウンロードし、隔離されたファイルを復元して、そのファイルと `C:\Program Files\Mattofessor` を信頼リスト（除外リスト）に追加してください。
+
+### macOS
+
+1. 最新リリースから `Mattofessor_x.y.z_universal.dmg`（Apple Silicon と Intel 両対応）をダウンロードして開き、Mattofessor をアプリケーションにドラッグします。
+2. オーグメントカードに勝率を表示するには、**システム設定 > プライバシーとセキュリティ > 画面収録とシステムオーディオ録音** で Mattofessor を許可し（設定 > オーグメント読み取りにボタンがあります）、Mattofessor を再起動してください。
+
+macOS 13 以降が必要です（カードの勝率は macOS 14 以降）。Mattofessor はメニューバーに常駐し、設定は `~/Library/Application Support/Mattofessor`、Riot キーはキーチェーンに保存されます。
 
 ## アップデート
 

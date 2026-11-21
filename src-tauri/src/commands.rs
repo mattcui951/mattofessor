@@ -265,6 +265,23 @@ pub fn card_reader_status(core: State<'_, Arc<Core>>) -> crate::cards::ReaderSta
     crate::cards::status(&core)
 }
 
+/// macOS: ask for screen recording (the card reader needs it) and open its page in System
+/// Settings, where the app is listed once it asked.
+#[tauri::command]
+pub fn allow_screen_capture(core: State<'_, Arc<Core>>) {
+    crate::os::request_screen_capture();
+    #[cfg(target_os = "macos")]
+    {
+        use tauri_plugin_opener::OpenerExt;
+        let page = "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture";
+        if let Err(e) = core.app.opener().open_url(page, None::<&str>) {
+            log::warn!("System Settings: {e}");
+        }
+    }
+    #[cfg(not(target_os = "macos"))]
+    let _ = core;
+}
+
 /// League's window mode: "fullscreen", "windowed", "borderless" or "unknown" (`display`).
 #[tauri::command]
 pub async fn league_window_mode() -> Option<&'static str> {

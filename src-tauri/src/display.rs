@@ -42,14 +42,12 @@ fn install_dir() -> Option<std::path::PathBuf> {
     if let Some(d) = lcu::install_dir() {
         return Some(d);
     }
-    let procs = crate::win::processes();
-    let game = crate::win::find_process(&procs, &crate::win::game_exe()).and_then(crate::win::process_path)?;
-    // <install>/Game/League of Legends.exe
-    game.parent()?.parent().map(|d| d.to_path_buf())
+    // <install>/Game/League of Legends.exe; on macOS deeper, inside the game's app bundle.
+    crate::os::folder_above_with(&crate::os::game_exe_path()?, crate::os::GAME_CFG)
 }
 
 fn cfg_path() -> Option<std::path::PathBuf> {
-    Some(install_dir()?.join("Config").join("game.cfg"))
+    Some(install_dir()?.join(crate::os::GAME_CFG))
 }
 
 /// The mode in the game's config file: what the game uses (the client writes it before a game,
@@ -70,7 +68,7 @@ pub async fn window_mode() -> Option<&'static str> {
 
 /// A game is running in Full screen (the in-game windows then stay closed).
 pub fn game_fullscreen() -> bool {
-    crate::win::game_running() && file_mode() == Some("fullscreen")
+    crate::os::game_running() && file_mode() == Some("fullscreen")
 }
 
 /// `text` (a game.cfg) with Borderless as its window mode.
@@ -108,7 +106,7 @@ pub async fn set_borderless() -> Result<()> {
             Err(e) => last_err = Some(e),
         }
     }
-    if !crate::win::game_running() {
+    if !crate::os::game_running() {
         if let Some(path) = cfg_path() {
             match std::fs::read_to_string(&path).map(|t| with_borderless(&t)).and_then(|t| std::fs::write(&path, t)) {
                 Ok(()) => done = true,

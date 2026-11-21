@@ -1,7 +1,7 @@
 <script lang="ts">
   /**
    * One box for champions (any language, pinyin too), Hextech ARAM augments and players
-   * (Name#TAG). Ctrl K jumps to it from anywhere in the window.
+   * (Name#TAG). Ctrl K (Command K on macOS) jumps to it from anywhere in the window.
    */
   import Icon from './Icon.svelte';
   import Img from './Img.svelte';
@@ -11,6 +11,7 @@
   import { champIcon, dd, loadOtherNames, otherNames } from '../lib/dd.svelte';
   import { t } from '../lib/i18n.svelte';
   import { augs, loadAugments } from '../lib/meta.svelte';
+  import { isMac, modKey } from '../lib/platform';
   import { errorText, go } from '../lib/state.svelte';
 
   type Row = { kind: 'player'; name: string; tag: string } | { kind: 'champ'; id: number } | { kind: 'aug'; id: number };
@@ -87,9 +88,9 @@
     input?.blur();
   }
 
-  /** Ctrl K focuses the box. */
+  /** Ctrl K (Command K on macOS) focuses the box. */
   function shortcut(e: KeyboardEvent) {
-    if (!e.ctrlKey || e.altKey || e.shiftKey || e.key.toLowerCase() !== 'k') return;
+    if (!modKey(e) || e.altKey || e.shiftKey || e.key.toLowerCase() !== 'k') return;
     e.preventDefault();
     input?.focus();
     input?.select();
@@ -135,7 +136,7 @@
       onblur={() => setTimeout(() => (open = false), 120)}
       {onkeydown}
     />
-    {#if !query}<kbd class="kbd" aria-hidden="true">Ctrl K</kbd>{/if}
+    {#if !query}<kbd class="kbd" aria-hidden="true">{isMac ? '⌘K' : 'Ctrl K'}</kbd>{/if}
     {#if showList}
       <div class="list" id="search-list" role="listbox">
         {#each rows as row, i (row.kind === 'player' ? 'player' : `${row.kind}${row.id}`)}

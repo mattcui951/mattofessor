@@ -2,7 +2,7 @@
 
 [English](README.md) · [简体中文](README.zh-CN.md) · [繁體中文](README.zh-TW.md) · [日本語](README.ja.md) · **한국어** · [Español](README.es.md) · [Français](README.fr.md) · [Русский](README.ru.md)
 
-Windows에서 로컬로 실행되는 리그 오브 레전드 도우미입니다. Porofessor 대신 쓸 수 있고, Overwolf도 광고도 계정 가입도 필요 없습니다. 한국어, 영어, 중국어 간체, 중국어 번체, 일본어, 스페인어, 프랑스어, 러시아어를 지원합니다.
+Windows와 macOS에서 로컬로 실행되는 리그 오브 레전드 도우미입니다. Porofessor 대신 쓸 수 있고, Overwolf도 광고도 계정 가입도 필요 없습니다. 한국어, 영어, 중국어 간체, 중국어 번체, 일본어, 스페인어, 프랑스어, 러시아어를 지원합니다.
 
 > 이 페이지는 설치와 사용법을 설명합니다. 개발, 빌드, 배포에 관한 내용은 영어 [README](README.md)를 참고하세요.
 
@@ -27,6 +27,13 @@ Windows 10 또는 11이 필요합니다(WebView2가 없으면 자동으로 설�
 ### 백신 프로그램이 막을 때
 
 백신 프로그램이 설치 파일을 차단하거나 격리하면서 "트로이 목마"나 "정보 탈취"로 표시할 수 있습니다. 이것은 오진입니다. 이유는 두 가지입니다. 설치 파일에 코드 서명이 없고, 이 앱이 리그 클라이언트의 로컬 로그인 파일(lockfile)과 화면을 읽기 때문입니다. 둘 다 백신 프로그램이 특히 주의해서 보는 동작입니다. 이 저장소의 Releases 페이지에서만 내려받고, 격리된 파일을 복원한 뒤 그 파일과 `C:\Program Files\Mattofessor`를 신뢰 목록(예외 목록)에 추가하세요.
+
+### macOS
+
+1. 최신 릴리스에서 `Mattofessor_x.y.z_universal.dmg`(Apple Silicon 및 Intel)를 내려받아 열고 Mattofessor를 응용 프로그램으로 끌어 놓으세요.
+2. 증강 카드에 승률을 보려면 **시스템 설정 > 개인정보 보호 및 보안 > 화면 및 시스템 오디오 녹음**에서 Mattofessor를 허용하고(설정 > 증강 읽기에 버튼이 있습니다) Mattofessor를 다시 시작하세요.
+
+macOS 13 이상이 필요합니다(카드 승률은 macOS 14 이상). Mattofessor는 메뉴 막대에 상주하며, 설정은 `~/Library/Application Support/Mattofessor`에, Riot 키는 키체인에 저장됩니다.
 
 ## 업데이트
 

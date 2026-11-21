@@ -1,5 +1,7 @@
-//! Thin wrappers over the Win32 calls the app needs.
+//! Windows: thin wrappers over the Win32 calls the app needs.
 
+use super::{Image, ProcInfo, Rect, WindowId};
+use tauri::WebviewWindow;
 use windows::core::{BOOL, PWSTR};
 use windows::Win32::Foundation::{CloseHandle, HWND, LPARAM, RECT};
 use windows::Win32::Graphics::Gdi::{GetMonitorInfoW, MonitorFromWindow, MONITORINFO, MONITOR_DEFAULTTONEAREST};
@@ -9,17 +11,10 @@ use windows::Win32::System::Diagnostics::ToolHelp::{
 use windows::Win32::System::Threading::{
     OpenProcess, QueryFullProcessImageNameW, PROCESS_NAME_WIN32, PROCESS_QUERY_LIMITED_INFORMATION,
 };
-use windows::Win32::UI::Input::KeyboardAndMouse::{keybd_event, KEYEVENTF_KEYUP, VK_MENU};
 use windows::Win32::UI::WindowsAndMessaging::{
-    EnumWindows, GetForegroundWindow, GetWindowLongPtrW, GetWindowRect, GetWindowThreadProcessId, IsWindowVisible,
-    SetForegroundWindow, SetWindowLongPtrW, GWL_EXSTYLE, WS_EX_NOACTIVATE,
+    EnumWindows, GetWindowLongPtrW, GetWindowRect, GetWindowThreadProcessId, IsWindowVisible, SetForegroundWindow,
+    SetWindowLongPtrW, GWL_EXSTYLE, WS_EX_NOACTIVATE,
 };
-
-#[derive(Clone, Debug)]
-pub struct ProcInfo {
-    pub pid: u32,
-    pub name: String,
-}
 
 /// Snapshot of running processes (cheap: one ToolHelp snapshot).
 pub fn processes() -> Vec<ProcInfo> {
@@ -39,10 +34,6 @@ pub fn processes() -> Vec<ProcInfo> {
         let _ = CloseHandle(snap);
     }
     out
-}
-
-pub fn find_process(procs: &[ProcInfo], name: &str) -> Option<u32> {
-    procs.iter().find(|p| p.name.eq_ignore_ascii_case(name)).map(|p| p.pid)
 }
 
 /// Full path of a running process's executable.
@@ -79,7 +70,7 @@ unsafe extern "system" fn enum_cb(hwnd: HWND, lparam: LPARAM) -> BOOL {
 }
 
 /// Largest visible top-level window owned by `pid`.
-pub fn main_window_of(pid: u32) -> Option<isize> {
+pub fn main_window_of(pid: u32) -> Option<WindowId> {
     let mut ctx = FindCtx { pid, best: None };
     unsafe {
         let _ = EnumWindows(Some(enum_cb), LPARAM(&mut ctx as *mut _ as isize));
@@ -87,37 +78,7 @@ pub fn main_window_of(pid: u32) -> Option<isize> {
     ctx.best.map(|(h, _)| h)
 }
 
-/// The game's executable name (`MATTOFESSOR_GAME_EXE` overrides it for the mock game, so
-/// other League tools on the PC do not react to tests).
-pub fn game_exe() -> String {
-    std::env::var("MATTOFESSOR_GAME_EXE").unwrap_or_else(|_| "League of Legends.exe".into())
-}
-
-pub fn game_running() -> bool {
-    find_process(&processes(), &game_exe()).is_some()
-}
-
-/// The League client's window, while it runs.
-pub fn client_window() -> Option<isize> {
-    let procs = processes();
-    ["LeagueClientUx.exe", "LeagueClient.exe"].iter().filter_map(|n| find_process(&procs, n)).find_map(main_window_of)
-}
-
-/// The game window, when League's game process is running.
-pub fn game_window() -> Option<isize> {
-    let pid = find_process(&processes(), &game_exe())?;
-    main_window_of(pid)
-}
-
-#[derive(Clone, Copy, Debug)]
-pub struct Rect {
-    pub x: i32,
-    pub y: i32,
-    pub w: i32,
-    pub h: i32,
-}
-
-pub fn window_rect(hwnd: isize) -> Option<Rect> {
+pub fn window_rect(hwnd: WindowId) -> Option<Rect> {
     let mut r = RECT::default();
     unsafe { GetWindowRect(HWND(hwnd as *mut _), &mut r).ok()? };
     let rect = Rect { x: r.left, y: r.top, w: r.right - r.left, h: r.bottom - r.top };
@@ -125,7 +86,7 @@ pub fn window_rect(hwnd: isize) -> Option<Rect> {
 }
 
 /// Bounds of the monitor showing `hwnd` (physical pixels).
-pub fn monitor_rect(hwnd: isize) -> Option<Rect> {
+pub fn monitor_rect(hwnd: WindowId) -> Option<Rect> {
     unsafe {
         let mon = MonitorFromWindow(HWND(hwnd as *mut _), MONITOR_DEFAULTTONEAREST);
         let mut info = MONITORINFO { cbSize: std::mem::size_of::<MONITORINFO>() as u32, ..Default::default() };
@@ -137,41 +98,68 @@ pub fn monitor_rect(hwnd: isize) -> Option<Rect> {
     }
 }
 
-pub fn foreground_window() -> isize {
-    unsafe { GetForegroundWindow().0 as isize }
+/// A Tauri monitor's bounds in screen coordinates (physical pixels).
+pub fn tauri_monitor_rect(m: &tauri::Monitor) -> Rect {
+    let (p, s) = (m.position(), m.size());
+    Rect { x: p.x, y: p.y, w: s.width as i32, h: s.height as i32 }
 }
 
-/// Give focus back to a window (the game, after clicking an overlay). A synthetic Alt tap
-/// satisfies Windows' foreground lock so the call is honored.
-pub fn focus_window(hwnd: isize) {
+/// Physical pixels per CSS pixel on the monitor showing the middle of `r`.
+pub fn screen_scale(app: &tauri::AppHandle, r: Rect) -> f64 {
+    app.monitor_from_point((r.x + r.w / 2) as f64, (r.y + r.h / 2) as f64)
+        .ok()
+        .flatten()
+        .map(|m| m.scale_factor())
+        .unwrap_or(1.0)
+}
+
+fn hwnd_of(w: &WebviewWindow) -> Option<HWND> {
+    w.hwnd().ok().map(|h| HWND(h.0 as *mut _))
+}
+
+/// Where one of the app's own windows is (physical pixels).
+pub fn own_rect(w: &WebviewWindow) -> Option<Rect> {
+    let (p, s) = (w.outer_position().ok()?, w.outer_size().ok()?);
+    Some(Rect { x: p.x, y: p.y, w: s.width as i32, h: s.height as i32 })
+}
+
+/// Make an in-game window clickable without ever taking focus from the game.
+pub fn prepare_overlay(w: &WebviewWindow) {
+    let Some(h) = hwnd_of(w) else { return };
     unsafe {
-        keybd_event(VK_MENU.0 as u8, 0, Default::default(), 0);
-        keybd_event(VK_MENU.0 as u8, 0, KEYEVENTF_KEYUP, 0);
-        let _ = SetForegroundWindow(HWND(hwnd as *mut _));
+        let ex = GetWindowLongPtrW(h, GWL_EXSTYLE);
+        SetWindowLongPtrW(h, GWL_EXSTYLE, ex | WS_EX_NOACTIVATE.0 as isize);
     }
 }
 
 /// Place a window above everything (including a borderless game) and show it, without
 /// activating it, so the game keeps keyboard focus.
-pub fn show_topmost(hwnd: isize, r: Rect) {
+pub fn show_topmost(w: &WebviewWindow, r: Rect) {
     use windows::Win32::UI::WindowsAndMessaging::{SetWindowPos, HWND_TOPMOST, SWP_NOACTIVATE, SWP_SHOWWINDOW};
+    let Some(h) = hwnd_of(w) else { return };
     unsafe {
-        let _ = SetWindowPos(HWND(hwnd as *mut _), Some(HWND_TOPMOST), r.x, r.y, r.w, r.h, SWP_NOACTIVATE | SWP_SHOWWINDOW);
+        let _ = SetWindowPos(h, Some(HWND_TOPMOST), r.x, r.y, r.w, r.h, SWP_NOACTIVATE | SWP_SHOWWINDOW);
     }
 }
 
 /// Hide a window shown with `show_topmost` (Tauri's hide() is skipped when its own flag says
 /// the window is already hidden).
-pub fn hide(hwnd: isize) {
+pub fn hide(w: &WebviewWindow) {
     use windows::Win32::UI::WindowsAndMessaging::{ShowWindow, SW_HIDE};
+    let Some(h) = hwnd_of(w) else { return };
     unsafe {
-        let _ = ShowWindow(HWND(hwnd as *mut _), SW_HIDE);
+        let _ = ShowWindow(h, SW_HIDE);
     }
+}
+
+/// Real visibility (Tauri's own flag misses windows shown with `show_topmost`).
+pub fn is_visible(w: &WebviewWindow) -> bool {
+    hwnd_of(w).is_some_and(|h| unsafe { IsWindowVisible(h).as_bool() })
 }
 
 /// Bring back a window that was minimized (a Full screen game steps aside when another window
 /// shows over it). Plain window calls only: no synthetic keys while the game runs.
-pub fn restore_if_minimized(hwnd: isize) {
+pub fn restore_if_minimized(hwnd: WindowId) {
     use windows::Win32::UI::WindowsAndMessaging::{IsIconic, ShowWindow, SW_RESTORE};
     unsafe {
         let h = HWND(hwnd as *mut _);
@@ -182,13 +170,15 @@ pub fn restore_if_minimized(hwnd: isize) {
     }
 }
 
-/// Real visibility (Tauri's own flag misses windows shown with `show_topmost`).
-pub fn is_visible(hwnd: isize) -> bool {
-    unsafe { IsWindowVisible(HWND(hwnd as *mut _)).as_bool() }
+/// Windows lets every program read the screen.
+pub fn screen_capture_allowed() -> bool {
+    true
 }
 
-/// What the screen shows inside `r` (physical pixels), as RGBA rows top to bottom.
-pub fn capture(r: Rect) -> Option<Vec<u8>> {
+pub fn request_screen_capture() {}
+
+/// What the screen shows inside `r` (physical pixels), one pixel per unit.
+pub fn capture(r: Rect) -> Option<Image> {
     use windows::Win32::Graphics::Gdi::{
         BitBlt, CreateCompatibleBitmap, CreateCompatibleDC, DeleteDC, DeleteObject, GetDC, GetDIBits, ReleaseDC, SelectObject,
         BITMAPINFO, BITMAPINFOHEADER, BI_RGB, DIB_RGB_COLORS, SRCCOPY,
@@ -228,15 +218,6 @@ pub fn capture(r: Rect) -> Option<Vec<u8>> {
             p.swap(0, 2);
             p[3] = 255;
         }
-        Some(px)
-    }
-}
-
-/// Make a window clickable without ever taking focus from the game.
-pub fn set_no_activate(hwnd: isize) {
-    unsafe {
-        let h = HWND(hwnd as *mut _);
-        let ex = GetWindowLongPtrW(h, GWL_EXSTYLE);
-        SetWindowLongPtrW(h, GWL_EXSTYLE, ex | WS_EX_NOACTIVATE.0 as isize);
+        Some(Image { w: r.w as u32, h: r.h as u32, rgba: px })
     }
 }

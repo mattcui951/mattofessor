@@ -6,7 +6,7 @@
 //! live data says about you (level, death, runes, where held augments are listed) is logged on
 //! every change. Nothing leaves the PC: %APPDATA%/Mattofessor/augment-captures/<game start>/.
 
-use crate::win;
+use crate::os;
 use parking_lot::Mutex;
 use serde_json::{json, Value};
 use std::io::Write;
@@ -99,11 +99,11 @@ pub fn tick(enabled: bool, raw: &Value) {
     if !(dead && level >= 3 && s.shots < MAX_PER_DEATH) {
         return;
     }
-    let Some(r) = win::game_window().and_then(win::window_rect) else { return };
-    let band = win::Rect { x: r.x, y: r.y + (r.h as f64 * BAND.0) as i32, w: r.w, h: (r.h as f64 * (BAND.1 - BAND.0)) as i32 };
-    let Some(px) = win::capture(band) else { return };
+    let Some(r) = os::game_window().and_then(os::window_rect) else { return };
+    let band = os::Rect { x: r.x, y: r.y + (r.h as f64 * BAND.0) as i32, w: r.w, h: (r.h as f64 * (BAND.1 - BAND.0)) as i32 };
+    let Some(img) = os::capture(band) else { return };
     let path = s.dir.join(format!("t{:06.0}_lvl{level:02}_{:02}.png", game_time, s.shots));
-    if let Err(e) = save_png(&path, band.w as u32, band.h as u32, &px) {
+    if let Err(e) = save_png(&path, img.w, img.h, &img.rgba) {
         log::warn!("augment capture: {e:#}");
         return;
     }

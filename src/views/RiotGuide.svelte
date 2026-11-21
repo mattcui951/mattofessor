@@ -2,6 +2,7 @@
   import { openUrl } from '@tauri-apps/plugin-opener';
   import Icon from '../components/Icon.svelte';
   import { t } from '../lib/i18n.svelte';
+  import { isMac } from '../lib/platform';
   import { app, back, go, toast } from '../lib/state.svelte';
   import dashboard from '../assets/riot-guide/1-dashboard.webp';
   import personal from '../assets/riot-guide/2-personal.webp';
@@ -118,7 +119,7 @@ Data and key handling: results are shown only on my own PC and are not stored on
       </li>
     </ol>
 
-    <p class="note">{t('guide.privacy')}</p>
+    <p class="note">{t(isMac ? 'guide.privacyMac' : 'guide.privacy')}</p>
   </div>
 </div>
 

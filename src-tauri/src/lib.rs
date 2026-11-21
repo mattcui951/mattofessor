@@ -24,18 +24,22 @@ pub mod net;
 pub mod model;
 pub mod ocr;
 pub mod opgg;
+pub mod os;
 pub mod paths;
 pub mod players;
 pub mod positions;
 pub mod riot;
 pub mod score;
+pub mod secret;
 pub mod settings;
 pub mod store;
 pub mod update;
 pub mod warm;
-pub mod win;
 
 use std::io::Write;
+// Used by release builds only (one copy at a time).
+#[cfg(debug_assertions)]
+use tauri_plugin_single_instance as _;
 use tauri::menu::MenuBuilder;
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 use tauri::{Manager, RunEvent};
@@ -91,6 +95,9 @@ pub fn run() {
             core.show_main(None);
         }
     }));
+    // In-game hotkeys on macOS are system hotkeys (`hotkeys::macos`).
+    #[cfg(target_os = "macos")]
+    let builder = builder.plugin(tauri_plugin_global_shortcut::Builder::new().build());
     let app = builder
         .plugin(tauri_plugin_autostart::init(tauri_plugin_autostart::MacosLauncher::LaunchAgent, Some(vec!["--minimized"])))
         .plugin(tauri_plugin_opener::init())
@@ -100,14 +107,15 @@ pub fn run() {
             let core = core::Core::init(app.handle().clone());
             app.manage(core.clone());
 
-            // Keep the Windows startup entry pointing at this exe. Dev builds never touch it.
+            // Keep the startup entry (Windows' Run key, a macOS launch agent) pointing at this
+            // copy of the app. Dev builds never touch it.
             #[cfg(not(debug_assertions))]
             {
                 use tauri_plugin_autostart::ManagerExt;
                 let al = app.autolaunch();
                 let result = if core.settings().start_with_windows { al.enable() } else { al.disable() };
                 if let Err(e) = result {
-                    log::warn!("could not update start-with-Windows entry: {e}");
+                    log::warn!("could not update the start-at-login entry: {e}");
                 }
             }
             if !settings::Settings::path().exists() {
@@ -115,8 +123,14 @@ pub fn run() {
             }
 
             let menu = MenuBuilder::new(app).text("open", "Open Mattofessor").separator().text("quit", "Quit").build()?;
+            // macOS draws menu bar icons from a black shape (a template) in its own colors.
+            #[cfg(target_os = "macos")]
+            let icon = tauri::image::Image::from_bytes(include_bytes!("../icons/tray-template.png"))?;
+            #[cfg(not(target_os = "macos"))]
+            let icon = app.default_window_icon().cloned().expect("icon");
             TrayIconBuilder::with_id("tray")
-                .icon(app.default_window_icon().cloned().expect("icon"))
+                .icon(icon)
+                .icon_as_template(true)
                 .tooltip("Mattofessor")
                 .menu(&menu)
                 .show_menu_on_left_click(false)
@@ -183,6 +197,7 @@ pub fn run() {
             commands::fullscreen_tried,
             commands::dismiss_fullscreen_tried,
             commands::card_reader_status,
+            commands::allow_screen_capture,
             commands::open_build,
             commands::content,
             commands::content_status,
@@ -213,13 +228,21 @@ pub fn run() {
         .build(tauri::generate_context!())
         .expect("error while building Mattofessor");
 
-    app.run(|_app, event| {
+    app.run(|_app, event| match event {
         // Closing every window keeps the app in the tray; only Quit exits.
-        if let RunEvent::ExitRequested { api, code, .. } = event {
+        RunEvent::ExitRequested { api, code, .. } => {
             let quitting = core::get().is_some_and(|c| c.is_quitting());
             if code.is_none() && !quitting {
                 api.prevent_exit();
             }
         }
+        // macOS: a click on the Dock icon (or opening the app again) with no window open.
+        #[cfg(target_os = "macos")]
+        RunEvent::Reopen { has_visible_windows: false, .. } => {
+            if let Some(core) = core::get() {
+                core.show_main(None);
+            }
+        }
+        _ => {}
     });
 }

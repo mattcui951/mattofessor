@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { stepScale, zoomKey } from '../zoom.svelte';
+import { stepScale, zoomKey as zoomKeyOn } from '../zoom.svelte';
+
+// Windows and Linux: Ctrl.
+const zoomKey = (e: Parameters<typeof zoomKeyOn>[0]) => zoomKeyOn(e, false);
 
 const key = (key: string, extra: Partial<KeyboardEvent> = {}) => ({ key, code: '', ctrlKey: true, altKey: false, metaKey: false, ...extra });
 
@@ -28,5 +31,12 @@ describe('zoom', () => {
     expect(zoomKey(key('=', { ctrlKey: false }))).toBeNull();
     expect(zoomKey(key('=', { altKey: true }))).toBeNull();
     expect(zoomKey(key('a'))).toBeNull();
+  });
+
+  it('uses Command on macOS', () => {
+    expect(zoomKeyOn(key('=', { ctrlKey: false, metaKey: true }), true)).toBe(1);
+    expect(zoomKeyOn(key('0', { ctrlKey: false, metaKey: true }), true)).toBe(0);
+    expect(zoomKeyOn(key('='), true)).toBeNull();
+    expect(zoomKeyOn(key('=', { metaKey: true }), false)).toBeNull();
   });
 });

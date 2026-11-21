@@ -3,9 +3,8 @@
 //! PUUID (Riot encrypts PUUIDs per key, so the client's PUUIDs do not work here; cached), then
 //! their ranked entries.
 //!
-//! The key is stored encrypted for the Windows user (DPAPI) in %APPDATA%\Mattofessor\riot-key.bin
-//! and never sent to the UI. Requests stay under the personal / development key limits
-//! (20 per second, 100 per 2 minutes).
+//! The key is kept by the system for the signed-in user (`secret`) and never sent to the UI.
+//! Requests stay under the personal / development key limits (20 per second, 100 per 2 minutes).
 
 use crate::model::{Rank, Ranked, TierDiv};
 use anyhow::{anyhow, Result};
@@ -39,42 +38,9 @@ struct State {
 static STATE: RwLock<State> = RwLock::new(State { key: None, status: KeyStatus::None, puuids: BTreeMap::new() });
 static SENT: Mutex<VecDeque<Instant>> = Mutex::new(VecDeque::new());
 
-fn key_file() -> std::path::PathBuf {
-    crate::paths::config_dir().join("riot-key.bin")
-}
-
-mod dpapi {
-    use windows::Win32::Foundation::{LocalFree, HLOCAL};
-    use windows::Win32::Security::Cryptography::{CryptProtectData, CryptUnprotectData, CRYPT_INTEGER_BLOB};
-
-    fn run(data: &[u8], protect: bool) -> Option<Vec<u8>> {
-        let input = CRYPT_INTEGER_BLOB { cbData: data.len() as u32, pbData: data.as_ptr() as *mut u8 };
-        let mut out = CRYPT_INTEGER_BLOB::default();
-        unsafe {
-            let ok = if protect {
-                CryptProtectData(&input, windows::core::w!("Mattofessor Riot API key"), None, None, None, 0, &mut out)
-            } else {
-                CryptUnprotectData(&input, None, None, None, None, 0, &mut out)
-            };
-            ok.ok()?;
-            let bytes = std::slice::from_raw_parts(out.pbData, out.cbData as usize).to_vec();
-            let _ = LocalFree(Some(HLOCAL(out.pbData as *mut _)));
-            Some(bytes)
-        }
-    }
-
-    pub fn protect(data: &[u8]) -> Option<Vec<u8>> {
-        run(data, true)
-    }
-
-    pub fn unprotect(data: &[u8]) -> Option<Vec<u8>> {
-        run(data, false)
-    }
-}
-
 /// Read the stored key at startup.
 pub fn load() {
-    let key = std::fs::read(key_file()).ok().and_then(|b| dpapi::unprotect(&b)).and_then(|b| String::from_utf8(b).ok());
+    let key = crate::secret::load();
     let mut s = STATE.write();
     s.status = if key.is_some() { KeyStatus::Unchecked } else { KeyStatus::None };
     s.key = key;
@@ -102,13 +68,12 @@ fn set_status(st: KeyStatus) {
 pub async fn set_key(key: &str, region: Option<&str>) -> Result<KeyStatus> {
     let key = key.trim();
     if key.is_empty() {
-        let _ = std::fs::remove_file(key_file());
+        crate::secret::clear();
         let mut s = STATE.write();
         *s = State { key: None, status: KeyStatus::None, puuids: BTreeMap::new() };
         return Ok(KeyStatus::None);
     }
-    let blob = dpapi::protect(key.as_bytes()).ok_or_else(|| anyhow!("Could not encrypt the key"))?;
-    std::fs::write(key_file(), blob)?;
+    crate::secret::save(key).map_err(|e| anyhow!("Could not store the key: {e:#}"))?;
     {
         let mut s = STATE.write();
         *s = State { key: Some(key.to_string()), status: KeyStatus::Unchecked, puuids: BTreeMap::new() };
@@ -308,12 +273,5 @@ mod tests {
         assert_eq!(account_cluster("kr"), "asia");
         assert_eq!(account_cluster("tr1"), "europe");
         assert!(platform("TENCENT").is_none());
-    }
-
-    #[test]
-    fn dpapi_roundtrip() {
-        let blob = dpapi::protect(b"RGAPI-test").unwrap();
-        assert_ne!(blob, b"RGAPI-test");
-        assert_eq!(dpapi::unprotect(&blob).unwrap(), b"RGAPI-test");
     }
 }

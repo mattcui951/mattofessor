@@ -3,6 +3,7 @@
   import Callout from './Callout.svelte';
   import { t } from '../lib/i18n.svelte';
   import { app } from '../lib/state.svelte';
+  import { isMac } from '../lib/platform';
 
   const u = $derived(app.update);
   const show = $derived(Boolean(u.version) && (u.phase === 'downloading' || u.phase === 'installing'));
@@ -16,7 +17,7 @@
 
 {#if show}
   <Callout banner icon="download" {title}>
-    <span>{t('update.adminNote')}</span>
+    <span>{t(isMac ? 'update.restartNote' : 'update.adminNote')}</span>
     {#snippet extra()}
       {#if u.phase === 'downloading'}
         <div class="bar" class:indeterminate={pct == null}><i style:width={pct == null ? null : `${pct}%`}></i></div>

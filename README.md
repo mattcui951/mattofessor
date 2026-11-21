@@ -2,8 +2,8 @@
 
 **English** · [简体中文](README.zh-CN.md) · [繁體中文](README.zh-TW.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [Español](README.es.md) · [Français](README.fr.md) · [Русский](README.ru.md)
 
-A local Porofessor replacement for League of Legends on Windows, without Overwolf, ads or
-accounts. In English, Simplified and Traditional Chinese, Japanese, Korean, Spanish, French and
+A local Porofessor replacement for League of Legends on Windows and macOS, without Overwolf,
+ads or accounts. In English, Simplified and Traditional Chinese, Japanese, Korean, Spanish, French and
 Russian.
 
 - **Profile**: your (or any Riot ID's) solo and flex rank, past ranks, tags, most played
@@ -25,7 +25,7 @@ Russian.
   when you lock in). In Hextech ARAM the Builds page also ranks the champion's augments.
 - **Hextech ARAM augments**: in champ select and in game, the augments to take and to avoid
   for your champion, by rarity. When the augment cards are open, your champion's win rate with
-  each card shows above it, the best one marked (read from the screen with Windows' own text
+  each card shows above it, the best one marked (read from the screen with the system's own text
   recognition, in the client's language or English; nothing is saved).
 
 - **Patch notes**: the latest 5 patches' changes, Summoner's Rift and Hextech ARAM apart, from
@@ -56,10 +56,25 @@ Needs Windows 10 or 11 (WebView2 is installed automatically if missing). League 
 `Ctrl+Shift+M` panel, `Ctrl+Shift+N` enemy spell timers (changeable in Settings).
 Uninstall from Windows Settings > Apps; settings and cache live in `%APPDATA%\Mattofessor`.
 
+### macOS
+
+1. From the latest release, download `Mattofessor_x.y.z_universal.dmg` (Apple Silicon and
+   Intel), open it and drag Mattofessor to Applications.
+2. For the win rates on the augment cards, allow Mattofessor in **System Settings > Privacy &
+   Security > Screen & System Audio Recording** (Settings > Augment reader has a button for it),
+   then restart Mattofessor. Nothing else needs a permission: the in-game hotkeys are system
+   hotkeys.
+
+Needs macOS 13 or later (the augment card win rates need 14). The in-game hotkeys are the same
+(`Ctrl` is the Control key; `Cmd` works too). Mattofessor lives in the menu bar; closing its
+window keeps it there, Quit in its menu ends it. Settings and cache live in
+`~/Library/Application Support/Mattofessor`, the Riot API key in your login keychain. Uninstall
+by moving the app to the Trash.
+
 **Updates:** Mattofessor checks this repository's latest release in the background (no GitHub
 account needed), every 30 minutes and when you open the window or bring it back to the front,
-and shows a banner when a new version is out. Click **Update now**, allow the
-Windows prompt, and it restarts on the new version; it never updates during a game. Turn the
+and shows a banner when a new version is out. Click **Update now** (on Windows, allow the
+prompt), and it restarts on the new version; it never updates during a game. Turn the
 check off or run it by hand in Settings > Updates.
 
 ## Releasing a new version
@@ -72,9 +87,9 @@ git tag -a v0.2.1 -m "What changed, one line per change"
 git push origin v0.2.1
 ```
 
-GitHub Actions (`.github/workflows/release.yml`) runs the tests, builds the installer on
-Windows and publishes it as a release, together with `latest.json` and the installer's
-signature. Installed copies read `releases/latest/download/latest.json`, so they see the new
+GitHub Actions (`.github/workflows/release.yml`) runs the tests and builds on Windows (the
+installer) and macOS (a universal app and dmg), attaches both to a draft release, then writes
+`latest.json` from both builds' update signatures and publishes it. Installed copies read `releases/latest/download/latest.json`, so they see the new
 version as soon as the release is published.
 
 Updates are signed: the app only installs a download whose signature matches the public key in
@@ -202,7 +217,8 @@ no expiry (20 requests per second, 100 per 2 minutes). The Development API Key o
 stops after 24 hours, so the app's guide skips it. Until a working key is set, the Profile and
 Live pages show a banner that links to the guide, and wins-only lines are marked. Each player costs two requests (Riot ID to this key's PUUID, then
 ranked entries), throttled under those limits. The key is stored with Windows DPAPI in
-`%APPDATA%\Mattofessor\riot-key.bin` and never reaches the UI (`src-tauri/src/riot.rs`).
+`%APPDATA%\Mattofessor\riot-key.bin`, or in the login keychain on macOS, and never reaches the UI
+(`src-tauri/src/riot.rs`, `src-tauri/src/secret.rs`).
 
 ## Layout
 
@@ -220,13 +236,16 @@ ranked entries), throttled under those limits. The key is stored with Windows DP
 | `src-tauri/src/branch.rs` | Reading a branch of this repository at its latest commit |
 | `tools/refresh-data/` | Builds the `data` branch (run by `.github/workflows/refresh-data.yml`) |
 | `src-tauri/src/cards.rs` | Augment card reader: finds the offered cards on screen, places the win rates above them |
-| `src-tauri/src/ocr.rs` | Windows OCR (Windows.Media.Ocr) wrapper |
+| `src-tauri/src/ocr/` | Text recognition: Windows.Media.Ocr on Windows, Vision on macOS |
+| `src-tauri/src/os/` | The system: processes, other apps' windows, the in-game windows over the game, screen capture (Win32 on Windows; libproc, Quartz, AppKit panels and ScreenCaptureKit on macOS) |
+| `src-tauri/src/hotkeys/` | In-game hotkeys: a keyboard hook on Windows, system hotkeys on macOS |
 | `src-tauri/src/augments.rs` | Augment names, rarity and icons |
-| `src-tauri/src/core.rs` | Windows (main, overlay, spell timers), hotkeys |
+| `src-tauri/src/core.rs` | The app's windows (main, overlay, spell timers), hotkeys |
 | `src-tauri/src/store.rs` | SQLite cache in `%APPDATA%\Mattofessor\cache.db` (checked at start; a damaged file is rebuilt from its readable rows) |
 | `src/` | Svelte UI; `src/lib/i18n.svelte.ts` holds every string in both languages |
 
-Settings and the log live in `%APPDATA%\Mattofessor`.
+Settings and the log live in `%APPDATA%\Mattofessor` (Windows) or
+`~/Library/Application Support/Mattofessor` (macOS).
 
 ## Develop
 
@@ -237,8 +256,9 @@ npm run tauri dev
 
 Tests: `cargo test` in `src-tauri`, `npx vitest run`, `npx svelte-check`.
 
-Debug builds keep their data in `%APPDATA%\Mattofessor-dev` (and their own WebView data), so a dev run
-never opens the installed app's database.
+Debug builds keep their data in `%APPDATA%\Mattofessor-dev` (macOS:
+`~/Library/Application Support/Mattofessor-dev`; their own WebView data and keychain item too),
+so a dev run never opens the installed app's database.
 
 Debug builds serve a JSON bridge on `http://127.0.0.1:17431`; with the dev server running,
 `http://localhost:1431/` (`#overlay`, `#spells`) renders the real UI in a browser with live data.
@@ -246,13 +266,16 @@ Debug builds serve a JSON bridge on `http://127.0.0.1:17431`; with the dev serve
 ### Test a game without playing
 
 ```bash
-py -I tools/mock_client.py --champ-select 30 --length 600
+py -I tools/mock_client.py --champ-select 30 --length 600          # Windows
+/usr/bin/python3 -I tools/mock_client.py --champ-select 30 --length 600   # macOS
 ```
 
-Then run the app with `tools/dev-mock.cmd`. The mock replays one of your past Summoner's Rift
+Then run the app with `tools/dev-mock.cmd` (macOS: `tools/dev-mock.sh`). On macOS use a Python
+that trusts the system's certificates (`/usr/bin/python3`; the python.org build needs its
+"Install Certificates" step first). The mock replays one of your past Summoner's Rift
 games as if it were happening now: a stand-in client (real player lookups are forwarded to the
 running League client), a Live Client API with a game clock, and a stand-in game window
-named `Mattofessor Mock Game.exe` (so other League tools ignore it). Rune page and item set
+named `Mattofessor Mock Game(.exe)` (so other League tools ignore it). Rune page and item set
 writes are recorded in `tools/.mock/writes.log` instead of changing your account.
 
 `--game <id>` replays a specific game (one of your Hextech ARAM games gives mode `KIWI`),
@@ -278,9 +301,9 @@ the first quarter, leaves the game out until 120 s after it ends, and the full g
 from half way (the mock stays up that long). Use it with a fresh `MATTOFESSOR_DATA_DIR`, so the
 game is not already saved, to see the profile pick up the finished game by itself.
 
-In-game hotkeys use a low-level keyboard hook, because League's game window blocks ordinary
-global hotkeys while it has focus. `py -I tools/nohotkeys_window.py` opens a window that blocks
-hotkeys the same way and presses Ctrl+Shift+F13 in it (`--check-registerhotkey` shows the
+On Windows the in-game hotkeys use a low-level keyboard hook, because League's game window
+blocks ordinary global hotkeys while it has focus (macOS uses system hotkeys).
+`py -I tools/nohotkeys_window.py` opens a window that blocks hotkeys the same way and presses Ctrl+Shift+F13 in it (`--check-registerhotkey` shows the
 problem with ordinary hotkeys); set that as the overlay hotkey to test during a mock game.
 `tools/inspect_windows.py` prints the app's windows (position, topmost, focus).
 
@@ -290,7 +313,12 @@ problem with ordinary hotkeys); set that as the overlay hotkey to test during a 
 npm run tauri build
 ```
 
-Produces an NSIS installer that installs for all users under `C:\Program Files\Mattofessor`.
+On Windows this produces an NSIS installer that installs for all users under
+`C:\Program Files\Mattofessor`. On macOS it produces `Mattofessor.app` and a dmg
+(`src-tauri/tauri.macos.conf.json`; add `--target universal-apple-darwin` for Apple Silicon and
+Intel in one, as releases do). It is signed with the Developer ID certificate named in that file
+(it must be in your keychain) and notarized when `APPLE_ID`, `APPLE_PASSWORD` (an app-specific
+password) and `APPLE_TEAM_ID` are set.
 
 ## License
 
