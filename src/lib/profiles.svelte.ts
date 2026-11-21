@@ -47,8 +47,15 @@ function entry(id: string): ProfileEntry {
   return profiles.byId[id];
 }
 
+/** After a try where the client did not answer for the games (common right after a game). */
+const RETRY_MS = 30_000;
+
+/** Due for a refresh: old, or the client did not answer for the games last time and that was a
+ * while ago (the minute timer asks again; the backend also follows a game that just ended). */
 function stale(e: ProfileEntry): boolean {
-  return !e.profile || Date.now() - e.profile.updatedAt > STALE_MS;
+  if (!e.profile) return true;
+  const age = Date.now() - e.profile.updatedAt;
+  return age > STALE_MS || (e.profile.historySaved && age > RETRY_MS);
 }
 
 /** Show a profile: the saved copy at once, then a background refresh if it is old. */

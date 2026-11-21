@@ -52,6 +52,8 @@ pub struct Profile {
     pub is_me: bool,
     /// When this data was fetched from the client (ms).
     pub updated_at: i64,
+    /// The client did not answer for the games: they are the ones saved before.
+    pub history_saved: bool,
 }
 
 fn profile_of(inputs: players::Inputs, puuid: &str, is_me: bool, updated_at: i64) -> Profile {
@@ -59,7 +61,8 @@ fn profile_of(inputs: players::Inputs, puuid: &str, is_me: bool, updated_at: i64
     let mut masteries = inputs.masteries.clone();
     masteries.sort_by_key(|m| std::cmp::Reverse(m.points));
     masteries.truncate(10);
-    Profile { card, history: inputs.history, rank_history: store::get().rank_history(puuid).unwrap_or_default(), masteries, is_me, updated_at }
+    let history_saved = !inputs.history_ok;
+    Profile { card, history: inputs.history, rank_history: store::get().rank_history(puuid).unwrap_or_default(), masteries, is_me, updated_at, history_saved }
 }
 
 /// The signed-in player's puuid, or the last one signed in (kept across restarts, so a saved

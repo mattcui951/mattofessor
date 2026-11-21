@@ -138,6 +138,8 @@ export const ja: Dict = {
   'profile.updated': "{0}に更新",
   'profile.updating': "更新中...",
   'profile.offlineSaved': "保存済みのデータ (LoLクライアントは閉じています)",
+  'profile.historySaved': "試合履歴はまだ更新されていません。再試行中...",
+  'profile.historySavedWhy': "LoLクライアントは試合終了の数分後に履歴へ追加し、それまで応答しないことがあります。Mattofessorは自動で問い合わせを続けて追加します。",
   'profile.refresh': "今すぐ更新",
   'profile.waitingMe': "LoLクライアントを待っています",
   'profile.waitingMeHint': "ログイン中のアカウントがまだ分かりません (起動中かもしれません)。分かり次第プロフィールが表示されます。",

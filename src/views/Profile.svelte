@@ -257,8 +257,8 @@
       <div class="top">
         <SearchBox />
         <div class="fresh">
-          <span class="dim">
-            {#if entry?.refreshing}{t('profile.updating')}{:else if !app.connected}{t('profile.offlineSaved')}{:else}{t('profile.updated', ago(profile.updatedAt, now))}{/if}
+          <span class="dim" title={profile.historySaved && !entry?.partial ? t('profile.historySavedWhy') : undefined}>
+            {#if entry?.refreshing}{t('profile.updating')}{:else if !app.connected}{t('profile.offlineSaved')}{:else if profile.historySaved && !entry?.partial}{t('profile.historySaved')}{:else}{t('profile.updated', ago(profile.updatedAt, now))}{/if}
           </span>
           <button
             class="btn sm ghost icon"

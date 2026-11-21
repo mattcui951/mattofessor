@@ -273,6 +273,10 @@ read the page (e.g. to check zoom). To check the reader against saved samples:
 to the same band, e.g. `ffmpeg -i match.mp4 -vf "fps=1,scale=3440:1440,crop=3440:1094:0:172" -pix_fmt rgba frames/t%06d.png`.
 `--summoner-down 60` keeps the signed-in account unanswered for the first 60 s, like a client
 that is still starting (e.g. right after switching accounts).
+`--history-lag 120` acts like the real client after a game: your match history answers 500 for
+the first quarter, leaves the game out until 120 s after it ends, and the full game is readable
+from half way (the mock stays up that long). Use it with a fresh `MATTOFESSOR_DATA_DIR`, so the
+game is not already saved, to see the profile pick up the finished game by itself.
 
 In-game hotkeys use a low-level keyboard hook, because League's game window blocks ordinary
 global hotkeys while it has focus. `py -I tools/nohotkeys_window.py` opens a window that blocks

@@ -139,6 +139,8 @@ export const zhTW: Dict = {
   'profile.updated': '{0}更新',
   'profile.updating': '正在更新...',
   'profile.offlineSaved': '已儲存的資料（英雄聯盟客戶端未執行）',
+  'profile.historySaved': '戰績暫未更新，正在重試...',
+  'profile.historySavedWhy': '英雄聯盟客戶端在對局結束幾分鐘後才把這局加入戰績，之前可能不回應。Mattofessor 會持續詢問，並自動加上。',
   'profile.refresh': '立即重新整理',
   'profile.waitingMe': '正在等待英雄聯盟客戶端',
   'profile.waitingMeHint': '客戶端還未告知當前登入的帳號（可能仍在啟動）。告知後會自動顯示你的資料。',

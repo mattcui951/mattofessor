@@ -136,6 +136,8 @@ export const zh: Dict = {
   'profile.updated': '{0}更新',
   'profile.updating': '正在更新...',
   'profile.offlineSaved': '已保存的数据（英雄联盟客户端未运行）',
+  'profile.historySaved': '战绩暂未更新，正在重试...',
+  'profile.historySavedWhy': '英雄联盟客户端在对局结束几分钟后才把这局加入战绩，之前可能不回应。Mattofessor 会一直询问，并自动加上。',
   'profile.refresh': '立即刷新',
   'profile.waitingMe': '正在等待英雄联盟客户端',
   'profile.waitingMeHint': '客户端还未告知当前登录的账号（可能仍在启动）。告知后会自动显示你的资料。',

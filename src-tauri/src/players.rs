@@ -7,6 +7,8 @@ use crate::store;
 use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use std::time::{Duration, Instant};
+use tauri::{AppHandle, Emitter};
 
 /// Recent games kept per player for statistics (the client returns up to 40 at a time;
 /// older cached games from earlier lookups widen the window).
@@ -60,15 +62,17 @@ async fn exact(ranked: Result<Ranked>, puuid: &str, summ: &Summoner) -> Ranked {
     r
 }
 
-/// Fresh games from the client merged with cached ones, most recent first. Falls back to
-/// the cache when the client cannot answer.
-pub async fn history(lcu: &Lcu, puuid: &str) -> Result<Vec<GameRow>> {
+/// Fresh games from the client merged with cached ones, most recent first, and whether the
+/// client answered. When it cannot, the cached games come back alone (an error only when
+/// nothing is cached): right after a game the client often answers 500 for a while.
+pub async fn history(lcu: &Lcu, puuid: &str) -> Result<(Vec<GameRow>, bool)> {
     let fetched = lcu.get_value(&format!("/lol-match-history/v1/products/lol/{puuid}/matches?begIndex=0&endIndex=39")).await;
     let st = store::get();
-    match fetched {
+    let answered = match fetched {
         Ok(v) => {
             let rows = model::rows_from_history(&v);
             st.save_rows(puuid, &rows)?;
+            true
         }
         Err(e) => {
             let cached = st.rows(puuid, HISTORY)?;
@@ -76,9 +80,42 @@ pub async fn history(lcu: &Lcu, puuid: &str) -> Result<Vec<GameRow>> {
                 return Err(e);
             }
             log::warn!("history for {puuid} from cache: {e:#}");
+            false
         }
+    };
+    Ok((st.rows(puuid, HISTORY)?, answered))
+}
+
+/// How long after a game ends `follow_finished_game` keeps looking for it.
+const FOLLOW_FOR: Duration = Duration::from_secs(10 * 60);
+const FOLLOW_EVERY: Duration = Duration::from_secs(15);
+
+/// A game just ended. The client adds it to the match history only after a while (and answers
+/// 500 for a bit before that), so the refresh at the end of the game does not have it yet. Ask
+/// until it is there, then tell the pages (`profile-stale`). The full game is often readable
+/// before the list has it: its row goes in at once.
+pub async fn follow_finished_game(app: AppHandle, puuid: String, game_id: u64) {
+    let started = Instant::now();
+    let have = || store::get().rows(&puuid, HISTORY).is_ok_and(|r| r.iter().any(|g| g.game_id == game_id));
+    while started.elapsed() < FOLLOW_FOR {
+        tokio::time::sleep(FOLLOW_EVERY).await;
+        let Some(lcu) = crate::lcu::current() else { return };
+        let found = match history(&lcu, &puuid).await {
+            Ok((rows, _)) if rows.iter().any(|g| g.game_id == game_id) => "match history",
+            _ => match game(game_id).await.ok().and_then(|g| model::row_for(&g, &puuid)) {
+                Some(row) => {
+                    let _ = store::get().save_rows(&puuid, &[row]);
+                    "full game"
+                }
+                None if have() => "cache",
+                None => continue,
+            },
+        };
+        log::info!("finished game {game_id} in the history after {:.0}s (from the {found})", started.elapsed().as_secs_f32());
+        let _ = app.emit("profile-stale", ());
+        return;
     }
-    st.rows(puuid, HISTORY)
+    log::warn!("finished game {game_id} still not in the match history after {} min", FOLLOW_FOR.as_secs() / 60);
 }
 
 pub async fn masteries(lcu: &Lcu, puuid: &str) -> Vec<Mastery> {
@@ -100,6 +137,8 @@ pub struct Inputs {
     pub masteries: Vec<Mastery>,
     /// The history was just fetched (not only what the cache had).
     pub fresh: bool,
+    /// The client answered for the games (false: they are only the ones saved before).
+    pub history_ok: bool,
 }
 
 impl Inputs {
@@ -123,24 +162,30 @@ pub async fn inputs_quick(lcu: &Lcu, puuid: &str) -> Result<Inputs> {
         history: store::get().rows(puuid, HISTORY).unwrap_or_default(),
         masteries,
         fresh: false,
+        history_ok: false,
     })
 }
 
 pub async fn inputs(lcu: &Lcu, puuid: &str) -> Result<Inputs> {
     let (summ, ranked, history, masteries) =
         tokio::join!(summoner(lcu, puuid), ranked(lcu, puuid), history(lcu, puuid), masteries(lcu, puuid));
+    let (history, history_ok) = match history {
+        Ok((rows, answered)) => (rows, answered),
+        Err(e) => {
+            log::warn!("history for {puuid}: {e:#}");
+            (Vec::new(), false)
+        }
+    };
     // A rank or history failure leaves those parts empty rather than hiding the player.
     let summ = summ?;
     let ranked = exact(ranked, puuid, &summ).await;
     let inputs = Inputs {
         summoner: summ,
         ranked,
-        history: history.unwrap_or_else(|e| {
-            log::warn!("history for {puuid}: {e:#}");
-            Vec::new()
-        }),
+        history,
         masteries,
         fresh: true,
+        history_ok,
     };
     let saved = Saved { summoner: inputs.summoner.clone(), ranked: inputs.ranked.clone(), masteries: inputs.masteries.clone() };
     if let Ok(v) = serde_json::to_value(&saved) {
@@ -163,7 +208,7 @@ pub fn inputs_saved(puuid: &str) -> Option<(Inputs, i64)> {
     let (v, updated) = store::get().player(puuid)?;
     let saved: Saved = serde_json::from_value(v).ok()?;
     let history = store::get().rows(puuid, HISTORY).unwrap_or_default();
-    Some((Inputs { summoner: saved.summoner, ranked: saved.ranked, history, masteries: saved.masteries, fresh: false }, updated))
+    Some((Inputs { summoner: saved.summoner, ranked: saved.ranked, history, masteries: saved.masteries, fresh: false, history_ok: true }, updated))
 }
 
 /// Full game (all 10 players), cached forever; the client is asked only for games not seen yet.

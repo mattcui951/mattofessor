@@ -138,6 +138,8 @@ export const ko: Dict = {
   'profile.updated': "{0} 갱신",
   'profile.updating': "갱신 중...",
   'profile.offlineSaved': "저장된 데이터 (클라이언트 종료됨)",
+  'profile.historySaved': "전적이 아직 업데이트되지 않았습니다. 다시 시도 중...",
+  'profile.historySavedWhy': "클라이언트는 게임이 끝나고 몇 분 뒤에 전적에 추가하며, 그 전에는 응답하지 않을 수 있습니다. Mattofessor가 계속 확인해서 자동으로 추가합니다.",
   'profile.refresh': "지금 갱신",
   'profile.waitingMe': "리그 오브 레전드 클라이언트를 기다리는 중",
   'profile.waitingMeHint': "아직 로그인한 계정을 알 수 없습니다 (실행 중일 수 있습니다). 알게 되면 프로필이 자동으로 표시됩니다.",

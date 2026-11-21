@@ -138,6 +138,8 @@ export const ru: Dict = {
   'profile.updated': "Обновлено {0}",
   'profile.updating': "Обновление...",
   'profile.offlineSaved': "Сохраненные данные (клиент League закрыт)",
+  'profile.historySaved': "Матчи ещё не обновлены, пробуем снова...",
+  'profile.historySavedWhy': "Клиент League добавляет игру в историю через несколько минут после конца и сначала может не отвечать. Mattofessor продолжает спрашивать и добавит её сам.",
   'profile.refresh': "Обновить",
   'profile.waitingMe': "Ждем клиент League",
   'profile.waitingMeHint': "Он еще не сообщил, кто вошел (возможно, еще запускается). Ваш профиль появится сам, когда сообщит.",

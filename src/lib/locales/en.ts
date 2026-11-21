@@ -139,6 +139,8 @@ export const en = {
   'profile.updated': 'Updated {0}',
   'profile.updating': 'Updating...',
   'profile.offlineSaved': 'Saved data (League client closed)',
+  'profile.historySaved': 'Games not updated yet, retrying...',
+  'profile.historySavedWhy': 'The League client lists a game a few minutes after it ends and may not answer at first. Mattofessor keeps asking and adds it by itself.',
   'profile.refresh': 'Refresh now',
   'profile.waitingMe': 'Waiting for the League client',
   'profile.waitingMeHint': 'It has not said who is signed in yet (it may still be starting). Your profile shows by itself when it does.',

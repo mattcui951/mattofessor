@@ -138,6 +138,8 @@ export const es: Dict = {
   'profile.updated': "Actualizado {0}",
   'profile.updating': "Actualizando...",
   'profile.offlineSaved': "Datos guardados (cliente de League cerrado)",
+  'profile.historySaved': "Partidas aún sin actualizar, reintentando...",
+  'profile.historySavedWhy': "El cliente de League añade una partida unos minutos después de que termine y al principio puede no responder. Mattofessor sigue preguntando y la añade solo.",
   'profile.refresh': "Actualizar ahora",
   'profile.waitingMe': "Esperando al cliente de League",
   'profile.waitingMeHint': "Aún no ha dicho quién ha iniciado sesión (puede que siga arrancando). Tu perfil aparecerá solo cuando lo haga.",

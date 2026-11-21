@@ -108,6 +108,19 @@ pub fn row_from_participant(game: &Value, p: &Value) -> GameRow {
     }
 }
 
+/// One player's row from a full game (`/lol-match-history/v1/games/{id}`), found by puuid.
+pub fn row_for(game: &Value, puuid: &str) -> Option<GameRow> {
+    let pid = game
+        .get("participantIdentities")?
+        .as_array()?
+        .iter()
+        .find(|i| i.pointer("/player/puuid").and_then(Value::as_str) == Some(puuid))?
+        .get("participantId")?
+        .as_i64()?;
+    let p = game.get("participants")?.as_array()?.iter().find(|p| p.get("participantId").and_then(Value::as_i64) == Some(pid))?;
+    Some(row_from_participant(game, p))
+}
+
 /// Rows from a match history list reply.
 pub fn rows_from_history(v: &Value) -> Vec<GameRow> {
     v.pointer("/games/games")
@@ -297,6 +310,21 @@ mod tests {
         assert_eq!(r.prev_peak.unwrap().tier, "PLATINUM");
         assert_eq!(r.prev_end.unwrap().division, "II");
         assert_eq!(r.season_peak.unwrap().tier, "GOLD");
+    }
+
+    #[test]
+    fn row_from_full_game() {
+        // A full game lists everyone; the row is the one whose identity has the puuid.
+        let g = json!({"gameId": 9, "gameCreation": 2000, "gameDuration": 1500, "queueId": 420, "mapId": 11, "gameMode": "CLASSIC",
+            "participantIdentities": [
+                {"participantId": 1, "player": {"puuid": "a"}},
+                {"participantId": 2, "player": {"puuid": "b"}}],
+            "participants": [
+                {"participantId": 1, "championId": 64, "teamId": 100, "stats": {"win": true, "kills": 3}},
+                {"participantId": 2, "championId": 106, "teamId": 200, "stats": {"win": false, "kills": 29}}]});
+        let r = row_for(&g, "b").unwrap();
+        assert_eq!((r.game_id, r.champion_id, r.kills, r.win), (9, 106, 29, false));
+        assert!(row_for(&g, "c").is_none());
     }
 
     #[test]

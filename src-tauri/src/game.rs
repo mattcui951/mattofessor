@@ -296,8 +296,9 @@ fn start_fetches(entries: &[Entry]) {
             };
             with_fetches(|m| m.insert(puuid.clone(), Fetch::Ready(Arc::new(quick.clone()), Instant::now())));
             let history = players::history(&lcu, &puuid).await;
-            log::info!("scouted {puuid} in {:.1}s{}", started.elapsed().as_secs_f32(), if history.is_err() { " (history failed)" } else { "" });
-            let full = Inputs { history: history.unwrap_or(quick.history.clone()), fresh: true, ..quick };
+            let answered = matches!(history, Ok((_, true)));
+            log::info!("scouted {puuid} in {:.1}s{}", started.elapsed().as_secs_f32(), if answered { "" } else { " (history failed)" });
+            let full = Inputs { history: history.map(|(rows, _)| rows).unwrap_or(quick.history.clone()), fresh: true, history_ok: answered, ..quick };
             with_fetches(|m| m.insert(puuid, Fetch::Ready(Arc::new(full), Instant::now())));
         });
     }
@@ -390,6 +391,8 @@ struct Watch {
     resolved: HashMap<String, String>,
     /// The game's own player list, last time it answered (this match).
     last_game: Option<live::InGame>,
+    /// This match's game id, from the client's session (`follow_finished_game` looks for it).
+    game_id: Option<u64>,
     champs: Champs,
 }
 
@@ -471,6 +474,7 @@ fn on_phase_change(core: &Core, w: &mut Watch, old: &str, new: &str) {
         w.spells_started = false;
         w.last_session_fetch = None;
         w.last_game = None;
+        w.game_id = None;
     }
     if !in_game_phase(new) && in_game_phase(old) {
         crate::capture::game_over();
@@ -484,7 +488,33 @@ fn on_phase_change(core: &Core, w: &mut Watch, old: &str, new: &str) {
     }
     if new == "EndOfGame" {
         let _ = core.app.emit("profile-stale", ());
+        // That refresh is usually too early: the client lists the game a few minutes later.
+        if let Some(me) = core.me.read().as_ref().map(|m| m.puuid.clone()) {
+            let (app, known) = (core.app.clone(), w.game_id.take());
+            tauri::async_runtime::spawn(async move {
+                match finished_game_id(known).await {
+                    Some(id) => players::follow_finished_game(app, me, id).await,
+                    None => log::warn!("finished game: no game id"),
+                }
+            });
+        }
     }
+}
+
+/// The game that just ended: from its session while it ran, else what the client still says.
+async fn finished_game_id(known: Option<u64>) -> Option<u64> {
+    if known.is_some() {
+        return known;
+    }
+    let lcu = lcu::current()?;
+    for (path, field) in [("/lol-gameflow/v1/session", "/gameData/gameId"), ("/lol-end-of-game/v1/eog-stats-block", "/gameId")] {
+        if let Ok(Some(v)) = lcu.get_opt(path).await {
+            if let Some(id) = v.pointer(field).and_then(Value::as_u64).filter(|id| *id > 0) {
+                return Some(id);
+            }
+        }
+    }
+    None
 }
 
 async fn auto_import(core: &Core, w: &mut Watch, cs: &Value) {
@@ -617,6 +647,9 @@ async fn tick(core: &Arc<Core>, w: &mut Watch) {
             w.last_session_fetch = Some(Instant::now());
             if let Some(l) = &lcu {
                 if let Ok(Some(gs)) = l.get_opt("/lol-gameflow/v1/session").await {
+                    if let Some(id) = gs.pointer("/gameData/gameId").and_then(Value::as_u64).filter(|id| *id > 0) {
+                        w.game_id = Some(id);
+                    }
                     let entries = roster_from_session(&gs, &me);
                     let (queue_id, mode, map_id) = queue_of(&gs);
                     if !entries.is_empty() {

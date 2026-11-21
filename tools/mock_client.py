@@ -114,6 +114,8 @@ class Script:
         self.level_every = 90
         self.deaths = False
         self.summoner_down = 0.0
+        self.history_lag = 0.0
+        self.game_id = game["gameId"]
         self.start = time.time()
         self.cs = champ_select
         self.length = length
@@ -154,6 +156,33 @@ class Script:
         if t < 4 + self.cs + self.length + 10:
             return "EndOfGame"
         return "None"
+
+    def ended(self):
+        """Seconds since the game ended (negative before)."""
+        return self.t() - 4 - self.cs - self.length
+
+    def history_reply(self, path, real_reply):
+        """With --history-lag: the client's match history right after a game. The list answers 500
+        for the first part of the lag, then leaves the game out until the lag is over; the full
+        game is readable from half the lag. Before the game ends it is never there."""
+        if self.history_lag <= 0:
+            return None
+        e = self.ended()
+        if path.startswith(f"/lol-match-history/v1/games/{self.game_id}"):
+            return (404, {"message": "game not found"}) if e < self.history_lag / 2 else None
+        if not path.startswith(f"/lol-match-history/v1/products/lol/{self.me}/matches"):
+            return None
+        if 0 <= e < self.history_lag / 4:
+            return (500, {"message": "Error getting match list for summoner, begin 0, end: 40"})
+        if e < self.history_lag:
+            status, body = real_reply()
+            if status != 200:
+                return (status, json.loads(body or b"{}"))
+            data = json.loads(body)
+            games = data.get("games", {})
+            games["games"] = [g for g in games.get("games", []) if g.get("gameId") != self.game_id]
+            return (200, data)
+        return None
 
     def in_game_time(self):
         """Seconds since the game process started (loading screen included)."""
@@ -200,6 +229,7 @@ class Script:
             "phase": self.phase(),
             "map": {"id": self.queue["mapId"]},
             "gameData": {
+                "gameId": self.game_id,
                 "queue": self.queue,
                 "teamOne": [entry(p) for p in self.players if p["team"] == 100],
                 "teamTwo": [entry(p) for p in self.players if p["team"] == 200],
@@ -274,6 +304,10 @@ def client_handler(real, script, password):
                 with open(WORK / "writes.log", "a", encoding="utf-8") as f:
                     f.write(json.dumps({"method": method, "path": path, "body": json.loads(body) if body else None}) + "\n")
                 return self.reply(200, {})
+            if method == "GET":
+                lagged = script.history_reply(path, lambda: real.request(method, path, body))
+                if lagged:
+                    return self.reply(lagged[0], lagged[1])
             status, data = real.request(method, path, body)
             self.reply(status, raw=data)
 
@@ -351,6 +385,7 @@ def main():
     ap.add_argument("--at", default="0,0", help="where the stand-in game window opens with --screen (x,y; e.g. 3440,0 for a second monitor)")
     ap.add_argument("--screen", help="an image the stand-in game window shows at its own size from the top-left corner (e.g. a frame with augment cards), instead of a test pattern")
     ap.add_argument("--summoner-down", type=float, default=0, help="seconds the signed-in account is not answered yet (a client still starting)")
+    ap.add_argument("--history-lag", type=float, default=0, help="seconds after the game before your match history lists it, like the real client (500 errors for the first quarter, the full game readable from half way)")
     args = ap.parse_args()
 
     WORK.mkdir(exist_ok=True)
@@ -369,6 +404,7 @@ def main():
     script.level_every = args.level_every
     script.deaths = args.deaths
     script.summoner_down = args.summoner_down
+    script.history_lag = args.history_lag
 
     ctx = ensure_cert()
     password = secrets.token_urlsafe(16)
@@ -385,7 +421,8 @@ def main():
     game_proc = None
     last = None
     try:
-        while script.phase() != "None" or script.t() < 5:
+        # The client stays up after the game for as long as its match history lags.
+        while script.phase() != "None" or script.t() < 5 or script.ended() < script.history_lag + 5:
             ph = script.phase()
             if ph != last:
                 print(f"{script.t():6.1f}s phase {ph}", flush=True)
