@@ -9,6 +9,10 @@ Russian.
 <p align="center"><img src="docs/screenshots/ingame-panel.png" alt="In-game panel" width="900"></p>
 <p align="center"><sub>Player names in the pictures are made up.</sub></p>
 
+<!-- nav -->
+**[Features](#features):** [Profile](#profile) · [Live game](#live-game) · [In-game panel](#in-game-panel) · [Meta](#meta) · [Builds](#builds) · [Hextech ARAM augments](#hextech-aram-augments) · [Patch notes](#patch-notes) · [Scores](#scores) · [Small things](#small-things)  
+[Install](#install) · [Updates](#updates) · [Languages](#languages) · [Appearance](#appearance) · [Optional Riot API key](#optional-riot-api-key) · [Where the data comes from](#where-the-data-comes-from) · [Contributing](#contributing) · [License](#license) · [Legal](#legal)
+
 ## Features
 
 ### Profile

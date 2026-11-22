@@ -9,6 +9,10 @@ Un assistant local pour League of Legends sous Windows et macOS qui remplace Por
 <p align="center"><img src="docs/screenshots/ingame-panel.png" alt="Panneau en jeu" width="900"></p>
 <p align="center"><sub>Les noms de joueurs sur les images sont inventés.</sub></p>
 
+<!-- nav -->
+**[Fonctionnalités](#fonctionnalités):** [Profil](#profil) · [Partie en cours](#partie-en-cours) · [Panneau en jeu](#panneau-en-jeu) · [Méta](#méta) · [Builds](#builds) · [Augments de l'ARAM du chaos](#augments-de-laram-du-chaos) · [Notes de patch](#notes-de-patch) · [Scores](#scores) · [Petits plus](#petits-plus)  
+[Installation](#installation) · [Mises à jour](#mises-à-jour) · [Langues](#langues) · [Facultatif : clé d'API Riot](#facultatif--clé-dapi-riot) · [D'où viennent les données](#doù-viennent-les-données) · [Licence](#licence) · [Mentions légales](#mentions-légales)
+
 ## Fonctionnalités
 
 ### Profil
