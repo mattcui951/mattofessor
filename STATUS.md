@@ -107,6 +107,7 @@ Version: 1.0.28
 
 ## Recently done
 
+- README (2026-11-22): players only now, no code files. Developer material (layout, develop, mock game, build, release, data internals, adding a language) moved to `docs/DEVELOPMENT.md`.
 - README (2026-11-22): every language's feature list is now sections with screenshots
   (`docs/screenshots/`, Simplified Chinese ones in `zh/`), and lists the 1.0.28 features. Taken
   from the browser preview with the installed app's cache copied into a `MATTOFESSOR_DATA_DIR`;

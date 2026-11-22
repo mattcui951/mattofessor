@@ -19,7 +19,7 @@ Your (or any Riot ID's) solo and flex rank, past ranks, tags, most played champi
 
 ### Live game
 
-In champ select it scouts your team; once the game starts, everyone (Arena included). Each player: rank and peak rank, possible smurf, games / win rate / KDA / mastery on their champion, last 5 games' KDA, and tags (one-trick, strong champion, win rate, the kind of champion they play most, premade...). Hextech ARAM and ARAM games are judged on those games alone, without the Summoner's Rift tags (role, farming, deaths). The rules are listed at the top of `src-tauri/src/analysis.rs`.
+In champ select it scouts your team; once the game starts, everyone (Arena included). Each player: rank and peak rank, possible smurf, games / win rate / KDA / mastery on their champion, last 5 games' KDA, and tags (one-trick, strong champion, win rate, the kind of champion they play most, premade...). Hextech ARAM and ARAM games are judged on those games alone, without the Summoner's Rift tags (role, farming, deaths).
 
 <p align="center"><img src="docs/screenshots/live-game.png" alt="Live game" width="900"></p>
 
@@ -70,18 +70,14 @@ Every player in every game gets a 0.0-10.0 performance score and a place (1st to
 
 Accepts the ready check by itself if you want (off, Hextech ARAM only, or every queue). Hold Tab in game to see each team's item value and the gap. Set the in-game windows' opacity, and lock the spell timers in place.
 
-## Install (for players)
+## Install
 
 1. Open this repository's **Releases** page (right side of the GitHub page) and download
    `Mattofessor_x.y.z_x64-setup.exe` from the latest release. (Do not use "Download ZIP":
    that is the source code.)
 2. Run it. Windows may show "Windows protected your PC" because the installer is not
    code-signed: click **More info**, then **Run anyway**. It asks for administrator rights and
-   installs to `C:\Program Files\Mattofessor` with a desktop shortcut. If your antivirus blocks or
-   quarantines it (some call it a trojan or stealer), that is a false positive with the same
-   cause, made worse by what the app does: it reads the League client's local lockfile and the
-   screen, which those scanners look for. Download only from this Releases page, then restore the
-   file and add it and `C:\Program Files\Mattofessor` to the antivirus's trusted list.
+   installs to `C:\Program Files\Mattofessor` with a desktop shortcut.
 3. Start League of Legends and sign in; Mattofessor connects by itself and starts with Windows
    (turn that off in Settings).
 4. Optional: get your own free Riot API key for exact ranked wins and losses: Settings > Riot
@@ -93,14 +89,21 @@ Needs Windows 10 or 11 (WebView2 is installed automatically if missing). League 
 `Ctrl+Shift+M` panel, `Ctrl+Shift+N` enemy spell timers (changeable in Settings).
 Uninstall from Windows Settings > Apps; settings and cache live in `%APPDATA%\Mattofessor`.
 
+### If your antivirus flags it
+
+Some antivirus programs block or quarantine the installer and call it a trojan or stealer. That
+is a false positive: the installer is not code-signed, and the app reads the League client's
+local login file (lockfile) and the screen, which those scanners watch for. Download only from
+this Releases page, then restore the file and add it and `C:\Program Files\Mattofessor` to the
+antivirus's trusted list.
+
 ### macOS
 
 1. From the latest release, download `Mattofessor_x.y.z_universal.dmg` (Apple Silicon and
    Intel), open it and drag Mattofessor to Applications.
 2. For the win rates on the augment cards, allow Mattofessor in **System Settings > Privacy &
    Security > Screen & System Audio Recording** (Settings > Augment reader has a button for it),
-   then restart Mattofessor. Nothing else needs a permission: the in-game hotkeys are system
-   hotkeys.
+   then restart Mattofessor. Nothing else needs a permission.
 
 Needs macOS 13 or later (the augment card win rates need 14). The in-game hotkeys are the same
 (`Ctrl` is the Control key; `Cmd` works too). Mattofessor lives in the menu bar; closing its
@@ -108,127 +111,21 @@ window keeps it there, Quit in its menu ends it. Settings and cache live in
 `~/Library/Application Support/Mattofessor`, the Riot API key in your login keychain. Uninstall
 by moving the app to the Trash.
 
-**Updates:** Mattofessor checks this repository's latest release in the background (no GitHub
-account needed), every 30 minutes and when you open the window or bring it back to the front,
-and shows a banner when a new version is out. Click **Update now** (on Windows, allow the
-prompt), and it restarts on the new version; it never updates during a game. Turn the
-check off or run it by hand in Settings > Updates.
+## Updates
 
-## Releasing a new version
-
-Bump the version in `package.json`, `src-tauri/Cargo.toml` and `src-tauri/tauri.conf.json`,
-commit, then push an annotated tag; its message becomes the release notes:
-
-```bash
-git tag -a v0.2.1 -m "What changed, one line per change"
-git push origin v0.2.1
-```
-
-GitHub Actions (`.github/workflows/release.yml`) runs the tests and builds on Windows (the
-installer) and macOS (a universal app and dmg), attaches both to a draft release, then writes
-`latest.json` from both builds' update signatures and publishes it. Installed copies read `releases/latest/download/latest.json`, so they see the new
-version as soon as the release is published.
-
-Updates are signed: the app only installs a download whose signature matches the public key in
-`src-tauri/tauri.conf.json`. The private key lives outside the repository
-(`%USERPROFILE%\.tauri\mattofessor.key`, password in `mattofessor.key.password`) and in the
-repository secrets `TAURI_SIGNING_PRIVATE_KEY` and `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`. Keep a
-backup of both files: without them, existing installs cannot be updated (friends would have to
-reinstall by hand). A local `npm run tauri build` needs the same two values as environment
-variables.
-
-## Where the data comes from
-
-Everything comes from the signed-in League client's own local API (the "LCU": the lockfile
-in the League folder gives its port and password) and the game's Live Client Data API
-(`https://127.0.0.1:2999`). Names and icons come from Riot's public Data Dragon CDN. No server of our
-own; a Riot API key is optional (see below).
-
-Meta and builds come from two public sources, cached locally so the app keeps working offline:
-
-- **Summoner's Rift** (and the skill order and starting items of Hextech ARAM builds, from classic ARAM): OP.GG's public endpoint
-  (`https://mcp-api.op.gg/mcp`, [opgginc/opgg-mcp](https://github.com/opgginc/opgg-mcp)): lane
-  tier lists and per-champion builds. Tier lists are refreshed every 12 hours, builds daily.
-- **Hextech ARAM**: 海克斯大乱斗统计数据 ([czgreat/aramhex-data](https://github.com/czgreat/aramhex-data)),
-  licensed [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/): champion win rates
-  and the win rate of every champion × augment pair, from millions of games on the CN servers,
-  updated about weekly, plus item statistics from 16.22 on: finished items, boots, summoner
-  spells and three-item builds (the Hextech ARAM builds, the champion page, the item win rates).
-  Earlier patches come from its `index.json` (patch picker, win rate by patch).
-  Downloads are checked against the published SHA-256 sums. The app shows this credit wherever
-  these numbers appear, and Mattofessor stays free (non-commercial).
-- **Hand-written content**: the admin's Hextech ARAM builds and the item and champion tier lists,
-  in `content.json` on this repository's `content` branch. Every app checks it every 3 minutes
-  (the branch's latest commit through GitHub's API, then the file at that commit) and starts from
-  the copy it shipped with (`src-tauri/data/content.json`). The admin edits it in the app
-  (Settings > Admin), which publishes through the GitHub CLI (`gh`). Only a copy whose `gh`
-  account can push to this repository shows that section or accepts edits; at start it asks
-  GitHub (`repos/<repo>` `.permissions.push`).
-- **Refreshed data** (`src-tauri/src/data.rs`), on this repository's `data` branch, written every 6
-  hours by `.github/workflows/refresh-data.yml` (`tools/refresh-data`, Node + headless Chromium):
-  - `mayhem.json`: each champion's Hextech ARAM modifiers and ability changes from the
-    [League of Legends Wiki](https://wiki.leagueoflegends.com/en-us/ARAM:_Mayhem) (CC BY-SA 3.0):
-    the ARAM page's mode overrides with the ARAM: Mayhem page's layer on top. The wiki answers
-    scripts with a challenge page, hence the browser. Plus the mode's rules and headliner bands,
-    written by hand in both languages (`tools/refresh-data/rules.json`); when the wiki's text of
-    those sections changes, the run opens an issue labelled `data-rules`. Melee or ranged comes
-    from CommunityDragon's per-champion `attackType`. And every augment's description with its
-    numbers, in both languages (`tools/refresh-data/augments.mjs`): the text from the game's string
-    tables, the values and formulas from the mode's spell data (CommunityDragon's `kiwi.bin.json`).
-  - `patch-notes.json`: the latest 5 patches, Summoner's Rift sections (champions, items, ...)
-    and ARAM: Mayhem apart, with champion, item and augment ids: Riot's notes for English and
-    Tencent's official Chinese notes (lol.qq.com) for Chinese.
-  - Chinese never mixes in English. Names come from the game's own Chinese data (Data Dragon,
-    CommunityDragon's `cherry-augments.json` and `lol.stringtable.json`, which also give the
-    headliners' official names and texts). The wiki's ability lines have no official Chinese:
-    `tools/refresh-data/zh-lines.json` holds reviewed translations; new lines are translated by
-    Claude (`translate.mjs`) when the `ANTHROPIC_API_KEY` repository secret is set, else the run
-    opens a `data-translations` issue and the app leaves those lines out in Chinese.
-  Apps check the branch every 30 minutes (`src-tauri/src/branch.rs`, shared with `content`) and
-  start from the copy they shipped with (`src-tauri/data/`), whichever was built later. To try
-  it: `cd tools/refresh-data && npm ci && npx playwright install chromium && node refresh.mjs`.
-- Augment names and icons: Riot's game data via [CommunityDragon](https://communitydragon.org).
-- Item stats and effects (hover cards): Data Dragon's item descriptions, in the UI language.
-- Item roles (the shop's Fighter, Marksman, ... filter, `mItemAttributes`): CommunityDragon's
-  `items.cdtb.bin.json` for the patch (about 16 MB, read once per patch; only the roles are kept).
-
-Porofessor itself shows a page from its own servers (`porofessor.gg/overwolf/live...`) built on
-a Riot production key; those endpoints are private, so this app does not use them.
-
-Limits of the client API, found by testing against the live client:
-
-- Other players' ranked **losses are hidden** (always 0), so ranked win rates exist only for
-  you; win rates for others come from their match history.
-- Other players' history returns their **last 40 games** (paging is ignored); the first
-  lookup of a player per client session takes about 5 s and lookups run one at a time, so
-  a player first shows rank and mastery, then their games.
-- **Past ranks**: the client knows only last season's final and peak rank. The app also
-  records a rank snapshot (one per player, queue and day) every time it looks someone up,
-  which becomes your rank history over time.
-- **Lane labels are unreliable**, so roles come from smite, support items and Riot's
-  recommended positions per champion (see `src-tauri/src/positions.rs`).
+Mattofessor checks this repository's latest release in the background (no GitHub account
+needed), every 30 minutes and when you open the window or bring it back to the front, and shows
+a banner when a new version is out. Click **Update now** (on Windows, allow the prompt), and it
+restarts on the new version; it never updates during a game. Turn the check off or run it by
+hand in Settings > Updates.
 
 ## Languages
 
 English, Simplified Chinese, Traditional Chinese (Taiwan), Japanese, Korean, Spanish, French and Russian.
 Settings > Language picks one, or follows the League client. Each language shows only its own
 text: game names, item and augment descriptions, rules and patch notes come from Riot's data in
-that language (Data Dragon, the game's string tables, Riot's localized patch notes; Tencent's for
-Simplified Chinese). Where a text has no translation yet (the wiki's ability change lines outside
-English and Chinese), it is left out and counted, never shown in another language.
-
-To add a language:
-
-1. `src/lib/locales.ts` and `src-tauri/src/lang.rs`: one entry each (a test checks they match):
-   Data Dragon locale, CommunityDragon folder, OCR tag, League client locales, font.
-2. `src/lib/locales/<id>.ts`: the dictionary, every key of `en.ts` (a missing key is a type error,
-   a test checks the `{0}` placeholders), added to `dicts` in `src/lib/i18n.svelte.ts`.
-3. `tools/refresh-data/`: the language in `LANGS` and `RIOT_LOCALES` (refresh.mjs), its wording in
-   `WORDS` and `STATS` (augments.mjs), and its text in every entry of `rules.json`.
-4. `README.<id>.md` (`README.zh-CN.md` for Simplified Chinese): the players' part of this README
-   in that language, and the language in the bar at the top of every README (imported by name in
-   `src/lib/__tests__/readme.test.ts`, which checks there is one per language and each bar lists
-   every language in the registry's order).
+that language (Tencent's for Simplified Chinese). Where a text has no translation yet, it is left
+out and counted, never shown in another language.
 
 ## Appearance
 
@@ -238,124 +135,39 @@ One Dark, Kanagawa, Everforest Dark / Light, Solarized Dark / Light, GitHub Dark
 High Contrast Dark / Light), plus your own: copy any theme and edit every color, the two
 fonts, corner roundness, in-game window opacity and light/dark; export / import themes as
 text. Text size (80-140%) applies to every window, in-game panel included; in the main window
-Ctrl + / Ctrl - / Ctrl + mouse wheel step it by 10% and Ctrl 0 resets it (`src/lib/zoom.svelte.ts`,
-a badge shows the size with a reset button). Palettes follow each theme's
-published colors; "Keep text readable" nudges faint text and accents to WCAG contrast
-(tested for every built-in theme in `src/lib/__tests__/themes.test.ts`). Tokens and themes
-live in `src/lib/themes.ts`.
+Ctrl + / Ctrl - / Ctrl + mouse wheel step it by 10% and Ctrl 0 resets it. "Keep text readable"
+nudges faint text and accents to WCAG contrast.
 
 ## Optional Riot API key
 
-Settings > Riot API key fills in what the client hides: exact ranked wins and losses (and so
-win rates) for every player, which also sharpens the smurf check. Get a key at
-[developer.riotgames.com](https://developer.riotgames.com/) after signing in with a Riot
-account and choose Register Product > Personal API Key: personal use only, approved right away,
-no expiry (20 requests per second, 100 per 2 minutes). The Development API Key on the dashboard
-stops after 24 hours, so the app's guide skips it. Until a working key is set, the Profile and
-Live pages show a banner that links to the guide, and wins-only lines are marked. Each player costs two requests (Riot ID to this key's PUUID, then
-ranked entries), throttled under those limits. The key is stored with Windows DPAPI in
-`%APPDATA%\Mattofessor\riot-key.bin`, or in the login keychain on macOS, and never reaches the UI
-(`src-tauri/src/riot.rs`, `src-tauri/src/secret.rs`).
+The League client hides other players' ranked losses. A Riot API key fills that in: exact
+ranked wins and losses (and so win rates) for every player, which also sharpens the smurf
+check. Get a key at [developer.riotgames.com](https://developer.riotgames.com/) after signing in
+with a Riot account and choose Register Product > Personal API Key: personal use only, approved
+right away, no expiry. The Development API Key on the dashboard stops after 24 hours, so the
+app's guide skips it. The key stays on your computer, encrypted (Windows) or in your login
+keychain (macOS), and is never shown in the app.
 
-## Layout
+## Where the data comes from
 
-| Path | What |
-|---|---|
-| `src-tauri/src/lcu.rs` | League client API: lockfile discovery, requests |
-| `src-tauri/src/game.rs` | Game flow watcher, champ select / in-game rosters, scouting |
-| `src-tauri/src/analysis.rs` | Player summary and tag rules (unit tested) |
-| `src-tauri/src/positions.rs` | Role inference |
-| `src-tauri/src/builds.rs` | Builds from OP.GG, rune page and item set import |
-| `src-tauri/src/opgg.rs` | OP.GG public endpoint client, its text format parser, tier lists |
-| `src-tauri/src/aramhex.rs` | Hextech ARAM statistics (AramHex open data): download, checks, views, augment picks, item win rates |
-| `src-tauri/src/content.rs` | The admin's builds and tier lists: following the `content` branch, editing, publishing with `gh` |
-| `src-tauri/src/data.rs` | Refreshed Hextech ARAM modifiers, rules and patch notes: following the `data` branch |
-| `src-tauri/src/branch.rs` | Reading a branch of this repository at its latest commit |
-| `tools/refresh-data/` | Builds the `data` branch (run by `.github/workflows/refresh-data.yml`) |
-| `src-tauri/src/cards.rs` | Augment card reader: finds the offered cards on screen, places the win rates above them |
-| `src-tauri/src/ocr/` | Text recognition: Windows.Media.Ocr on Windows, Vision on macOS |
-| `src-tauri/src/os/` | The system: processes, other apps' windows, the in-game windows over the game, screen capture (Win32 on Windows; libproc, Quartz, AppKit panels and ScreenCaptureKit on macOS) |
-| `src-tauri/src/hotkeys/` | In-game hotkeys: a keyboard hook on Windows, system hotkeys on macOS |
-| `src-tauri/src/augments.rs` | Augment names, rarity and icons |
-| `src-tauri/src/core.rs` | The app's windows (main, overlay, spell timers), hotkeys |
-| `src-tauri/src/store.rs` | SQLite cache in `%APPDATA%\Mattofessor\cache.db` (checked at start; a damaged file is rebuilt from its readable rows) |
-| `src/` | Svelte UI; `src/lib/i18n.svelte.ts` holds every string in both languages |
+- The signed-in League client's own local API and the game's Live Client Data API. Names and
+  icons come from Riot's public Data Dragon. No server of our own, no account.
+- Summoner's Rift tier lists and builds: OP.GG's public endpoint
+  ([opgginc/opgg-mcp](https://github.com/opgginc/opgg-mcp)).
+- Hextech ARAM win rates: 海克斯大乱斗统计数据 ([czgreat/aramhex-data](https://github.com/czgreat/aramhex-data)),
+  licensed [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/), from millions of
+  games on the CN servers. The app credits it wherever these numbers appear, and Mattofessor
+  stays free (non-commercial).
+- Hextech ARAM champion changes: the [League of Legends Wiki](https://wiki.leagueoflegends.com/en-us/ARAM:_Mayhem)
+  (CC BY-SA 3.0). Augment names and descriptions: Riot's game data via
+  [CommunityDragon](https://communitydragon.org).
+- Patch notes: Riot's own notes in each language, Tencent's (lol.qq.com) for Simplified Chinese.
 
-Settings and the log live in `%APPDATA%\Mattofessor` (Windows) or
-`~/Library/Application Support/Mattofessor` (macOS).
+Everything is cached on your computer, so the app keeps working offline.
 
-## Develop
+## Contributing
 
-```bash
-npm install
-npm run tauri dev
-```
-
-Tests: `cargo test` in `src-tauri`, `npx vitest run`, `npx svelte-check`.
-
-Debug builds keep their data in `%APPDATA%\Mattofessor-dev` (macOS:
-`~/Library/Application Support/Mattofessor-dev`; their own WebView data and keychain item too),
-so a dev run never opens the installed app's database.
-
-Debug builds serve a JSON bridge on `http://127.0.0.1:17431`; with the dev server running,
-`http://localhost:1431/` (`#overlay`, `#spells`) renders the real UI in a browser with live data.
-
-### Test a game without playing
-
-```bash
-py -I tools/mock_client.py --champ-select 30 --length 600          # Windows
-/usr/bin/python3 -I tools/mock_client.py --champ-select 30 --length 600   # macOS
-```
-
-Then run the app with `tools/dev-mock.cmd` (macOS: `tools/dev-mock.sh`). On macOS use a Python
-that trusts the system's certificates (`/usr/bin/python3`; the python.org build needs its
-"Install Certificates" step first). The mock replays one of your past Summoner's Rift
-games as if it were happening now: a stand-in client (real player lookups are forwarded to the
-running League client), a Live Client API with a game clock, and a stand-in game window
-named `Mattofessor Mock Game(.exe)` (so other League tools ignore it). Rune page and item set
-writes are recorded in `tools/.mock/writes.log` instead of changing your account.
-
-`--game <id>` replays a specific game (one of your Hextech ARAM games gives mode `KIWI`),
-`--level-every 20` levels up faster and `--deaths` kills you for 15 s of every minute, which
-together exercise the augment pick flow. Settings > Augment reader > "Collect augment card
-samples" saves the middle of the game window while you are dead, plus the live augment data,
-during Hextech ARAM games to `%APPDATA%\Mattofessor\augment-captures` (off by default).
-`--screen <image or video>` makes the stand-in game window show it at its own size instead of
-a test pattern: a full-size frame with augment cards exercises the card reader, and a video of
-saved samples (cards flying in, a reroll) exercises how it follows them. `--at 3440,0` opens the
-window there (e.g. on a second monitor). Run the dev app with `MATTOFESSOR_DATA_DIR=<folder>` to
-keep a test run's data apart; debug builds log where each card win rate landed (`report:`).
-`MATTOFESSOR_DEVTOOLS_PORT=<port>` (debug builds) opens the real WebView2 windows to DevTools on
-that port, so a script can send keys and mouse wheel through the browser's own input path and
-read the page (e.g. to check zoom). To check the reader against saved samples:
-`MF_SAMPLES=<capture folder> MF_AUGMENTS=<cherry-augments.json> cargo test --lib scan_samples -- --ignored --nocapture`
-(add `MF_LINES=1` to print every line the OCR read). Frames from a game video work too: cut them
-to the same band, e.g. `ffmpeg -i match.mp4 -vf "fps=1,scale=3440:1440,crop=3440:1094:0:172" -pix_fmt rgba frames/t%06d.png`.
-`--summoner-down 60` keeps the signed-in account unanswered for the first 60 s, like a client
-that is still starting (e.g. right after switching accounts).
-`--history-lag 120` acts like the real client after a game: your match history answers 500 for
-the first quarter, leaves the game out until 120 s after it ends, and the full game is readable
-from half way (the mock stays up that long). Use it with a fresh `MATTOFESSOR_DATA_DIR`, so the
-game is not already saved, to see the profile pick up the finished game by itself.
-
-On Windows the in-game hotkeys use a low-level keyboard hook, because League's game window
-blocks ordinary global hotkeys while it has focus (macOS uses system hotkeys).
-`py -I tools/nohotkeys_window.py` opens a window that blocks hotkeys the same way and presses Ctrl+Shift+F13 in it (`--check-registerhotkey` shows the
-problem with ordinary hotkeys); set that as the overlay hotkey to test during a mock game.
-`tools/inspect_windows.py` prints the app's windows (position, topmost, focus).
-
-## Build
-
-```bash
-npm run tauri build
-```
-
-On Windows this produces an NSIS installer that installs for all users under
-`C:\Program Files\Mattofessor`. On macOS it produces `Mattofessor.app` and a dmg
-(`src-tauri/tauri.macos.conf.json`; add `--target universal-apple-darwin` for Apple Silicon and
-Intel in one, as releases do). It is signed with the Developer ID certificate named in that file
-(it must be in your keychain) and notarized when `APPLE_ID`, `APPLE_PASSWORD` (an app-specific
-password) and `APPLE_TEAM_ID` are set.
+Building from source, testing with a mock game and releasing: [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
 
 ## License
 

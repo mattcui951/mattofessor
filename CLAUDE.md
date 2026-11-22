@@ -6,13 +6,14 @@ that reads the League client API (LCU) and public data only. Public repo, releas
 ## Start here
 
 - `STATUS.md`: where the app stands, what is next, known issues. Read it before starting.
-- `README.md`: develop, test with the mock game, build, release, where the data comes from.
+- `README.md`: what players see (features, install, data sources). Keep code files and implementation details out of it.
+- `docs/DEVELOPMENT.md`: layout, develop, test with the mock game, build, release, where the data comes from in detail.
 
 ## Rules
 
 - Before you finish a piece of work, update `STATUS.md`: move finished items to "Recently done",
   add what is next, note anything left unverified. Keep it short.
-- Data comes only from the LCU, the Live Client API and the public sources listed in README.
+- Data comes only from the LCU, the Live Client API and the public sources listed in `docs/DEVELOPMENT.md`.
   No scraping of porofessor.gg.
 - Test game flows with the mock (`tools/mock_client.py` + `tools/dev-mock.cmd`, or `tools/dev-mock.sh`
   on macOS). Never import
@@ -29,7 +30,7 @@ that reads the League client API (LCU) and public data only. Public repo, releas
   variant (`isMac` in `src/lib/platform.ts`, `...Mac` keys). From Windows the macOS code cannot be
   built locally: after pushing, check the CI run (`.github/workflows/ci.yml`: tests, clippy and a
   build on both systems; the macOS app is attached to the run) and fix what fails there.
-- Strings exist in every language in `src/lib/locales/` (eight now); add each. README "Languages" says how to add a language.
+- Strings exist in every language in `src/lib/locales/` (eight now); add each. `docs/DEVELOPMENT.md` "Adding a language" says how.
 
 ## Releasing
 
