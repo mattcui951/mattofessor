@@ -107,6 +107,11 @@ Version: 1.0.28
 
 ## Recently done
 
+- README (2026-11-22): every language's feature list is now sections with screenshots
+  (`docs/screenshots/`, Simplified Chinese ones in `zh/`), and lists the 1.0.28 features. Taken
+  from the browser preview with the installed app's cache copied into a `MATTOFESSOR_DATA_DIR`;
+  player names replaced in the page before each shot. The augment card faces are drawn stand-ins
+  (game captures show player and Discord names); the caption says so. To retake: same way.
 - 1.0.28 (2026-11-21): ideas from Huya's Hextech ARAM helper (虎牙英雄联盟助手 / 海斗工具,
   installed and read: Electron plus a DirectX hook that draws inside the game; augment cards are
   read on Huya's servers from the uploaded game video). Not copied: injection, cloud reading.
@@ -133,7 +138,7 @@ Version: 1.0.28
     browser preview. Not verified: a real game (Tab polling and focus, the gold strip's place
     over the real HUD, a real click on real cards and the card face bounds `CARD_W` /
     `CARD_BELOW_TITLE`), macOS (Quartz key/button state may need Input Monitoring), the real
-    shop's item set list. The README feature list does not mention these yet.
+    shop's item set list.
 
 - 1.0.27 (2026-11-20): macOS support (see In progress for what is still unverified); CI on both
   systems for every push and PR (`ci.yml`). The v1.0.26 tag build uploaded nothing (the

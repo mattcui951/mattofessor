@@ -6,32 +6,69 @@ A local Porofessor replacement for League of Legends on Windows and macOS, witho
 ads or accounts. In English, Simplified and Traditional Chinese, Japanese, Korean, Spanish, French and
 Russian.
 
-- **Profile**: your (or any Riot ID's) solo and flex rank, past ranks, tags, most played
-  champions, roles, mastery and match history with full 10-player game details (items and gold,
-  or damage dealt, taken, mitigated and healing).
-- **Live game**: in champ select it scouts your team; once the game starts, everyone (Arena
-  included). Each player: rank and peak rank, possible smurf, games / win rate / KDA / mastery
-  on their champion, last 5 games' KDA, and tags (one-trick, strong champion, win rate, the
-  kind of champion they play most, premade...). Hextech ARAM and ARAM games are judged on
-  those games alone, without the Summoner's Rift tags (role, farming, deaths). The rules are
-  listed at the top of `src-tauri/src/analysis.rs`.
-- **In-game panel**: `Ctrl+Shift+M` shows / hides it over the game (chosen so it can run beside Porofessor, which uses `Ctrl+X`); it also shows by itself on the
-  loading screen and hides when the match starts. `Ctrl+Shift+N` toggles enemy summoner spell
-  timers (click a spell when it is used). Both hotkeys exist only while a game runs.
-- **Meta**: Summoner's Rift tier lists per lane (win, pick and ban rates) and Hextech ARAM
-  champion and augment win rates, by skill bracket.
-- **Builds**: runes with stat shards, spells, skill order, starting items, boots and items for
-  Summoner's Rift (per lane) and ARAM, imported into the client in one click (or automatically
-  when you lock in). In Hextech ARAM the Builds page also ranks the champion's augments.
-- **Hextech ARAM augments**: in champ select and in game, the augments to take and to avoid
-  for your champion, by rarity. When the augment cards are open, your champion's win rate with
-  each card shows above it, the best one marked (read from the screen with the system's own text
-  recognition, in the client's language or English; nothing is saved).
+<p align="center"><img src="docs/screenshots/ingame-panel.png" alt="In-game panel" width="900"></p>
+<p align="center"><sub>Player names in the pictures are made up.</sub></p>
 
-- **Patch notes**: the latest 5 patches' changes, Summoner's Rift and Hextech ARAM apart, from
-  Riot's own notes in your language (Tencent's in Simplified Chinese).
-- **Scores**: every player in every game gets a 0.0-10.0 performance score and a place (1st to
-  10th); the best on the winning team is MVP, the best on the losing team SVP.
+## Features
+
+### Profile
+
+Your (or any Riot ID's) solo and flex rank, past ranks, tags, most played champions, roles, mastery and match history with full 10-player game details (items and gold, or damage dealt, taken, mitigated and healing).
+
+<p align="center"><img src="docs/screenshots/profile.png" alt="Profile and match history" width="900"></p>
+
+### Live game
+
+In champ select it scouts your team; once the game starts, everyone (Arena included). Each player: rank and peak rank, possible smurf, games / win rate / KDA / mastery on their champion, last 5 games' KDA, and tags (one-trick, strong champion, win rate, the kind of champion they play most, premade...). Hextech ARAM and ARAM games are judged on those games alone, without the Summoner's Rift tags (role, farming, deaths). The rules are listed at the top of `src-tauri/src/analysis.rs`.
+
+<p align="center"><img src="docs/screenshots/live-game.png" alt="Live game" width="900"></p>
+
+### In-game panel
+
+`Ctrl+Shift+M` shows / hides it over the game (chosen so it can run beside Porofessor, which uses `Ctrl+X`); it also shows by itself on the loading screen and hides when the match starts. `Ctrl+Shift+N` toggles enemy summoner spell timers (click a spell when it is used). Both hotkeys exist only while a game runs.
+
+### Meta
+
+Summoner's Rift tier lists per lane (win, pick and ban rates) and Hextech ARAM champion and augment win rates, by skill bracket.
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/aram-champions.png" alt="Hextech ARAM champion tiers"></td>
+    <td width="50%"><img src="docs/screenshots/item-tiers.png" alt="Item tier list"></td>
+  </tr>
+</table>
+
+### Builds
+
+Runes with stat shards, spells, skill order, starting items, boots and items for Summoner's Rift (per lane) and ARAM, imported into the client in one click (or automatically when you lock in). In Hextech ARAM the Builds page also ranks the champion's augments. Hextech ARAM imports add an item set for each build style, in the client's language. In champ select, every champion on your team and bench shows its best build style, and you see your champion's three best augments.
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/builds-aram.png" alt="Hextech ARAM build with augments"></td>
+    <td width="50%"><img src="docs/screenshots/builds-rift.png" alt="Summoner's Rift build"></td>
+  </tr>
+</table>
+
+### Hextech ARAM augments
+
+In champ select and in game, the augments to take and to avoid for your champion, by rarity. When the augment cards are open, your champion's win rate with each card shows above it, the best one marked (read from the screen with the system's own text recognition, in the client's language or English; nothing is saved). Each card also gets a tier letter, S to D, by how much it lifts your champion, and the augment you click is remembered and listed in the in-game panel.
+
+<p align="center"><img src="docs/screenshots/augment-cards.png" alt="Win rates over the augment cards" width="900"></p>
+<p align="center"><sub>The card faces are drawn for this picture; in game the win rates sit above League's own cards.</sub></p>
+
+### Patch notes
+
+The latest 5 patches' changes, Summoner's Rift and Hextech ARAM apart, from Riot's own notes in your language (Tencent's in Simplified Chinese).
+
+<p align="center"><img src="docs/screenshots/patch-notes.png" alt="Patch notes" width="900"></p>
+
+### Scores
+
+Every player in every game gets a 0.0-10.0 performance score and a place (1st to 10th); the best on the winning team is MVP, the best on the losing team SVP.
+
+### Small things
+
+Accepts the ready check by itself if you want (off, Hextech ARAM only, or every queue). Hold Tab in game to see each team's item value and the gap. Set the in-game windows' opacity, and lock the spell timers in place.
 
 ## Install (for players)
 

@@ -6,14 +6,69 @@ Un asistente local para League of Legends en Windows y macOS que sustituye a Por
 
 > Esta página explica cómo instalarlo y usarlo. Para desarrollar, compilar o publicar versiones, consulta el [README](README.md) en inglés.
 
-- **Perfil**: la clasificación en solo/dúo y flexible (tuya o de cualquier Riot ID), clasificaciones anteriores, etiquetas, campeones más jugados, roles, maestría e historial de partidas, con los datos completos de los 10 jugadores de cada partida (objetos y oro, o daño infligido, recibido, mitigado y curación).
-- **Partida en curso**: durante la selección de campeones analiza a tu equipo y, cuando empieza la partida, a todos (Arena incluida). De cada jugador muestra su clasificación y la más alta que ha tenido, si puede ser una cuenta secundaria, partidas, porcentaje de victorias, KDA y maestría con su campeón, el KDA de sus últimas 5 partidas y etiquetas (especialista, campeón fuerte, porcentaje de victorias, el tipo de campeón que más juega, grupo premade...). ARAM: Caos y ARAM se valoran solo con partidas de ese modo, sin las etiquetas de la Grieta del Invocador (rol, farmeo, muertes).
-- **Panel en partida**: `Ctrl+Shift+M` lo muestra u oculta sobre el juego (elegido para no chocar con el `Ctrl+X` de Porofessor, así funcionan a la vez). También aparece solo en la pantalla de carga y se oculta cuando empieza la partida. `Ctrl+Shift+N` activa o desactiva los temporizadores de los hechizos de invocador enemigos (haz clic en un hechizo cuando lo usen). Los dos atajos solo funcionan durante una partida.
-- **Meta**: clasificaciones por rol de la Grieta del Invocador (porcentaje de victorias, de selección y de bloqueo) y porcentajes de victorias de campeones y aumentos en ARAM: Caos, por nivel de habilidad.
-- **Builds**: runas con fragmentos de estadísticas, hechizos, orden de habilidades, objetos iniciales, botas y objetos para la Grieta del Invocador (por rol) y para ARAM. Se importan al cliente con un clic, o solos al fijar el campeón. En ARAM: Caos la página de builds también ordena los aumentos del campeón.
-- **Aumentos de ARAM: Caos**: en la selección de campeones y en partida, los aumentos que conviene elegir y evitar con tu campeón, por rareza. Cuando se abren las cartas de aumentos, encima de cada una aparece el porcentaje de victorias de tu campeón con ella, y la mejor queda marcada. Las cartas se leen con el reconocimiento de texto propio de Windows, en el idioma del cliente o en inglés; no se guarda nada.
-- **Notas del parche**: los cambios de los últimos 5 parches, con la Grieta del Invocador y ARAM: Caos por separado, tomados de las notas oficiales de Riot en español.
-- **Puntuaciones**: cada jugador de cada partida recibe una puntuación de rendimiento de 0,0 a 10,0 y un puesto (del 1.º al 10.º). El mejor del equipo ganador es el MVP y el mejor del perdedor, el SVP.
+<p align="center"><img src="docs/screenshots/ingame-panel.png" alt="Panel en partida" width="900"></p>
+<p align="center"><sub>Los nombres de jugadores de las imágenes son inventados.</sub></p>
+
+## Funciones
+
+### Perfil
+
+La clasificación en solo/dúo y flexible (tuya o de cualquier Riot ID), clasificaciones anteriores, etiquetas, campeones más jugados, roles, maestría e historial de partidas, con los datos completos de los 10 jugadores de cada partida (objetos y oro, o daño infligido, recibido, mitigado y curación).
+
+<p align="center"><img src="docs/screenshots/profile.png" alt="Perfil e historial" width="900"></p>
+
+### Partida en curso
+
+Durante la selección de campeones analiza a tu equipo y, cuando empieza la partida, a todos (Arena incluida). De cada jugador muestra su clasificación y la más alta que ha tenido, si puede ser una cuenta secundaria, partidas, porcentaje de victorias, KDA y maestría con su campeón, el KDA de sus últimas 5 partidas y etiquetas (especialista, campeón fuerte, porcentaje de victorias, el tipo de campeón que más juega, grupo premade...). ARAM: Caos y ARAM se valoran solo con partidas de ese modo, sin las etiquetas de la Grieta del Invocador (rol, farmeo, muertes).
+
+<p align="center"><img src="docs/screenshots/live-game.png" alt="Partida en curso" width="900"></p>
+
+### Panel en partida
+
+`Ctrl+Shift+M` lo muestra u oculta sobre el juego (elegido para no chocar con el `Ctrl+X` de Porofessor, así funcionan a la vez). También aparece solo en la pantalla de carga y se oculta cuando empieza la partida. `Ctrl+Shift+N` activa o desactiva los temporizadores de los hechizos de invocador enemigos (haz clic en un hechizo cuando lo usen). Los dos atajos solo funcionan durante una partida.
+
+### Meta
+
+Clasificaciones por rol de la Grieta del Invocador (porcentaje de victorias, de selección y de bloqueo) y porcentajes de victorias de campeones y aumentos en ARAM: Caos, por nivel de habilidad.
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/aram-champions.png" alt="Niveles de campeones en ARAM: Caos"></td>
+    <td width="50%"><img src="docs/screenshots/item-tiers.png" alt="Niveles de objetos"></td>
+  </tr>
+</table>
+
+### Builds
+
+Runas con fragmentos de estadísticas, hechizos, orden de habilidades, objetos iniciales, botas y objetos para la Grieta del Invocador (por rol) y para ARAM. Se importan al cliente con un clic, o solos al fijar el campeón. En ARAM: Caos la página de builds también ordena los aumentos del campeón. Al importar en ARAM: Caos se añade un conjunto de objetos por cada estilo de build, en el idioma del cliente. En la selección de campeones, cada campeón de tu equipo y del banquillo muestra su mejor estilo de build, y ves los tres mejores aumentos de tu campeón.
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/builds-aram.png" alt="Build de ARAM: Caos con aumentos"></td>
+    <td width="50%"><img src="docs/screenshots/builds-rift.png" alt="Build de la Grieta del Invocador"></td>
+  </tr>
+</table>
+
+### Aumentos de ARAM: Caos
+
+En la selección de campeones y en partida, los aumentos que conviene elegir y evitar con tu campeón, por rareza. Cuando se abren las cartas de aumentos, encima de cada una aparece el porcentaje de victorias de tu campeón con ella, y la mejor queda marcada. Las cartas se leen con el reconocimiento de texto propio de Windows, en el idioma del cliente o en inglés; no se guarda nada. Cada carta lleva además una letra de nivel, de S a D, según cuánto mejora a tu campeón, y el aumento en el que haces clic se recuerda y aparece en el panel en partida.
+
+<p align="center"><img src="docs/screenshots/augment-cards.png" alt="Porcentajes sobre las cartas de aumentos" width="900"></p>
+<p align="center"><sub>Las caras de las cartas están dibujadas para esta imagen; en partida los porcentajes aparecen sobre las cartas del propio juego.</sub></p>
+
+### Notas del parche
+
+Los cambios de los últimos 5 parches, con la Grieta del Invocador y ARAM: Caos por separado, tomados de las notas oficiales de Riot en español.
+
+<p align="center"><img src="docs/screenshots/patch-notes.png" alt="Notas del parche" width="900"></p>
+
+### Puntuaciones
+
+Cada jugador de cada partida recibe una puntuación de rendimiento de 0,0 a 10,0 y un puesto (del 1.º al 10.º). El mejor del equipo ganador es el MVP y el mejor del perdedor, el SVP.
+
+### Pequeños detalles
+
+Acepta la partida encontrada por sí solo si quieres (desactivado, solo ARAM: Caos o todas las colas). Mantén Tab en partida para ver el valor en objetos de cada equipo y la diferencia. Ajusta la opacidad de las ventanas en partida y fija los temporizadores de hechizos en su sitio.
 
 ## Instalación
 

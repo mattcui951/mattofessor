@@ -6,14 +6,69 @@ Un assistant local pour League of Legends sous Windows et macOS qui remplace Por
 
 > Cette page explique comment l'installer et l'utiliser. Pour développer, compiler ou publier une version, voir le [README](README.md) en anglais.
 
-- **Profil** : votre rang en solo/duo et en flexible (ou celui de n'importe quel Riot ID), vos rangs passés, vos étiquettes, champions les plus joués, rôles, maîtrise et historique des parties, avec le détail complet des 10 joueurs de chaque partie (objets et or, ou dégâts infligés, subis, atténués et soins).
-- **Partie en cours** : pendant la sélection des champions, il analyse votre équipe ; une fois la partie lancée, tout le monde (Arène comprise). Pour chaque joueur : rang et meilleur rang, possible smurf, parties, taux de victoire, KDA et maîtrise sur son champion, KDA de ses 5 dernières parties, et étiquettes (one-trick, champion fort, taux de victoire, type de champion le plus joué, premade...). L'ARAM du chaos et l'ARAM sont jugés sur les seules parties de ce mode, sans les étiquettes de la Faille de l'invocateur (rôle, farm, morts).
-- **Panneau en jeu** : `Ctrl+Shift+M` l'affiche ou le cache par-dessus le jeu (choisi pour ne pas gêner le `Ctrl+X` de Porofessor : les deux peuvent tourner ensemble). Il s'affiche aussi tout seul pendant l'écran de chargement et se cache quand la partie commence. `Ctrl+Shift+N` active ou coupe les minuteurs des sorts d'invocateur ennemis (cliquez sur un sort quand il est utilisé). Ces deux raccourcis n'existent que pendant une partie.
-- **Méta** : classements par rôle de la Faille de l'invocateur (taux de victoire, de sélection et de bannissement) et taux de victoire des champions et des augments en ARAM du chaos, par niveau de jeu.
-- **Builds** : runes avec fragments de statistiques, sorts, ordre des compétences, objets de départ, bottes et objets pour la Faille de l'invocateur (par rôle) et pour l'ARAM, importés dans le client en un clic (ou automatiquement quand vous verrouillez votre champion). En ARAM du chaos, la page Builds classe aussi les augments du champion.
-- **Augments de l'ARAM du chaos** : en sélection des champions et en partie, les augments à prendre et à éviter avec votre champion, par rareté. Quand les cartes d'augments s'ouvrent, le taux de victoire de votre champion avec chaque carte s'affiche au-dessus, la meilleure étant signalée. Les cartes sont lues par la reconnaissance de texte intégrée à Windows, dans la langue du client ou en anglais ; rien n'est enregistré.
-- **Notes de patch** : les changements des 5 derniers patchs, Faille de l'invocateur et ARAM du chaos à part, tirés des notes officielles de Riot en français.
-- **Scores** : chaque joueur de chaque partie reçoit un score de performance de 0,0 à 10,0 et une place (de 1er à 10e). Le meilleur de l'équipe gagnante est MVP, le meilleur de l'équipe perdante SVP.
+<p align="center"><img src="docs/screenshots/ingame-panel.png" alt="Panneau en jeu" width="900"></p>
+<p align="center"><sub>Les noms de joueurs sur les images sont inventés.</sub></p>
+
+## Fonctionnalités
+
+### Profil
+
+Votre rang en solo/duo et en flexible (ou celui de n'importe quel Riot ID), vos rangs passés, vos étiquettes, champions les plus joués, rôles, maîtrise et historique des parties, avec le détail complet des 10 joueurs de chaque partie (objets et or, ou dégâts infligés, subis, atténués et soins).
+
+<p align="center"><img src="docs/screenshots/profile.png" alt="Profil et historique" width="900"></p>
+
+### Partie en cours
+
+Pendant la sélection des champions, il analyse votre équipe ; une fois la partie lancée, tout le monde (Arène comprise). Pour chaque joueur : rang et meilleur rang, possible smurf, parties, taux de victoire, KDA et maîtrise sur son champion, KDA de ses 5 dernières parties, et étiquettes (one-trick, champion fort, taux de victoire, type de champion le plus joué, premade...). L'ARAM du chaos et l'ARAM sont jugés sur les seules parties de ce mode, sans les étiquettes de la Faille de l'invocateur (rôle, farm, morts).
+
+<p align="center"><img src="docs/screenshots/live-game.png" alt="Partie en cours" width="900"></p>
+
+### Panneau en jeu
+
+`Ctrl+Shift+M` l'affiche ou le cache par-dessus le jeu (choisi pour ne pas gêner le `Ctrl+X` de Porofessor : les deux peuvent tourner ensemble). Il s'affiche aussi tout seul pendant l'écran de chargement et se cache quand la partie commence. `Ctrl+Shift+N` active ou coupe les minuteurs des sorts d'invocateur ennemis (cliquez sur un sort quand il est utilisé). Ces deux raccourcis n'existent que pendant une partie.
+
+### Méta
+
+Classements par rôle de la Faille de l'invocateur (taux de victoire, de sélection et de bannissement) et taux de victoire des champions et des augments en ARAM du chaos, par niveau de jeu.
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/aram-champions.png" alt="Rangs des champions en ARAM du chaos"></td>
+    <td width="50%"><img src="docs/screenshots/item-tiers.png" alt="Rangs des objets"></td>
+  </tr>
+</table>
+
+### Builds
+
+Runes avec fragments de statistiques, sorts, ordre des compétences, objets de départ, bottes et objets pour la Faille de l'invocateur (par rôle) et pour l'ARAM, importés dans le client en un clic (ou automatiquement quand vous verrouillez votre champion). En ARAM du chaos, la page Builds classe aussi les augments du champion. En ARAM du chaos, l'import ajoute un set d'objets par style de build, dans la langue du client. En sélection des champions, chaque champion de votre équipe et du banc affiche son meilleur style de build, et vous voyez les trois meilleurs augments de votre champion.
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/builds-aram.png" alt="Build ARAM du chaos avec augments"></td>
+    <td width="50%"><img src="docs/screenshots/builds-rift.png" alt="Build de la Faille de l'invocateur"></td>
+  </tr>
+</table>
+
+### Augments de l'ARAM du chaos
+
+En sélection des champions et en partie, les augments à prendre et à éviter avec votre champion, par rareté. Quand les cartes d'augments s'ouvrent, le taux de victoire de votre champion avec chaque carte s'affiche au-dessus, la meilleure étant signalée. Les cartes sont lues par la reconnaissance de texte intégrée à Windows, dans la langue du client ou en anglais ; rien n'est enregistré. Chaque carte reçoit aussi une lettre de rang, de S à D, selon ce qu'elle apporte à votre champion, et l'augment sur lequel vous cliquez est retenu et listé dans le panneau en jeu.
+
+<p align="center"><img src="docs/screenshots/augment-cards.png" alt="Taux de victoire au-dessus des cartes d'augments" width="900"></p>
+<p align="center"><sub>Les cartes sont dessinées pour cette image ; en partie, les taux s'affichent au-dessus des vraies cartes du jeu.</sub></p>
+
+### Notes de patch
+
+Les changements des 5 derniers patchs, Faille de l'invocateur et ARAM du chaos à part, tirés des notes officielles de Riot en français.
+
+<p align="center"><img src="docs/screenshots/patch-notes.png" alt="Notes de patch" width="900"></p>
+
+### Scores
+
+Chaque joueur de chaque partie reçoit un score de performance de 0,0 à 10,0 et une place (de 1er à 10e). Le meilleur de l'équipe gagnante est MVP, le meilleur de l'équipe perdante SVP.
+
+### Petits plus
+
+Accepte la partie trouvée tout seul si vous le voulez (désactivé, ARAM du chaos seulement ou toutes les files). Maintenez Tab en partie pour voir la valeur des objets de chaque équipe et l'écart. Réglez l'opacité des fenêtres en jeu et verrouillez la place des minuteurs de sorts.
 
 ## Installation
 
