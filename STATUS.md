@@ -1,7 +1,7 @@
 # Status
 
 Updated: 2026-11-21
-Version: 1.0.28
+Version: 1.0.29
 
 ## In progress
 
