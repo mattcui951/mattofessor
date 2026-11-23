@@ -53,6 +53,12 @@ Version: 1.0.28
     read too in debug builds, so the next odd pick can be traced from `app.log`.
   - Not verified: the Chinese client, other HUD scales and window sizes.
 
+- Card reader showed nothing in two zh_CN Hextech games (2026-11-23, 1.0.28): the app asked
+  the client its language while it was still starting (connection refused) and never asked
+  again, so the reader read English only. Fixed (not released): the language is asked again
+  every 5 s until known, and the reader rebuilds its names and OCR language when it changes
+  mid-game. Not verified in a real game yet.
+
 ## Next
 
 - Code signing, so antivirus stops flagging the installer: apply to SignPath Foundation (free for OSI-licensed projects; the user applies with their own account). It also needs a "Code signing policy" section in README with their credit line, team roles and a privacy statement (the app contacts Riot, op.gg, Community Dragon, Tencent and GitHub; update checks can be turned off), and every release approved by hand in SignPath. Check first that nothing bundled is non-OSI (the CC BY-SA wiki lines in mayhem.json). Then sign in release.yml. Meanwhile: report the false positive to Huorong and Microsoft per version.

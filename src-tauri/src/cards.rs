@@ -552,6 +552,8 @@ pub fn strip(game: os::Rect, band_y: i32, found: &[(i32, Line)]) -> os::Rect {
 struct Reader {
     /// Names in both languages, built once per bracket data set.
     names: Option<Arc<Names>>,
+    /// The client language the names were built for (none: it was not known yet).
+    names_lang: Option<&'static str>,
     /// The OCR language that found cards last (`lang` id): tried first.
     lang: &'static str,
     misses: u32,
@@ -577,6 +579,7 @@ impl Reader {
     fn new() -> Reader {
         Reader {
             names: None,
+            names_lang: None,
             lang: "en",
             misses: 0,
             last: Vec::new(),
@@ -696,9 +699,18 @@ async fn step(core: &Arc<Core>, r: &mut Reader) -> bool {
     let Some(game) = os::game_window().and_then(os::window_rect) else {
         return false;
     };
-    if r.names.is_none() {
+    // The client's language can be learned after the game started (a client that was still
+    // starting up when the app connected): the names and the OCR language follow it.
+    let client_lang = core_lang();
+    if r.names.is_none() || r.names_lang != client_lang {
         match names().await {
-            Ok(n) => r.names = Some(Arc::new(n)),
+            Ok(n) => {
+                r.names = Some(Arc::new(n));
+                r.names_lang = client_lang;
+                if let Some(l) = client_lang.filter(|l| ocr::available(l)) {
+                    r.lang = l;
+                }
+            }
             Err(e) => {
                 log::warn!("card reader: {e:#}");
                 return false;
@@ -851,8 +863,10 @@ pub fn spawn(core: Arc<Core>) {
                 // A new game starts over (its window, language and data are prepared again).
                 if r.prepared || r.told {
                     let names = r.names.take();
+                    let names_lang = r.names_lang;
                     r = Reader::new();
                     r.names = names;
+                    r.names_lang = names_lang;
                 }
             }
             let wait = if active { r.next.max(r.read_time * 2) } else { IDLE };

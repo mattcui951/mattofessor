@@ -427,12 +427,29 @@ async fn on_connected(core: &Core, w: &mut Watch) {
     crate::positions::load(&lcu).await;
     w.me_tried = Some(Instant::now());
     learn_me(core, &lcu).await;
-    if let Ok(v) = lcu.get_value("/riotclient/region-locale").await {
-        *core.client_locale.write() = v.get("locale").and_then(Value::as_str).map(str::to_string);
-        *core.client_region.write() = v.get("region").and_then(Value::as_str).map(str::to_string);
-        crate::riot::check(core.region().as_deref()).await;
-    }
+    learn_locale(core, &lcu).await;
     emit_connection(core, true);
+}
+
+/// Ask the client for its language and region. A client still starting up refuses the call,
+/// and without the language the card reader reads only English, so this is asked again until
+/// it answers (with the signed-in account).
+async fn learn_locale(core: &Core, lcu: &lcu::Lcu) -> bool {
+    match lcu.get_value("/riotclient/region-locale").await {
+        Ok(v) => {
+            let locale = v.get("locale").and_then(Value::as_str).map(str::to_string);
+            let Some(locale) = locale.filter(|l| !l.is_empty()) else { return false };
+            log::info!("client language {locale}");
+            *core.client_locale.write() = Some(locale);
+            *core.client_region.write() = v.get("region").and_then(Value::as_str).map(str::to_string);
+            crate::riot::check(core.region().as_deref()).await;
+            true
+        }
+        Err(e) => {
+            log::warn!("client language: {e:#}");
+            false
+        }
+    }
 }
 
 /// The hotkeys work from champ select (the panel shows the picks there) to the end of the game.
@@ -642,11 +659,16 @@ async fn tick(core: &Arc<Core>, w: &mut Watch) {
     } else if !connected && w.connected {
         *core.me.write() = None;
         emit_connection(core, false);
-    } else if connected && core.me.read().is_none() && w.me_tried.is_none_or(|t| t.elapsed() > Duration::from_secs(5)) {
-        // The client was up before it could say who is signed in: ask again.
+    } else if connected
+        && (core.me.read().is_none() || core.client_locale.read().is_none())
+        && w.me_tried.is_none_or(|t| t.elapsed() > Duration::from_secs(5))
+    {
+        // The client was up before it could say who is signed in or its language: ask again.
         w.me_tried = Some(Instant::now());
         if let Some(lcu) = lcu::current() {
-            if learn_me(core, &lcu).await {
+            let me = core.me.read().is_none() && learn_me(core, &lcu).await;
+            let locale = core.client_locale.read().is_none() && learn_locale(core, &lcu).await;
+            if me || locale {
                 emit_connection(core, true);
             }
         }
